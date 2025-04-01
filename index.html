@@ -15,29 +15,37 @@
       color: #333;
       margin: 0;
       padding: 20px;
-	  display: flex;
-	  justify-content: center;
-	  align-items: center;
-	  min-height: 100vh;
-
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
     }
 
     .container {
+      position: relative;
       max-width: 800px;
       min-width: 320px;
       width: 100%;
       margin: 0 auto;
       background-color: #fff;
+      
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 300px auto;
+      background-blend-mode: lighten;
+      background-attachment: local;
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       display: flex;
       flex-wrap: wrap;
       gap: 20px;
+      overflow: hidden;
     }
 
     .form-box {
       flex: 1 1 300px;
+      z-index: 1;
     }
 
     .image-box {
@@ -45,6 +53,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      z-index: 1;
     }
 
     .image-box img {
@@ -78,6 +87,19 @@
       width: 100%;
       border: 1px solid #ccc;
       border-radius: 4px;
+    }
+
+    #captcha-container {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, opacity 0.4s ease;
+    }
+
+    #captcha-container.show {
+      max-height: 150px;
+      opacity: 1;
+      margin-bottom: 15px;
     }
 
     .btn {
@@ -134,13 +156,27 @@
     @media screen and (max-width: 768px) {
       .container {
         flex-direction: column;
+        background-size: 200px auto;
       }
 
       .image-box {
         margin-top: 20px;
       }
     }
-  </style>
+      .logo-wrapper {
+      text-align: center;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .logo-image {
+      max-width: 150px;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+    }
+
+</style>
 </head>
 <body>
   <div class="container">
@@ -153,7 +189,7 @@
           <button type="button" class="btn btn-verify" onclick="validateEmail()">驗證</button>
         </div>
 
-        <div class="form-row" id="captcha-container" style="display: none;">
+        <div class="form-row" id="captcha-container">
           <label for="captcha" class="form-label">驗證碼</label>
           <input type="text" id="captcha" name="captcha" class="form-input" required />
           <button type="button" class="btn btn-verify" onclick="verifyCaptcha()">確認</button>
@@ -176,10 +212,11 @@
         <button type="submit" class="btn btn-primary">送出</button>
       </form>
     </div>
-
     <div class="image-box">
       <img src="123456.jpg" alt="illustration">
     </div>
+
+    
   </div>
 
   <script>
@@ -190,8 +227,8 @@
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
       if (emailPattern.test(email)) {
-        document.getElementById("captcha-container").style.display = "flex";
-        document.getElementById("captcha-container").style.flexDirection = "column";
+        const captchaBox = document.getElementById("captcha-container");
+        captchaBox.classList.add("show");
       } else {
         alert("請輸入正確的電子郵件地址！");
       }
@@ -202,7 +239,7 @@
       const correctCaptcha = "123456";
 
       if (enteredCaptcha === correctCaptcha) {
-        document.getElementById("captcha-container").style.display = "none";
+        document.getElementById("captcha-container").classList.remove("show");
         document.getElementById("success-message").style.display = "block";
         document.getElementById("account").disabled = true;
         isCaptchaVerified = true;

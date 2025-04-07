@@ -110,20 +110,40 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
+      overflow: visible;
       cursor: pointer;
+      position: relative;
     }
     #avatarPreview.uploaded {
       border: 2px solid #2c4975;
     }
-	
-	
-	
     #avatarPreview img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
+    .remove-avatar-btn {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: none;
+      color: #2c4975;
+      font-weight: 900;
+      font-size: 24px;
+      line-height: 1;
+      border: none;
+      cursor: pointer;
+      z-index: 10;
+      padding: 0;
+      pointer-events: auto;
+      transition: color 0.2s ease, transform 0.2s ease;
+    }
+
+    .remove-avatar-btn:hover {
+      color: #1f3555;
+      transform: scale(1.2);
+    }
+
     .gender-options {
       display: flex;
       gap: 20px;
@@ -279,7 +299,19 @@
       const canvas = cropper.getCroppedCanvas({ width: 300, height: 300 });
       const croppedDataUrl = canvas.toDataURL("image/png");
       avatarPreview.classList.add("uploaded");
-      avatarPreview.innerHTML = `<img src="${croppedDataUrl}" alt="大頭照預覽" />`;
+      avatarPreview.innerHTML = `
+        <div style="position: relative; width: 100%; height: 100%;">
+          <img src="${croppedDataUrl}" alt="大頭照預覽" style="width: 100%; height: 100%; object-fit: cover;display: block; border-radius: 50%; z-index: 1; position: relative;" />
+          <button id="removeAvatar" class="remove-avatar-btn">✕</button>
+        </div>
+      `;
+      document.getElementById("removeAvatar").addEventListener("click", (e) => {
+        e.stopPropagation(); 
+        avatarPreview.innerHTML = "點擊上傳";
+        avatarPreview.classList.remove("uploaded");
+        avatarInput.value = ""; 
+      });
+
       cropModal.style.display = "none";
       cropper.destroy();
     });

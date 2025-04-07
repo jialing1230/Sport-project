@@ -1,10 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>會員基本資料</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet" />
   <style>
     * { box-sizing: border-box; }
     body {
@@ -36,6 +36,8 @@
     .form-box {
       flex: 1 1 300px;
       z-index: 1;
+      display: flex;
+      flex-direction: column;
     }
     .image-box {
       flex: 1 1 300px;
@@ -68,7 +70,6 @@
       font-size: 18px;
       margin-left: 5px;
     }
-
     h1 {
       color: #2c4975;
       white-space: nowrap;
@@ -79,6 +80,7 @@
       display: flex;
       flex-direction: column;
       margin-bottom: 15px;
+      width: 100%;
     }
     .form-label {
       margin-bottom: 6px;
@@ -92,21 +94,36 @@
       border: 1px solid #ccc;
       border-radius: 4px;
     }
-    input[type="file"] {
-      padding: 6px 10px;
-      background-color: #fff;
+    #avatarInput {
+      display: none;
     }
-
-    #avatarPreview img {
+    .avatar-wrapper {
+      display: flex;
+      justify-content: center;
       margin-top: 10px;
-      width: 150px;
-      height: 150px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 1px solid #ccc;
     }
-
-
+    #avatarPreview {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 2px dashed #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    #avatarPreview.uploaded {
+      border: 2px solid #2c4975;
+    }
+	
+	
+	
+    #avatarPreview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
     .gender-options {
       display: flex;
       gap: 20px;
@@ -126,6 +143,41 @@
     .btn-primary:hover {
       background-color: #2c4975;
     }
+    #cropModal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    #cropContainer {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 90vw;
+      max-height: 90vh;
+      position: relative;
+    }
+    #cropImage {
+      max-width: 100%;
+      max-height: 60vh;
+      display: block;
+    }
+    #cropConfirm {
+      margin-top: 10px;
+      padding: 8px 16px;
+      background: #2c4975;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      display: block;
+    }
     @media screen and (max-width: 768px) {
       .container {
         flex-direction: column;
@@ -144,12 +196,12 @@
         <h1>基本資料</h1>
       </div>
       <div class="form-row">
-        <label for="avatar" class="form-label">上傳大頭照</label>
-        <div id="avatarUploadWrapper">
-          <input type="file" id="avatar" name="avatar" class="form-input" accept="image/*" />
+        <label class="form-label">上傳頭像</label>
+        <input type="file" id="avatarInput" accept="image/*" />
+        <div class="avatar-wrapper">
+          <div id="avatarPreview">點擊上傳</div>
         </div>
-        <div id="avatarPreview" style="margin-top: 10px;"></div>
-      </div>      
+      </div>
       <form id="profileForm">
         <div class="form-row">
           <label for="name" class="form-label">姓名<span class="required-star">*</span></label>
@@ -158,12 +210,8 @@
         <div class="form-row">
           <label class="form-label">出生年月<span class="required-star">*</span></label>
           <div style="display: flex; gap: 10px;">
-            <select id="birth-year" class="form-select" required>
-              <option value="">年</option>
-            </select>
-            <select id="birth-month" class="form-select" required>
-              <option value="">月</option>
-            </select>
+            <select id="birth-year" class="form-select" required><option value="">年</option></select>
+            <select id="birth-month" class="form-select" required><option value="">月</option></select>
           </div>
         </div>
         <div class="form-row">
@@ -176,47 +224,65 @@
         <div class="form-row">
           <label class="form-label">居住地區<span class="required-star">*</span></label>
           <div style="display: flex; gap: 10px;">
-            <select id="city" class="form-select" required>
-              <option value="">縣市</option>
-            </select>
-            <select id="district" class="form-select" required>
-              <option value="">鄉鎮區</option>
-            </select>
+            <select id="city" class="form-select" required><option value="">縣市</option></select>
+            <select id="district" class="form-select" required><option value="">鄉鎮區</option></select>
           </div>
         </div>
-        <button type="submit" class="btn-primary">儲存資料</button>
+        <button type="submit" class="btn-primary">下一步</button>
       </form>
     </div>
     <div class="image-box">
       <img src="123456.jpg" alt="illustration" />
     </div>
   </div>
+
+  <div id="cropModal">
+    <div id="cropContainer">
+      <img id="cropImage" src="" alt="裁剪圖片" />
+      <button id="cropConfirm">完成裁剪</button>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
   <script>
-  const avatarInput = document.getElementById("avatar");
-  const avatarWrapper = document.getElementById("avatarUploadWrapper");
-  const avatarPreview = document.getElementById("avatarPreview");
+    const avatarInput = document.getElementById("avatarInput");
+    const avatarPreview = document.getElementById("avatarPreview");
+    const cropModal = document.getElementById("cropModal");
+    const cropImage = document.getElementById("cropImage");
+    const cropConfirm = document.getElementById("cropConfirm");
+    let cropper;
 
-  avatarInput.addEventListener("change", function (e) {
-    const file = e.target.files[0];
-    if (file && file.type.startsWith("image/")) {
-      const reader = new FileReader();
-      reader.onload = function (event) {
-        avatarWrapper.style.display = "none"; 
-        avatarPreview.innerHTML = `
-          <img src="${event.target.result}" alt="大頭照預覽" id="avatarImage" style="cursor: pointer;" />
-        `;
-      };
-      reader.readAsDataURL(file);
-    }
-  });
+    avatarPreview.addEventListener("click", () => avatarInput.click());
 
-  avatarPreview.addEventListener("click", function () {
-    avatarInput.value = "";
-    avatarPreview.innerHTML = "";
-    avatarWrapper.style.display = "";
-    avatarInput.click();
-  });
+    avatarInput.addEventListener("change", function (e) {
+      const file = e.target.files[0];
+      if (file && file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          cropImage.src = event.target.result;
+          cropModal.style.display = "flex";
 
+          if (cropper) cropper.destroy();
+          cropper = new Cropper(cropImage, {
+            aspectRatio: 1,
+            viewMode: 1,
+            autoCropArea: 1,
+            background: false,
+            guides: false
+          });
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    cropConfirm.addEventListener("click", function () {
+      const canvas = cropper.getCroppedCanvas({ width: 300, height: 300 });
+      const croppedDataUrl = canvas.toDataURL("image/png");
+      avatarPreview.classList.add("uploaded");
+      avatarPreview.innerHTML = `<img src="${croppedDataUrl}" alt="大頭照預覽" />`;
+      cropModal.style.display = "none";
+      cropper.destroy();
+    });
 
     const currentYear = new Date().getFullYear();
     for (let y = currentYear - 100; y <= currentYear; y++) {
@@ -232,8 +298,8 @@
       document.getElementById("birth-month").appendChild(option);
     }
 
-    const cityDistrictData = {
-    "台北市": ["中正區", "大同區", "中山區", "松山區", "大安區", "萬華區", "信義區", "士林區", "北投區", "內湖區", "南港區", "文山區"],
+     const cityDistrictData = {
+      "台北市": ["中正區", "大同區", "中山區", "松山區", "大安區", "萬華區", "信義區", "士林區", "北投區", "內湖區", "南港區", "文山區"],
 	  "新北市": ["板橋區", "三重區", "中和區", "永和區", "新莊區", "新店區", "土城區", "樹林區", "鶯歌區", "三峽區", "淡水區", "汐止區", "瑞芳區", "蘆洲區", "五股區", "泰山區", "林口區", "深坑區", "石碇區", "坪林區", "三芝區", "石門區", "八里區", "平溪區", "雙溪區", "貢寮區", "金山區", "萬里區", "烏來區"],
 	  "基隆市": ["仁愛區", "信義區", "中正區", "中山區", "安樂區", "暖暖區", "七堵區"],
 	  "桃園市": ["桃園區", "中壢區", "平鎮區", "八德區", "楊梅區", "蘆竹區", "大園區", "龜山區", "大溪區", "龍潭區", "新屋區", "觀音區", "復興區"],
@@ -257,15 +323,17 @@
 	  "連江縣": ["南竿鄉", "北竿鄉", "莒光鄉", "東引鄉"]
 		
 	};
-   
+
     const citySelect = document.getElementById("city");
     const districtSelect = document.getElementById("district");
+
     for (const city in cityDistrictData) {
       const option = document.createElement("option");
       option.value = city;
       option.text = city;
       citySelect.appendChild(option);
     }
+
     citySelect.addEventListener("change", function () {
       const districts = cityDistrictData[this.value] || [];
       districtSelect.innerHTML = '<option value="">鄉鎮區</option>';
@@ -276,40 +344,6 @@
         districtSelect.appendChild(option);
       });
     });
-
-  document.getElementById("profileForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    const name = document.getElementById("name").value;
-    const gender = document.querySelector('input[name="gender"]:checked')?.value;
-    const year = document.getElementById("birth-year").value;
-    const month = document.getElementById("birth-month").value;
-    const birthday = `${year}-${month}`;
-    const city = document.getElementById("city").value;
-    const district = document.getElementById("district").value;
-    const location = `${city} ${district}`;
-    const avatarFile = document.getElementById("avatar").files[0];
-
-    if (!name || !gender || !year || !month || !city || !district) {
-      alert("請填寫所有欄位！");
-      return;
-    }
-
-    if (avatarFile) {
-      const reader = new FileReader();
-      reader.onloadend = function () {
-        const avatarBase64 = reader.result;
-        const data = { name, gender, birthday, location, avatar: avatarBase64 };
-        console.log(data);
-        alert("填寫完畢！");
-      };
-      reader.readAsDataURL(avatarFile);
-    } else {
-      const data = { name, gender, birthday, location, avatar: null };
-      console.log(data);
-      alert("填寫完畢！");
-    }
-  });
-    </script>
+  </script>
 </body>
 </html>

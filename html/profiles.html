@@ -63,6 +63,12 @@
       object-fit: contain;
       border-radius: 50%;
     }
+    .required-star {
+      color: red;
+      font-size: 18px;
+      margin-left: 5px;
+    }
+
     h1 {
       color: #2c4975;
       white-space: nowrap;
@@ -139,18 +145,18 @@
       </div>
       <div class="form-row">
         <label for="avatar" class="form-label">上傳大頭照</label>
-        <input type="file" id="avatar" name="avatar" class="form-input" accept="image/*" />
-        <div id="avatarPreview" style="margin-top: 10px;">
-          <!-- 預覽圖片將顯示在這裡 -->
+        <div id="avatarUploadWrapper">
+          <input type="file" id="avatar" name="avatar" class="form-input" accept="image/*" />
         </div>
+        <div id="avatarPreview" style="margin-top: 10px;"></div>
       </div>      
       <form id="profileForm">
         <div class="form-row">
-          <label for="name" class="form-label">姓名</label>
+          <label for="name" class="form-label">姓名<span class="required-star">*</span></label>
           <input type="text" id="name" name="name" class="form-input" placeholder="請輸入姓名" required />
         </div>
         <div class="form-row">
-          <label class="form-label">出生年月</label>
+          <label class="form-label">出生年月<span class="required-star">*</span></label>
           <div style="display: flex; gap: 10px;">
             <select id="birth-year" class="form-select" required>
               <option value="">年</option>
@@ -161,14 +167,14 @@
           </div>
         </div>
         <div class="form-row">
-          <label class="form-label">性別</label>
+          <label class="form-label">性別<span class="required-star">*</span></label>
           <div class="gender-options">
             <label><input type="radio" name="gender" value="male" required /> 男</label>
             <label><input type="radio" name="gender" value="female" required /> 女</label>
           </div>
         </div>
         <div class="form-row">
-          <label class="form-label">居住地區</label>
+          <label class="form-label">居住地區<span class="required-star">*</span></label>
           <div style="display: flex; gap: 10px;">
             <select id="city" class="form-select" required>
               <option value="">縣市</option>
@@ -186,20 +192,31 @@
     </div>
   </div>
   <script>
-    document.getElementById("avatar").addEventListener("change", function (e) {
-      const preview = document.getElementById("avatarPreview");
-      const file = e.target.files[0];
+  const avatarInput = document.getElementById("avatar");
+  const avatarWrapper = document.getElementById("avatarUploadWrapper");
+  const avatarPreview = document.getElementById("avatarPreview");
 
-      if (file && file.type.startsWith("image/")) {
-        const reader = new FileReader();
-        reader.onload = function (event) {
-          preview.innerHTML = `<img src="${event.target.result}" alt="大頭照預覽" />`;
-        };
-        reader.readAsDataURL(file);
-      } else {
-        preview.innerHTML = "";
-      }
-    });
+  avatarInput.addEventListener("change", function (e) {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        avatarWrapper.style.display = "none"; 
+        avatarPreview.innerHTML = `
+          <img src="${event.target.result}" alt="大頭照預覽" id="avatarImage" style="cursor: pointer;" />
+        `;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  avatarPreview.addEventListener("click", function () {
+    avatarInput.value = "";
+    avatarPreview.innerHTML = "";
+    avatarWrapper.style.display = "";
+    avatarInput.click();
+  });
+
 
     const currentYear = new Date().getFullYear();
     for (let y = currentYear - 100; y <= currentYear; y++) {
@@ -216,7 +233,7 @@
     }
 
     const cityDistrictData = {
-      "台北市": ["中正區", "大同區", "中山區", "松山區", "大安區", "萬華區", "信義區", "士林區", "北投區", "內湖區", "南港區", "文山區"],
+    "台北市": ["中正區", "大同區", "中山區", "松山區", "大安區", "萬華區", "信義區", "士林區", "北投區", "內湖區", "南港區", "文山區"],
 	  "新北市": ["板橋區", "三重區", "中和區", "永和區", "新莊區", "新店區", "土城區", "樹林區", "鶯歌區", "三峽區", "淡水區", "汐止區", "瑞芳區", "蘆洲區", "五股區", "泰山區", "林口區", "深坑區", "石碇區", "坪林區", "三芝區", "石門區", "八里區", "平溪區", "雙溪區", "貢寮區", "金山區", "萬里區", "烏來區"],
 	  "基隆市": ["仁愛區", "信義區", "中正區", "中山區", "安樂區", "暖暖區", "七堵區"],
 	  "桃園市": ["桃園區", "中壢區", "平鎮區", "八德區", "楊梅區", "蘆竹區", "大園區", "龜山區", "大溪區", "龍潭區", "新屋區", "觀音區", "復興區"],
@@ -238,12 +255,9 @@
 	  "澎湖縣": ["馬公市", "湖西鄉", "白沙鄉", "西嶼鄉", "望安鄉", "七美鄉"],
 	  "金門縣": ["金城鎮", "金湖鎮", "金沙鎮", "金寧鄉", "烈嶼鄉", "烏坵鄉"],
 	  "連江縣": ["南竿鄉", "北竿鄉", "莒光鄉", "東引鄉"]
-	
-	
-	
+		
 	};
    
-
     const citySelect = document.getElementById("city");
     const districtSelect = document.getElementById("district");
     for (const city in cityDistrictData) {
@@ -263,46 +277,39 @@
       });
     });
 
-    document.getElementById("profileForm").addEventListener("submit", function (e) {
-      e.preventDefault();
-      const name = document.getElementById("name").value;
-      const gender = document.querySelector('input[name="gender"]:checked')?.value;
-      const year = document.getElementById("birth-year").value;
-      const month = document.getElementById("birth-month").value;
-      const birthday = `${year}-${month}`;
-      const city = document.getElementById("city").value;
-      const district = document.getElementById("district").value;
-      const location = `${city} ${district}`;
-      if (!name || !gender || !year || !month || !city || !district) {
-        alert("請填寫所有欄位！");
-        return;
-      }
-      console.log({ name, birthday, gender, location });
-      alert("填寫完畢");
-    });
-    document.getElementById("profileForm").addEventListener("submit", function (e) {
-      e.preventDefault();
-      const avatarFile = document.getElementById("avatar").files[0];
+  document.getElementById("profileForm").addEventListener("submit", function (e) {
+    e.preventDefault();
 
+    const name = document.getElementById("name").value;
+    const gender = document.querySelector('input[name="gender"]:checked')?.value;
+    const year = document.getElementById("birth-year").value;
+    const month = document.getElementById("birth-month").value;
+    const birthday = `${year}-${month}`;
+    const city = document.getElementById("city").value;
+    const district = document.getElementById("district").value;
+    const location = `${city} ${district}`;
+    const avatarFile = document.getElementById("avatar").files[0];
+
+    if (!name || !gender || !year || !month || !city || !district) {
+      alert("請填寫所有欄位！");
+      return;
+    }
+
+    if (avatarFile) {
       const reader = new FileReader();
       reader.onloadend = function () {
-        const avatarBase64 = reader.result; // base64 字串，可傳到後端儲存
-        const data = {
-          name: document.getElementById("name").value,
-          gender: document.querySelector('input[name="gender"]:checked')?.value,
-          birthday: `${document.getElementById("birth-year").value}-${document.getElementById("birth-month").value}`,
-          location: `${document.getElementById("city").value} ${document.getElementById("district").value}`,
-          avatar: avatarBase64
-        };
+        const avatarBase64 = reader.result;
+        const data = { name, gender, birthday, location, avatar: avatarBase64 };
+        console.log(data);
+        alert("填寫完畢！");
       };
-
-      if (avatarFile) {
-        reader.readAsDataURL(avatarFile); // 當圖片存在時才讀取
-      } else {
-        reader.onloadend(); // 沒上傳圖片就直接送出
-      }
-    });
-
-  </script>
+      reader.readAsDataURL(avatarFile);
+    } else {
+      const data = { name, gender, birthday, location, avatar: null };
+      console.log(data);
+      alert("填寫完畢！");
+    }
+  });
+    </script>
 </body>
 </html>

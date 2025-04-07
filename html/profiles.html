@@ -86,6 +86,21 @@
       border: 1px solid #ccc;
       border-radius: 4px;
     }
+    input[type="file"] {
+      padding: 6px 10px;
+      background-color: #fff;
+    }
+
+    #avatarPreview img {
+      margin-top: 10px;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid #ccc;
+    }
+
+
     .gender-options {
       display: flex;
       gap: 20px;
@@ -122,6 +137,13 @@
         <img src="123456.jpg" alt="Logo" class="logo-inline" />
         <h1>基本資料</h1>
       </div>
+      <div class="form-row">
+        <label for="avatar" class="form-label">上傳大頭照</label>
+        <input type="file" id="avatar" name="avatar" class="form-input" accept="image/*" />
+        <div id="avatarPreview" style="margin-top: 10px;">
+          <!-- 預覽圖片將顯示在這裡 -->
+        </div>
+      </div>      
       <form id="profileForm">
         <div class="form-row">
           <label for="name" class="form-label">姓名</label>
@@ -164,6 +186,21 @@
     </div>
   </div>
   <script>
+    document.getElementById("avatar").addEventListener("change", function (e) {
+      const preview = document.getElementById("avatarPreview");
+      const file = e.target.files[0];
+
+      if (file && file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          preview.innerHTML = `<img src="${event.target.result}" alt="大頭照預覽" />`;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        preview.innerHTML = "";
+      }
+    });
+
     const currentYear = new Date().getFullYear();
     for (let y = currentYear - 100; y <= currentYear; y++) {
       const option = document.createElement("option");
@@ -243,6 +280,29 @@
       console.log({ name, birthday, gender, location });
       alert("填寫完畢");
     });
+    document.getElementById("profileForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const avatarFile = document.getElementById("avatar").files[0];
+
+      const reader = new FileReader();
+      reader.onloadend = function () {
+        const avatarBase64 = reader.result; // base64 字串，可傳到後端儲存
+        const data = {
+          name: document.getElementById("name").value,
+          gender: document.querySelector('input[name="gender"]:checked')?.value,
+          birthday: `${document.getElementById("birth-year").value}-${document.getElementById("birth-month").value}`,
+          location: `${document.getElementById("city").value} ${document.getElementById("district").value}`,
+          avatar: avatarBase64
+        };
+      };
+
+      if (avatarFile) {
+        reader.readAsDataURL(avatarFile); // 當圖片存在時才讀取
+      } else {
+        reader.onloadend(); // 沒上傳圖片就直接送出
+      }
+    });
+
   </script>
 </body>
 </html>

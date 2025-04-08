@@ -33,6 +33,7 @@
       flex-wrap: wrap;
       gap: 20px;
       overflow: hidden;
+	  min-height: 450px;
     }
 
     .form-box {
@@ -80,7 +81,7 @@
     .form-row {
       display: flex;
       flex-direction: column;
-      margin-bottom: 15px;
+      margin-bottom: 30px;
     }
 
     .form-label {
@@ -108,6 +109,7 @@
       white-space: nowrap;
       background-color: #81d3e1;
       width: 100%;
+	  margin-top: 20px;
     }
 
     .btn-primary:hover {
@@ -134,7 +136,7 @@
   <div class="container">
     <div class="form-box">
       <div class="title-row">
-        <img src="123456.jpg" alt="Logo" class="logo-inline" />
+        <img src="logo.jpg" alt="Logo" class="logo-inline" />
         <h1>會員登入</h1>
       </div>
 
@@ -149,29 +151,38 @@
           <input type="password" id="loginPassword" name="loginPassword" class="form-input" required />
         </div>
 
-        <button type="submit" class="btn-primary">登入</button>
+        <div class="form-row">
+		  <button type="submit" class="btn-primary">登入</button>
+		</div>
       </form>
     </div>
 
     <div class="image-box">
-      <img src="123456.jpg" alt="illustration" />
+      <img src="logo.jpg" alt="illustration" />
     </div>
   </div>
 
   <script>
-    document.getElementById("loginForm").onsubmit = function(event) {
-      event.preventDefault();
+		document.getElementById("loginForm").onsubmit = function(event) {
+	  event.preventDefault();
 
-      const account = document.getElementById("loginAccount").value;
-      const password = document.getElementById("loginPassword").value;
+	  const account = document.getElementById("loginAccount").value;
+	  const password = document.getElementById("loginPassword").value;
+	  const btn = document.querySelector(".btn-primary");
 
-      if (account && password) {
-        alert("登入成功！（此處可接後端API進行實際驗證）");
-        window.location.href = "homepage.html";
-      } else {
-        alert("請輸入帳號及密碼！");
-      }
-    };
+	  if (account && password) {
+		btn.textContent = "登入中...";
+		btn.disabled = true;
+
+		// 模擬後端驗證延遲
+		setTimeout(() => {
+		  alert("登入成功！");
+		  window.location.href = "homepage.html";
+		}, 1200);
+	  } else {
+		alert("請輸入帳號及密碼！");
+	  }
+	};
   </script>
 </body>
 </html>

@@ -22,6 +22,7 @@ def create_member():
 
     with get_db() as db:
         m = Member(
+            member_id=payload.get("member_id"),
             email=payload["email"],
             password=payload["password"],
             name=payload.get("name"),

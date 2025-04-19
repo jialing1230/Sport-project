@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>會員登入</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      position: relative;
+      max-width: 800px;
+      min-width: 320px;
+      width: 100%;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      overflow: hidden;
+	  min-height: 450px;
+    }
+
+    .form-box {
+      flex: 1 1 300px;
+      z-index: 1;
+    }
+
+    .image-box {
+      flex: 1 1 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+    }
+
+    .image-box img {
+      max-width: 100%;
+      max-height: 300px;
+      object-fit: contain;
+      border-radius: 6px;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    .logo-inline {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+      border-radius: 50%;
+    }
+
+    h1 {
+      color: #2c4975;
+      white-space: nowrap;
+      font-size: 24px;
+      margin: 0;
+    }
+
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 30px;
+    }
+
+    .form-label {
+      margin-bottom: 6px;
+      font-weight: bold;
+      color: #2c4975;
+      white-space: nowrap;
+    }
+
+    .form-input {
+      padding: 10px;
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .btn-primary {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      color: white;
+      transition: 0.2s ease;
+      white-space: nowrap;
+      background-color: #81d3e1;
+      width: 100%;
+	  margin-top: 20px;
+    }
+
+    .btn-primary:hover {
+      background-color: #2c4975;
+      transform: translateY(-1px);
+    }
+
+    @media screen and (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .image-box {
+        display: none;
+      }
+
+      .title-row {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="form-box">
+      <div class="title-row">
+        <img src="logo.jpg" alt="Logo" class="logo-inline" />
+        <h1>會員登入</h1>
+      </div>
+
+      <form id="loginForm">
+        <div class="form-row">
+          <label for="loginAccount" class="form-label">帳號</label>
+          <input type="email" id="loginAccount" name="loginAccount" class="form-input" placeholder="EX: 123456@gmail.com" required />
+        </div>
+
+        <div class="form-row">
+          <label for="loginPassword" class="form-label">密碼</label>
+          <input type="password" id="loginPassword" name="loginPassword" class="form-input" required />
+        </div>
+
+        <div class="form-row">
+		  <button type="submit" class="btn-primary">登入</button>
+		</div>
+      </form>
+    </div>
+
+    <div class="image-box">
+      <img src="logo.jpg" alt="illustration" />
+    </div>
+  </div>
+
+  <script>
+		document.getElementById("loginForm").onsubmit = function(event) {
+	  event.preventDefault();
+
+	  const account = document.getElementById("loginAccount").value;
+	  const password = document.getElementById("loginPassword").value;
+	  const btn = document.querySelector(".btn-primary");
+
+	  if (account && password) {
+		btn.textContent = "登入中...";
+		btn.disabled = true;
+
+		// 模擬後端驗證延遲
+		setTimeout(() => {
+		  alert("登入成功！");
+		  window.location.href = "homepage.html";
+		}, 1200);
+	  } else {
+		alert("請輸入帳號及密碼！");
+	  }
+	};
+  </script>
+</body>
+</html>

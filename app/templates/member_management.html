@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>會員管理</title>
+    <!-- 你可根據專案加入 Bootstrap 或其他 CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <div class="container mt-5">
+      <h1>會員管理</h1>
+      <button
+        id="btnAdd"
+        class="btn btn-primary mb-3"
+        data-bs-toggle="modal"
+        data-bs-target="#memberModal"
+      >
+        新增會員
+      </button>
+      <table class="table table-bordered" id="membersTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Email</th>
+            <th>姓名</th>
+            <th>性別</th>
+            <th>生日</th>
+            <th>身高</th>
+            <th>體重</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- JS 動態插入 -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 新增/編輯 Modal -->
+    <div
+      class="modal fade"
+      id="memberModal"
+      tabindex="-1"
+      aria-labelledby="memberModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="memberModalLabel">新增會員</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="memberForm">
+              <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" required />
+              </div>
+              <div class="mb-3">
+                <label for="password" class="form-label">密碼</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="password"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="name" class="form-label">姓名</label>
+                <input type="text" class="form-control" id="name" />
+              </div>
+              <div class="mb-3">
+                <label for="gender" class="form-label">性別</label>
+                <select class="form-select" id="gender">
+                  <option value="male">男</option>
+                  <option value="female">女</option>
+                  <option value="other">其他</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="birthdate" class="form-label">生日</label>
+                <input type="date" class="form-control" id="birthdate" />
+              </div>
+              <div class="mb-3">
+                <label for="height" class="form-label">身高 (cm)</label>
+                <input type="number" class="form-control" id="height" />
+              </div>
+              <div class="mb-3">
+                <label for="weight" class="form-label">體重 (kg)</label>
+                <input type="number" class="form-control" id="weight" />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              取消
+            </button>
+            <button type="button" class="btn btn-primary" id="saveMember">
+              儲存
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      const API_BASE = "/api/members";
+
+      // 讀取會員列表並 render
+      async function loadMembers() {
+        const res = await fetch(`${API_BASE}`);
+        const data = await res.json();
+        const tbody = document.querySelector("#membersTable tbody");
+        tbody.innerHTML = "";
+        data.forEach((m) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+      <td>${m.member_id}</td>
+      <td>${m.email}</td>
+      <td>${m.name || ""}</td>
+      <td>${m.gender || ""}</td>
+      <td>${m.birthdate || ""}</td>
+      <td>${m.height || ""}</td>
+      <td>${m.weight || ""}</td>
+    `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      // 新增會員
+      document
+        .getElementById("saveMember")
+        .addEventListener("click", async () => {
+          const payload = {
+            email: document.getElementById("email").value,
+            password: document.getElementById("password").value,
+            name: document.getElementById("name").value,
+            gender: document.getElementById("gender").value,
+            birthdate: document.getElementById("birthdate").value,
+            height: parseInt(document.getElementById("height").value),
+            weight: parseInt(document.getElementById("weight").value),
+          };
+          const res = await fetch(`${API_BASE}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          if (res.ok) {
+            const modal = bootstrap.Modal.getInstance(
+              document.getElementById("memberModal")
+            );
+            modal.hide();
+            document.getElementById("memberForm").reset();
+            loadMembers();
+          } else {
+            const err = await res.json();
+            alert(err.error || "建立失敗");
+          }
+        });
+
+      // 頁面載入時
+      window.addEventListener("DOMContentLoaded", () => {
+        loadMembers();
+      });
+    </script>
+  </body>
+</html>

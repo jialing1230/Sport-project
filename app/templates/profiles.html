@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>會員基本資料</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      position: relative;
+      max-width: 800px;
+      min-width: 320px;
+      width: 100%;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      overflow: hidden;
+    }
+    .form-box {
+      flex: 1 1 300px;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .image-box {
+      flex: 1 1 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+    }
+    .image-box img {
+      max-width: 100%;
+      max-height: 300px;
+      object-fit: contain;
+      border-radius: 6px;
+    }
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+    .logo-inline {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+      border-radius: 50%;
+    }
+    .required-star {
+      color: red;
+      font-size: 18px;
+      margin-left: 5px;
+    }
+    h1 {
+      color: #2c4975;
+      white-space: nowrap;
+      font-size: 24px;
+      margin: 0;
+    }
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 15px;
+      width: 100%;
+    }
+    .form-label {
+      margin-bottom: 6px;
+      font-weight: bold;
+      color: #2c4975;
+      white-space: nowrap;
+    }
+    .form-input, .form-select {
+      padding: 10px;
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    #avatarInput {
+      display: none;
+    }
+    .avatar-wrapper {
+      display: flex;
+      justify-content: center;
+      margin-top: 10px;
+    }
+    #avatarPreview {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 2px dashed #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: visible;
+      cursor: pointer;
+      position: relative;
+    }
+    #avatarPreview.uploaded {
+      border: 2px solid #2c4975;
+    }
+    #avatarPreview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .remove-avatar-btn {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: none;
+      color: #2c4975;
+      font-weight: 900;
+      font-size: 24px;
+      line-height: 1;
+      border: none;
+      cursor: pointer;
+      z-index: 10;
+      padding: 0;
+      pointer-events: auto;
+      transition: color 0.2s ease, transform 0.2s ease;
+    }
+
+    .remove-avatar-btn:hover {
+      color: #1f3555;
+      transform: scale(1.2);
+    }
+
+    .gender-options {
+      display: flex;
+      gap: 20px;
+      margin-top: 6px;
+    }
+    .btn-primary {
+      background-color: #81d3e1;
+      color: white;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+      transition: 0.2s ease;
+    }
+    .btn-primary:hover {
+      background-color: #2c4975;
+    }
+    #cropModal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    #cropContainer {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 90vw;
+      max-height: 90vh;
+      position: relative;
+    }
+    #cropImage {
+      max-width: 100%;
+      max-height: 60vh;
+      display: block;
+    }
+    #cropConfirm {
+      margin-top: 10px;
+      padding: 8px 16px;
+      background: #2c4975;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      display: block;
+    }
+    @media screen and (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+      .image-box {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="form-box">
+      <div class="title-row">
+        <img src="logo.jpg" alt="Logo" class="logo-inline" />
+        <h1>基本資料</h1>
+      </div>
+      <div class="form-row">
+        <label class="form-label">上傳頭像</label>
+        <input type="file" id="avatarInput" accept="image/*" />
+        <div class="avatar-wrapper">
+          <div id="avatarPreview">點擊上傳</div>
+        </div>
+      </div>
+      <form id="profileForm">
+        <div class="form-row">
+          <label for="name" class="form-label">姓名<span class="required-star">*</span></label>
+          <input type="text" id="name" name="name" class="form-input" placeholder="請輸入姓名" required />
+        </div>
+        <div class="form-row">
+          <label class="form-label">出生年月<span class="required-star">*</span></label>
+          <div style="display: flex; gap: 10px;">
+            <select id="birth-year" class="form-select" required><option value="">年</option></select>
+            <select id="birth-month" class="form-select" required><option value="">月</option></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">性別<span class="required-star">*</span></label>
+          <div class="gender-options">
+            <label><input type="radio" name="gender" value="male" required /> 男</label>
+            <label><input type="radio" name="gender" value="female" required /> 女</label>
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">居住地區<span class="required-star">*</span></label>
+          <div style="display: flex; gap: 10px;">
+            <select id="city" class="form-select" required><option value="">縣市</option></select>
+            <select id="district" class="form-select" required><option value="">鄉鎮區</option></select>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary">下一步</button>
+      </form>
+    </div>
+    <div class="image-box">
+      <img src="logo.jpg" alt="illustration" />
+    </div>
+  </div>
+
+  <div id="cropModal">
+    <div id="cropContainer">
+      <img id="cropImage" src="" alt="裁剪圖片" />
+      <button id="cropConfirm">完成裁剪</button>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+  <script>
+    const avatarInput = document.getElementById("avatarInput");
+    const avatarPreview = document.getElementById("avatarPreview");
+    const cropModal = document.getElementById("cropModal");
+    const cropImage = document.getElementById("cropImage");
+    const cropConfirm = document.getElementById("cropConfirm");
+    let cropper;
+
+    avatarPreview.addEventListener("click", () => avatarInput.click());
+
+    avatarInput.addEventListener("change", function (e) {
+      const file = e.target.files[0];
+      if (file && file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          cropImage.src = event.target.result;
+          cropModal.style.display = "flex";
+
+          if (cropper) cropper.destroy();
+          cropper = new Cropper(cropImage, {
+            aspectRatio: 1,
+            viewMode: 1,
+            autoCropArea: 1,
+            background: false,
+            guides: false
+          });
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    cropConfirm.addEventListener("click", function () {
+      const canvas = cropper.getCroppedCanvas({ width: 300, height: 300 });
+      const croppedDataUrl = canvas.toDataURL("image/png");
+      avatarPreview.classList.add("uploaded");
+      avatarPreview.innerHTML = `
+        <div style="position: relative; width: 100%; height: 100%;">
+          <img src="${croppedDataUrl}" alt="大頭照預覽" style="width: 100%; height: 100%; object-fit: cover;display: block; border-radius: 50%; z-index: 1; position: relative;" />
+          <button id="removeAvatar" class="remove-avatar-btn">✕</button>
+        </div>
+      `;
+      document.getElementById("removeAvatar").addEventListener("click", (e) => {
+        e.stopPropagation(); 
+        avatarPreview.innerHTML = "點擊上傳";
+        avatarPreview.classList.remove("uploaded");
+        avatarInput.value = ""; 
+      });
+
+      cropModal.style.display = "none";
+      cropper.destroy();
+    });
+
+    const currentYear = new Date().getFullYear();
+    for (let y = currentYear - 100; y <= currentYear; y++) {
+      const option = document.createElement("option");
+      option.value = y;
+      option.text = y + " 年";
+      document.getElementById("birth-year").appendChild(option);
+    }
+    for (let m = 1; m <= 12; m++) {
+      const option = document.createElement("option");
+      option.value = String(m).padStart(2, '0');
+      option.text = m + " 月";
+      document.getElementById("birth-month").appendChild(option);
+    }
+
+     const cityDistrictData = {
+      "台北市": ["中正區", "大同區", "中山區", "松山區", "大安區", "萬華區", "信義區", "士林區", "北投區", "內湖區", "南港區", "文山區"],
+	  "新北市": ["板橋區", "三重區", "中和區", "永和區", "新莊區", "新店區", "土城區", "樹林區", "鶯歌區", "三峽區", "淡水區", "汐止區", "瑞芳區", "蘆洲區", "五股區", "泰山區", "林口區", "深坑區", "石碇區", "坪林區", "三芝區", "石門區", "八里區", "平溪區", "雙溪區", "貢寮區", "金山區", "萬里區", "烏來區"],
+	  "基隆市": ["仁愛區", "信義區", "中正區", "中山區", "安樂區", "暖暖區", "七堵區"],
+	  "桃園市": ["桃園區", "中壢區", "平鎮區", "八德區", "楊梅區", "蘆竹區", "大園區", "龜山區", "大溪區", "龍潭區", "新屋區", "觀音區", "復興區"],
+	  "新竹市": ["東區", "北區", "香山區"],
+	  "新竹縣": ["竹北市", "竹東鎮", "新豐鄉", "湖口鄉", "新埔鎮", "關西鎮", "芎林鄉", "寶山鄉", "北埔鄉", "峨眉鄉", "橫山鄉", "尖石鄉", "五峰鄉"],
+	  "宜蘭縣": ["宜蘭市", "羅東鎮", "蘇澳鎮", "頭城鎮", "礁溪鄉", "壯圍鄉", "員山鄉", "冬山鄉", "五結鄉", "三星鄉", "大同鄉", "南澳鄉"],
+	  "苗栗縣": ["苗栗市", "頭份市", "苑裡鎮", "通霄鎮", "竹南鎮", "後龍鎮", "卓蘭鎮", "西湖鄉", "造橋鄉", "三灣鄉", "南庄鄉", "頭屋鄉", "公館鄉", "大湖鄉", "獅潭鄉", "泰安鄉"],
+	  "台中市": ["中區", "東區", "南區", "西區", "北區", "西屯區", "北屯區", "南屯區", "太平區", "大里區", "霧峰區", "烏日區", "豐原區", "后里區", "東勢區", "石岡區", "新社區", "和平區", "神岡區", "潭子區", "大雅區", "大肚區", "龍井區", "沙鹿區", "清水區", "梧棲區", "大甲區", "外埔區", "大安區"],
+	  "彰化縣": ["彰化市", "員林市", "和美鎮", "鹿港鎮", "溪湖鎮", "田中鎮", "北斗鎮", "花壇鄉", "芬園鄉", "福興鄉", "秀水鄉", "埔心鄉", "永靖鄉", "社頭鄉", "二水鄉", "田尾鄉", "埤頭鄉", "芳苑鄉", "大村鄉", "竹塘鄉", "溪州鄉"],
+	  "南投縣": ["南投市", "埔里鎮", "草屯鎮", "竹山鎮", "集集鎮", "名間鄉", "鹿谷鄉", "中寮鄉", "魚池鄉", "國姓鄉", "水里鄉", "信義鄉", "仁愛鄉"],
+	  "雲林縣": ["斗六市", "斗南鎮", "虎尾鎮", "西螺鎮", "土庫鎮", "北港鎮", "古坑鄉", "大埤鄉", "莿桐鄉", "林內鄉", "二崙鄉", "崙背鄉", "麥寮鄉", "東勢鄉", "褒忠鄉", "臺西鄉", "元長鄉", "四湖鄉", "口湖鄉", "水林鄉"],
+	  "嘉義市": ["東區", "西區"],
+	  "嘉義縣": ["太保市", "朴子市", "布袋鎮", "大林鎮", "民雄鄉", "溪口鄉", "新港鄉", "六腳鄉", "東石鄉", "義竹鄉", "鹿草鄉", "水上鄉", "中埔鄉", "竹崎鄉", "梅山鄉", "番路鄉", "大埔鄉", "阿里山鄉"],
+	  "台南市": ["中西區", "東區", "南區", "北區", "安平區", "安南區", "永康區", "歸仁區", "新化區", "左鎮區", "玉井區", "楠西區", "南化區", "仁德區", "關廟區", "龍崎區", "官田區", "麻豆區", "佳里區", "西港區", "七股區", "將軍區", "學甲區", "北門區", "新營區", "後壁區", "白河區", "東山區", "六甲區", "下營區", "柳營區", "鹽水區", "善化區", "大內區", "山上區", "新市區", "安定區"],
+	  "高雄市": ["新興區", "前金區", "苓雅區", "鹽埕區", "鼓山區", "旗津區", "前鎮區", "三民區", "楠梓區", "小港區", "左營區", "仁武區", "大社區", "岡山區", "路竹區", "阿蓮區", "田寮區", "燕巢區", "橋頭區", "梓官區", "彌陀區", "永安區", "湖內區", "鳳山區", "大寮區", "林園區", "鳥松區", "大樹區", "旗山區", "美濃區", "六龜區", "內門區", "杉林區", "甲仙區", "桃源區", "那瑪夏區", "茂林區", "茄萣區"],
+	  "屏東縣": ["屏東市", "潮州鎮", "東港鎮", "恆春鎮", "萬丹鄉", "長治鄉", "麟洛鄉", "九如鄉", "里港鄉", "鹽埔鄉", "高樹鄉", "萬巒鄉", "內埔鄉", "竹田鄉", "新埤鄉", "枋寮鄉", "新園鄉", "崁頂鄉", "林邊鄉", "南州鄉", "佳冬鄉", "琉球鄉", "車城鄉", "滿州鄉", "枋山鄉", "三地門鄉", "霧台鄉", "瑪家鄉", "泰武鄉", "來義鄉", "春日鄉", "獅子鄉", "牡丹鄉"],
+	  "花蓮縣": ["花蓮市", "鳳林鎮", "玉里鎮", "新城鄉", "吉安鄉", "壽豐鄉", "光復鄉", "豐濱鄉", "瑞穗鄉", "萬榮鄉", "卓溪鄉", "秀林鄉"],
+	  "台東縣": ["台東市", "成功鎮", "關山鎮", "卑南鄉", "大武鄉", "太麻里鄉", "東河鄉", "長濱鄉", "鹿野鄉", "池上鄉", "綠島鄉", "延平鄉", "海端鄉", "金峰鄉", "達仁鄉", "蘭嶼鄉"],
+	  "澎湖縣": ["馬公市", "湖西鄉", "白沙鄉", "西嶼鄉", "望安鄉", "七美鄉"],
+	  "金門縣": ["金城鎮", "金湖鎮", "金沙鎮", "金寧鄉", "烈嶼鄉", "烏坵鄉"],
+	  "連江縣": ["南竿鄉", "北竿鄉", "莒光鄉", "東引鄉"]
+		
+	};
+
+    const citySelect = document.getElementById("city");
+    const districtSelect = document.getElementById("district");
+
+    for (const city in cityDistrictData) {
+      const option = document.createElement("option");
+      option.value = city;
+      option.text = city;
+      citySelect.appendChild(option);
+    }
+
+    citySelect.addEventListener("change", function () {
+      const districts = cityDistrictData[this.value] || [];
+      districtSelect.innerHTML = '<option value="">鄉鎮區</option>';
+      districts.forEach(d => {
+        const option = document.createElement("option");
+        option.value = d;
+        option.text = d;
+        districtSelect.appendChild(option);
+      });
+    });
+  </script>
+</body>
+</html>

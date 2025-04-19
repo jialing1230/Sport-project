@@ -28,12 +28,6 @@
       width: 100%;
       margin: 0 auto;
       background-color: #fff;
-      
-      background-repeat: no-repeat;
-      background-position: center;
-      background-size: 300px auto;
-      background-blend-mode: lighten;
-      background-attachment: local;
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -41,6 +35,7 @@
       flex-wrap: wrap;
       gap: 20px;
       overflow: hidden;
+	   min-height: 480px; 
     }
 
     .form-box {
@@ -57,16 +52,33 @@
     }
 
     .image-box img {
-      max-width: 40%;
-      height: auto;
+      max-width: 100%;
+      max-height: 300px;
+      object-fit: contain;
       border-radius: 6px;
     }
 
-    h1 {
-      text-align: center;
-      color: #2c4975;
+    /* ✅ 標題列置中 */
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
       margin-bottom: 30px;
+    }
+
+    .logo-inline {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+      border-radius: 50%;
+    }
+
+    h1 {
+      color: #2c4975;
       white-space: nowrap;
+      font-size: 24px;
+      margin: 0;
     }
 
     .form-row {
@@ -156,32 +168,27 @@
     @media screen and (max-width: 768px) {
       .container {
         flex-direction: column;
-        background-size: 200px auto;
       }
 
       .image-box {
-        margin-top: 20px;
+        display: none;
+      }
+
+      /* ✅ 小螢幕標題列仍置中 */
+      .title-row {
+        justify-content: center;
       }
     }
-      .logo-wrapper {
-      text-align: center;
-      width: 100%;
-      margin-bottom: 20px;
-    }
-
-    .logo-image {
-      max-width: 150px;
-      height: auto;
-      display: block;
-      margin: 0 auto;
-    }
-
-</style>
+  </style>
 </head>
 <body>
   <div class="container">
     <div class="form-box">
-      <h1>會員註冊</h1>
+      <div class="title-row">
+        <img src="logo.jpg" alt="Logo" class="logo-inline" />
+        <h1>會員註冊</h1>
+      </div>
+
       <form id="registrationForm">
         <div class="form-row">
           <label for="account" class="form-label">帳號</label>
@@ -212,11 +219,10 @@
         <button type="submit" class="btn btn-primary">送出</button>
       </form>
     </div>
-    <div class="image-box">
-      <img src="123456.jpg" alt="illustration">
-    </div>
 
-    
+    <div class="image-box">
+      <img src="logo.jpg" alt="illustration" />
+    </div>
   </div>
 
   <script>

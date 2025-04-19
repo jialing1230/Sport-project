@@ -25,5 +25,6 @@ def create_app():
     @app.route('/profiles')
     def profiles():
         return render_template('profiles.html')
-
+    
+    
     return app

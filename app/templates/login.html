@@ -185,24 +185,37 @@
     </div>
 
     <script>
-      document.getElementById("loginForm").onsubmit = function (event) {
-        event.preventDefault();
-
-        const account = document.getElementById("loginAccount").value;
+      document.getElementById("loginForm").onsubmit = async function (e) {
+        e.preventDefault();
+        const email = document.getElementById("loginAccount").value.trim();
         const password = document.getElementById("loginPassword").value;
         const btn = document.querySelector(".btn-primary");
-
-        if (account && password) {
-          btn.textContent = "登入中...";
-          btn.disabled = true;
-
-          // 模擬後端驗證延遲
-          setTimeout(() => {
-            alert("登入成功！");
-            window.location.href = "homepage.html";
-          }, 1200);
-        } else {
-          alert("請輸入帳號及密碼！");
+    
+        if (!email || !password) {
+          return alert("請輸入帳號及密碼！");
+        }
+    
+        btn.textContent = "登入中...";
+        btn.disabled = true;
+    
+        try {
+          const res = await fetch("/api/members/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+          });
+    
+          const result = await res.json();
+          if (!res.ok) {
+            throw new Error(result.error || "登入失敗");
+          }
+    
+          // 登入成功，帶 member_id 去 profiles 頁面
+          window.location.href = `/profiles?member_id=${result.member_id}`;
+        } catch (err) {
+          alert(err.message);
+          btn.textContent = "登入";
+          btn.disabled = false;
         }
       };
     </script>

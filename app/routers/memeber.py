@@ -93,3 +93,27 @@ def get_member(member_id):
             "updated_at": u.updated_at.isoformat() if u.updated_at else None,
         }
     ), 200
+
+@member_bp.route("/login", methods=["POST"])
+def login_member():
+    """
+    登入驗證：接收 JSON {email, password}，若 match 則回傳 member_id
+    """
+    data = request.get_json() or {}
+    email = data.get("email", "").strip()
+    password = data.get("password", "").strip()
+
+    if not email or not password:
+        return jsonify({"error": "請輸入 email 與 password"}), 400
+
+    with get_db() as db:
+        user = db.query(Member).filter_by(email=email, password=password).first()
+
+    if not user:
+        return jsonify({"error": "帳號或密碼錯誤"}), 401
+
+    return jsonify({
+        "member_id": user.member_id,
+        "email": user.email,
+        "name": user.name,
+    }), 200

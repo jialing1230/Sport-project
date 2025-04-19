@@ -5,7 +5,7 @@ from app.database import Base
 
 class Member(Base):
     __tablename__ = "members"
-    member_id = Column(Integer, primary_key=True, index=True)
+    member_id = Column(String(36), primary_key=True, index=True, autoincrement=False)
     email = Column(String(255), unique=True, nullable=False)
     password = Column(String(255), nullable=False)
     name = Column(String(100))

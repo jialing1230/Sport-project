@@ -21,7 +21,7 @@ class Activity(Base):
     location_lat = Column(Float)
     location_lng = Column(Float)
     max_participants = Column(Integer)
-    organizer_id = Column(Integer, ForeignKey("members.member_id"))
+    organizer_id = Column(String(36), ForeignKey("members.member_id"))
     level = Column(String(50))
     sport_type_id = Column(Integer, ForeignKey("sport_types.sport_type_id"))
     description = Column(Text)

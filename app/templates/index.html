@@ -1,296 +1,326 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>會員註冊</title>
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      color: #333;
-      margin: 0;
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-
-    .container {
-      position: relative;
-      max-width: 800px;
-      min-width: 320px;
-      width: 100%;
-      margin: 0 auto;
-      background-color: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      overflow: hidden;
-	   min-height: 480px; 
-    }
-
-    .form-box {
-      flex: 1 1 300px;
-      z-index: 1;
-    }
-
-    .image-box {
-      flex: 1 1 300px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1;
-    }
-
-    .image-box img {
-      max-width: 100%;
-      max-height: 300px;
-      object-fit: contain;
-      border-radius: 6px;
-    }
-
-    /* ✅ 標題列置中 */
-    .title-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 30px;
-    }
-
-    .logo-inline {
-      width: 50px;
-      height: 50px;
-      object-fit: contain;
-      border-radius: 50%;
-    }
-
-    h1 {
-      color: #2c4975;
-      white-space: nowrap;
-      font-size: 24px;
-      margin: 0;
-    }
-
-    .form-row {
-      display: flex;
-      flex-direction: column;
-      margin-bottom: 15px;
-    }
-
-    .form-label {
-      margin-bottom: 6px;
-      font-weight: bold;
-      color: #2c4975;
-      white-space: nowrap;
-    }
-
-    .form-input {
-      padding: 10px;
-      width: 100%;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-
-    #captcha-container {
-      max-height: 0;
-      opacity: 0;
-      overflow: hidden;
-      transition: max-height 0.4s ease, opacity 0.4s ease;
-    }
-
-    #captcha-container.show {
-      max-height: 150px;
-      opacity: 1;
-      margin-bottom: 15px;
-    }
-
-    .btn {
-      padding: 10px 20px;
-      font-size: 16px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      color: white;
-      transition: 0.2s ease;
-      white-space: nowrap;
-    }
-
-    .btn:hover:not(:disabled) {
-      opacity: 0.9;
-      transform: translateY(-1px);
-    }
-
-    .btn-verify {
-      background-color: #fea3a8;
-      margin-top: 8px;
-    }
-
-    .btn-verify:hover {
-      background-color: #fdf9ed;
-      color: #000;
-    }
-
-    .btn-primary {
-      background-color: #81d3e1;
-      width: 100%;
-    }
-
-    .btn-primary:hover {
-      background-color: #2c4975;
-    }
-
-    .error,
-    .success {
-      font-size: 12px;
-      margin-top: -10px;
-      margin-bottom: 10px;
-    }
-
-    .error {
-      color: red;
-    }
-
-    .success {
-      color: green;
-      font-weight: bold;
-    }
-
-    @media screen and (max-width: 768px) {
-      .container {
-        flex-direction: column;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>會員註冊</title>
+    <script src="https://cdn.jsdelivr.net/npm/uuid@9.0.0/dist/umd/uuidv4.min.js"></script>
+    <style>
+      * {
+        box-sizing: border-box;
       }
-
-      .image-box {
-        display: none;
-      }
-
-      /* ✅ 小螢幕標題列仍置中 */
-      .title-row {
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        color: #333;
+        margin: 0;
+        padding: 20px;
+        display: flex;
         justify-content: center;
+        align-items: center;
+        min-height: 100vh;
       }
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="form-box">
-      <div class="title-row">
-        <img src="logo.jpg" alt="Logo" class="logo-inline" />
-        <h1>會員註冊</h1>
+      .container {
+        position: relative;
+        max-width: 800px;
+        min-width: 320px;
+        width: 100%;
+        margin: 0 auto;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        overflow: hidden;
+        min-height: 480px;
+      }
+      .form-box {
+        flex: 1 1 300px;
+        z-index: 1;
+      }
+      .image-box {
+        flex: 1 1 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1;
+      }
+      .image-box img {
+        max-width: 100%;
+        max-height: 300px;
+        object-fit: contain;
+        border-radius: 6px;
+      }
+      .title-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 30px;
+      }
+      .logo-inline {
+        width: 50px;
+        height: 50px;
+        object-fit: contain;
+        border-radius: 50%;
+      }
+      h1 {
+        color: #2c4975;
+        white-space: nowrap;
+        font-size: 24px;
+        margin: 0;
+      }
+      .form-row {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 15px;
+      }
+      .form-label {
+        margin-bottom: 6px;
+        font-weight: bold;
+        color: #2c4975;
+      }
+      .form-input {
+        padding: 10px;
+        width: 100%;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      #captcha-container {
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transition: max-height 0.4s ease, opacity 0.4s ease;
+      }
+      #captcha-container.show {
+        max-height: 150px;
+        opacity: 1;
+        margin-bottom: 15px;
+      }
+      .btn {
+        padding: 10px 20px;
+        font-size: 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        color: white;
+        transition: 0.2s ease;
+        white-space: nowrap;
+      }
+      .btn:hover:not(:disabled) {
+        opacity: 0.9;
+        transform: translateY(-1px);
+      }
+      .btn-verify {
+        background-color: #fea3a8;
+        margin-top: 8px;
+      }
+      .btn-verify:hover {
+        background-color: #fdf9ed;
+        color: #000;
+      }
+      .btn-primary {
+        background-color: #81d3e1;
+        width: 100%;
+      }
+      .btn-primary:hover {
+        background-color: #2c4975;
+      }
+      .error,
+      .success {
+        font-size: 12px;
+        margin-top: -10px;
+        margin-bottom: 10px;
+      }
+      .error {
+        color: red;
+      }
+      .success {
+        color: green;
+        font-weight: bold;
+      }
+      @media screen and (max-width: 768px) {
+        .container {
+          flex-direction: column;
+        }
+        .image-box {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="form-box">
+        <div class="title-row">
+          <img
+            src="{{ url_for('static', filename='logo.jpg') }}"
+            alt="Logo"
+            class="logo-inline"
+          />
+          <h1>會員註冊</h1>
+        </div>
+        <form id="registrationForm">
+          <div class="form-row">
+            <label for="account" class="form-label">帳號</label>
+            <input
+              type="email"
+              id="account"
+              name="account"
+              class="form-input"
+              placeholder="EX: 123456@gmail.com"
+              required
+            />
+            <button
+              type="button"
+              class="btn btn-verify"
+              onclick="sendVerificationEmail()"
+            >
+              驗證
+            </button>
+          </div>
+          <div class="form-row" id="captcha-container">
+            <label for="captcha" class="form-label">驗證碼</label>
+            <input
+              type="text"
+              id="captcha"
+              name="captcha"
+              class="form-input"
+              required
+            />
+            <button
+              type="button"
+              class="btn btn-verify"
+              onclick="verifyCaptcha()"
+            >
+              確認
+            </button>
+          </div>
+          <div id="success-message" class="success" style="display: none">
+            驗證成功！
+          </div>
+          <div class="form-row">
+            <label for="password" class="form-label">密碼</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              class="form-input"
+              placeholder="至少 8 字元，含大小寫字母與數字"
+              required
+            />
+          </div>
+          <div class="form-row">
+            <label for="confirmPassword" class="form-label">確認密碼</label>
+            <input
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              class="form-input"
+              required
+            />
+          </div>
+          <button type="submit" class="btn btn-primary">送出</button>
+        </form>
       </div>
-
-      <form id="registrationForm">
-        <div class="form-row">
-          <label for="account" class="form-label">帳號</label>
-          <input type="email" id="account" name="account" class="form-input" placeholder="EX: 123456@gmail.com" required />
-          <button type="button" class="btn btn-verify" onclick="validateEmail()">驗證</button>
-        </div>
-
-        <div class="form-row" id="captcha-container">
-          <label for="captcha" class="form-label">驗證碼</label>
-          <input type="text" id="captcha" name="captcha" class="form-input" required />
-          <button type="button" class="btn btn-verify" onclick="verifyCaptcha()">確認</button>
-        </div>
-
-        <div id="success-message" class="success" style="display: none;">驗證成功！</div>
-
-        <div class="form-row">
-          <label for="password" class="form-label">密碼</label>
-          <input type="password" id="password" name="password" class="form-input" placeholder="至少 8 字元，含大小寫字母與數字" required />
-        </div>
-        <p id="password-error" class="error" style="display: none;">密碼需至少 8 字，含大小寫與數字</p>
-
-        <div class="form-row">
-          <label for="confirmPassword" class="form-label">確認密碼</label>
-          <input type="password" id="confirmPassword" name="confirmPassword" class="form-input" required />
-        </div>
-        <p id="confirm-password-error" class="error" style="display: none;">密碼與確認密碼不一致！</p>
-
-        <button type="submit" class="btn btn-primary">送出</button>
-      </form>
+      <div class="image-box">
+        <img
+          src="{{ url_for('static', filename='logo.jpg') }}"
+          alt="illustration"
+        />
+      </div>
     </div>
 
-    <div class="image-box">
-      <img src="logo.jpg" alt="illustration" />
-    </div>
-  </div>
+    <script>
+      let isCaptchaVerified = false;
+      const emailInput = document.getElementById("account");
 
-  <script>
-    let isCaptchaVerified = false;
+      function sendVerificationEmail() {
+        const email = emailInput.value;
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          alert("請輸入正確的電子郵件地址！");
+          return;
+        }
 
-    function validateEmail() {
-      const email = document.getElementById("account").value;
-      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-      if (emailPattern.test(email)) {
-        const captchaBox = document.getElementById("captcha-container");
-        captchaBox.classList.add("show");
-      } else {
-        alert("請輸入正確的電子郵件地址！");
-      }
-    }
-
-    function verifyCaptcha() {
-      const enteredCaptcha = document.getElementById("captcha").value;
-      const correctCaptcha = "123456";
-
-      if (enteredCaptcha === correctCaptcha) {
-        document.getElementById("captcha-container").classList.remove("show");
-        document.getElementById("success-message").style.display = "block";
-        document.getElementById("account").disabled = true;
-        isCaptchaVerified = true;
-      } else {
-        alert("驗證碼錯誤，請重新輸入！");
-      }
-    }
-
-    function validatePassword() {
-      const password = document.getElementById("password").value;
-      const passwordPattern = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])[A-Za-z0-9]{8,}$/;
-
-      if (!passwordPattern.test(password)) {
-        document.getElementById("password-error").style.display = "block";
-        return false;
+        fetch("/api/auth/verify-email", {
+          method: "POST",
+          body: JSON.stringify({ email }),
+          headers: { "Content-Type": "application/json" },
+        }).then((res) => {
+          if (res.ok) {
+            document.getElementById("captcha-container").classList.add("show");
+            alert("驗證碼已發送至您的信箱！");
+          } else {
+            alert("發送驗證碼失敗！");
+          }
+        });
       }
 
-      document.getElementById("password-error").style.display = "none";
-      return true;
-    }
+      function verifyCaptcha() {
+        const email = emailInput.value;
+        const captcha = document.getElementById("captcha").value;
 
-    function validateConfirmPassword() {
-      const password = document.getElementById("password").value;
-      const confirmPassword = document.getElementById("confirmPassword").value;
-
-      if (password !== confirmPassword) {
-        document.getElementById("confirm-password-error").style.display = "block";
-        return false;
+        fetch("/api/auth/verify-captcha", {
+          method: "POST",
+          body: JSON.stringify({ email, captcha }),
+          headers: { "Content-Type": "application/json" },
+        }).then((res) => {
+          if (res.ok) {
+            document
+              .getElementById("captcha-container")
+              .classList.remove("show");
+            document.getElementById("success-message").style.display = "block";
+            emailInput.disabled = true;
+            isCaptchaVerified = true;
+          } else {
+            alert("驗證碼錯誤或已過期！");
+          }
+        });
       }
 
-      document.getElementById("confirm-password-error").style.display = "none";
-      return true;
-    }
-
-    document.getElementById("registrationForm").onsubmit = function (event) {
-      if (!isCaptchaVerified) {
-        alert("請先完成電子郵件驗證！");
+      document.getElementById("registrationForm").onsubmit = async function (
+        event
+      ) {
         event.preventDefault();
-        return;
-      }
+        if (!isCaptchaVerified) {
+          alert("請先完成驗證！");
+          return;
+        }
 
-      if (!validatePassword() || !validateConfirmPassword()) {
-        event.preventDefault();
-      }
-    };
-  </script>
-</body>
+        const password = document.getElementById("password").value;
+        const confirmPassword =
+          document.getElementById("confirmPassword").value;
+
+        if (password !== confirmPassword) {
+          alert("密碼與確認密碼不一致！");
+          return;
+        }
+
+        const email = emailInput.value;
+        const memberId = uuidv4(); // ✅ 使用 UUID 套件產生 ID
+
+        fetch("/api/members", {
+          method: "POST",
+          body: JSON.stringify({ member_id: memberId, email, password }),
+          headers: { "Content-Type": "application/json" },
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.member_id) {
+              alert("註冊成功！即將跳轉至登入頁面...");
+              setTimeout(() => {
+                window.location.href = "/login";
+              }, 1000);
+            } else {
+              alert(data.error || "註冊失敗！");
+            }
+          })
+          .catch(() => {
+            alert("註冊失敗，請稍後再試。");
+          });
+      };
+    </script>
+  </body>
 </html>

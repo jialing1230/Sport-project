@@ -218,7 +218,11 @@
     <div class="container">
       <div class="form-box">
         <div class="title-row">
-          <img src="logo.jpg" alt="Logo" class="logo-inline" />
+          <img
+          src="{{ url_for('static', filename='logo.jpg') }}"
+          alt="Logo"
+          class="logo-inline"
+        />
           <h1>基本資料</h1>
         </div>
         <div class="form-row">
@@ -287,7 +291,10 @@
         </form>
       </div>
       <div class="image-box">
-        <img src="logo.jpg" alt="illustration" />
+        <img
+        src="{{ url_for('static', filename='logo.jpg') }}"
+        alt="illustration"
+      />
       </div>
     </div>
 

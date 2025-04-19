@@ -7,7 +7,6 @@ auth_bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 
 captcha_codes = {}
 
-
 def send_email(to_email, subject, body):
     MAILGUN_API_KEY = Config.MAILGUN_API_KEY
     MAILGUN_DOMAIN = Config.MAILGUN_DOMAIN
@@ -29,8 +28,7 @@ def send_email(to_email, subject, body):
         print(response.text)
         raise Exception(f"Failed to send email: {response.text}")
 
-
-@auth_bp.route("/api/verify-email", methods=["POST"])
+@auth_bp.route("/verify-email", methods=["POST"])
 def verify_email():
     email = request.json.get("email")
     if not email:
@@ -40,12 +38,12 @@ def verify_email():
     try:
         send_email(email, "您的驗證碼", f"請輸入此驗證碼來完成註冊：{captcha_code}")
         captcha_codes[email] = captcha_code
+        print(f"🔢 Captcha code for {email} is: {captcha_code}")  # ✅ 印出驗證碼到終端機
         return jsonify({"message": "Verification code sent to your email"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
-@auth_bp.route("/api/verify-captcha", methods=["POST"])
+@auth_bp.route("/verify-captcha", methods=["POST"])
 def verify_captcha():
     email = request.json.get("email")
     captcha = request.json.get("captcha")

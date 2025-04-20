@@ -1,30 +1,44 @@
-from flask import Flask, render_template
+# app.py
+from flask import Flask, render_template, request, redirect, url_for
 from app.routers.auth import auth_bp
 from app.routers.activity import activity_bp
-from app.routers.memeber import member_bp
+from app.routers.memeber import member_bp  # 使用原本的 "memeber" 模組路徑
+
 
 def create_app():
     app = Flask(__name__)
 
+    # 註冊 API Blueprint
     app.register_blueprint(auth_bp)
     app.register_blueprint(activity_bp)
     app.register_blueprint(member_bp)
 
+    # 前端頁面路由
     @app.route("/")
     def index():
         return render_template("index.html")
-    
-    @app.route('/login', endpoint='login_html')
-    def login_page():
-        return render_template('login.html')
 
-    @app.route('/members')
+    @app.route("/login", endpoint='login_html')
+    def login_page():
+        return render_template("login.html")
+
+    @app.route("/members")
     def members_page():
-        return render_template('member_management.html')
-    
-    @app.route('/profiles')
-    def profiles():
-        return render_template('profiles.html')
-    
-    
+        return render_template("member_management.html")
+
+    @app.route("/profiles")
+    def profiles_page():
+        # 從查詢參數取得 member_id
+        member_id = request.args.get('member_id')
+        if not member_id:
+            # 如果缺少 member_id，導回登入頁面
+            return redirect(url_for('login_html'))
+        # 將 member_id 注入模板
+        return render_template('profiles.html', member_id=member_id)
+
     return app
+
+
+if __name__ == "__main__":
+    app = create_app()
+    app.run(debug=True)

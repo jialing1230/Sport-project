@@ -117,3 +117,46 @@ def login_member():
         "email": user.email,
         "name": user.name,
     }), 200
+
+@member_bp.route("/<string:member_id>", methods=["PUT"])
+def update_member(member_id):
+    """
+    更新 Member 的基本資料：
+    可更新欄位：name, gender, birthdate, city, area
+    """
+    payload = request.get_json() or {}
+    # 允許更新的欄位
+    updatable = ("name", "gender", "birthdate", "city", "area")
+
+    # 取出要 update 的資料
+    data = {k: payload[k] for k in updatable if k in payload}
+
+    if not data:
+        return jsonify({"error": "沒有可更新的欄位"}), 400
+
+    with get_db() as db:
+        # 先找出這個 member
+        m = db.query(Member).get(member_id)
+        if not m:
+            return jsonify({"error": "找不到該會員"}), 404
+
+        # 把允許更新的欄位逐一覆寫
+        for k, v in data.items():
+            # 如果是 birthdate (字串)，轉成 date
+            if k == "birthdate" and isinstance(v, str):
+                try:
+                    v = datetime.fromisoformat(v).date()
+                except ValueError:
+                    return jsonify({"error": "birthdate 格式錯誤，請用 YYYY-MM-DD"}), 400
+            setattr(m, k, v)
+
+        # 更新時間
+        m.updated_at = datetime.utcnow()
+
+        try:
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            return jsonify({"error": str(e)}), 500
+
+    return jsonify({"success": True}), 200

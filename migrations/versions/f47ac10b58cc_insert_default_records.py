@@ -3,10 +3,11 @@
 Revision ID: f47ac10b58cc
 Revises: 9dde57c6fd53
 Create Date: 2025-04-19 20:30:00.000000
-
 """
 import uuid
-from datetime import datetime, timezone
+import random
+import string
+from datetime import datetime, timezone, date
 from typing import Sequence, Union
 
 from alembic import op
@@ -29,41 +30,47 @@ down_revision: Union[str, None] = "9dde57c6fd53"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
+def generate_password(length=8):
+    chars = string.ascii_letters + string.digits
+    while True:
+        pw = ''.join(random.choices(chars, k=length))
+        if (any(c.islower() for c in pw) and
+            any(c.isupper() for c in pw) and
+            any(c.isdigit() for c in pw)):
+            return pw
 
 def upgrade() -> None:
     bind = op.get_bind()
     session = Session(bind=bind)
     now = datetime.now(timezone.utc)
 
-    # 1. Members (5, UUID primary keys)
     members = []
-
-    # 測試用的縣市與鄉鎮市區清單（中文）
     cities = ["臺北市", "新北市", "桃園市", "臺中市", "高雄市"]
-    areas  = ["中正區", "板橋區", "平鎮區", "西區", "苓雅區"]
+    areas = ["中正區", "板橋區", "平鎮區", "西區", "苓雅區"]
 
     for i in range(1, 6):
         uid = str(uuid.uuid4())
+        birthdate = date(2003 + i, i, i)
+        password = generate_password()
         m = Member(
             member_id=uid,
             email=f"user{i}@example.com",
-            password="password",
+            password=password,
             name=f"User{i}",
             gender="M" if i % 2 == 0 else "F",
-            birthdate=None,
+            birthdate=birthdate,
             height=160 + i,
             weight=50 + i * 2,
             created_at=now,
             updated_at=now,
-            city=cities[i-1],
-            area=areas[i-1],
+            city=cities[i - 1],
+            area=areas[i - 1],
         )
         members.append(m)
 
     session.add_all(members)
     session.flush()
 
-    # 2. Sport Types (5)
     names = ["Running", "Swimming", "Cycling", "Yoga", "Hiking"]
     sport_types = [
         SportType(sport_type_id=i, name=names[i - 1])
@@ -72,7 +79,6 @@ def upgrade() -> None:
     session.add_all(sport_types)
     session.flush()
 
-    # 3. Activities (5)
     activities = []
     for i in range(1, 6):
         a = Activity(
@@ -95,7 +101,6 @@ def upgrade() -> None:
     session.add_all(activities)
     session.flush()
 
-    # 4. Exercise Records (5)
     records = []
     for i in range(1, 6):
         rec = ExerciseRecord(
@@ -113,7 +118,6 @@ def upgrade() -> None:
         records.append(rec)
     session.add_all(records)
 
-    # 5. Sport Preferences (5)
     prefs = []
     for i in range(1, 6):
         pref = SportPreference(
@@ -124,7 +128,6 @@ def upgrade() -> None:
         prefs.append(pref)
     session.add_all(prefs)
 
-    # 6. User Reviews (5)
     reviews = []
     for i in range(1, 6):
         rev = UserReview(
@@ -138,7 +141,6 @@ def upgrade() -> None:
         reviews.append(rev)
     session.add_all(reviews)
 
-    # 7. Activity Joins (5)
     joins = []
     for i in range(1, 6):
         j = ActivityJoin(
@@ -151,7 +153,6 @@ def upgrade() -> None:
         joins.append(j)
     session.add_all(joins)
 
-    # 8. Activity Reviews (5)
     act_revs = []
     for i in range(1, 6):
         ar = ActivityReview(
@@ -167,12 +168,10 @@ def upgrade() -> None:
 
     session.commit()
 
-
 def downgrade() -> None:
     bind = op.get_bind()
     session = Session(bind=bind)
 
-    # 删除刚插入的所有测试数据
     session.query(ActivityReview).filter(ActivityReview.review_id.in_([1, 2, 3, 4, 5])).delete()
     session.query(ActivityJoin).filter(ActivityJoin.join_id.in_([1, 2, 3, 4, 5])).delete()
     session.query(UserReview).filter(UserReview.review_id.in_([1, 2, 3, 4, 5])).delete()

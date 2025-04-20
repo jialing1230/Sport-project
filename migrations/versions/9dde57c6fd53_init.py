@@ -32,6 +32,8 @@ def upgrade() -> None:
     sa.Column('weight', sa.Integer(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
+    sa.Column('city', sa.String(length=50), nullable=True, comment='縣市'),
+    sa.Column('area', sa.String(length=50), nullable=True, comment='鄉鎮市區'),
     sa.PrimaryKeyConstraint('member_id'),
     sa.UniqueConstraint('email')
     )

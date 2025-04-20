@@ -15,6 +15,8 @@ class Member(Base):
     weight = Column(Integer)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
+    city = Column(String(50), nullable=True, comment="縣市")
+    area = Column(String(50), nullable=True, comment="鄉鎮市區")
 
     sport_preferences = relationship("SportPreference", back_populates="member")
     activities = relationship("Activity", back_populates="organizer")

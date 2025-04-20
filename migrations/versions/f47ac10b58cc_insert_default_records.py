@@ -37,6 +37,11 @@ def upgrade() -> None:
 
     # 1. Members (5, UUID primary keys)
     members = []
+
+    # 測試用的縣市與鄉鎮市區清單（中文）
+    cities = ["臺北市", "新北市", "桃園市", "臺中市", "高雄市"]
+    areas  = ["中正區", "板橋區", "平鎮區", "西區", "苓雅區"]
+
     for i in range(1, 6):
         uid = str(uuid.uuid4())
         m = Member(
@@ -50,8 +55,11 @@ def upgrade() -> None:
             weight=50 + i * 2,
             created_at=now,
             updated_at=now,
+            city=cities[i-1],
+            area=areas[i-1],
         )
         members.append(m)
+
     session.add_all(members)
     session.flush()
 

@@ -1,4 +1,7 @@
-from flask import Blueprint, request, jsonify
+# app/routers/memeber.py
+import os
+from flask import Blueprint, request, jsonify, current_app
+from werkzeug.utils import secure_filename
 from datetime import datetime
 from sqlalchemy.exc import IntegrityError
 from app.database import get_db
@@ -6,15 +9,15 @@ from app.models.member import Member
 
 member_bp = Blueprint("members", __name__, url_prefix="/api/members")
 
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 @member_bp.route("", methods=["POST"])
 def create_member():
-    """
-    建立一個新 Member：
-    必填欄位：email, password
-    其餘欄位可選
-    """
-    payload = request.get_json()
+    payload = request.get_json() or {}
     required = ("email", "password")
     for key in required:
         if key not in payload:
@@ -46,42 +49,12 @@ def create_member():
 
 @member_bp.route("", methods=["GET"])
 def list_members():
-    """
-    列出所有 Member（回傳最基本的欄位）
-    """
     with get_db() as db:
         members = db.query(Member).all()
 
     result = []
     for u in members:
-        result.append(
-            {
-                "member_id": u.member_id,
-                "email": u.email,
-                "name": u.name,
-                "gender": u.gender,
-                "birthdate": u.birthdate.isoformat() if u.birthdate else None,
-                "height": u.height,
-                "weight": u.weight,
-                "created_at": u.created_at.isoformat() if u.created_at else None,
-                "updated_at": u.updated_at.isoformat() if u.updated_at else None,
-            }
-        )
-    return jsonify(result), 200
-
-
-@member_bp.route("/<int:member_id>", methods=["GET"])
-def get_member(member_id):
-    """
-    根據 ID 取得單一 Member
-    """
-    with get_db() as db:
-        u = db.get(Member, member_id)
-        if not u:
-            return jsonify({"error": "找不到該會員"}), 404
-
-    return jsonify(
-        {
+        result.append({
             "member_id": u.member_id,
             "email": u.email,
             "name": u.name,
@@ -89,16 +62,36 @@ def get_member(member_id):
             "birthdate": u.birthdate.isoformat() if u.birthdate else None,
             "height": u.height,
             "weight": u.weight,
+            "avatar_url": u.avatar_url,
             "created_at": u.created_at.isoformat() if u.created_at else None,
             "updated_at": u.updated_at.isoformat() if u.updated_at else None,
-        }
-    ), 200
+        })
+    return jsonify(result), 200
+
+
+@member_bp.route("/<int:member_id>", methods=["GET"])
+def get_member(member_id):
+    with get_db() as db:
+        u = db.get(Member, member_id)
+        if not u:
+            return jsonify({"error": "找不到該會員"}), 404
+
+    return jsonify({
+        "member_id": u.member_id,
+        "email": u.email,
+        "name": u.name,
+        "gender": u.gender,
+        "birthdate": u.birthdate.isoformat() if u.birthdate else None,
+        "height": u.height,
+        "weight": u.weight,
+        "avatar_url": u.avatar_url,
+        "created_at": u.created_at.isoformat() if u.created_at else None,
+        "updated_at": u.updated_at.isoformat() if u.updated_at else None,
+    }), 200
+
 
 @member_bp.route("/login", methods=["POST"])
 def login_member():
-    """
-    登入驗證：接收 JSON {email, password}，若 match 則回傳 member_id
-    """
     data = request.get_json() or {}
     email = data.get("email", "").strip()
     password = data.get("password", "").strip()
@@ -118,31 +111,32 @@ def login_member():
         "name": user.name,
     }), 200
 
+
 @member_bp.route("/<string:member_id>", methods=["PUT"])
 def update_member(member_id):
-    """
-    更新 Member 的基本資料：
-    可更新欄位：name, gender, birthdate, city, area
-    """
-    payload = request.get_json() or {}
-    # 允許更新的欄位
     updatable = ("name", "gender", "birthdate", "city", "area")
 
-    # 取出要 update 的資料
-    data = {k: payload[k] for k in updatable if k in payload}
+    is_multipart = request.content_type and request.content_type.startswith("multipart/form-data")
+    if is_multipart:
+        form = request.form
+        data = {k: form[k] for k in updatable if k in form and form[k]}
+        file = request.files.get("avatar")
+    else:
+        json_data = request.get_json() or {}
+        data = {k: json_data[k] for k in updatable if k in json_data}
+        file = None
 
-    if not data:
-        return jsonify({"error": "沒有可更新的欄位"}), 400
+    if not data and not file:
+        return jsonify({"error": "沒有可更新的欄位或檔案"}), 400
+
+    saved_avatar_url = None
 
     with get_db() as db:
-        # 先找出這個 member
         m = db.query(Member).get(member_id)
         if not m:
             return jsonify({"error": "找不到該會員"}), 404
 
-        # 把允許更新的欄位逐一覆寫
         for k, v in data.items():
-            # 如果是 birthdate (字串)，轉成 date
             if k == "birthdate" and isinstance(v, str):
                 try:
                     v = datetime.fromisoformat(v).date()
@@ -150,27 +144,40 @@ def update_member(member_id):
                     return jsonify({"error": "birthdate 格式錯誤，請用 YYYY-MM-DD"}), 400
             setattr(m, k, v)
 
-        # 更新時間
+        if file and allowed_file(file.filename):
+            filename = f"{member_id}.png"
+            upload_folder = current_app.config["UPLOAD_FOLDER"]
+            os.makedirs(upload_folder, exist_ok=True)
+            save_path = os.path.join(upload_folder, filename)
+            file.save(save_path)
+            m.avatar_url = f"avatars/{filename}"
+
         m.updated_at = datetime.utcnow()
 
         try:
             db.commit()
+            saved_avatar_url = m.avatar_url  # 在 session 還活著的時候取出 avatar_url
         except Exception as e:
             db.rollback()
             return jsonify({"error": str(e)}), 500
 
-    return jsonify({"success": True}), 200
+    return jsonify({"success": True, "avatar_url": saved_avatar_url}), 200
 
-# 新增：刪除 Member
 @member_bp.route("/<string:member_id>", methods=["DELETE"])
 def delete_member(member_id):
-    """
-    刪除 Member
-    """
     with get_db() as db:
         m = db.query(Member).get(member_id)
         if not m:
             return jsonify({"error": "找不到該會員"}), 404
+
+        # 刪除對應頭像圖片
+        if m.avatar_url:
+            image_path = os.path.join(current_app.root_path, 'static', m.avatar_url)
+            if os.path.exists(image_path):
+                os.remove(image_path)
+
+        # 刪除會員資料
         db.delete(m)
         db.commit()
+
     return jsonify({"success": True}), 200

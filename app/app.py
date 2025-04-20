@@ -1,4 +1,5 @@
 # app.py
+import os
 from flask import Flask, render_template, request, redirect, url_for
 from app.routers.auth import auth_bp
 from app.routers.activity import activity_bp
@@ -8,11 +9,15 @@ from app.routers.memeber import member_bp  # 使用原本的 "memeber" 模組路
 def create_app():
     app = Flask(__name__)
 
-    # 註冊 API Blueprint
+    # 1. 定義並建立上傳目錄
+    upload_folder = os.path.join(app.root_path, "static", "avatars")
+    os.makedirs(upload_folder, exist_ok=True)
+    app.config["UPLOAD_FOLDER"] = upload_folder
+
+    # 2. 註冊 API Blueprint
     app.register_blueprint(auth_bp)
     app.register_blueprint(activity_bp)
     app.register_blueprint(member_bp)
-
     # 前端頁面路由
     @app.route("/")
     def index():

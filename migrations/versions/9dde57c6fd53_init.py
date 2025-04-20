@@ -34,6 +34,9 @@ def upgrade() -> None:
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('city', sa.String(length=50), nullable=True, comment='縣市'),
     sa.Column('area', sa.String(length=50), nullable=True, comment='鄉鎮市區'),
+    sa.Column('avatar_url', sa.String(length=255), nullable=True, comment='頭像檔案路徑'),
+    
+    
     sa.PrimaryKeyConstraint('member_id'),
     sa.UniqueConstraint('email')
     )

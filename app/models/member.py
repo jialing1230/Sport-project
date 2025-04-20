@@ -17,6 +17,7 @@ class Member(Base):
     updated_at = Column(DateTime)
     city = Column(String(50), nullable=True, comment="縣市")
     area = Column(String(50), nullable=True, comment="鄉鎮市區")
+    avatar_url = Column(String(255), nullable=True, comment="頭像檔案路徑")
 
     sport_preferences = relationship("SportPreference", back_populates="member")
     activities = relationship("Activity", back_populates="organizer")

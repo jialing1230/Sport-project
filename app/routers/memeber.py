@@ -160,3 +160,17 @@ def update_member(member_id):
             return jsonify({"error": str(e)}), 500
 
     return jsonify({"success": True}), 200
+
+# 新增：刪除 Member
+@member_bp.route("/<string:member_id>", methods=["DELETE"])
+def delete_member(member_id):
+    """
+    刪除 Member
+    """
+    with get_db() as db:
+        m = db.query(Member).get(member_id)
+        if not m:
+            return jsonify({"error": "找不到該會員"}), 404
+        db.delete(m)
+        db.commit()
+    return jsonify({"success": True}), 200

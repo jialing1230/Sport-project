@@ -91,7 +91,10 @@
         </button>
       </div>
       <div class="table-responsive">
-        <table class="table table-bordered align-middle text-center" id="membersTable">
+        <table
+          class="table table-bordered align-middle text-center"
+          id="membersTable"
+        >
           <thead>
             <tr>
               <th>ID</th>
@@ -135,7 +138,12 @@
               <div class="row g-3">
                 <div class="col-md-6">
                   <label for="email" class="form-label">Email</label>
-                  <input type="email" class="form-control" id="email" required />
+                  <input
+                    type="email"
+                    class="form-control"
+                    id="email"
+                    required
+                  />
                 </div>
                 <div class="col-md-6">
                   <label for="password" class="form-label">密碼</label>
@@ -164,11 +172,21 @@
                 </div>
                 <div class="col-md-3">
                   <label for="height" class="form-label">身高</label>
-                  <input type="number" class="form-control" id="height" placeholder="cm" />
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="height"
+                    placeholder="cm"
+                  />
                 </div>
                 <div class="col-md-3">
                   <label for="weight" class="form-label">體重</label>
-                  <input type="number" class="form-control" id="weight" placeholder="kg" />
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="weight"
+                    placeholder="kg"
+                  />
                 </div>
               </div>
             </form>
@@ -211,7 +229,9 @@
             <td>${m.height || ""}</td>
             <td>${m.weight || ""}</td>
             <td>
-              <button class="btn btn-delete btn-sm delete-btn" data-id="${m.member_id}">
+              <button class="btn btn-delete btn-sm delete-btn" data-id="${
+                m.member_id
+              }">
                 刪除
               </button>
             </td>
@@ -223,51 +243,53 @@
 
       // 綁定刪除按鈕事件
       function attachDeleteHandlers() {
-        document.querySelectorAll('.delete-btn').forEach(btn => {
-          btn.addEventListener('click', async () => {
-            const id = btn.getAttribute('data-id');
-            if (!confirm('確定要刪除此會員嗎？')) return;
+        document.querySelectorAll(".delete-btn").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            const id = btn.getAttribute("data-id");
+            if (!confirm("確定要刪除此會員嗎？")) return;
             const res = await fetch(`${API_BASE}/${id}`, {
-              method: 'DELETE'
+              method: "DELETE",
             });
             if (res.ok) {
               loadMembers();
             } else {
               const err = await res.json();
-              alert(err.error || '刪除失敗');
+              alert(err.error || "刪除失敗");
             }
           });
         });
       }
 
       // 新增會員功能
-      document.getElementById("saveMember").addEventListener("click", async () => {
-        const payload = {
-          email: document.getElementById("email").value,
-          password: document.getElementById("password").value,
-          name: document.getElementById("name").value,
-          gender: document.getElementById("gender").value,
-          birthdate: document.getElementById("birthdate").value,
-          height: parseInt(document.getElementById("height").value),
-          weight: parseInt(document.getElementById("weight").value),
-        };
-        const res = await fetch(`${API_BASE}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+      document
+        .getElementById("saveMember")
+        .addEventListener("click", async () => {
+          const payload = {
+            email: document.getElementById("email").value,
+            password: document.getElementById("password").value,
+            name: document.getElementById("name").value,
+            gender: document.getElementById("gender").value,
+            birthdate: document.getElementById("birthdate").value,
+            height: parseInt(document.getElementById("height").value),
+            weight: parseInt(document.getElementById("weight").value),
+          };
+          const res = await fetch(`${API_BASE}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          if (res.ok) {
+            const modal = bootstrap.Modal.getInstance(
+              document.getElementById("memberModal")
+            );
+            modal.hide();
+            document.getElementById("memberForm").reset();
+            loadMembers();
+          } else {
+            const err = await res.json();
+            alert(err.error || "建立失敗");
+          }
         });
-        if (res.ok) {
-          const modal = bootstrap.Modal.getInstance(
-            document.getElementById("memberModal")
-          );
-          modal.hide();
-          document.getElementById("memberForm").reset();
-          loadMembers();
-        } else {
-          const err = await res.json();
-          alert(err.error || "建立失敗");
-        }
-      });
 
       // 初始載入
       window.addEventListener("DOMContentLoaded", () => {

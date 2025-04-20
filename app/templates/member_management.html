@@ -265,6 +265,7 @@
         .getElementById("saveMember")
         .addEventListener("click", async () => {
           const payload = {
+            member_id: crypto.randomUUID(), // ✅ 在這裡產生 UUID
             email: document.getElementById("email").value,
             password: document.getElementById("password").value,
             name: document.getElementById("name").value,

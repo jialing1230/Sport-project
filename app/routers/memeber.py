@@ -114,7 +114,7 @@ def login_member():
 
 @member_bp.route("/<string:member_id>", methods=["PUT"])
 def update_member(member_id):
-    updatable = ("name", "gender", "birthdate", "city", "area")
+    updatable = ("name", "gender", "birthdate", "city", "area", "height", "weight")
 
     is_multipart = request.content_type and request.content_type.startswith("multipart/form-data")
     if is_multipart:
@@ -142,6 +142,11 @@ def update_member(member_id):
                     v = datetime.fromisoformat(v).date()
                 except ValueError:
                     return jsonify({"error": "birthdate 格式錯誤，請用 YYYY-MM-DD"}), 400
+            elif k in ("height", "weight"):
+                try:
+                    v = int(v)
+                except ValueError:
+                    return jsonify({"error": f"{k} 必須是整數"}), 400
             setattr(m, k, v)
 
         if file and allowed_file(file.filename):
@@ -156,12 +161,13 @@ def update_member(member_id):
 
         try:
             db.commit()
-            saved_avatar_url = m.avatar_url  # 在 session 還活著的時候取出 avatar_url
+            saved_avatar_url = m.avatar_url
         except Exception as e:
             db.rollback()
             return jsonify({"error": str(e)}), 500
 
     return jsonify({"success": True, "avatar_url": saved_avatar_url}), 200
+
 
 @member_bp.route("/<string:member_id>", methods=["DELETE"])
 def delete_member(member_id):

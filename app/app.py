@@ -40,6 +40,10 @@ def create_app():
             return redirect(url_for('login_html'))
         # 將 member_id 注入模板
         return render_template('profiles.html', member_id=member_id)
+    
+    @app.route("/preference")
+    def preference_page():
+        return render_template("preference.html")
 
     return app
 

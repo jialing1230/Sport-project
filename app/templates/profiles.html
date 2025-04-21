@@ -849,7 +849,7 @@
             });
             const data = await res.json();
             if (res.ok && data.success) {
-              alert("新增成功！");
+              window.location.href = "/preference"; // 👈 加入這行
             } else {
               throw new Error(data.error || "更新失敗");
             }

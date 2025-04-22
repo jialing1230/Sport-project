@@ -128,6 +128,21 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('review_id')
     )
     op.create_index(op.f('ix_activity_reviews_review_id'), 'activity_reviews', ['review_id'], unique=False)
+
+    op.create_table('preference_sport',
+        sa.Column('preference_id', sa.Integer(), nullable=False),
+        sa.Column('sport_type_id', sa.Integer(), nullable=False),
+        
+        # 設定外鍵約束
+        sa.ForeignKeyConstraint(['preference_id'], ['sport_preferences.preference_id']),
+        sa.ForeignKeyConstraint(['sport_type_id'], ['sport_types.sport_type_id']),
+        
+        # 設為複合主鍵
+        sa.PrimaryKeyConstraint('preference_id', 'sport_type_id')
+    )
+
+    # 設定唯一約束
+    op.create_index('ix_preference_sport_preference_id_sport_type_id', 'preference_sport', ['preference_id', 'sport_type_id'], unique=True)
     # ### end Alembic commands ###
 
 
@@ -150,4 +165,6 @@ def downgrade() -> None:
     op.drop_table('sport_types')
     op.drop_index(op.f('ix_members_member_id'), table_name='members')
     op.drop_table('members')
+    op.drop_index('ix_preference_sport_preference_id_sport_type_id', table_name='preference_sport')
+    op.drop_table('preference_sport')
     # ### end Alembic commands ###

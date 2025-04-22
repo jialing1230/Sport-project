@@ -6,8 +6,10 @@ from .activity_join import ActivityJoin
 from .activity_review import ActivityReview
 from .user_review import UserReview
 from .exercise_record import ExerciseRecord
+from .preference_sport import PreferenceSport
 
 __all__ = [
+    "PreferenceSport",
     "Member",
     "SportType",
     "SportPreference",

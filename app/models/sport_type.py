@@ -10,3 +10,4 @@ class SportType(Base):
 
     activities = relationship("Activity", back_populates="sport_type")
     exercise_records = relationship("ExerciseRecord", back_populates="sport_type")
+    preference_sports = relationship("PreferenceSport", back_populates="sport_type")

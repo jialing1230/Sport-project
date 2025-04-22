@@ -120,10 +120,14 @@ def upgrade() -> None:
 
     prefs = []
     for i in range(1, 6):
+        match_gender = "不限"  # 這裡可以是來自前端的資料，或者是硬編碼的預設值
+        match_age = "18-25"   # 同上，可以根據需求改為不同的年齡區間
         pref = SportPreference(
             preference_id=i,
             member_id=members[i - 1].member_id,
-            sport_type_id=sport_types[i % 5].sport_type_id,
+            match_gender=match_gender,  # 填入性別
+            match_age=match_age         # 填入年齡區間
+            
         )
         prefs.append(pref)
     session.add_all(prefs)

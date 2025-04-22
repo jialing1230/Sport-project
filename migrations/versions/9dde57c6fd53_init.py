@@ -87,9 +87,9 @@ def upgrade() -> None:
     op.create_table('sport_preferences',
     sa.Column('preference_id', sa.Integer(), nullable=False),
     sa.Column('member_id', sa.String(length=36), nullable=True),
-    sa.Column('sport_type_id', sa.Integer(), nullable=True),
+    sa.Column('match_gender', sa.String(length=10), nullable=True),  # 加入性別欄位
+    sa.Column('match_age', sa.String(length=20), nullable=True),     # 加入年齡欄位
     sa.ForeignKeyConstraint(['member_id'], ['members.member_id'], ),
-    sa.ForeignKeyConstraint(['sport_type_id'], ['sport_types.sport_type_id'], ),
     sa.PrimaryKeyConstraint('preference_id')
     )
     op.create_index(op.f('ix_sport_preferences_preference_id'), 'sport_preferences', ['preference_id'], unique=False)

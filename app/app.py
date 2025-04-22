@@ -1,10 +1,8 @@
-# app.py
 import os
 from flask import Flask, render_template, request, redirect, url_for
 from app.routers.auth import auth_bp
 from app.routers.activity import activity_bp
 from app.routers.memeber import member_bp  # 使用原本的 "memeber" 模組路徑
-
 
 def create_app():
     app = Flask(__name__)
@@ -18,6 +16,7 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(activity_bp)
     app.register_blueprint(member_bp)
+    
     # 前端頁面路由
     @app.route("/")
     def index():
@@ -42,8 +41,24 @@ def create_app():
         return render_template('profiles.html', member_id=member_id)
     
     @app.route("/preference")
-    def preference_page():
-        return render_template("preference.html")
+    def user_preference_page():
+        # 從查詢參數取得 member_id
+        member_id = request.args.get('member_id')
+        if not member_id:
+            # 如果缺少 member_id，導回登入頁面
+            return redirect(url_for('login_html'))
+        # 將 member_id 注入模板
+        return render_template('preference.html', member_id=member_id)
+    
+    @app.route("/home")
+    def system_home_page():
+        # 從查詢參數取得 member_id
+        member_id = request.args.get('member_id')
+        if not member_id:
+            # 如果缺少 member_id，導回登入頁面
+            return redirect(url_for('login_html'))
+        # 將 member_id 注入模板
+        return render_template('home.html', member_id=member_id)
 
     return app
 

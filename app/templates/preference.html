@@ -1,262 +1,262 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>運動偏好設定</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      color: #333;
-      margin: 0;
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-    .container {
-      max-width: 800px;
-      width: 100%;
-      background-color: #fff;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-    .title-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 30px;
-    }
-    .logo-inline {
-      width: 50px;
-      height: 50px;
-      object-fit: contain;
-      border-radius: 50%;
-    }
-    h1 {
-      margin-bottom: 24px;
-      color: #2c4975;
-      white-space: nowrap;
-      font-size: 24px;
-      margin: 0;
-    }
-    .form-row {
-      margin-bottom: 20px;
-    }
-    .form-label {
-      margin-bottom: 20px;
-      font-weight: bold;
-      color: #2c4975;
-      display: block;
-    }
-    .sport-grid {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 15px;
-    }
-    .sport-card {
-      width: 100px;
-      flex: 0 0 auto;
-      border-radius: 12px;
-      text-align: left;
-      padding: 8px;
-      cursor: pointer;
-      background-color: #fafafa;
-      transition: 0.3s;
-    }
-    .sport-card:hover {
-      box-shadow: 0 0 8px rgba(0,0,0,0.1);
-      transform: translateY(-2px);
-    }
-    .sport-card.selected {
-      border: 2px solid #000; background-color: #ffffff; color: #000;
-    }
-    .sport-card img {
-      width: 100%;
-      height: 80px;
-      object-fit: cover;
-      border-radius: 6px;
-      margin-bottom: 5px;
-    }
-
-    /* ✅ 多選按鈕樣式 */
-    .multi-toggle-group {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .toggle-btn {
-      background: #f0f0f0;
-      padding: 8px 14px;
-      border-radius: 6px;
-      cursor: pointer;
-      border: 1px solid #ccc;
-      transition: 0.2s ease;
-    }
-    .toggle-btn input {
-      display: none;
-    }
-    .toggle-btn:has(input:checked) {
-      background-color: #eaf3fa;
-      border-color: #2c4975;
-      color: #2c4975;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-
-    /* ✅ 單選按鈕樣式 */
-    .radio-card-group {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .radio-card {
-      padding: 10px 20px;
-      background-color: #f9f9f9;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .radio-card input {
-      display: none;
-    }
-    .radio-card:has(input:checked) {
-      background-color: #eaf3fa;
-      border-color: #2c4975;
-      color: #2c4975;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-
-    .btn-primary {
-      padding: 10px 20px;
-      font-size: 16px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      color: white;
-      background-color: #81d3e1;
-      width: 100%;
-      transition: 0.2s ease;
-    }
-    .btn-primary:hover {
-      background-color: #2c4975;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="title-row">
-      <img src="static/logo.jpg" alt="Logo" class="logo-inline" />
-      <h1>運動偏好設定</h1>
-    </div>
-    <form id="preferenceForm">
-      <div class="form-row">
-        <label class="form-label">常參與的運動項目</label>
-        <div class="sport-grid" id="sportOptions">
-          <div class="sport-card" data-value="跑步"><img src="static/running.png"><div>跑步</div></div>
-          <div class="sport-card" data-value="羽球"><img src="static/badminten.jpg"><div>羽球</div></div>
-          <div class="sport-card" data-value="瑜珈"><img src="static/yoga.jpg"><div>瑜珈</div></div>
-          <div class="sport-card" data-value="健身"><img src="static/fitness.jpg"><div>健身</div></div>
-          <div class="sport-card" data-value="騎腳踏車"><img src="static/bike.jpg"><div>騎腳踏車</div></div>
-          <div class="sport-card" data-value="籃球"><img src="static/basketball.jpg"><div>籃球</div></div>
-          <div class="sport-card" data-value="游泳"><img src="static/swim.jpg"><div>游泳</div></div>
-          <div class="sport-card" data-value="排球"><img src="static/volleyball.jpg"><div>排球</div></div>
-        </div>
-      </div>
-
-      <div class="form-row">
-        <label class="form-label">平日可運動時段</label>
-        <div class="multi-toggle-group">
-          <label class="toggle-btn"><input type="checkbox" name="weekdayTime" value="早上">早上</label>
-          <label class="toggle-btn"><input type="checkbox" name="weekdayTime" value="中午">中午</label>
-          <label class="toggle-btn"><input type="checkbox" name="weekdayTime" value="晚上">晚上</label>
-        </div>
-      </div>
-      
-      <div class="form-row">
-        <label class="form-label">週末可運動時段</label>
-        <div class="multi-toggle-group">
-          <label class="toggle-btn"><input type="checkbox" name="weekendTime" value="早上">早上</label>
-          <label class="toggle-btn"><input type="checkbox" name="weekendTime" value="中午">中午</label>
-          <label class="toggle-btn"><input type="checkbox" name="weekendTime" value="晚上">晚上</label>
-        </div>
-      </div>
-
-      <div class="form-row">
-        <label class="form-label">運動夥伴類型</label>
-        <div class="radio-card-group">
-          <label class="radio-card"><input type="radio" name="matchGender" value="不限" required>不限</label>
-          <label class="radio-card"><input type="radio" name="matchGender" value="男">限男性</label>
-          <label class="radio-card"><input type="radio" name="matchGender" value="女">限女性</label>
-        </div>
-      </div>
-
-      <div class="form-row">
-        <label class="form-label">夥伴年紀區間</label>
-        <div class="radio-card-group">
-          <label class="radio-card"><input type="radio" name="matchAge" value="18-25">18–25</label>
-          <label class="radio-card"><input type="radio" name="matchAge" value="26-35">26–35</label>
-          <label class="radio-card"><input type="radio" name="matchAge" value="36-45">36–45</label>
-          <label class="radio-card"><input type="radio" name="matchAge" value="46-55">46–55</label>
-          <label class="radio-card"><input type="radio" name="matchAge" value="56up">56以上</label>
-        </div>
-      </div>
-
-      <button type="submit" class="btn-primary">保存偏好並開始探索</button>
-    </form>
-  </div>
-
-  <script>
-    const sportCards = document.querySelectorAll('.sport-card');
-    sportCards.forEach(card => {
-      card.addEventListener('click', () => {
-        card.classList.toggle('selected');
-      });
-    });
-
-    // 從 URL 中提取 member_id
-    const urlParams = new URLSearchParams(window.location.search);
-    const memberId = urlParams.get('member_id');
-    if (!memberId) {
-      alert("缺少 member_id，請重新登入");
-      window.location.href = "/login";  // 如果沒有找到 member_id，則跳轉到登入頁面
-    }
-
-    document.getElementById('preferenceForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const selectedSports = Array.from(document.querySelectorAll('.sport-card.selected'))
-                                  .map(card => card.dataset.value);
-      if (selectedSports.length === 0) {
-        alert("請至少選擇一項運動！");
-        return;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>運動偏好設定</title>
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        color: #333;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+      .container {
+        max-width: 800px;
+        width: 100%;
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      .title-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 30px;
+      }
+      .logo-inline {
+        width: 50px;
+        height: 50px;
+        object-fit: contain;
+        border-radius: 50%;
+      }
+      h1 {
+        margin-bottom: 24px;
+        color: #2c4975;
+        white-space: nowrap;
+        font-size: 24px;
+        margin: 0;
+      }
+      .form-row {
+        margin-bottom: 20px;
+      }
+      .form-label {
+        margin-bottom: 20px;
+        font-weight: bold;
+        color: #2c4975;
+        display: block;
+      }
+      .sport-grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+      }
+      .sport-card {
+        width: 100px;
+        flex: 0 0 auto;
+        border-radius: 12px;
+        text-align: left;
+        padding: 8px;
+        cursor: pointer;
+        background-color: #fafafa;
+        transition: 0.3s;
+      }
+      .sport-card:hover {
+        box-shadow: 0 0 8px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+      }
+      .sport-card.selected {
+        border: 2px solid #000; background-color: #ffffff; color: #000;
+      }
+      .sport-card img {
+        width: 100%;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 6px;
+        margin-bottom: 5px;
       }
 
-      const timePrefs = Array.from(document.querySelectorAll('input[name="weekdayTime"]:checked'))
-                             .map(el => el.value);
-      const matchGender = document.querySelector('input[name="matchGender"]:checked')?.value;
-      const matchAge = document.querySelector('input[name="matchAge"]:checked')?.value;
+      /* ✅ 多選按鈕樣式 */
+      .multi-toggle-group {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .toggle-btn {
+        background: #f0f0f0;
+        padding: 8px 14px;
+        border-radius: 6px;
+        cursor: pointer;
+        border: 1px solid #ccc;
+        transition: 0.2s ease;
+      }
+      .toggle-btn input {
+        display: none;
+      }
+      .toggle-btn:has(input:checked) {
+        background-color: #eaf3fa;
+        border-color: #2c4975;
+        color: #2c4975;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      }
 
-      const data = {
-        member_id: memberId,  // 添加 member_id
-        sports: selectedSports,
-        times: timePrefs,
-        matchGender,
-        matchAge
-      };
+      /* ✅ 單選按鈕樣式 */
+      .radio-card-group {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .radio-card {
+        padding: 10px 20px;
+        background-color: #f9f9f9;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      .radio-card input {
+        display: none;
+      }
+      .radio-card:has(input:checked) {
+        background-color: #eaf3fa;
+        border-color: #2c4975;
+        color: #2c4975;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      }
 
-      console.log("使用者偏好：", data);
+      .btn-primary {
+        padding: 10px 20px;
+        font-size: 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        color: white;
+        background-color: #81d3e1;
+        width: 100%;
+        transition: 0.2s ease;
+      }
+      .btn-primary:hover {
+        background-color: #2c4975;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="title-row">
+        <img src="static/logo.jpg" alt="Logo" class="logo-inline" />
+        <h1>運動偏好設定</h1>
+      </div>
+      <form id="preferenceForm">
+        <div class="form-row">
+          <label class="form-label">常參與的運動項目</label>
+          <div class="sport-grid" id="sportOptions">
+            <div class="sport-card" data-value="跑步"><img src="static/running.png"><div>跑步</div></div>
+            <div class="sport-card" data-value="羽球"><img src="static/badminten.jpg"><div>羽球</div></div>
+            <div class="sport-card" data-value="瑜珈"><img src="static/yoga.jpg"><div>瑜珈</div></div>
+            <div class="sport-card" data-value="健身"><img src="static/fitness.jpg"><div>健身</div></div>
+            <div class="sport-card" data-value="騎腳踏車"><img src="static/bike.jpg"><div>騎腳踏車</div></div>
+            <div class="sport-card" data-value="籃球"><img src="static/basketball.jpg"><div>籃球</div></div>
+            <div class="sport-card" data-value="游泳"><img src="static/swim.jpg"><div>游泳</div></div>
+            <div class="sport-card" data-value="排球"><img src="static/volleyball.jpg"><div>排球</div></div>
+          </div>
+        </div>
 
-      // 這裡可以將資料發送給後端
-      alert("已儲存偏好，將進入首頁");
-      window.location.href = "home.html"; // 假設保存後重定向到首頁
-    });
-  </script>
-</body>
+        <div class="form-row">
+          <label class="form-label">平日可運動時段</label>
+          <div class="multi-toggle-group">
+            <label class="toggle-btn"><input type="checkbox" name="weekdayTime" value="早上">早上</label>
+            <label class="toggle-btn"><input type="checkbox" name="weekdayTime" value="中午">中午</label>
+            <label class="toggle-btn"><input type="checkbox" name="weekdayTime" value="晚上">晚上</label>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <label class="form-label">週末可運動時段</label>
+          <div class="multi-toggle-group">
+            <label class="toggle-btn"><input type="checkbox" name="weekendTime" value="早上">早上</label>
+            <label class="toggle-btn"><input type="checkbox" name="weekendTime" value="中午">中午</label>
+            <label class="toggle-btn"><input type="checkbox" name="weekendTime" value="晚上">晚上</label>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label class="form-label">運動夥伴類型</label>
+          <div class="radio-card-group">
+            <label class="radio-card"><input type="radio" name="matchGender" value="不限" required>不限</label>
+            <label class="radio-card"><input type="radio" name="matchGender" value="男">限男性</label>
+            <label class="radio-card"><input type="radio" name="matchGender" value="女">限女性</label>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label class="form-label">夥伴年紀區間</label>
+          <div class="radio-card-group">
+            <label class="radio-card"><input type="radio" name="matchAge" value="18-25">18–25</label>
+            <label class="radio-card"><input type="radio" name="matchAge" value="26-35">26–35</label>
+            <label class="radio-card"><input type="radio" name="matchAge" value="36-45">36–45</label>
+            <label class="radio-card"><input type="radio" name="matchAge" value="46-55">46–55</label>
+            <label class="radio-card"><input type="radio" name="matchAge" value="56up">56以上</label>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary">保存偏好並開始探索</button>
+      </form>
+    </div>
+
+    <script>
+      const sportCards = document.querySelectorAll('.sport-card');
+      sportCards.forEach(card => {
+        card.addEventListener('click', () => {
+          card.classList.toggle('selected');
+        });
+      });
+
+      // 從 URL 中提取 member_id
+      const urlParams = new URLSearchParams(window.location.search);
+      const memberId = urlParams.get('member_id');
+      if (!memberId) {
+        alert("缺少 member_id，請重新登入");
+        window.location.href = "/login";  // 如果沒有找到 member_id，則跳轉到登入頁面
+      }
+
+      document.getElementById('preferenceForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const selectedSports = Array.from(document.querySelectorAll('.sport-card.selected'))
+                                    .map(card => card.dataset.value);
+        if (selectedSports.length === 0) {
+          alert("請至少選擇一項運動！");
+          return;
+        }
+
+        const timePrefs = Array.from(document.querySelectorAll('input[name="weekdayTime"]:checked'))
+                               .map(el => el.value);
+        const matchGender = document.querySelector('input[name="matchGender"]:checked')?.value;
+        const matchAge = document.querySelector('input[name="matchAge"]:checked')?.value;
+
+        const data = {
+          member_id: memberId,  // 添加 member_id
+          sports: selectedSports,
+          times: timePrefs,
+          matchGender,
+          matchAge
+        };
+
+        console.log("使用者偏好：", data);
+
+        // 這裡可以將資料發送給後端
+        alert("已儲存偏好，將進入首頁");
+        window.location.href = `/home?member_id=${memberId}`;// 假設保存後重定向到首頁
+      });
+    </script>
+  </body>
 </html>

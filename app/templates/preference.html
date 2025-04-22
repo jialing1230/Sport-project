@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -221,8 +220,17 @@
       });
     });
 
+    // 從 URL 中提取 member_id
+    const urlParams = new URLSearchParams(window.location.search);
+    const memberId = urlParams.get('member_id');
+    if (!memberId) {
+      alert("缺少 member_id，請重新登入");
+      window.location.href = "/login";  // 如果沒有找到 member_id，則跳轉到登入頁面
+    }
+
     document.getElementById('preferenceForm').addEventListener('submit', function(e) {
       e.preventDefault();
+      
       const selectedSports = Array.from(document.querySelectorAll('.sport-card.selected'))
                                   .map(card => card.dataset.value);
       if (selectedSports.length === 0) {
@@ -230,20 +238,24 @@
         return;
       }
 
-      const timePrefs = Array.from(document.querySelectorAll('input[name="time"]:checked'))
+      const timePrefs = Array.from(document.querySelectorAll('input[name="weekdayTime"]:checked'))
                              .map(el => el.value);
       const matchGender = document.querySelector('input[name="matchGender"]:checked')?.value;
       const matchAge = document.querySelector('input[name="matchAge"]:checked')?.value;
 
       const data = {
+        member_id: memberId,  // 添加 member_id
         sports: selectedSports,
         times: timePrefs,
         matchGender,
         matchAge
       };
+
       console.log("使用者偏好：", data);
+
+      // 這裡可以將資料發送給後端
       alert("已儲存偏好，將進入首頁");
-      window.location.href = "home.html";
+      window.location.href = "home.html"; // 假設保存後重定向到首頁
     });
   </script>
 </body>

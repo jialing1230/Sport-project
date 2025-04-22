@@ -849,7 +849,7 @@
             });
             const data = await res.json();
             if (res.ok && data.success) {
-              window.location.href = "/preference"; // 👈 加入這行
+              window.location.href = `/preference?member_id=${MEMBER_ID}`; // 👈 加入這行
             } else {
               throw new Error(data.error || "更新失敗");
             }

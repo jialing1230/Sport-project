@@ -143,6 +143,14 @@ def upgrade() -> None:
 
     # 設定唯一約束
     op.create_index('ix_preference_sport_preference_id_sport_type_id', 'preference_sport', ['preference_id', 'sport_type_id'], unique=True)
+    
+    op.create_table(
+        'time_option',
+        sa.Column('time_id', sa.Integer(), primary_key=True, autoincrement=True),
+        sa.Column('period', sa.String(length=50), nullable=False),  # 平日或周末
+        sa.Column('time_of_day', sa.String(length=50), nullable=False),  # 早上、中午或晚上
+        sa.Column('label', sa.String(length=100), nullable=False),  # 時間描述
+    )
     # ### end Alembic commands ###
 
 
@@ -167,4 +175,7 @@ def downgrade() -> None:
     op.drop_table('members')
     op.drop_index('ix_preference_sport_preference_id_sport_type_id', table_name='preference_sport')
     op.drop_table('preference_sport')
+    op.drop_index('ix_time_option_period_time_of_day', table_name='time_option')
+    op.drop_table('time_option')
+
     # ### end Alembic commands ###

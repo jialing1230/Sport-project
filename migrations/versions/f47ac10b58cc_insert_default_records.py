@@ -22,6 +22,7 @@ from app.models import (
     UserReview,
     ActivityJoin,
     ActivityReview,
+    TimeOption,
 )
 
 # revision identifiers, used by Alembic.
@@ -71,10 +72,12 @@ def upgrade() -> None:
     session.add_all(members)
     session.flush()
 
-    names = ["Running", "Swimming", "Cycling", "Yoga", "Hiking"]
+    # 運動名稱列表
+    names = ["跑步", "羽球", "瑜珈", "健身", "騎腳踏車", "籃球", "游泳", "排球", "網球", "桌球", "拳擊", "足球"]
+    # 運動類型資料創建
     sport_types = [
-        SportType(sport_type_id=i, name=names[i - 1])
-        for i in range(1, 6)
+    SportType(name=names[i])
+    for i in range(12)
     ]
     session.add_all(sport_types)
     session.flush()
@@ -170,7 +173,18 @@ def upgrade() -> None:
         act_revs.append(ar)
     session.add_all(act_revs)
 
+    time_options = [
+        TimeOption(period="平日", time_of_day="早上", label="平日早上"),
+        TimeOption(period="平日", time_of_day="中午", label="平日中午"),
+        TimeOption(period="平日", time_of_day="晚上", label="平日晚上"),
+        TimeOption(period="週末", time_of_day="早上", label="週末早上"),
+        TimeOption(period="週末", time_of_day="中午", label="週末中午"),
+        TimeOption(period="週末", time_of_day="晚上", label="週末晚上"),
+    ]
+    session.add_all(time_options)
+
     session.commit()
+
 
 def downgrade() -> None:
     bind = op.get_bind()
@@ -183,6 +197,7 @@ def downgrade() -> None:
     session.query(ExerciseRecord).filter(ExerciseRecord.record_id.in_([1, 2, 3, 4, 5])).delete()
     session.query(Activity).filter(Activity.activity_id.in_([1, 2, 3, 4, 5])).delete()
     session.query(SportType).filter(SportType.sport_type_id.in_([1, 2, 3, 4, 5])).delete()
+    session.query(TimeOption).filter(TimeOption.time_id.in_([1, 2, 3, 4, 5, 6])).delete()
     session.query(Member).filter(Member.email.in_([
         "user1@example.com",
         "user2@example.com",

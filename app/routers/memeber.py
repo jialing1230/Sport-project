@@ -160,6 +160,9 @@ def update_member(member_id):
             file.save(save_path)
             m.avatar_url = f"avatars/{filename}"
 
+        if m.is_first_login:
+            m.is_first_login = False
+
         m.updated_at = datetime.utcnow()
 
         try:

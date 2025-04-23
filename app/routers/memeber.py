@@ -1,4 +1,4 @@
-# app/routers/memeber.py
+# app/routers/member.py
 import os
 from flask import Blueprint, request, jsonify, current_app
 from werkzeug.utils import secure_filename
@@ -6,6 +6,9 @@ from datetime import datetime
 from sqlalchemy.exc import IntegrityError
 from app.database import get_db
 from app.models.member import Member
+from app.models.sport_preference import SportPreference
+from app.models.preference_sport import PreferenceSport
+from app.models.preference_time import PreferenceTime
 
 member_bp = Blueprint("members", __name__, url_prefix="/api/members")
 
@@ -172,9 +175,30 @@ def update_member(member_id):
 @member_bp.route("/<string:member_id>", methods=["DELETE"])
 def delete_member(member_id):
     with get_db() as db:
+        # 查找會員資料
         m = db.query(Member).get(member_id)
         if not m:
             return jsonify({"error": "找不到該會員"}), 404
+
+        # 找到該會員對應的 preference
+        preference = db.query(SportPreference).filter(SportPreference.member_id == member_id).first()
+        if preference:
+            preference_id = preference.preference_id  # 使用 preference_id 作為主鍵
+            
+            # 刪除 sport_preference 表中與該 preference_id 相關的資料
+            sport_preference = db.query(SportPreference).filter(SportPreference.preference_id == preference_id).first()
+            if sport_preference:
+                db.delete(sport_preference)
+            
+            # 刪除 preference_sport 表中與該 preference_id 相關的資料
+            preference_sport = db.query(PreferenceSport).filter(PreferenceSport.preference_id == preference_id).all()
+            for ps in preference_sport:
+                db.delete(ps)
+
+            # 刪除 preference_time 表中與該 preference_id 相關的資料
+            preference_time = db.query(PreferenceTime).filter(PreferenceTime.preference_id == preference_id).all()
+            for pt in preference_time:
+                db.delete(pt)
 
         # 刪除對應頭像圖片
         if m.avatar_url:
@@ -187,3 +211,4 @@ def delete_member(member_id):
         db.commit()
 
     return jsonify({"success": True}), 200
+

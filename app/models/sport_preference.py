@@ -15,3 +15,4 @@ class SportPreference(Base):
 
     # 新增關聯：一個運動偏好有多個運動類型
     sports = relationship("PreferenceSport", back_populates="preference")
+    times = relationship('PreferenceTime', back_populates='preference')

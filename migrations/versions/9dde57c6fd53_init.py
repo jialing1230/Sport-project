@@ -151,6 +151,20 @@ def upgrade() -> None:
         sa.Column('time_of_day', sa.String(length=50), nullable=False),  # 早上、中午或晚上
         sa.Column('label', sa.String(length=100), nullable=False),  # 時間描述
     )
+    op.create_index('ix_time_option_period_time_of_day', 'time_option', ['period', 'time_of_day'], unique=False)
+
+
+    op.create_table(
+        'preference_time',
+        sa.Column('preference_id', sa.Integer(), nullable=False),  # 外鍵
+        sa.Column('time_id', sa.Integer(), nullable=False),  # 外鍵
+        sa.ForeignKeyConstraint(['preference_id'], ['sport_preferences.preference_id']),
+        sa.ForeignKeyConstraint(['time_id'], ['time_option.time_id']),
+        sa.PrimaryKeyConstraint('preference_id', 'time_id'),
+    )
+    
+    # 設定唯一約束
+    op.create_index('ix_preference_time_preference_id_time_id', 'preference_time', ['preference_id', 'time_id'], unique=True)
     # ### end Alembic commands ###
 
 
@@ -177,5 +191,7 @@ def downgrade() -> None:
     op.drop_table('preference_sport')
     op.drop_index('ix_time_option_period_time_of_day', table_name='time_option')
     op.drop_table('time_option')
+    op.drop_index('ix_preference_time_preference_id_time_id', table_name='preference_time')
+    op.drop_table('preference_time')
 
     # ### end Alembic commands ###

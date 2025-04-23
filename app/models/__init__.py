@@ -8,6 +8,7 @@ from .user_review import UserReview
 from .exercise_record import ExerciseRecord
 from .preference_sport import PreferenceSport
 from .time_option import TimeOption
+from .preference_time import PreferenceTime
 
 __all__ = [
     "PreferenceSport",
@@ -20,4 +21,5 @@ __all__ = [
     "UserReview",
     "ExerciseRecord",
     "TimeOption",
+    "PreferenceTime",
 ]

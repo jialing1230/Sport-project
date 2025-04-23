@@ -112,6 +112,8 @@ def login_member():
         "member_id": user.member_id,
         "email": user.email,
         "name": user.name,
+        "is_first_login": user.is_first_login,
+        "is_unfinish_preference": user.is_unfinish_preference
     }), 200
 
 

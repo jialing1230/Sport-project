@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.models import SportType, TimeOption, SportPreference, PreferenceTime, PreferenceSport
+from app.models import SportType, TimeOption, SportPreference, PreferenceTime, PreferenceSport, Member
 from app.database import get_db  # 使用 get_db 來獲取資料庫連線
 
 # 註冊 Blueprint
@@ -67,6 +67,11 @@ def update_preferences():
             )
             db.add(preference_time)
         
+        member = db.query(Member).get(member_id)
+        if member and member.is_unfinish_preference:
+            member.is_unfinish_preference = False
+            db.add(member)
+
         db.commit()  # 提交資料
 
     return jsonify({"message": "偏好設定已儲存"}), 200

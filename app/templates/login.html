@@ -221,8 +221,14 @@
             throw new Error(result.error || "登入失敗");
           }
 
-          // 登入成功，帶 member_id 去 profiles 頁面
-          window.location.href = `/profiles?member_id=${result.member_id}`;
+          // 根據後端回傳的狀態導向不同頁面
+          if (result.is_first_login) {
+         window.location.href = `/profiles?member_id=${result.member_id}`;
+          } else if (result.is_unfinish_preference) {
+            window.location.href = `/preference?member_id=${result.member_id}`;
+          } else {
+           window.location.href = `/home?member_id=${result.member_id}`;
+          }
         } catch (err) {
           alert(err.message);
           btn.textContent = "登入";

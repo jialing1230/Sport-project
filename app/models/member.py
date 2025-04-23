@@ -19,6 +19,7 @@ class Member(Base):
     area = Column(String(50), nullable=True, comment="鄉鎮市區")
     avatar_url = Column(String(255), nullable=True, comment="頭像檔案路徑")
     is_first_login = Column(Boolean, default=True, comment="是否為第一次登入")
+    is_unfinish_preference = Column(Boolean, default=True, comment="是否完成偏好")
 
     sport_preferences = relationship("SportPreference", back_populates="member")
     activities = relationship("Activity", back_populates="organizer")

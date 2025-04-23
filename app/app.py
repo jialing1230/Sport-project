@@ -64,7 +64,8 @@ def create_app():
     
     @app.route("/profile_view")
     def profile_view():
-        return render_template("profile_view.html")
+        member_id = request.args.get("member_id")
+        return render_template("profile_view.html", member_id=member_id)
 
     return app
 

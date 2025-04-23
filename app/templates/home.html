@@ -83,7 +83,7 @@
         <a href="#">場地查詢</a>
         <a href="#">評價</a>
         <!-- 顯示會員頭像 -->
-        <a href="#" id="profileLink">
+        <a href="/profile_view?member_id={{ member_id }}" id="profileLink">
           <img
             id="profileImage"
             src="{{ url_for('static', filename='avatars/' + member_id + '.png') }}"
@@ -92,6 +92,7 @@
             onerror="this.src='{{ url_for('static', filename='avatars/default.jpg') }}';"
           />
         </a>
+        
       </nav>
     </header>
 

@@ -44,23 +44,31 @@
     }
 
     .profile-info {
-      text-align: center;
+      text-align: left;
+      margin-top: 20px;
     }
 
     .profile-info h2 {
       color: var(--deep-blue);
+      text-align: center;
       margin-bottom: 10px;
     }
 
-    .profile-info p {
-      margin: 8px 0;
-      color: var(--text-color);
-      font-size: 16px;
+    .profile-row {
+      display: flex;
+      margin: 6px 0;
     }
 
     .label {
+      width: 80px;
       color: var(--deep-blue);
       font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .value {
+      color: var(--text-color);
+      font-size: 16px;
     }
 
     .back-btn {
@@ -98,7 +106,12 @@
         font-size: 20px;
       }
 
-      .profile-info p {
+      .label {
+        width: 70px;
+        font-size: 14px;
+      }
+
+      .value {
         font-size: 14px;
       }
 
@@ -111,18 +124,23 @@
 </head>
 <body>
   <div class="profile-card">
-    <img id="avatar" src="" alt="會員頭像" class="profile-avatar" />
+    <img
+      src="{{ url_for('static', filename='avatars/' + member_id + '.png') }}"
+      alt="會員頭像"
+      class="profile-avatar"
+      onerror="this.src='{{ url_for('static', filename='avatars/default.jpg') }}';"
+    />
     <div class="profile-info">
       <h2 id="name">會員姓名</h2>
-      <p><span class="label">Email：</span><span id="email"></span></p>
-      <p><span class="label">性別：</span><span id="gender"></span></p>
-      <p><span class="label">生日：</span><span id="birthdate"></span></p>
-      <p><span class="label">身高：</span><span id="height"></span> cm</p>
-      <p><span class="label">體重：</span><span id="weight"></span> kg</p>
-      <p><span class="label">地區：</span><span id="location"></span></p>
+      <div class="profile-row"><span class="label">Email：</span><span class="value" id="email"></span></div>
+      <div class="profile-row"><span class="label">性別：</span><span class="value" id="gender"></span></div>
+      <div class="profile-row"><span class="label">生日：</span><span class="value" id="birthdate"></span></div>
+      <div class="profile-row"><span class="label">身高：</span><span class="value" id="height"></span> cm</div>
+      <div class="profile-row"><span class="label">體重：</span><span class="value" id="weight"></span> kg</div>
+      <div class="profile-row"><span class="label">地區：</span><span class="value" id="location"></span></div>
     </div>
     <div style="text-align:center">
-      <a href="/home" class="back-btn">← 返回首頁</a>
+      <a id="backBtn" class="back-btn">← 返回首頁</a>
     </div>
   </div>
 
@@ -136,9 +154,6 @@
       const res = await fetch(`/api/members/${memberId}`);
       const data = await res.json();
 
-      document.getElementById("avatar").src = data.avatar_url
-        ? `/static/${data.avatar_url}`
-        : "/static/default-avatar.png";
       document.getElementById("name").textContent = data.name || "未填寫";
       document.getElementById("email").textContent = data.email;
       document.getElementById("gender").textContent = data.gender || "未填寫";
@@ -147,6 +162,8 @@
       document.getElementById("weight").textContent = data.weight || "未填寫";
       document.getElementById("location").textContent =
         (data.city || "") + (data.area ? ` / ${data.area}` : "");
+
+      document.getElementById("backBtn").href = `/home?member_id=${memberId}`;
     }
 
     fetchMemberData();

@@ -72,7 +72,7 @@ def list_members():
     return jsonify(result), 200
 
 
-@member_bp.route("/<int:member_id>", methods=["GET"])
+@member_bp.route("/<string:member_id>", methods=["GET"])
 def get_member(member_id):
     with get_db() as db:
         u = db.get(Member, member_id)
@@ -87,6 +87,8 @@ def get_member(member_id):
         "birthdate": u.birthdate.isoformat() if u.birthdate else None,
         "height": u.height,
         "weight": u.weight,
+        "city": u.city,        
+        "area": u.area, 
         "avatar_url": u.avatar_url,
         "created_at": u.created_at.isoformat() if u.created_at else None,
         "updated_at": u.updated_at.isoformat() if u.updated_at else None,

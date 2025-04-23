@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>個人資料</title>
+  <style>
+    :root {
+      --main-color: #81d3e1;
+      --deep-blue: #2c4975;
+      --text-color: #444;
+      --bg-color: #fdf9ed;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-color);
+      margin: 0;
+      padding: 40px 20px;
+    }
+
+    .profile-card {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease-in-out;
+    }
+
+    .profile-card:hover {
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-avatar {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin: 0 auto 20px;
+      display: block;
+      border: 4px solid var(--main-color);
+    }
+
+    .profile-info {
+      text-align: center;
+    }
+
+    .profile-info h2 {
+      color: var(--deep-blue);
+      margin-bottom: 10px;
+    }
+
+    .profile-info p {
+      margin: 8px 0;
+      color: var(--text-color);
+      font-size: 16px;
+    }
+
+    .label {
+      color: var(--deep-blue);
+      font-weight: 600;
+    }
+
+    .back-btn {
+      display: inline-block;
+      margin: 30px auto 0;
+      text-align: center;
+      padding: 10px 24px;
+      background-color: var(--main-color);
+      color: white;
+      font-weight: bold;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background-color 0.2s;
+    }
+
+    .back-btn:hover {
+      background-color: var(--deep-blue);
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 20px 10px;
+      }
+
+      .profile-card {
+        padding: 20px;
+      }
+
+      .profile-avatar {
+        width: 100px;
+        height: 100px;
+      }
+
+      .profile-info h2 {
+        font-size: 20px;
+      }
+
+      .profile-info p {
+        font-size: 14px;
+      }
+
+      .back-btn {
+        font-size: 14px;
+        padding: 8px 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="profile-card">
+    <img id="avatar" src="" alt="會員頭像" class="profile-avatar" />
+    <div class="profile-info">
+      <h2 id="name">會員姓名</h2>
+      <p><span class="label">Email：</span><span id="email"></span></p>
+      <p><span class="label">性別：</span><span id="gender"></span></p>
+      <p><span class="label">生日：</span><span id="birthdate"></span></p>
+      <p><span class="label">身高：</span><span id="height"></span> cm</p>
+      <p><span class="label">體重：</span><span id="weight"></span> kg</p>
+      <p><span class="label">地區：</span><span id="location"></span></p>
+    </div>
+    <div style="text-align:center">
+      <a href="/home" class="back-btn">← 返回首頁</a>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const memberId = params.get("member_id");
+
+    async function fetchMemberData() {
+      if (!memberId) return;
+
+      const res = await fetch(`/api/members/${memberId}`);
+      const data = await res.json();
+
+      document.getElementById("avatar").src = data.avatar_url
+        ? `/static/${data.avatar_url}`
+        : "/static/default-avatar.png";
+      document.getElementById("name").textContent = data.name || "未填寫";
+      document.getElementById("email").textContent = data.email;
+      document.getElementById("gender").textContent = data.gender || "未填寫";
+      document.getElementById("birthdate").textContent = data.birthdate || "未填寫";
+      document.getElementById("height").textContent = data.height || "未填寫";
+      document.getElementById("weight").textContent = data.weight || "未填寫";
+      document.getElementById("location").textContent =
+        (data.city || "") + (data.area ? ` / ${data.area}` : "");
+    }
+
+    fetchMemberData();
+  </script>
+</body>
+</html>

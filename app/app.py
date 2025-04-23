@@ -61,6 +61,10 @@ def create_app():
             return redirect(url_for('login_html'))
         # 將 member_id 注入模板
         return render_template('home.html', member_id=member_id)
+    
+    @app.route("/profile_view")
+    def profile_view():
+        return render_template("profile_view.html")
 
     return app
 

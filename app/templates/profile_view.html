@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>會員資料</title>
+    <title>個人資料</title>
     <style>
       :root {
         --main-color: #81d3e1;
@@ -11,84 +11,125 @@
         --text-color: #444;
         --bg-color: #fdf9ed;
       }
+
       body {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background: var(--bg-color);
+        background-color: var(--bg-color);
         margin: 0;
         padding: 40px 20px;
       }
+
       .profile-card {
         max-width: 600px;
         margin: 0 auto;
-        background: #fff;
+        background: white;
         padding: 30px;
         border-radius: 16px;
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease-in-out;
       }
-      .avatar-wrapper {
+
+      .profile-card:hover {
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+      }
+
+      .profile-avatar {
         width: 140px;
         height: 140px;
-        margin: 0 auto 20px;
-      }
-      .profile-avatar {
-        width: 100%;
-        height: 100%;
         border-radius: 50%;
         object-fit: cover;
+        margin: 0 auto 20px;
+        display: block;
         border: 4px solid var(--main-color);
       }
+
       .profile-info {
+        text-align: left;
         margin-top: 20px;
       }
+
       .profile-info h2 {
-        text-align: center;
         color: var(--deep-blue);
+        text-align: center;
         margin-bottom: 10px;
       }
+
       .profile-row {
         display: flex;
         margin: 6px 0;
       }
+
       .label {
         width: 100px;
         color: var(--deep-blue);
         font-weight: 600;
+        flex-shrink: 0;
       }
+
       .value {
         color: var(--text-color);
         font-size: 16px;
       }
-      .btn-group {
-        text-align: center;
-        margin-top: 30px;
-      }
-      .btn-group a {
+
+      .back-btn {
         display: inline-block;
-        margin: 0 8px;
+        margin: 30px auto 0;
+        text-align: center;
         padding: 10px 24px;
-        background: var(--main-color);
-        color: #fff;
+        background-color: var(--main-color);
+        color: white;
+        font-weight: bold;
         border-radius: 8px;
         text-decoration: none;
-        font-weight: bold;
-        transition: background 0.2s;
+        transition: background-color 0.2s;
       }
-      .btn-group a:hover {
-        background: var(--deep-blue);
+
+      .back-btn:hover {
+        background-color: var(--deep-blue);
+      }
+
+      @media (max-width: 480px) {
+        body {
+          padding: 20px 10px;
+        }
+
+        .profile-card {
+          padding: 20px;
+        }
+
+        .profile-avatar {
+          width: 100px;
+          height: 100px;
+        }
+
+        .profile-info h2 {
+          font-size: 20px;
+        }
+
+        .label {
+          width: 90px;
+          font-size: 14px;
+        }
+
+        .value {
+          font-size: 14px;
+        }
+
+        .back-btn {
+          font-size: 14px;
+          padding: 8px 18px;
+        }
       }
     </style>
   </head>
   <body>
     <div class="profile-card">
-      <div class="avatar-wrapper">
-        <img
-          id="avatarImage"
-          class="profile-avatar"
-          src="{{ url_for('static', filename='avatars/' + member_id + '.png') }}"
-          alt="會員頭像"
-          onerror="this.src='{{ url_for('static', filename='avatars/default.jpg') }}';"
-        />
-      </div>
+      <img
+        src="{{ url_for('static', filename='avatars/' + member_id + '.png') }}"
+        alt="會員頭像"
+        class="profile-avatar"
+        onerror="this.src='{{ url_for('static', filename='avatars/default.jpg') }}';"
+      />
       <div class="profile-info">
         <h2 id="name">會員姓名</h2>
         <div class="profile-row">
@@ -115,9 +156,11 @@
           <span class="label">地區：</span
           ><span class="value" id="location"></span>
         </div>
+
         <hr style="margin: 16px 0" />
+
         <div class="profile-row">
-          <span class="label">喜好運動：</span
+          <span class="label">運動種類：</span
           ><span class="value" id="sports"></span>
         </div>
         <div class="profile-row">
@@ -129,57 +172,85 @@
           ><span class="value" id="match-age"></span>
         </div>
         <div class="profile-row">
-          <span class="label">平日時段：</span
-          ><span class="value" id="times-weekday"></span>
+          <span class="label">平日時段：</span>
+          <span class="value" id="weekday-times"></span>
         </div>
         <div class="profile-row">
-          <span class="label">週末時段：</span
-          ><span class="value" id="times-weekend"></span>
+          <span class="label">週末時段：</span>
+          <span class="value" id="weekend-times"></span>
         </div>
       </div>
-      <div class="btn-group">
-        <a href="/home?member_id={{ member_id }}">← 返回首頁</a>
-        <a href="/profile/edit?member_id={{ member_id }}">編輯資料</a>
+      <div style="text-align: center">
+        <a id="backBtn" class="back-btn">← 返回首頁</a>
       </div>
     </div>
+
     <script>
       const params = new URLSearchParams(window.location.search);
       const memberId = params.get("member_id");
-      async function fetchData() {
+
+      function getAgeFromBirthdate(birthdateStr) {
+        const [year, month] = birthdateStr.split("-").map(Number);
+        const today = new Date();
+        const birthDate = new Date(year, month - 1);
+        let age = today.getFullYear() - year;
+        if (today.getMonth() < birthDate.getMonth()) age--;
+        return { year, month, age };
+      }
+
+      async function fetchMemberData() {
+        if (!memberId) return;
+
         const res = await fetch(`/api/members/${memberId}`);
         const data = await res.json();
+
         document.getElementById("name").textContent = data.name || "未填寫";
-        document.getElementById("email").textContent = data.email || "未填寫";
-        const gMap = { m: "男", f: "女" ,male: '男',female: '女',};
-        document.getElementById("gender").textContent =
-          gMap[data.gender] || data.gender || "未填寫";
+        document.getElementById("email").textContent = data.email;
+        const genderMap = {
+          M: "男",
+          F: "女",
+          男: "男",
+          女: "女",
+          male: "男",
+          female: "女",
+        };
+        const genderDisplay =
+          genderMap[data.gender?.toLowerCase?.()] || "未填寫";
+        document.getElementById("gender").textContent = genderDisplay;
+
         if (data.birthdate) {
-          const [y, m] = data.birthdate.split("-");
-          const age =
-            new Date().getFullYear() -
-            +y -
-            (new Date().getMonth() < +m - 1 ? 1 : 0);
+          const { year, month, age } = getAgeFromBirthdate(data.birthdate);
           document.getElementById(
             "birthdate"
-          ).textContent = `${y}年${m}月（${age}歲）`;
+          ).textContent = `${year}年${month}月（${age}歲）`;
+        } else {
+          document.getElementById("birthdate").textContent = "未填寫";
         }
+
         document.getElementById("height").textContent = data.height || "未填寫";
         document.getElementById("weight").textContent = data.weight || "未填寫";
         document.getElementById("location").textContent =
-          `${data.city || ""}${data.area ? "/" + data.area : ""}` || "未填寫";
-        const p = data.sport_preferences || {};
+          (data.city || "") + (data.area ? ` / ${data.area}` : "");
+
+        const prefs = data.sport_preferences || {};
         document.getElementById("sports").textContent =
-          (p.sports || []).join("、") || "未填寫";
+          prefs.sports?.join("、") || "未填寫";
         document.getElementById("match-gender").textContent =
-          p.match_gender || "未填寫";
+          prefs.match_gender || "未填寫";
         document.getElementById("match-age").textContent =
-          p.match_age || "未填寫";
-        const wk = (p.times?.weekday || []).join("、") || "未填寫";
-        const we = (p.times?.weekend || []).join("、") || "未填寫";
-        document.getElementById("times-weekday").textContent = wk;
-        document.getElementById("times-weekend").textContent = we;
+          prefs.match_age || "未填寫";
+
+          const weekdayTimes = prefs.times?.weekday?.join("、") || "未填寫";
+  const weekendTimes = prefs.times?.weekend?.join("、") || "未填寫";
+
+  document.getElementById("weekday-times").textContent = weekdayTimes;
+  document.getElementById("weekend-times").textContent = weekendTimes;
+
+
+        document.getElementById("backBtn").href = `/home?member_id=${memberId}`;
       }
-      fetchData();
+
+      fetchMemberData();
     </script>
   </body>
 </html>

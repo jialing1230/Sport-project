@@ -138,8 +138,8 @@
         </div>
       </div>
       <div class="btn-group">
-        <a href="/profile/edit?member_id={{ member_id }}">編輯資料</a>
         <a href="/home?member_id={{ member_id }}">← 返回首頁</a>
+        <a href="/profile/edit?member_id={{ member_id }}">編輯資料</a>
       </div>
     </div>
     <script>
@@ -150,7 +150,7 @@
         const data = await res.json();
         document.getElementById("name").textContent = data.name || "未填寫";
         document.getElementById("email").textContent = data.email || "未填寫";
-        const gMap = { m: "男", f: "女" };
+        const gMap = { m: "男", f: "女" ,male: '男',female: '女',};
         document.getElementById("gender").textContent =
           gMap[data.gender] || data.gender || "未填寫";
         if (data.birthdate) {

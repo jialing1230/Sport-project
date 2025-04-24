@@ -9,6 +9,9 @@ from app.models.member import Member
 from app.models.sport_preference import SportPreference
 from app.models.preference_sport import PreferenceSport
 from app.models.preference_time import PreferenceTime
+from app.models.sport_type import SportType
+from app.models.time_option import TimeOption
+
 
 member_bp = Blueprint("members", __name__, url_prefix="/api/members")
 
@@ -79,20 +82,57 @@ def get_member(member_id):
         if not u:
             return jsonify({"error": "找不到該會員"}), 404
 
-    return jsonify({
-        "member_id": u.member_id,
-        "email": u.email,
-        "name": u.name,
-        "gender": u.gender,
-        "birthdate": u.birthdate.isoformat() if u.birthdate else None,
-        "height": u.height,
-        "weight": u.weight,
-        "city": u.city,        
-        "area": u.area, 
-        "avatar_url": u.avatar_url,
-        "created_at": u.created_at.isoformat() if u.created_at else None,
-        "updated_at": u.updated_at.isoformat() if u.updated_at else None,
-    }), 200
+        # 基本資料先放入字典
+        member_data = {
+            "member_id": u.member_id,
+            "email": u.email,
+            "name": u.name,
+            "gender": u.gender,
+            "birthdate": u.birthdate.isoformat() if u.birthdate else None,
+            "height": u.height,
+            "weight": u.weight,
+            "city": u.city,
+            "area": u.area,
+            "avatar_url": u.avatar_url,
+            "created_at": u.created_at.isoformat() if u.created_at else None,
+            "updated_at": u.updated_at.isoformat() if u.updated_at else None,
+        }
+
+        # 嘗試查詢該會員的偏好資料
+        preference = db.query(SportPreference).filter_by(member_id=member_id).first()
+        if preference:
+            # 運動種類名稱列表
+            sports = db.query(SportType.name).join(
+                PreferenceSport, PreferenceSport.sport_type_id == SportType.sport_type_id
+            ).filter(PreferenceSport.preference_id == preference.preference_id).all()
+            sport_names = [s.name for s in sports]
+
+            # 運動時段分類
+            time_labels = db.query(TimeOption.label).join(
+                PreferenceTime, PreferenceTime.time_id == TimeOption.time_id
+            ).filter(PreferenceTime.preference_id == preference.preference_id).all()
+
+            weekday = []
+            weekend = []
+            for t in time_labels:
+                if "週末" in t.label:
+                    weekend.append(t.label.replace("週末", ""))
+                else:
+                    weekday.append(t.label.replace("平日", ""))
+
+            # 加入 sport_preferences 區塊
+            member_data["sport_preferences"] = {
+                "sports": sport_names,
+                "match_gender": preference.match_gender,
+                "match_age": preference.match_age,
+                "times": {
+                    "weekday": weekday,
+                    "weekend": weekend
+                }
+            }
+
+        return jsonify(member_data), 200
+
 
 
 @member_bp.route("/login", methods=["POST"])
@@ -218,4 +258,6 @@ def delete_member(member_id):
         db.commit()
 
     return jsonify({"success": True}), 200
+
+
 

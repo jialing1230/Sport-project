@@ -3,11 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>個人資料</title>
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"
-      rel="stylesheet"
-    />
+    <title>會員資料</title>
     <style>
       :root {
         --main-color: #81d3e1;
@@ -17,24 +13,19 @@
       }
       body {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background-color: var(--bg-color);
+        background: var(--bg-color);
         margin: 0;
         padding: 40px 20px;
       }
       .profile-card {
         max-width: 600px;
         margin: 0 auto;
-        background: white;
+        background: #fff;
         padding: 30px;
         border-radius: 16px;
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease-in-out;
-      }
-      .profile-card:hover {
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
       }
       .avatar-wrapper {
-        position: relative;
         width: 140px;
         height: 140px;
         margin: 0 auto 20px;
@@ -46,41 +37,12 @@
         object-fit: cover;
         border: 4px solid var(--main-color);
       }
-      .camera-btn {
-        position: absolute;
-        bottom: 4px;
-        right: 4px;
-        width: 34px;
-        height: 34px;
-        background-color: var(--main-color);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: background-color 0.2s;
-      }
-      .camera-btn:hover {
-        background-color: var(--deep-blue);
-      }
-
-      .camera-btn svg {
-        width: 22px !important;
-        height: 22px !important;
-      }
-
-      .camera-btn svg path {
-        fill: none;
-        stroke: white;
-        stroke-width: 1;
-      }
       .profile-info {
-        text-align: left;
         margin-top: 20px;
       }
       .profile-info h2 {
-        color: var(--deep-blue);
         text-align: center;
+        color: var(--deep-blue);
         margin-bottom: 10px;
       }
       .profile-row {
@@ -91,93 +53,28 @@
         width: 100px;
         color: var(--deep-blue);
         font-weight: 600;
-        flex-shrink: 0;
       }
       .value {
         color: var(--text-color);
         font-size: 16px;
       }
-      .back-btn {
-        display: inline-block;
-        margin: 30px auto 0;
+      .btn-group {
         text-align: center;
+        margin-top: 30px;
+      }
+      .btn-group a {
+        display: inline-block;
+        margin: 0 8px;
         padding: 10px 24px;
-        background-color: var(--main-color);
-        color: white;
-        font-weight: bold;
+        background: var(--main-color);
+        color: #fff;
         border-radius: 8px;
         text-decoration: none;
-        transition: background-color 0.2s;
+        font-weight: bold;
+        transition: background 0.2s;
       }
-      .back-btn:hover {
-        background-color: var(--deep-blue);
-      }
-      #cropModal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.7);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 999;
-      }
-      #cropContainer {
-        background: #fff;
-        padding: 20px;
-        border-radius: 8px;
-      }
-      #cropImage {
-        max-width: 90vw;
-        max-height: 60vh;
-      }
-      #cropConfirm {
-        margin-top: 10px;
-        padding: 8px 16px;
-        background: #2c4975;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-      @media (max-width: 480px) {
-        body {
-          padding: 20px 10px;
-        }
-        .profile-card {
-          padding: 20px;
-        }
-        .avatar-wrapper {
-          width: 100px;
-          height: 100px;
-          margin-bottom: 16px;
-        }
-        .camera-btn {
-          width: 32px;
-          height: 32px;
-          bottom: 2px;
-          right: 2px;
-        }
-        .camera-btn svg {
-          width: 18px;
-          height: 18px;
-        }
-        .profile-info h2 {
-          font-size: 20px;
-        }
-        .label {
-          width: 90px;
-          font-size: 14px;
-        }
-        .value {
-          font-size: 14px;
-        }
-        .back-btn {
-          font-size: 14px;
-          padding: 8px 18px;
-        }
+      .btn-group a:hover {
+        background: var(--deep-blue);
       }
     </style>
   </head>
@@ -186,26 +83,12 @@
       <div class="avatar-wrapper">
         <img
           id="avatarImage"
+          class="profile-avatar"
           src="{{ url_for('static', filename='avatars/' + member_id + '.png') }}"
           alt="會員頭像"
-          class="profile-avatar"
           onerror="this.src='{{ url_for('static', filename='avatars/default.jpg') }}';"
         />
-        <input
-          type="file"
-          id="avatarInput"
-          accept="image/*"
-          style="display: none"
-        />
-        <label for="avatarInput" class="camera-btn" title="更換頭像">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M12 5a7 7 0 017 7 7 7 0 01-7 7 7 7 0 01-7-7 7 7 0 017-7m0-2a9 9 0 100 18 9 9 0 000-18zm8 4h-2.3l-1.7-2H8l-1.7 2H4a2 2 0 00-2 2v8a2 2 0 002 2h16a2 2 0 002-2v-8a2 2 0 00-2-2z"
-            />
-          </svg>
-        </label>
       </div>
-      
       <div class="profile-info">
         <h2 id="name">會員姓名</h2>
         <div class="profile-row">
@@ -246,138 +129,57 @@
           ><span class="value" id="match-age"></span>
         </div>
         <div class="profile-row">
-          <span class="label">運動時段：</span
-          ><span class="value" id="times"></span>
+          <span class="label">平日時段：</span
+          ><span class="value" id="times-weekday"></span>
+        </div>
+        <div class="profile-row">
+          <span class="label">週末時段：</span
+          ><span class="value" id="times-weekend"></span>
         </div>
       </div>
-      <div style="text-align: center">
-        <a id="backBtn" class="back-btn">← 返回首頁</a>
+      <div class="btn-group">
+        <a href="/profile/edit?member_id={{ member_id }}">編輯資料</a>
+        <a href="/home?member_id={{ member_id }}">← 返回首頁</a>
       </div>
     </div>
-    <div id="cropModal">
-      <div id="cropContainer">
-        <img id="cropImage" src="" alt="裁剪圖片" />
-        <button id="cropConfirm">完成裁剪</button>
-      </div>
-    </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script>
       const params = new URLSearchParams(window.location.search);
       const memberId = params.get("member_id");
-
-      function getAgeFromBirthdate(birthdateStr) {
-        const [year, month] = birthdateStr.split("-").map(Number);
-        const today = new Date();
-        const birthDate = new Date(year, month - 1);
-        let age = today.getFullYear() - year;
-        if (today.getMonth() < birthDate.getMonth()) age--;
-        return { year, month, age };
-      }
-
-      async function fetchMemberData() {
-        if (!memberId) return;
-
+      async function fetchData() {
         const res = await fetch(`/api/members/${memberId}`);
         const data = await res.json();
-
         document.getElementById("name").textContent = data.name || "未填寫";
-        document.getElementById("email").textContent = data.email;
-        const genderMap = {
-          m: "男",
-          f: "女",
-          男: "男",
-          女: "女",
-          male: "男",
-          female: "女",
-        };
-        const genderDisplay =
-          genderMap[data.gender?.toLowerCase?.()] || "未填寫";
-        document.getElementById("gender").textContent = genderDisplay;
-
+        document.getElementById("email").textContent = data.email || "未填寫";
+        const gMap = { m: "男", f: "女" };
+        document.getElementById("gender").textContent =
+          gMap[data.gender] || data.gender || "未填寫";
         if (data.birthdate) {
-          const { year, month, age } = getAgeFromBirthdate(data.birthdate);
+          const [y, m] = data.birthdate.split("-");
+          const age =
+            new Date().getFullYear() -
+            +y -
+            (new Date().getMonth() < +m - 1 ? 1 : 0);
           document.getElementById(
             "birthdate"
-          ).textContent = `${year}年${month}月（${age}歲）`;
-        } else {
-          document.getElementById("birthdate").textContent = "未填寫";
+          ).textContent = `${y}年${m}月（${age}歲）`;
         }
-
         document.getElementById("height").textContent = data.height || "未填寫";
         document.getElementById("weight").textContent = data.weight || "未填寫";
         document.getElementById("location").textContent =
-          (data.city || "") + (data.area ? ` / ${data.area}` : "");
-
-        const prefs = data.sport_preferences || {};
+          `${data.city || ""}${data.area ? "/" + data.area : ""}` || "未填寫";
+        const p = data.sport_preferences || {};
         document.getElementById("sports").textContent =
-          prefs.sports?.join("、") || "未填寫";
+          (p.sports || []).join("、") || "未填寫";
         document.getElementById("match-gender").textContent =
-          prefs.match_gender || "未填寫";
+          p.match_gender || "未填寫";
         document.getElementById("match-age").textContent =
-          prefs.match_age || "未填寫";
-
-        const weekdayTimes = prefs.times?.weekday?.join("、") || "";
-        const weekendTimes = prefs.times?.weekend?.join("、") || "";
-        let timesText = "";
-        if (weekdayTimes) timesText += `平日：${weekdayTimes}`;
-        if (weekdayTimes && weekendTimes) timesText += "　";
-        if (weekendTimes) timesText += `週末：${weekendTimes}`;
-        document.getElementById("times").textContent = timesText || "未填寫";
-
-        document.getElementById("backBtn").href = `/home?member_id=${memberId}`;
+          p.match_age || "未填寫";
+        const wk = (p.times?.weekday || []).join("、") || "未填寫";
+        const we = (p.times?.weekend || []).join("、") || "未填寫";
+        document.getElementById("times-weekday").textContent = wk;
+        document.getElementById("times-weekend").textContent = we;
       }
-
-      fetchMemberData();
-
-      const avatarInput = document.getElementById("avatarInput");
-      const cropModal = document.getElementById("cropModal");
-      const cropImage = document.getElementById("cropImage");
-      const cropConfirm = document.getElementById("cropConfirm");
-      const uploadStatus = document.getElementById("uploadStatus");
-      let cropper;
-
-      avatarInput.addEventListener("change", function () {
-        const file = this.files[0];
-        if (!file || !file.type.startsWith("image/")) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          cropImage.src = e.target.result;
-          cropModal.style.display = "flex";
-          cropper && cropper.destroy();
-          cropper = new Cropper(cropImage, {
-            aspectRatio: 1,
-            viewMode: 1,
-          });
-        };
-        reader.readAsDataURL(file);
-      });
-
-      cropConfirm.addEventListener("click", () => {
-  cropper
-    .getCroppedCanvas({ width: 300, height: 300 })
-    .toBlob(async (blob) => {
-      const formData = new FormData();
-      formData.append("avatar", blob);
-
-      try {
-        const res = await fetch(`/api/members/${memberId}`, {
-          method: "PUT",
-          body: formData,
-        });
-        const result = await res.json();
-        if (res.ok && result.avatar_url) {
-          document.getElementById("avatarImage").src = `/static/${
-            result.avatar_url
-          }?t=${Date.now()}`;
-        }
-      } catch (err) {
-        console.error("上傳錯誤：", err);
-      }
-      cropModal.style.display = "none";
-      cropper.destroy();
-    }, "image/png");
-});
-
+      fetchData();
     </script>
   </body>
 </html>

@@ -5,6 +5,7 @@ from app.routers.activity import activity_bp
 from app.routers.memeber import member_bp
 from app.routers.preference import preference_bp  
 
+
 def create_app():
     app = Flask(__name__)
 

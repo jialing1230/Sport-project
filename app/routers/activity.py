@@ -46,3 +46,8 @@ def list_activities():
         for a in activities
     ]
     return jsonify(result), 200
+
+@activity_bp.route("/test", methods=["GET"])
+def test_activity():
+    return jsonify({"message": "活動測試成功！"}), 200
+

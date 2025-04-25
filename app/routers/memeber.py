@@ -260,4 +260,66 @@ def delete_member(member_id):
     return jsonify({"success": True}), 200
 
 
+@member_bp.route("/<string:member_id>/full-update", methods=["PUT"])
+def update_member_full(member_id):
+    data = request.get_json()
+    print("收到資料：", data)
+    
+    height = data.get("height")
+    weight = data.get("weight")
+    city = data.get("city")
+    area = data.get("area")
+    pref = data.get("sport_preferences", {})
+
+    sports = pref.get("sports", [])
+    match_gender = pref.get("match_gender")
+    match_age = pref.get("match_age")
+    weekday_times = pref.get("times", {}).get("weekday", [])
+    weekend_times = pref.get("times", {}).get("weekend", [])
+
+    with get_db() as db:
+        member = db.query(Member).get(member_id)
+        if not member:
+            return jsonify({"error": "會員不存在"}), 404
+
+        member.height = height
+        member.weight = weight
+        member.city = city
+        member.area = area
+        db.add(member)
+
+        db.query(PreferenceSport).filter(
+            PreferenceSport.preference_id.in_(
+                db.query(SportPreference.preference_id).filter_by(member_id=member_id)
+            )
+        ).delete(synchronize_session=False)
+        
+        db.query(PreferenceTime).filter(
+            PreferenceTime.preference_id.in_(
+                db.query(SportPreference.preference_id).filter_by(member_id=member_id)
+            )
+        ).delete(synchronize_session=False)
+
+        db.query(SportPreference).filter_by(member_id=member_id).delete()
+
+        sport_pref = SportPreference(
+            member_id=member_id,
+            match_gender=match_gender,
+            match_age=match_age
+        )
+        db.add(sport_pref)
+        db.flush()
+
+        for sport_id in sports:
+            db.add(PreferenceSport(preference_id=sport_pref.preference_id, sport_type_id=int(sport_id)))
+        for tid in weekday_times + weekend_times:
+            db.add(PreferenceTime(preference_id=sport_pref.preference_id, time_id=int(tid)))
+
+
+        db.commit()
+
+    return jsonify({"message": "會員資料更新成功"})
+
+
+
 

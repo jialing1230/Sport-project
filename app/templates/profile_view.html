@@ -616,6 +616,7 @@
             "#times-weekend-input .weekend-checkbox:checked"
           )
         ).map((cb) => cb.value);
+
         const payload = {
           height,
           weight,
@@ -628,11 +629,15 @@
             times: { weekday: times_weekday, weekend: times_weekend },
           },
         };
-        await fetch(`/api/members/${memberId}`, {
+
+        // ✅ 改這一行 endpoint（PUT /full-update）
+        await fetch(`/api/members/${memberId}/full-update`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
+
+        // 重新抓資料並切回檢視模式
         await fetchData();
         exitEditMode();
       };
@@ -640,35 +645,47 @@
       function enterEditMode() {
         document.getElementById("view-btns").style.display = "none";
         document.getElementById("edit-btns").style.display = "";
+
         fetch("/api/preferences/options")
           .then((r) => r.json())
           .then((options) => {
             const sportsList = options.sport_types;
             const timeList = options.time_options;
-            const userSports = originalData.sport_preferences?.sports || [];
+
+            const userSportsRaw = originalData.sport_preferences?.sports || [];
+            const userSports = sportsList
+              .filter((s) => userSportsRaw.includes(s.name)) // 將名稱轉成 ID
+              .map((s) => s.sport_type_id);
+
             const userTimesWk =
               originalData.sport_preferences?.times?.weekday || [];
             const userTimesWe =
               originalData.sport_preferences?.times?.weekend || [];
+
+            // 喜好運動 checkbox group（value 為 sport_type_id）
             document.getElementById("sports").outerHTML =
-              `<div id=\"sports-input\" class=\"edit-checkbox-group\">` +
+              `<div id="sports-input" class="edit-checkbox-group">` +
               sportsList
                 .map(
                   (s) =>
-                    `<label><input type=\"checkbox\" class=\"sports-checkbox\" value=\"${
+                    `<label>
+                <input type="checkbox" class="sports-checkbox" value="${
+                  s.sport_type_id
+                }" ${userSports.includes(s.sport_type_id) ? "checked" : ""}/> ${
                       s.name
-                    }\" ${userSports.includes(s.name) ? "checked" : ""}/> ${
-                      s.name
-                    }</label>`
+                    }
+              </label>`
                 )
                 .join("") +
               `</div>`;
+
+            // 平日時段 checkbox group
             document.getElementById("times-weekday").outerHTML =
               `<div id="times-weekday-input" class="edit-checkbox-group">` +
               timeList
                 .filter((t) => t.label.startsWith("平日"))
                 .map((t) => {
-                  const display = t.label.replace("平日", ""); // 顯示「早上」「中午」「晚上」
+                  const display = t.label.replace("平日", "");
                   const checked = userTimesWk.includes(display)
                     ? "checked"
                     : "";
@@ -677,6 +694,7 @@
                 .join("") +
               `</div>`;
 
+            // 週末時段 checkbox group
             document.getElementById("times-weekend").outerHTML =
               `<div id="times-weekend-input" class="edit-checkbox-group">` +
               timeList
@@ -691,21 +709,23 @@
                 .join("") +
               `</div>`;
 
+            // 身高與體重欄位
             document.getElementById(
               "height"
-            ).outerHTML = `<input id=\"height-input\" type=\"number\" value=\"${
+            ).outerHTML = `<input id="height-input" type="number" value="${
               originalData.height || ""
-            }\" class=\"edit-field\" style=\"width:50px; padding:6px; border-radius:6px; border:1.5px solid var(--main-color);\">`;
+            }" class="edit-field" style="width:50px; padding:6px; border-radius:6px; border:1.5px solid var(--main-color);">`;
             document.getElementById(
               "weight"
-            ).outerHTML = `<input id=\"weight-input\" type=\"number\" value=\"${
+            ).outerHTML = `<input id="weight-input" type="number" value="${
               originalData.weight || ""
-            }\" class=\"edit-field\" style=\"width:50px; padding:6px; border-radius:6px; border:1.5px solid var(--main-color);\">`;
-            // 僅增改地區為下拉選單
+            }" class="edit-field" style="width:50px; padding:6px; border-radius:6px; border:1.5px solid var(--main-color);">`;
+
+            // 地區選單
             const cityOptions = Object.keys(cityDistrictData)
               .map(
                 (c) =>
-                  `<option value=\"${c}\" ${
+                  `<option value="${c}" ${
                     c === originalData.city ? "selected" : ""
                   }>${c}</option>`
               )
@@ -715,63 +735,60 @@
             const areaOptions = cityDistrictData[initCity]
               .map(
                 (a) =>
-                  `<option value=\"${a}\" ${
+                  `<option value="${a}" ${
                     a === originalData.area ? "selected" : ""
                   }>${a}</option>`
               )
               .join("");
-            document.getElementById("location").outerHTML =
-              `<div id=\"location-input\" style=\"display:flex;gap:8px;\">` +
-              `<select id=\"city-input\" class=\"edit-field\" style=\"padding:6px;border:1.5px solid var(--main-color);border-radius:6px;\">${cityOptions}</select>` +
-              `<select id=\"area-input\" class=\"edit-field\" style=\"padding:6px;border:1.5px solid var(--main-color);border-radius:6px;\">${areaOptions}</select></div>`;
+
+            document.getElementById("location").outerHTML = `
+        <div id="location-input" style="display:flex;gap:8px;">
+          <select id="city-input" class="edit-field" style="padding:6px;border:1.5px solid var(--main-color);border-radius:6px;">${cityOptions}</select>
+          <select id="area-input" class="edit-field" style="padding:6px;border:1.5px solid var(--main-color);border-radius:6px;">${areaOptions}</select>
+        </div>`;
+
             document
               .getElementById("city-input")
               .addEventListener("change", function () {
                 const areas = cityDistrictData[this.value] || [];
                 document.getElementById("area-input").innerHTML = areas
-                  .map((a) => `<option value=\"${a}\">${a}</option>`)
+                  .map((a) => `<option value="${a}">${a}</option>`)
                   .join("");
               });
-            console.log(
-              "原始 match_gender：",
-              originalData.sport_preferences?.match_gender
-            );
 
+            // 偏好性別
             let matchGenderRaw =
               originalData.sport_preferences?.match_gender || "";
             if (matchGenderRaw === "男") matchGenderRaw = "m";
             if (matchGenderRaw === "女") matchGenderRaw = "f";
-
             const matchGender = matchGenderRaw.trim().toLowerCase();
-            console.log(
-              "原始 match_gender：",
-              originalData.sport_preferences?.match_gender
-            );
-            console.log("處理後 matchGender：", matchGender);
-
             document.getElementById("match-gender").outerHTML = `
-  <select id="match-gender-input" class="edit-field"
-    style="padding:6px;border:1.5px solid var(--main-color);border-radius:6px;">
-    <option value="" ${matchGender === "" ? "selected" : ""}>未填寫</option>
-    <option value="m" ${matchGender === "m" ? "selected" : ""}>男</option>
-    <option value="f" ${matchGender === "f" ? "selected" : ""}>女</option>
-  </select>`;
+        <select id="match-gender-input" class="edit-field"
+          style="padding:6px;border:1.5px solid var(--main-color);border-radius:6px;">
+          <option value="" ${
+            matchGender === "" ? "selected" : ""
+          }>未填寫</option>
+          <option value="m" ${matchGender === "m" ? "selected" : ""}>男</option>
+          <option value="f" ${matchGender === "f" ? "selected" : ""}>女</option>
+        </select>`;
 
+            // 偏好年齡（單選 checkbox）
             const matchAge = originalData.sport_preferences?.match_age || "";
-
             document.getElementById("match-age").outerHTML = `
-  <div id="match-age-input" class="edit-checkbox-group" style="display: flex; flex-wrap: wrap; gap: 8px;">
-    ${["18-25", "26-35", "36-45", "46-55", "56up"]
-      .map(
-        (range) => `
-        <label>
-          <input type="checkbox" class="match-age-checkbox" value="${range}" ${
-          matchAge === range ? "checked" : ""
-        }/> ${range.replace("up", "以上").replace("-", "–")}
-        </label>`
-      )
-      .join("")}
-  </div>`;
+        <div id="match-age-input" class="edit-checkbox-group" style="display: flex; flex-wrap: wrap; gap: 8px;">
+          ${["18-25", "26-35", "36-45", "46-55", "56up"]
+            .map(
+              (range) => `
+              <label>
+                <input type="checkbox" class="match-age-checkbox" value="${range}" ${
+                matchAge === range ? "checked" : ""
+              }/> ${range.replace("up", "以上").replace("-", "–")}
+              </label>`
+            )
+            .join("")}
+        </div>`;
+
+            // 限制只能選一個 match-age
             setTimeout(() => {
               document.querySelectorAll(".match-age-checkbox").forEach((cb) => {
                 cb.addEventListener("change", function () {
@@ -786,11 +803,6 @@
               });
             }, 0);
           });
-      }
-      function exitEditMode() {
-        document.getElementById("view-btns").style.display = "";
-        document.getElementById("edit-btns").style.display = "none";
-        fetchData();
       }
     </script>
   </body>

@@ -21,6 +21,8 @@ class Activity(Base):
     location_lat = Column(Float)
     location_lng = Column(Float)
     max_participants = Column(Integer)
+    min_age = Column(Integer, nullable=True)           # 最低年齡限制（新增）
+    max_age = Column(Integer, nullable=True)           # 最高年齡限制（新增）
     organizer_id = Column(String(36), ForeignKey("members.member_id"))
     level = Column(String(50))
     sport_type_id = Column(Integer, ForeignKey("sport_types.sport_type_id"))

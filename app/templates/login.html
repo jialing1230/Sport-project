@@ -119,17 +119,42 @@
         transform: translateY(-1px);
       }
 
-      @media screen and (max-width: 768px) {
+      @media (max-width: 768px) {
         .container {
           flex-direction: column;
+          padding: 10px;
         }
-
         .image-box {
           display: none;
         }
-
         .title-row {
-          justify-content: center;
+          gap: 8px;
+          margin-bottom: 18px;
+        }
+        h1 {
+          font-size: 20px;
+        }
+        .form-row {
+          margin-bottom: 10px;
+        }
+        .form-label {
+          font-size: 15px;
+        }
+        .form-input {
+          font-size: 15px;
+        }
+        .btn-primary {
+          font-size: 15px;
+          padding: 8px 0;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .container {
+          padding: 2px;
+        }
+        h1 {
+          font-size: 17px;
         }
       }
     </style>

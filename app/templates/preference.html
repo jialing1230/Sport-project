@@ -148,6 +148,47 @@
       .btn-primary:hover {
         background-color: #2c4975;
       }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 10px;
+        }
+        .title-row {
+          gap: 8px;
+          margin-bottom: 18px;
+        }
+        h1 {
+          font-size: 20px;
+        }
+        .form-row {
+          margin-bottom: 12px;
+        }
+        .form-label {
+          font-size: 15px;
+        }
+        .sport-grid {
+          gap: 8px;
+        }
+        .sport-card {
+          width: 80px;
+          padding: 4px;
+        }
+        .sport-card img {
+          height: 60px;
+        }
+        .btn-primary {
+          font-size: 15px;
+          padding: 8px 0;
+        }
+      }
+      @media (max-width: 480px) {
+        .container {
+          padding: 2px;
+        }
+        h1 {
+          font-size: 17px;
+        }
+      }
     </style>
   </head>
   <body>
@@ -191,10 +232,10 @@
               />不限</label
             >
             <label class="radio-card"
-              ><input type="radio" name="matchGender" value="男" />限男性</label
+              ><input type="radio" name="matchGender" value="男" />男</label
             >
             <label class="radio-card"
-              ><input type="radio" name="matchGender" value="女" />限女性</label
+              ><input type="radio" name="matchGender" value="女" />女</label
             >
           </div>
         </div>

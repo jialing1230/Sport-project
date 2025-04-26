@@ -320,6 +320,22 @@ def update_member_full(member_id):
 
     return jsonify({"message": "會員資料更新成功"})
 
+@member_bp.route("/<string:member_id>/avatar", methods=["POST"])
+def update_avatar(member_id):
+    if "avatar" not in request.files:
+        return jsonify({"error": "缺少頭像檔案"}), 400
+
+    file = request.files["avatar"]
+    if not file:
+        return jsonify({"error": "無效的檔案"}), 400
+
+    filename = f"{member_id}.png"
+    upload_folder = current_app.config["UPLOAD_FOLDER"]
+    os.makedirs(upload_folder, exist_ok=True)
+    save_path = os.path.join(upload_folder, filename)
+
+    file.save(save_path)
+    return jsonify({"message": "頭像更新成功"}), 200
 
 
 

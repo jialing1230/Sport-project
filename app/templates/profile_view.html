@@ -4,12 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>會員資料</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"
+      rel="stylesheet"
+    />
     <style>
       :root {
         --main-color: #81d3e1;
         --deep-blue: #2c4975;
         --text-color: #444;
-        --bg-color: #fdf9ed;
+        --bg-color: #f4f4f4;;
       }
       body {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -39,6 +43,7 @@
       }
       .profile-info {
         margin-top: 20px;
+        
       }
       .profile-info h2 {
         text-align: center;
@@ -49,11 +54,18 @@
         display: flex;
         margin: 12px 0;
         align-items: center;
+        justify-content: flex-start; /* 確保內容從左側開始排列 */
+    padding-left: 205px; /* 增加左側內距 */
       }
       .label {
+        width: 120px; /* 增加標籤的寬度，讓內容更整齊 */
         width: 100px;
         min-width: 100px;
         font-weight: bold;
+        text-align: right; /* 將標籤文字靠右對齊 */
+    margin-right: 15px; /* 增加標籤與值之間的間距 */
+    color: #666; /* 調整文字顏色為較淺的灰色 */
+        
       }
       .value,
       .edit-field {
@@ -107,7 +119,7 @@
   </head>
   <body>
     <div class="profile-card">
-      <div class="avatar-wrapper">
+      <div class="avatar-wrapper" style="position: relative;">
         <img
           id="avatarImage"
           class="profile-avatar"
@@ -115,6 +127,29 @@
           alt="會員頭像"
           onerror="this.src='{{ url_for('static', filename='avatars/default.jpg') }}';"
         />
+        <button
+          id="changeAvatarBtn"
+          style="
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: var(--main-color);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+          "
+        >
+          <img
+            src="{{ url_for('static', filename='icons/camera-icon.png') }}"
+            alt="更換頭像"
+            style="width: 35px; height: 35px;"
+          />
+        </button>
       </div>
       <div class="profile-info">
         <h2 id="name">會員姓名</h2>
@@ -174,6 +209,17 @@
       </div>
     </div>
 
+    <div id="cropModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 1000; align-items: center; justify-content: center;">
+      <div style="background: #fff; padding: 20px; border-radius: 8px; max-width: 90%; max-height: 90%; text-align: center;">
+        <img id="cropImage" style="max-width: 100%; max-height: 60vh;" />
+        <div style="margin-top: 20px;">
+          <button id="cropConfirm" style="padding: 10px 20px; background: #2c4975; color: #fff; border: none; border-radius: 8px; cursor: pointer;">完成裁剪</button>
+          <button id="cropCancel" style="padding: 10px 20px; background: #ccc; color: #444; border: none; border-radius: 8px; cursor: pointer; margin-left: 10px;">取消</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script>
       const cityDistrictData = {
         台北市: [
@@ -823,6 +869,72 @@
             }, 0);
           });
       }
+
+      const changeAvatarBtn = document.getElementById("changeAvatarBtn");
+      const cropModal = document.getElementById("cropModal");
+      const cropImage = document.getElementById("cropImage");
+      const cropConfirm = document.getElementById("cropConfirm");
+      const cropCancel = document.getElementById("cropCancel");
+      const avatarImage = document.getElementById("avatarImage");
+      let cropper;
+
+      // 點擊更換頭像按鈕
+      changeAvatarBtn.addEventListener("click", () => {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/*";
+        input.onchange = (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              cropImage.src = event.target.result;
+              cropModal.style.display = "flex";
+
+              // 初始化 Cropper.js
+              if (cropper) cropper.destroy();
+              cropper = new Cropper(cropImage, {
+                aspectRatio: 1,
+                viewMode: 1,
+              });
+            };
+            reader.readAsDataURL(file);
+          }
+        };
+        input.click();
+      });
+
+      // 點擊完成裁剪按鈕
+      cropConfirm.addEventListener("click", async () => {
+        if (cropper) {
+          const canvas = cropper.getCroppedCanvas({
+            width: 300,
+            height: 300,
+          });
+
+          // 將裁剪後的圖片轉為 Blob
+          canvas.toBlob(async (blob) => {
+            const formData = new FormData();
+            formData.append("avatar", blob, "avatar.png");
+
+            // 上傳裁剪後的圖片
+            await fetch(`/api/members/{{ member_id }}/avatar`, {
+              method: "POST",
+              body: formData,
+            });
+
+            // 更新頭像顯示
+            avatarImage.src = canvas.toDataURL();
+            cropModal.style.display = "none";
+          });
+        }
+      });
+
+      // 點擊取消按鈕
+      cropCancel.addEventListener("click", () => {
+        cropModal.style.display = "none";
+        if (cropper) cropper.destroy();
+      });
     </script>
   </body>
-</html>
+</html

@@ -75,6 +75,37 @@
       .btn-delete:hover {
         background-color: #e57373;
       }
+      @media (max-width: 768px) {
+        .container {
+          padding: 10px;
+        }
+        .table-responsive {
+          overflow-x: auto;
+        }
+        .table {
+          font-size: 14px;
+        }
+        .modal-content {
+          border-radius: 0.5rem;
+        }
+        .modal-body {
+          padding: 1rem !important;
+        }
+        .modal-header, .modal-footer {
+          padding: 0.75rem 1rem;
+        }
+      }
+      @media (max-width: 480px) {
+        .container {
+          padding: 2px;
+        }
+        h1 {
+          font-size: 18px;
+        }
+        .table {
+          font-size: 12px;
+        }
+      }
     </style>
   </head>
   <body>
@@ -161,9 +192,8 @@
                 <div class="col-md-6">
                   <label for="gender" class="form-label">性別</label>
                   <select class="form-select" id="gender">
-                    <option value="male">男</option>
-                    <option value="female">女</option>
-                    <option value="other">其他</option>
+                    <option value="男">男</option>
+                    <option value="女">女</option>
                   </select>
                 </div>
                 <div class="col-md-6">

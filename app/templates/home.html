@@ -72,6 +72,49 @@
         border-radius: 50%;
         object-fit: cover;
       }
+      @media (max-width: 768px) {
+        header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 10px;
+        }
+        .hero {
+          padding: 20px;
+          font-size: 18px;
+        }
+        .news-section {
+          margin-top: 18px;
+        }
+        .news-card {
+          padding: 12px;
+        }
+        .map-section {
+          margin-top: 20px;
+        }
+        #map {
+          height: 250px;
+        }
+        nav a {
+          margin-left: 10px;
+          font-size: 15px;
+        }
+        .avatar-img {
+          width: 32px;
+          height: 32px;
+        }
+      }
+      @media (max-width: 480px) {
+        .hero {
+          padding: 10px;
+          font-size: 15px;
+        }
+        h1, h2, h3 {
+          font-size: 17px !important;
+        }
+        .news-card {
+          font-size: 13px;
+        }
+      }
     </style>
   </head>
   <body>

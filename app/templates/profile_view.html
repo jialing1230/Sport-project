@@ -13,7 +13,7 @@
         --main-color: #81d3e1;
         --deep-blue: #2c4975;
         --text-color: #444;
-        --bg-color: #f4f4f4;;
+        --bg-color: #f4f4f4;
       }
       body {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -43,7 +43,6 @@
       }
       .profile-info {
         margin-top: 20px;
-        
       }
       .profile-info h2 {
         text-align: center;
@@ -55,7 +54,7 @@
         margin: 12px 0;
         align-items: center;
         justify-content: flex-start; /* 確保內容從左側開始排列 */
-    padding-left: 205px; /* 增加左側內距 */
+        padding-left: 205px; /* 增加左側內距 */
       }
       .label {
         width: 120px; /* 增加標籤的寬度，讓內容更整齊 */
@@ -63,9 +62,8 @@
         min-width: 100px;
         font-weight: bold;
         text-align: right; /* 將標籤文字靠右對齊 */
-    margin-right: 15px; /* 增加標籤與值之間的間距 */
-    color: #666; /* 調整文字顏色為較淺的灰色 */
-        
+        margin-right: 15px; /* 增加標籤與值之間的間距 */
+        color: #666; /* 調整文字顏色為較淺的灰色 */
       }
       .value,
       .edit-field {
@@ -115,11 +113,49 @@
         border-radius: 6px;
         padding: 6px;
       }
+      @media (max-width: 768px) {
+        .profile-card {
+          padding: 12px;
+          border-radius: 8px;
+        }
+        .avatar-wrapper {
+          width: 90px;
+          height: 90px;
+        }
+        .profile-info h2 {
+          font-size: 20px;
+        }
+        .profile-row {
+          flex-direction: column;
+          align-items: flex-start;
+          padding-left: 0;
+          margin: 8px 0;
+        }
+        .label {
+          width: auto;
+          min-width: 0;
+          text-align: left;
+          margin-right: 0;
+          margin-bottom: 2px;
+        }
+        .btn-group a {
+          padding: 8px 12px;
+          font-size: 15px;
+        }
+      }
+      @media (max-width: 480px) {
+        .profile-card {
+          padding: 6px;
+        }
+        .profile-info h2 {
+          font-size: 17px;
+        }
+      }
     </style>
   </head>
   <body>
     <div class="profile-card">
-      <div class="avatar-wrapper" style="position: relative;">
+      <div class="avatar-wrapper" style="position: relative">
         <img
           id="avatarImage"
           class="profile-avatar"
@@ -147,7 +183,7 @@
           <img
             src="{{ url_for('static', filename='icons/camera-icon.png') }}"
             alt="更換頭像"
-            style="width: 35px; height: 35px;"
+            style="width: 35px; height: 35px"
           />
         </button>
       </div>
@@ -209,12 +245,60 @@
       </div>
     </div>
 
-    <div id="cropModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 1000; align-items: center; justify-content: center;">
-      <div style="background: #fff; padding: 20px; border-radius: 8px; max-width: 90%; max-height: 90%; text-align: center;">
-        <img id="cropImage" style="max-width: 100%; max-height: 60vh;" />
-        <div style="margin-top: 20px;">
-          <button id="cropConfirm" style="padding: 10px 20px; background: #2c4975; color: #fff; border: none; border-radius: 8px; cursor: pointer;">完成裁剪</button>
-          <button id="cropCancel" style="padding: 10px 20px; background: #ccc; color: #444; border: none; border-radius: 8px; cursor: pointer; margin-left: 10px;">取消</button>
+    <div
+      id="cropModal"
+      style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+      "
+    >
+      <div
+        style="
+          background: #fff;
+          padding: 20px;
+          border-radius: 8px;
+          max-width: 90%;
+          max-height: 90%;
+          text-align: center;
+        "
+      >
+        <img id="cropImage" style="max-width: 100%; max-height: 60vh" />
+        <div style="margin-top: 20px">
+          <button
+            id="cropConfirm"
+            style="
+              padding: 10px 20px;
+              background: #2c4975;
+              color: #fff;
+              border: none;
+              border-radius: 8px;
+              cursor: pointer;
+            "
+          >
+            完成裁剪
+          </button>
+          <button
+            id="cropCancel"
+            style="
+              padding: 10px 20px;
+              background: #ccc;
+              color: #444;
+              border: none;
+              border-radius: 8px;
+              cursor: pointer;
+              margin-left: 10px;
+            "
+          >
+            取消
+          </button>
         </div>
       </div>
     </div>
@@ -614,8 +698,8 @@
         // 姓名、Email、性別
         document.getElementById("name").textContent = data.name || "未填寫";
         document.getElementById("email").textContent = data.email || "未填寫";
-        const gMap = { m: "男", f: "女", male: "男", female: "女" };
-        const genderKey = (data.gender || "").trim().toLowerCase();
+        const gMap = { 男: "男", 女: "女", 不限: "不限" };
+        const genderKey = (data.gender || "").trim();
         document.getElementById("gender").textContent =
           gMap[genderKey] || "未填寫";
 
@@ -645,10 +729,9 @@
         document.getElementById("sports").textContent =
           (p.sports || []).join("、") || "未填寫";
 
-        // 偏好性別（也要 map m/f）
-        const mgRaw = (p.match_gender || "").trim().toLowerCase();
+        // 偏好性別（直接顯示中文）
         document.getElementById("match-gender").textContent =
-          gMap[mgRaw] || "不限";
+          p.match_gender || "不限";
 
         // 偏好年齡、時段
         document.getElementById("match-age").textContent =
@@ -662,7 +745,11 @@
       fetchData();
 
       document.getElementById("edit-btn").onclick = enterEditMode;
-      document.getElementById("cancel-btn").onclick = () => location.reload();
+      document.getElementById("cancel-btn").onclick = function () {
+        document.getElementById("view-btns").style.display = "";
+        document.getElementById("edit-btns").style.display = "none";
+        fetchData();
+      };
 
       document.getElementById("save-btn").onclick = async () => {
         const payload = {
@@ -825,15 +912,13 @@
               });
 
             // 偏好性別下拉
-            let mg = originalData.sport_preferences?.match_gender || "";
-            if (mg === "男") mg = "m";
-            if (mg === "女") mg = "f";
+            let mg = originalData.sport_preferences?.match_gender || "不限";
             document.getElementById(
               "match-gender"
             ).outerHTML = `<select id="match-gender-input" class="edit-field">
-              <option value="" ${mg === "" ? "selected" : ""}>不限</option>
-              <option value="m" ${mg === "m" ? "selected" : ""}>男</option>
-              <option value="f" ${mg === "f" ? "selected" : ""}>女</option>
+              <option value="不限" ${mg === "不限" ? "selected" : ""}>不限</option>
+              <option value="男" ${mg === "男" ? "selected" : ""}>男</option>
+              <option value="女" ${mg === "女" ? "selected" : ""}>女</option>
             </select>`;
 
             // 偏好年齡（單選）
@@ -937,4 +1022,4 @@
       });
     </script>
   </body>
-</html
+</html>

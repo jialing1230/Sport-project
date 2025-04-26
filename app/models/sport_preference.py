@@ -1,8 +1,7 @@
-# app/models/sport_preference.py
-
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from app.database import Base
+
 
 class SportPreference(Base):
     __tablename__ = "sport_preferences"
@@ -15,4 +14,4 @@ class SportPreference(Base):
 
     # 新增關聯：一個運動偏好有多個運動類型
     sports = relationship("PreferenceSport", back_populates="preference")
-    times = relationship('PreferenceTime', back_populates='preference')
+    times = relationship("PreferenceTime", back_populates="preference")

@@ -648,7 +648,7 @@
         // 偏好性別（也要 map m/f）
         const mgRaw = (p.match_gender || "").trim().toLowerCase();
         document.getElementById("match-gender").textContent =
-          gMap[mgRaw] || "未填寫";
+          gMap[mgRaw] || "不限";
 
         // 偏好年齡、時段
         document.getElementById("match-age").textContent =
@@ -831,7 +831,7 @@
             document.getElementById(
               "match-gender"
             ).outerHTML = `<select id="match-gender-input" class="edit-field">
-              <option value="" ${mg === "" ? "selected" : ""}>未填寫</option>
+              <option value="" ${mg === "" ? "selected" : ""}>不限</option>
               <option value="m" ${mg === "m" ? "selected" : ""}>男</option>
               <option value="f" ${mg === "f" ? "selected" : ""}>女</option>
             </select>`;

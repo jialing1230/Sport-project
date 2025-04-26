@@ -4,12 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>會員資料</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"
+      rel="stylesheet"
+    />
     <style>
       :root {
         --main-color: #81d3e1;
         --deep-blue: #2c4975;
         --text-color: #444;
-        --bg-color: #fdf9ed;
+        --bg-color: #f4f4f4;
       }
       body {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -18,7 +22,7 @@
         padding: 40px 20px;
       }
       .profile-card {
-        max-width: 600px;
+        max-width: 800px;
         margin: 0 auto;
         background: #fff;
         padding: 30px;
@@ -47,16 +51,43 @@
       }
       .profile-row {
         display: flex;
-        margin: 6px 0;
+        margin: 12px 0;
+        align-items: center;
+        justify-content: flex-start; /* 確保內容從左側開始排列 */
+        padding-left: 205px; /* 增加左側內距 */
       }
       .label {
+        width: 120px; /* 增加標籤的寬度，讓內容更整齊 */
         width: 100px;
-        color: var(--deep-blue);
-        font-weight: 600;
+        min-width: 100px;
+        font-weight: bold;
+        text-align: right; /* 將標籤文字靠右對齊 */
+        margin-right: 15px; /* 增加標籤與值之間的間距 */
+        color: #666; /* 調整文字顏色為較淺的灰色 */
       }
-      .value {
+      .value,
+      .edit-field {
         color: var(--text-color);
         font-size: 16px;
+      }
+      .edit-checkbox-group label {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 6px;
+        padding: 4px 10px 4px 4px;
+        background: #f8fcfd;
+        border: 1.5px solid #81d3e1;
+        margin-right: 8px;
+        margin-bottom: 6px;
+        cursor: pointer;
+        transition: border 0.2s;
+      }
+      .edit-checkbox-group input[type="checkbox"] {
+        margin-right: 4px;
+        accent-color: #81d3e1;
+      }
+      .edit-checkbox-group label:hover {
+        border: 1.5px solid #2c4975;
       }
       .btn-group {
         text-align: center;
@@ -76,11 +107,55 @@
       .btn-group a:hover {
         background: var(--deep-blue);
       }
+      select.edit-field,
+      input.edit-field {
+        border: 1.5px solid var(--main-color);
+        border-radius: 6px;
+        padding: 6px;
+      }
+      @media (max-width: 768px) {
+        .profile-card {
+          padding: 12px;
+          border-radius: 8px;
+        }
+        .avatar-wrapper {
+          width: 90px;
+          height: 90px;
+        }
+        .profile-info h2 {
+          font-size: 20px;
+        }
+        .profile-row {
+          flex-direction: column;
+          align-items: flex-start;
+          padding-left: 0;
+          margin: 8px 0;
+        }
+        .label {
+          width: auto;
+          min-width: 0;
+          text-align: left;
+          margin-right: 0;
+          margin-bottom: 2px;
+        }
+        .btn-group a {
+          padding: 8px 12px;
+          font-size: 15px;
+        }
+      }
+      @media (max-width: 480px) {
+        .profile-card {
+          padding: 6px;
+        }
+        .profile-info h2 {
+          font-size: 17px;
+        }
+      }
     </style>
   </head>
   <body>
     <div class="profile-card">
-      <div class="avatar-wrapper">
+      <div class="avatar-wrapper" style="position: relative">
         <img
           id="avatarImage"
           class="profile-avatar"
@@ -88,6 +163,29 @@
           alt="會員頭像"
           onerror="this.src='{{ url_for('static', filename='avatars/default.jpg') }}';"
         />
+        <button
+          id="changeAvatarBtn"
+          style="
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: var(--main-color);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+          "
+        >
+          <img
+            src="{{ url_for('static', filename='icons/camera-icon.png') }}"
+            alt="更換頭像"
+            style="width: 35px; height: 35px"
+          />
+        </button>
       </div>
       <div class="profile-info">
         <h2 id="name">會員姓名</h2>
@@ -105,17 +203,17 @@
         </div>
         <div class="profile-row">
           <span class="label">身高：</span
-          ><span class="value" id="height"></span> cm
+          ><span class="value" id="height"></span>cm
         </div>
         <div class="profile-row">
           <span class="label">體重：</span
-          ><span class="value" id="weight"></span> kg
+          ><span class="value" id="weight"></span>kg
         </div>
         <div class="profile-row">
           <span class="label">地區：</span
           ><span class="value" id="location"></span>
         </div>
-        <hr style="margin: 16px 0" />
+        <hr style="margin: 20px 0" />
         <div class="profile-row">
           <span class="label">喜好運動：</span
           ><span class="value" id="sports"></span>
@@ -137,22 +235,475 @@
           ><span class="value" id="times-weekend"></span>
         </div>
       </div>
-      <div class="btn-group">
+      <div class="btn-group" id="view-btns">
         <a href="/home?member_id={{ member_id }}">← 返回首頁</a>
-        <a href="/profile/edit?member_id={{ member_id }}">編輯資料</a>
+        <a href="javascript:void(0);" id="edit-btn">編輯資料</a>
+      </div>
+      <div class="btn-group" id="edit-btns" style="display: none">
+        <a href="javascript:void(0);" id="save-btn">保存</a>
+        <a href="javascript:void(0);" id="cancel-btn">取消</a>
       </div>
     </div>
+
+    <div
+      id="cropModal"
+      style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+      "
+    >
+      <div
+        style="
+          background: #fff;
+          padding: 20px;
+          border-radius: 8px;
+          max-width: 90%;
+          max-height: 90%;
+          text-align: center;
+        "
+      >
+        <img id="cropImage" style="max-width: 100%; max-height: 60vh" />
+        <div style="margin-top: 20px">
+          <button
+            id="cropConfirm"
+            style="
+              padding: 10px 20px;
+              background: #2c4975;
+              color: #fff;
+              border: none;
+              border-radius: 8px;
+              cursor: pointer;
+            "
+          >
+            完成裁剪
+          </button>
+          <button
+            id="cropCancel"
+            style="
+              padding: 10px 20px;
+              background: #ccc;
+              color: #444;
+              border: none;
+              border-radius: 8px;
+              cursor: pointer;
+              margin-left: 10px;
+            "
+          >
+            取消
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script>
+      const cityDistrictData = {
+        台北市: [
+          "中正區",
+          "大同區",
+          "中山區",
+          "松山區",
+          "大安區",
+          "萬華區",
+          "信義區",
+          "士林區",
+          "北投區",
+          "內湖區",
+          "南港區",
+          "文山區",
+        ],
+        新北市: [
+          "板橋區",
+          "三重區",
+          "中和區",
+          "永和區",
+          "新莊區",
+          "新店區",
+          "土城區",
+          "樹林區",
+          "鶯歌區",
+          "三峽區",
+          "淡水區",
+          "汐止區",
+          "瑞芳區",
+          "蘆洲區",
+          "五股區",
+          "泰山區",
+          "林口區",
+          "深坑區",
+          "石碇區",
+          "坪林區",
+          "三芝區",
+          "石門區",
+          "八里區",
+          "平溪區",
+          "雙溪區",
+          "貢寮區",
+          "金山區",
+          "萬里區",
+          "烏來區",
+        ],
+        基隆市: [
+          "仁愛區",
+          "信義區",
+          "中正區",
+          "中山區",
+          "安樂區",
+          "暖暖區",
+          "七堵區",
+        ],
+        桃園市: [
+          "桃園區",
+          "中壢區",
+          "平鎮區",
+          "八德區",
+          "楊梅區",
+          "蘆竹區",
+          "大園區",
+          "龜山區",
+          "大溪區",
+          "龍潭區",
+          "新屋區",
+          "觀音區",
+          "復興區",
+        ],
+        新竹市: ["東區", "北區", "香山區"],
+        新竹縣: [
+          "竹北市",
+          "竹東鎮",
+          "新豐鄉",
+          "湖口鄉",
+          "新埔鎮",
+          "關西鎮",
+          "芎林鄉",
+          "寶山鄉",
+          "北埔鄉",
+          "峨眉鄉",
+          "橫山鄉",
+          "尖石鄉",
+          "五峰鄉",
+        ],
+        宜蘭縣: [
+          "宜蘭市",
+          "羅東鎮",
+          "蘇澳鎮",
+          "頭城鎮",
+          "礁溪鄉",
+          "壯圍鄉",
+          "員山鄉",
+          "冬山鄉",
+          "五結鄉",
+          "三星鄉",
+          "大同鄉",
+          "南澳鄉",
+        ],
+        苗栗縣: [
+          "苗栗市",
+          "頭份市",
+          "苑裡鎮",
+          "通霄鎮",
+          "竹南鎮",
+          "後龍鎮",
+          "卓蘭鎮",
+          "西湖鄉",
+          "造橋鄉",
+          "三灣鄉",
+          "南庄鄉",
+          "頭屋鄉",
+          "公館鄉",
+          "大湖鄉",
+          "獅潭鄉",
+          "泰安鄉",
+        ],
+        台中市: [
+          "中區",
+          "東區",
+          "南區",
+          "西區",
+          "北區",
+          "西屯區",
+          "北屯區",
+          "南屯區",
+          "太平區",
+          "大里區",
+          "霧峰區",
+          "烏日區",
+          "豐原區",
+          "后里區",
+          "東勢區",
+          "石岡區",
+          "新社區",
+          "和平區",
+          "神岡區",
+          "潭子區",
+          "大雅區",
+          "大肚區",
+          "龍井區",
+          "沙鹿區",
+          "清水區",
+          "梧棲區",
+          "大甲區",
+          "外埔區",
+          "大安區",
+        ],
+        彰化縣: [
+          "彰化市",
+          "員林市",
+          "和美鎮",
+          "鹿港鎮",
+          "溪湖鎮",
+          "田中鎮",
+          "北斗鎮",
+          "花壇鄉",
+          "芬園鄉",
+          "福興鄉",
+          "秀水鄉",
+          "埔心鄉",
+          "永靖鄉",
+          "社頭鄉",
+          "二水鄉",
+          "田尾鄉",
+          "埤頭鄉",
+          "芳苑鄉",
+          "大村鄉",
+          "竹塘鄉",
+          "溪州鄉",
+        ],
+        南投縣: [
+          "南投市",
+          "埔里鎮",
+          "草屯鎮",
+          "竹山鎮",
+          "集集鎮",
+          "名間鄉",
+          "鹿谷鄉",
+          "中寮鄉",
+          "魚池鄉",
+          "國姓鄉",
+          "水里鄉",
+          "信義鄉",
+          "仁愛鄉",
+        ],
+        雲林縣: [
+          "斗六市",
+          "斗南鎮",
+          "虎尾鎮",
+          "西螺鎮",
+          "土庫鎮",
+          "北港鎮",
+          "古坑鄉",
+          "大埤鄉",
+          "莿桐鄉",
+          "林內鄉",
+          "二崙鄉",
+          "崙背鄉",
+          "麥寮鄉",
+          "東勢鄉",
+          "褒忠鄉",
+          "臺西鄉",
+          "元長鄉",
+          "四湖鄉",
+          "口湖鄉",
+          "水林鄉",
+        ],
+        嘉義市: ["東區", "西區"],
+        嘉義縣: [
+          "太保市",
+          "朴子市",
+          "布袋鎮",
+          "大林鎮",
+          "民雄鄉",
+          "溪口鄉",
+          "新港鄉",
+          "六腳鄉",
+          "東石鄉",
+          "義竹鄉",
+          "鹿草鄉",
+          "水上鄉",
+          "中埔鄉",
+          "竹崎鄉",
+          "梅山鄉",
+          "番路鄉",
+          "大埔鄉",
+          "阿里山鄉",
+        ],
+        台南市: [
+          "中西區",
+          "東區",
+          "南區",
+          "北區",
+          "安平區",
+          "安南區",
+          "永康區",
+          "歸仁區",
+          "新化區",
+          "左鎮區",
+          "玉井區",
+          "楠西區",
+          "南化區",
+          "仁德區",
+          "關廟區",
+          "龍崎區",
+          "官田區",
+          "麻豆區",
+          "佳里區",
+          "西港區",
+          "七股區",
+          "將軍區",
+          "學甲區",
+          "北門區",
+          "新營區",
+          "後壁區",
+          "白河區",
+          "東山區",
+          "六甲區",
+          "下營區",
+          "柳營區",
+          "鹽水區",
+          "善化區",
+          "大內區",
+          "山上區",
+          "新市區",
+          "安定區",
+        ],
+        高雄市: [
+          "新興區",
+          "前金區",
+          "苓雅區",
+          "鹽埕區",
+          "鼓山區",
+          "旗津區",
+          "前鎮區",
+          "三民區",
+          "楠梓區",
+          "小港區",
+          "左營區",
+          "仁武區",
+          "大社區",
+          "岡山區",
+          "路竹區",
+          "阿蓮區",
+          "田寮區",
+          "燕巢區",
+          "橋頭區",
+          "梓官區",
+          "彌陀區",
+          "永安區",
+          "湖內區",
+          "鳳山區",
+          "大寮區",
+          "林園區",
+          "鳥松區",
+          "大樹區",
+          "旗山區",
+          "美濃區",
+          "六龜區",
+          "內門區",
+          "杉林區",
+          "甲仙區",
+          "桃源區",
+          "那瑪夏區",
+          "茂林區",
+          "茄萣區",
+        ],
+        屏東縣: [
+          "屏東市",
+          "潮州鎮",
+          "東港鎮",
+          "恆春鎮",
+          "萬丹鄉",
+          "長治鄉",
+          "麟洛鄉",
+          "九如鄉",
+          "里港鄉",
+          "鹽埔鄉",
+          "高樹鄉",
+          "萬巒鄉",
+          "內埔鄉",
+          "竹田鄉",
+          "新埤鄉",
+          "枋寮鄉",
+          "新園鄉",
+          "崁頂鄉",
+          "林邊鄉",
+          "南州鄉",
+          "佳冬鄉",
+          "琉球鄉",
+          "車城鄉",
+          "滿州鄉",
+          "枋山鄉",
+          "三地門鄉",
+          "霧台鄉",
+          "瑪家鄉",
+          "泰武鄉",
+          "來義鄉",
+          "春日鄉",
+          "獅子鄉",
+          "牡丹鄉",
+        ],
+        花蓮縣: [
+          "花蓮市",
+          "鳳林鎮",
+          "玉里鎮",
+          "新城鄉",
+          "吉安鄉",
+          "壽豐鄉",
+          "光復鄉",
+          "豐濱鄉",
+          "瑞穗鄉",
+          "萬榮鄉",
+          "卓溪鄉",
+          "秀林鄉",
+        ],
+        台東縣: [
+          "台東市",
+          "成功鎮",
+          "關山鎮",
+          "卑南鄉",
+          "大武鄉",
+          "太麻里鄉",
+          "東河鄉",
+          "長濱鄉",
+          "鹿野鄉",
+          "池上鄉",
+          "綠島鄉",
+          "延平鄉",
+          "海端鄉",
+          "金峰鄉",
+          "達仁鄉",
+          "蘭嶼鄉",
+        ],
+        澎湖縣: ["馬公市", "湖西鄉", "白沙鄉", "西嶼鄉", "望安鄉", "七美鄉"],
+        金門縣: ["金城鎮", "金湖鎮", "金沙鎮", "金寧鄉", "烈嶼鄉", "烏坵鄉"],
+        連江縣: ["南竿鄉", "北竿鄉", "莒光鄉", "東引鄉"],
+      };
+
       const params = new URLSearchParams(window.location.search);
       const memberId = params.get("member_id");
+      let originalData = {};
+
       async function fetchData() {
         const res = await fetch(`/api/members/${memberId}`);
         const data = await res.json();
+        originalData = JSON.parse(JSON.stringify(data));
+
+        // 姓名、Email、性別
         document.getElementById("name").textContent = data.name || "未填寫";
         document.getElementById("email").textContent = data.email || "未填寫";
-        const gMap = { m: "男", f: "女" ,male: '男',female: '女',};
+        const gMap = { 男: "男", 女: "女", 不限: "不限" };
+        const genderKey = (data.gender || "").trim();
         document.getElementById("gender").textContent =
-          gMap[data.gender] || data.gender || "未填寫";
+          gMap[genderKey] || "未填寫";
+
+        // 生日
         if (data.birthdate) {
           const [y, m] = data.birthdate.split("-");
           const age =
@@ -162,24 +713,313 @@
           document.getElementById(
             "birthdate"
           ).textContent = `${y}年${m}月（${age}歲）`;
+        } else {
+          document.getElementById("birthdate").textContent = "未填寫";
         }
+
+        // 身高、體重、地區
         document.getElementById("height").textContent = data.height || "未填寫";
         document.getElementById("weight").textContent = data.weight || "未填寫";
         document.getElementById("location").textContent =
-          `${data.city || ""}${data.area ? "/" + data.area : ""}` || "未填寫";
+          (data.city ? data.city : "") + (data.area ? "/" + data.area : "") ||
+          "未填寫";
+
+        // 運動偏好
         const p = data.sport_preferences || {};
         document.getElementById("sports").textContent =
           (p.sports || []).join("、") || "未填寫";
+
+        // 偏好性別（直接顯示中文）
         document.getElementById("match-gender").textContent =
-          p.match_gender || "未填寫";
+          p.match_gender || "不限";
+
+        // 偏好年齡、時段
         document.getElementById("match-age").textContent =
           p.match_age || "未填寫";
-        const wk = (p.times?.weekday || []).join("、") || "未填寫";
-        const we = (p.times?.weekend || []).join("、") || "未填寫";
-        document.getElementById("times-weekday").textContent = wk;
-        document.getElementById("times-weekend").textContent = we;
+        document.getElementById("times-weekday").textContent =
+          (p.times?.weekday || []).join("、") || "未填寫";
+        document.getElementById("times-weekend").textContent =
+          (p.times?.weekend || []).join("、") || "未填寫";
       }
+
       fetchData();
+
+      document.getElementById("edit-btn").onclick = enterEditMode;
+      document.getElementById("cancel-btn").onclick = function () {
+        document.getElementById("view-btns").style.display = "";
+        document.getElementById("edit-btns").style.display = "none";
+        fetchData();
+      };
+
+      document.getElementById("save-btn").onclick = async () => {
+        const payload = {
+          height: document.getElementById("height-input").value,
+          weight: document.getElementById("weight-input").value,
+          city: document.getElementById("city-input").value,
+          area: document.getElementById("area-input").value,
+          sport_preferences: {
+            sports: Array.from(
+              document.querySelectorAll(
+                "#sports-input .sports-checkbox:checked"
+              )
+            ).map((cb) => cb.value),
+            match_gender: document.getElementById("match-gender-input").value,
+            match_age:
+              document.querySelector('input[name="matchAge"]:checked')?.value ||
+              "",
+            times: {
+              weekday: Array.from(
+                document.querySelectorAll(
+                  "#times-weekday-input .weekday-checkbox:checked"
+                )
+              ).map((cb) => cb.value),
+              weekend: Array.from(
+                document.querySelectorAll(
+                  "#times-weekend-input .weekend-checkbox:checked"
+                )
+              ).map((cb) => cb.value),
+            },
+          },
+        };
+
+        await fetch(`/api/members/${memberId}/full-update`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        location.reload();
+      };
+
+      function enterEditMode() {
+        document.getElementById("view-btns").style.display = "none";
+        document.getElementById("edit-btns").style.display = "";
+
+        fetch("/api/preferences/options")
+          .then((r) => r.json())
+          .then((options) => {
+            const { sport_types, time_options } = options;
+
+            // 喜好運動
+            const userSportsRaw = originalData.sport_preferences?.sports || [];
+            const userSports = sport_types
+              .filter((s) => userSportsRaw.includes(s.name))
+              .map((s) => s.sport_type_id);
+            document.getElementById("sports").outerHTML =
+              `<div id="sports-input" class="edit-checkbox-group">` +
+              sport_types
+                .map(
+                  (s) => `
+              <label>
+                <input type="checkbox" class="sports-checkbox" value="${
+                  s.sport_type_id
+                }" ${userSports.includes(s.sport_type_id) ? "checked" : ""}/>
+                ${s.name}
+              </label>`
+                )
+                .join("") +
+              `</div>`;
+
+            // 平日時段
+            const userTimesWk =
+              originalData.sport_preferences?.times?.weekday || [];
+            document.getElementById("times-weekday").outerHTML =
+              `<div id="times-weekday-input" class="edit-checkbox-group">` +
+              time_options
+                .filter((t) => t.label.startsWith("平日"))
+                .map((t) => {
+                  const display = t.label.replace(/^平日/, "");
+                  const checked =
+                    userTimesWk.includes(t.time_id) ||
+                    userTimesWk.includes(display)
+                      ? "checked"
+                      : "";
+                  return `
+                  <label>
+                    <input type="checkbox" class="weekday-checkbox" value="${t.time_id}" ${checked}/>
+                    ${display}
+                  </label>`;
+                })
+                .join("") +
+              `</div>`;
+
+            // 週末時段
+            const userTimesWe =
+              originalData.sport_preferences?.times?.weekend || [];
+            document.getElementById("times-weekend").outerHTML =
+              `<div id="times-weekend-input" class="edit-checkbox-group">` +
+              time_options
+                .filter((t) => t.label.startsWith("週末"))
+                .map((t) => {
+                  const display = t.label.replace(/^週末/, "");
+                  const checked =
+                    userTimesWe.includes(t.time_id) ||
+                    userTimesWe.includes(display)
+                      ? "checked"
+                      : "";
+                  return `
+                  <label>
+                    <input type="checkbox" class="weekend-checkbox" value="${t.time_id}" ${checked}/>
+                    ${display}
+                  </label>`;
+                })
+                .join("") +
+              `</div>`;
+
+            // 身高/體重
+            document.getElementById(
+              "height"
+            ).outerHTML = `<input id="height-input" type="number" value="${
+              originalData.height || ""
+            }" class="edit-field" style="width:60px;">`;
+            document.getElementById(
+              "weight"
+            ).outerHTML = `<input id="weight-input" type="number" value="${
+              originalData.weight || ""
+            }" class="edit-field" style="width:60px;">`;
+
+            // 地區
+            const cityOptions = Object.keys(cityDistrictData)
+              .map(
+                (c) =>
+                  `<option value="${c}" ${
+                    c === originalData.city ? "selected" : ""
+                  }>${c}</option>`
+              )
+              .join("");
+            const initCity =
+              originalData.city || Object.keys(cityDistrictData)[0];
+            const areaOptions = cityDistrictData[initCity]
+              .map(
+                (a) =>
+                  `<option value="${a}" ${
+                    a === originalData.area ? "selected" : ""
+                  }>${a}</option>`
+              )
+              .join("");
+            document.getElementById(
+              "location"
+            ).outerHTML = `<div style="display:flex;gap:8px;">
+                <select id="city-input" class="edit-field">${cityOptions}</select>
+                <select id="area-input" class="edit-field">${areaOptions}</select>
+              </div>`;
+            document
+              .getElementById("city-input")
+              .addEventListener("change", function () {
+                document.getElementById("area-input").innerHTML =
+                  cityDistrictData[this.value]
+                    .map((a) => `<option value="${a}">${a}</option>`)
+                    .join("");
+              });
+
+            // 偏好性別下拉
+            let mg = originalData.sport_preferences?.match_gender || "不限";
+            document.getElementById(
+              "match-gender"
+            ).outerHTML = `<select id="match-gender-input" class="edit-field">
+              <option value="不限" ${mg === "不限" ? "selected" : ""}>不限</option>
+              <option value="男" ${mg === "男" ? "selected" : ""}>男</option>
+              <option value="女" ${mg === "女" ? "selected" : ""}>女</option>
+            </select>`;
+
+            // 偏好年齡（單選）
+            const ma = originalData.sport_preferences?.match_age || "";
+            document.getElementById(
+              "match-age"
+            ).outerHTML = `<div class="edit-checkbox-group" style="flex-wrap:wrap;gap:8px;">
+              ${["18-25", "26-35", "36-45", "46-55", "56up"]
+                .map(
+                  (range) => `
+                  <label>
+                    <input type="checkbox" name="matchAge" class="match-age-checkbox" value="${range}" ${
+                    ma === range ? "checked" : ""
+                  }/>
+                    ${range.replace("up", "以上").replace("-", "–")}
+                  </label>
+                `
+                )
+                .join("")}
+            </div>`;
+            setTimeout(() => {
+              document.querySelectorAll(".match-age-checkbox").forEach((cb) => {
+                cb.addEventListener("change", function () {
+                  if (this.checked) {
+                    document
+                      .querySelectorAll(".match-age-checkbox")
+                      .forEach((o) => {
+                        if (o !== this) o.checked = false;
+                      });
+                  }
+                });
+              });
+            }, 0);
+          });
+      }
+
+      const changeAvatarBtn = document.getElementById("changeAvatarBtn");
+      const cropModal = document.getElementById("cropModal");
+      const cropImage = document.getElementById("cropImage");
+      const cropConfirm = document.getElementById("cropConfirm");
+      const cropCancel = document.getElementById("cropCancel");
+      const avatarImage = document.getElementById("avatarImage");
+      let cropper;
+
+      // 點擊更換頭像按鈕
+      changeAvatarBtn.addEventListener("click", () => {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/*";
+        input.onchange = (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              cropImage.src = event.target.result;
+              cropModal.style.display = "flex";
+
+              // 初始化 Cropper.js
+              if (cropper) cropper.destroy();
+              cropper = new Cropper(cropImage, {
+                aspectRatio: 1,
+                viewMode: 1,
+              });
+            };
+            reader.readAsDataURL(file);
+          }
+        };
+        input.click();
+      });
+
+      // 點擊完成裁剪按鈕
+      cropConfirm.addEventListener("click", async () => {
+        if (cropper) {
+          const canvas = cropper.getCroppedCanvas({
+            width: 300,
+            height: 300,
+          });
+
+          // 將裁剪後的圖片轉為 Blob
+          canvas.toBlob(async (blob) => {
+            const formData = new FormData();
+            formData.append("avatar", blob, "avatar.png");
+
+            // 上傳裁剪後的圖片
+            await fetch(`/api/members/{{ member_id }}/avatar`, {
+              method: "POST",
+              body: formData,
+            });
+
+            // 更新頭像顯示
+            avatarImage.src = canvas.toDataURL();
+            cropModal.style.display = "none";
+          });
+        }
+      });
+
+      // 點擊取消按鈕
+      cropCancel.addEventListener("click", () => {
+        cropModal.style.display = "none";
+        if (cropper) cropper.destroy();
+      });
     </script>
   </body>
 </html>

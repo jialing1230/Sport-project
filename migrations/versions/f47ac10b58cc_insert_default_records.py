@@ -4,6 +4,7 @@ Revision ID: f47ac10b58cc
 Revises: 9dde57c6fd53
 Create Date: 2025-04-19 20:30:00.000000
 """
+
 import uuid
 import random
 import string
@@ -23,22 +24,27 @@ from app.models import (
     ActivityJoin,
     ActivityReview,
     TimeOption,
+    PreferenceSport,
+    PreferenceTime,
 )
 
-# revision identifiers, used by Alembic.
 revision: str = "f47ac10b58cc"
 down_revision: Union[str, None] = "9dde57c6fd53"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
+
 def generate_password(length=8):
     chars = string.ascii_letters + string.digits
     while True:
-        pw = ''.join(random.choices(chars, k=length))
-        if (any(c.islower() for c in pw) and
-            any(c.isupper() for c in pw) and
-            any(c.isdigit() for c in pw)):
+        pw = "".join(random.choices(chars, k=length))
+        if (
+            any(c.islower() for c in pw)
+            and any(c.isupper() for c in pw)
+            and any(c.isdigit() for c in pw)
+        ):
             return pw
+
 
 def upgrade() -> None:
     bind = op.get_bind()
@@ -46,7 +52,7 @@ def upgrade() -> None:
     now = datetime.now(timezone.utc)
 
     members = []
-    cities = ["臺北市", "新北市", "桃園市", "臺中市", "高雄市"]
+    cities = ["台北市", "新北市", "桃園市", "台中市", "高雄市"]
     areas = ["中正區", "板橋區", "平鎮區", "西區", "苓雅區"]
 
     for i in range(1, 6):
@@ -58,7 +64,7 @@ def upgrade() -> None:
             email=f"user{i}@example.com",
             password=password,
             name=f"User{i}",
-            gender="M" if i % 2 == 0 else "F",
+            gender="男" if i % 2 == 0 else "女",
             birthdate=birthdate,
             height=160 + i,
             weight=50 + i * 2,
@@ -66,19 +72,29 @@ def upgrade() -> None:
             updated_at=now,
             city=cities[i - 1],
             area=areas[i - 1],
+            is_first_login=False,
+            is_unfinish_preference=False,
         )
         members.append(m)
 
     session.add_all(members)
     session.flush()
 
-    # 運動名稱列表
-    names = ["跑步", "羽球", "瑜珈", "健身", "騎腳踏車", "籃球", "游泳", "排球", "網球", "桌球", "拳擊", "足球"]
-    # 運動類型資料創建
-    sport_types = [
-    SportType(name=names[i])
-    for i in range(12)
+    names = [
+        "跑步",
+        "羽球",
+        "瑜珈",
+        "健身",
+        "騎腳踏車",
+        "籃球",
+        "游泳",
+        "排球",
+        "網球",
+        "桌球",
+        "拳擊",
+        "足球",
     ]
+    sport_types = [SportType(name=names[i]) for i in range(12)]
     session.add_all(sport_types)
     session.flush()
 
@@ -123,55 +139,26 @@ def upgrade() -> None:
 
     prefs = []
     for i in range(1, 6):
-        match_gender = "不限"  # 這裡可以是來自前端的資料，或者是硬編碼的預設值
-        match_age = "18-25"   # 同上，可以根據需求改為不同的年齡區間
         pref = SportPreference(
             preference_id=i,
             member_id=members[i - 1].member_id,
-            match_gender=match_gender,  # 填入性別
-            match_age=match_age         # 填入年齡區間
-            
+            match_gender="不限",
+            match_age="18-25",
         )
         prefs.append(pref)
     session.add_all(prefs)
+    session.flush()
 
-    reviews = []
-    for i in range(1, 6):
-        rev = UserReview(
-            review_id=i,
-            reviewer_id=members[i % 5].member_id,
-            target_member_id=members[i - 1].member_id,
-            rating=(i % 5) + 1,
-            comment=f"Review {i}",
-            created_time=now,
-        )
-        reviews.append(rev)
-    session.add_all(reviews)
-
-    joins = []
-    for i in range(1, 6):
-        j = ActivityJoin(
-            join_id=i,
-            member_id=members[(i + 1) % 5].member_id,
-            activity_id=activities[i - 1].activity_id,
-            join_time=now,
-            status="joined" if i % 2 else "pending",
-        )
-        joins.append(j)
-    session.add_all(joins)
-
-    act_revs = []
-    for i in range(1, 6):
-        ar = ActivityReview(
-            review_id=i,
-            activity_id=activities[i - 1].activity_id,
-            reviewer_id=members[(i + 2) % 5].member_id,
-            rating=(i % 5) + 1,
-            comment=f"ActivityReview {i}",
-            created_time=now,
-        )
-        act_revs.append(ar)
-    session.add_all(act_revs)
+    pref_sports = []
+    for pref in prefs:
+        for st in sport_types:
+            pref_sports.append(
+                PreferenceSport(
+                    preference_id=pref.preference_id,
+                    sport_type_id=st.sport_type_id,
+                )
+            )
+    session.add_all(pref_sports)
 
     time_options = [
         TimeOption(period="平日", time_of_day="早上", label="平日早上"),
@@ -182,6 +169,59 @@ def upgrade() -> None:
         TimeOption(period="週末", time_of_day="晚上", label="週末晚上"),
     ]
     session.add_all(time_options)
+    session.flush()
+
+    pref_times = []
+    for pref in prefs:
+        for to in time_options:
+            pref_times.append(
+                PreferenceTime(
+                    preference_id=pref.preference_id,
+                    time_id=to.time_id,
+                )
+            )
+    session.add_all(pref_times)
+
+    reviews = []
+    for i in range(1, 6):
+        reviews.append(
+            UserReview(
+                review_id=i,
+                reviewer_id=members[i % 5].member_id,
+                target_member_id=members[i - 1].member_id,
+                rating=(i % 5) + 1,
+                comment=f"Review {i}",
+                created_time=now,
+            )
+        )
+    session.add_all(reviews)
+
+    joins = []
+    for i in range(1, 6):
+        joins.append(
+            ActivityJoin(
+                join_id=i,
+                member_id=members[(i + 1) % 5].member_id,
+                activity_id=activities[i - 1].activity_id,
+                join_time=now,
+                status="joined" if i % 2 else "pending",
+            )
+        )
+    session.add_all(joins)
+
+    act_revs = []
+    for i in range(1, 6):
+        act_revs.append(
+            ActivityReview(
+                review_id=i,
+                activity_id=activities[i - 1].activity_id,
+                reviewer_id=members[(i + 2) % 5].member_id,
+                rating=(i % 5) + 1,
+                comment=f"ActivityReview {i}",
+                created_time=now,
+            )
+        )
+    session.add_all(act_revs)
 
     session.commit()
 
@@ -190,20 +230,44 @@ def downgrade() -> None:
     bind = op.get_bind()
     session = Session(bind=bind)
 
-    session.query(ActivityReview).filter(ActivityReview.review_id.in_([1, 2, 3, 4, 5])).delete()
-    session.query(ActivityJoin).filter(ActivityJoin.join_id.in_([1, 2, 3, 4, 5])).delete()
+    # Remove linked preferences first
+    session.query(PreferenceTime).filter(
+        PreferenceTime.preference_id.in_([1, 2, 3, 4, 5])
+    ).delete()
+    session.query(PreferenceSport).filter(
+        PreferenceSport.preference_id.in_([1, 2, 3, 4, 5])
+    ).delete()
+
+    session.query(ActivityReview).filter(
+        ActivityReview.review_id.in_([1, 2, 3, 4, 5])
+    ).delete()
+    session.query(ActivityJoin).filter(
+        ActivityJoin.join_id.in_([1, 2, 3, 4, 5])
+    ).delete()
     session.query(UserReview).filter(UserReview.review_id.in_([1, 2, 3, 4, 5])).delete()
-    session.query(SportPreference).filter(SportPreference.preference_id.in_([1, 2, 3, 4, 5])).delete()
-    session.query(ExerciseRecord).filter(ExerciseRecord.record_id.in_([1, 2, 3, 4, 5])).delete()
+    session.query(SportPreference).filter(
+        SportPreference.preference_id.in_([1, 2, 3, 4, 5])
+    ).delete()
+    session.query(ExerciseRecord).filter(
+        ExerciseRecord.record_id.in_([1, 2, 3, 4, 5])
+    ).delete()
     session.query(Activity).filter(Activity.activity_id.in_([1, 2, 3, 4, 5])).delete()
-    session.query(SportType).filter(SportType.sport_type_id.in_([1, 2, 3, 4, 5])).delete()
-    session.query(TimeOption).filter(TimeOption.time_id.in_([1, 2, 3, 4, 5, 6])).delete()
-    session.query(Member).filter(Member.email.in_([
-        "user1@example.com",
-        "user2@example.com",
-        "user3@example.com",
-        "user4@example.com",
-        "user5@example.com",
-    ])).delete()
+    session.query(SportType).filter(
+        SportType.sport_type_id.in_([1, 2, 3, 4, 5])
+    ).delete()
+    session.query(TimeOption).filter(
+        TimeOption.time_id.in_([1, 2, 3, 4, 5, 6])
+    ).delete()
+    session.query(Member).filter(
+        Member.email.in_(
+            [
+                "user1@example.com",
+                "user2@example.com",
+                "user3@example.com",
+                "user4@example.com",
+                "user5@example.com",
+            ]
+        )
+    ).delete()
 
     session.commit()

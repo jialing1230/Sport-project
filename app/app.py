@@ -48,8 +48,13 @@ def create_app():
             # 如果缺少 member_id，導回登入頁面
             return redirect(url_for("login_html"))
         # 將 member_id 注入模板
+<<<<<<< HEAD
         return render_template("profiles.html", member_id=member_id)
 
+=======
+        return render_template('profiles.html', member_id=member_id) 
+    
+>>>>>>> 99f4525 (fix: formatting in profiles.html rendering)
     @app.route("/preference")
     def user_preference_page():
         # 從查詢參數取得 member_id

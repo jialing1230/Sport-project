@@ -4,6 +4,9 @@ from app.routers.auth import auth_bp
 from app.routers.activity import activity_bp
 from app.routers.memeber import member_bp
 from app.routers.preference import preference_bp  
+from app.routers.yahoo_news import yahoo_news_bp  
+
+
 
 def create_app():
     app = Flask(__name__)
@@ -18,6 +21,8 @@ def create_app():
     app.register_blueprint(activity_bp)
     app.register_blueprint(member_bp)
     app.register_blueprint(preference_bp)
+    app.register_blueprint(yahoo_news_bp)  
+
     
     # 前端頁面路由
     @app.route("/")

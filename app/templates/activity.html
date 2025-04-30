@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的活動</title>
+  <style>
+    :root {
+      --primary-color: #64bcd0;
+      --text-color: #2c4975;
+      --fab-color: #fea3a8;
+      --beige-color: #fdf9ed;
+      --bg-color: #f5f5f5;
+      --tab-bg: #ffffff;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-size: 16px;
+    }
+
+    .tabs-wrapper {
+      background-color: var(--tab-bg);
+      position: relative;
+      z-index: 10;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08); /* ⭐ tabs區域增加微陰影 */
+    }
+
+    .tabs-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      height: 64px; /* ⭐略提高 */
+    }
+
+    .tab {
+      flex: 1;
+      text-align: center;
+      line-height: 64px;
+      font-size: 18px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      color: var(--text-color);
+      cursor: pointer;
+      background-color: var(--tab-bg);
+      border: none;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease;
+    }
+
+    /* Hover效果：微縮放 */
+    .tab:hover {
+      transform: scale(1.05);
+    }
+
+    /* 點擊特效 */
+    .tab::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--primary-color);
+      opacity: 0;
+      transition: opacity 0.6s ease;
+      pointer-events: none;
+    }
+
+    .tab:active::after {
+      opacity: 0.4;
+      transition: opacity 0.6s ease;
+    }
+
+    /* 被選中的Tab文字變水藍色 */
+    .tab.active {
+      color: var(--primary-color);
+    }
+
+    .divider {
+      height: 2px;
+      background: #e0e0e0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* ⭐微加深陰影 */
+      position: relative;
+      z-index: 1;
+    }
+
+    .indicator {
+      position: absolute;
+      top: 0;
+      height: 3px;
+      background-color: var(--primary-color);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      transition: left 0.3s ease, width 0.3s ease;
+      z-index: 2;
+      border-radius: 2px;
+    }
+
+    .tab-content {
+      padding: 50px 20px;
+      font-size: 24px;
+      text-align: center;
+      font-weight: 600;
+      line-height: 1.8;
+      letter-spacing: 0.5px;
+    }
+
+    /* FAB按鈕 */
+    .fab {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      background-color: var(--fab-color);
+      color: var(--beige-color);
+      border: none;
+      border-radius: 50%;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      font-size: 30px;
+      font-weight: bold;
+      text-align: center;
+      line-height: 60px;
+      cursor: pointer;
+      transition: background-color 0.3s, opacity 0.3s ease, transform 0.2s ease;
+      opacity: 1;
+    }
+
+    .fab.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .fab:hover {
+      background-color: #f98d92;
+      transform: scale(1.08); /* ⭐hover時微放大 */
+    }
+
+    .fab:active {
+      transform: scale(0.95); /* ⭐點擊時微縮小 */
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="tabs-wrapper">
+  <div class="tabs-container" id="tabs">
+    <div class="tab active" onclick="switchTab(0)">發起活動</div>
+    <div class="tab" onclick="switchTab(1)">參加活動</div>
+  </div>
+  <div class="divider">
+    <div id="indicator" class="indicator" style="width: 50%; left: 0;"></div>
+  </div>
+</div>
+
+<div id="tabContents">
+  <div class="tab-content" id="content-0">
+    尚未發起任何活動
+  </div>
+  <div class="tab-content" id="content-1" style="display: none;">
+    尚未參加任何活動
+  </div>
+</div>
+
+<!-- FAB按鈕 -->
+<button class="fab" id="fabButton" onclick="goToCreate()">＋</button>
+
+<script>
+  function switchTab(index) {
+    const tabs = document.querySelectorAll('.tab');
+    const contents = document.querySelectorAll('.tab-content');
+    const indicator = document.getElementById('indicator');
+    const fab = document.getElementById('fabButton');
+
+    tabs.forEach((tab, i) => {
+      tab.classList.toggle('active', i === index);
+    });
+
+    contents.forEach((content, i) => {
+      content.style.display = i === index ? 'block' : 'none';
+    });
+
+    const tabWidth = tabs[0].offsetWidth;
+    indicator.style.width = tabWidth + "px";
+    indicator.style.left = tabWidth * index + "px";
+
+    // FAB顯示與隱藏：只有發起活動時顯示
+    if (index === 0) {
+      fab.classList.remove('hidden');
+    } else {
+      fab.classList.add('hidden');
+    }
+  }
+
+  function goToCreate() {
+    window.location.href = 'create_activity.html'; // ✨改成你的頁面
+  }
+
+  window.addEventListener('resize', () => {
+    const tabs = document.querySelectorAll('.tab');
+    const activeIndex = [...tabs].findIndex(tab => tab.classList.contains('active'));
+    const indicator = document.getElementById('indicator');
+    const tabWidth = tabs[0].offsetWidth;
+    indicator.style.width = tabWidth + "px";
+    indicator.style.left = tabWidth * activeIndex + "px";
+  });
+</script>
+
+</body>
+</html>

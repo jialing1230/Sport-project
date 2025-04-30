@@ -144,26 +144,48 @@
       <p>根據興趣、時間、地點智能媒合，一起動起來！</p>
     </div>
 
-    <section class="news-section">
-      <h3><i class="fas fa-newspaper"></i> 體育相關新聞</h3>
-      <div class="news-card">
-        <h5>中華隊備戰奧運，田徑選手表現亮眼</h5>
-        <p>中華田徑代表隊近期積極備戰巴黎奧運，已有數位選手達標資格。</p>
-      </div>
-      <div class="news-card">
-        <h5>NBA 季後賽開打，詹皇再創紀錄</h5>
-        <p>NBA 季後賽如火如荼展開，LeBron James 再度刷新季後賽得分紀錄。</p>
-      </div>
-      <div class="news-card">
-        <h5>羽球公開賽開戰 戴資穎首輪輕鬆過關</h5>
-        <p>台灣羽球好手戴資穎在本次國際賽中展現絕佳實力，輕鬆晉級第二輪。</p>
-      </div>
-    </section>
 
     <section class="map-section">
       <h3><i class="fas fa-map-marked-alt"></i> 附近熱門運動場地</h3>
       <div id="map"></div>
     </section>
+    <section class="news-section">
+      <h3><i class="fas fa-newspaper"></i> 體育相關新聞</h3>
+    </section>
+
+    <section class="news-section">
+  <div id="news-container">
+    <p>載入中...</p>
+  </div>
+    </section>
+
+    <script>
+  fetch("/api/yahoo-sports-news")
+    .then(res => res.json())
+    .then(data => {
+      const container = document.getElementById("news-container");
+      container.innerHTML = ""; // 清掉「載入中...」
+
+      data.forEach(article => {
+        const card = document.createElement("div");
+        card.className = "news-card";
+        card.innerHTML = `
+          <h5><a href="${article.url}" target="_blank">${article.title}</a></h5>
+          <p>${article.summary}</p>
+        `;
+        container.appendChild(card);
+      });
+    })
+    .catch(err => {
+      // ❌ 不覆蓋畫面、不影響靜態內容
+      console.warn("載入動態新聞失敗：", err);
+      const container = document.getElementById("news-container");
+      container.innerHTML = "";
+    });
+</script>
+
+    
+
 
     <script>
       function initMap() {

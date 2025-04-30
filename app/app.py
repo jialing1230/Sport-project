@@ -40,7 +40,7 @@ def create_app():
             # 如果缺少 member_id，導回登入頁面
             return redirect(url_for('login_html'))
         # 將 member_id 注入模板
-        return render_template('profiles.html', member_id=member_id)
+        return render_template('profiles.html', member_id=member_id) 
     
     @app.route("/preference")
     def user_preference_page():

@@ -117,6 +117,7 @@ def upgrade() -> None:
             location_lat=lat,
             location_lng=lng,
             max_participants=2 + i,
+            current_participants=1,
             organizer_id=members[i - 1].member_id,
             level="初學" if i % 2 == 0 else "中階",
             sport_type_id=sport_types[i - 1].sport_type_id,

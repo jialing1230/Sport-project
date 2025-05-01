@@ -60,6 +60,7 @@ def upgrade() -> None:
     sa.Column('location_lat', sa.DECIMAL(18, 15), nullable=True),
     sa.Column('location_lng', sa.DECIMAL(18, 15), nullable=True),
     sa.Column('max_participants', sa.Integer(), nullable=True),
+    sa.Column('current_participants', sa.Integer(), nullable=True, server_default="0"),
     sa.Column('organizer_id', sa.String(length=36), nullable=True),
     sa.Column('level', sa.String(length=50), nullable=True),
     sa.Column('sport_type_id', sa.Integer(), nullable=True),

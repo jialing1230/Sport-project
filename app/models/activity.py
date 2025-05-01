@@ -23,6 +23,7 @@ class Activity(Base):
     location_lat = Column(DECIMAL(18, 15))
     location_lng = Column(DECIMAL(18, 15))
     max_participants = Column(Integer)
+    current_participants = Column(Integer, default=0)
     organizer_id = Column(String(36), ForeignKey("members.member_id"))
     level = Column(String(50))
     sport_type_id = Column(Integer, ForeignKey("sport_types.sport_type_id"))

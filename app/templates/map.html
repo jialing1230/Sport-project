@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>地圖探索</title>
+  <style>
+    :root {
+      --main-color: #64bcd0;  /* ✅ 水藍色統一 */
+      --gray-text: #666;
+      --click-bg: rgba(100, 188, 208, 0.15);
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .search-bar {
+      display: flex;
+      justify-content: center;
+      padding: 16px;
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      background-color: #ffffff;
+      border-radius: 999px;
+      padding: 8px 16px;
+      width: 80%;
+      max-width: 480px;
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .search-box img {
+      width: 20px;
+      height: 20px;
+    }
+
+    .search-box input {
+      border: none;
+      background: transparent;
+      outline: none;
+      color: var(--gray-text);
+      font-size: 16px;
+      flex: 1;
+      margin-left: 10px;
+    }
+
+    .map-area {
+      flex: 1;
+      background-color: #ddd;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 20px;
+      color: #666;
+    }
+
+    .bottom-nav {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      height: 75px;
+      background-color: #fff;
+      border-top: 1px solid #ccc;
+    }
+
+    .bottom-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: var(--gray-text);
+      font-size: 14px;
+      padding: 10px 8px;
+      border-radius: 16px;
+      transition: all 0.5s ease-in-out;
+    }
+
+    .bottom-item img {
+      width: 32px;
+      height: 32px;
+      filter: grayscale(100%);
+      transition: all 0.5s ease-in-out;
+    }
+
+    .bottom-item span {
+      font-size: 13px;
+      margin-top: 4px;
+      opacity: 0;
+      height: 0;
+      overflow: hidden;
+      transition: all 0.5s ease-in-out;
+    }
+
+    .bottom-item.active {
+      background-color: var(--click-bg);
+      color: var(--main-color);
+    }
+
+    .bottom-item.active img {
+      filter: none;
+    }
+
+    .bottom-item.active span {
+      opacity: 1;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="search-bar">
+    <div class="search-box">
+      <img src="search.png" alt="search icon">
+      <input type="text" placeholder="搜尋地點或活動名稱" />
+    </div>
+  </div>
+
+  <div class="map-area">
+    地圖功能開發中
+  </div>
+
+  <div class="bottom-nav">
+    <a href="#" class="bottom-item active">
+      <img src="exam.png" alt="活動">
+      <span>活動</span>
+    </a>
+    <a href="#" class="bottom-item">
+      <img src="star.png" alt="精選">
+      <span>精選</span>
+    </a>
+    <a href="#" class="bottom-item">
+      <img src="map.png" alt="地圖">
+      <span>地圖</span>
+    </a>
+    <a href="#" class="bottom-item">
+      <img src="notification.png" alt="通知">
+      <span>通知</span>
+    </a>
+    <a href="#" class="bottom-item">
+      <img src="user.png" alt="會員">
+      <span>會員</span>
+    </a>
+  </div>
+
+  <script>
+    const navItems = document.querySelectorAll('.bottom-item');
+    navItems.forEach(item => {
+      item.addEventListener('click', e => {
+        e.preventDefault();
+        navItems.forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+      });
+    });
+  </script>
+
+</body>
+</html>

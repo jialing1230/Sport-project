@@ -57,6 +57,15 @@ def create_app():
         # 將 member_id 注入模板
         return render_template('preference.html', member_id=member_id)
     
+    @app.route("/create_activity", endpoint='create_activity_html')
+    def create_activity_page():
+        return render_template("create_activity.html")
+
+    @app.route("/activity")
+    def activity_page():
+        return render_template("activity.html")
+
+    
     @app.route("/home")
     def system_home_page():
         # 從查詢參數取得 member_id

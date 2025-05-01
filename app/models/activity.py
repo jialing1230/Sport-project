@@ -14,9 +14,11 @@ from app.database import Base
 
 class Activity(Base):
     __tablename__ = "activities"
+
     activity_id = Column(Integer, primary_key=True, index=True)
     title = Column(String(255))
-    time = Column(DateTime)
+    start_time = Column(DateTime)
+    end_time = Column(DateTime)
     location_name = Column(String(255))
     location_lat = Column(Float)
     location_lng = Column(Float)
@@ -28,6 +30,12 @@ class Activity(Base):
     status = Column(String(50))
     created_at = Column(DateTime)
     has_review = Column(Boolean)
+
+    # 新增欄位
+    identity = Column(String(50))
+    target_identity = Column(String(50))
+    gender = Column(String(10))
+    age_range = Column(String(20))
 
     organizer = relationship("Member", back_populates="activities")
     sport_type = relationship("SportType", back_populates="activities")

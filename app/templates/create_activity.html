@@ -39,7 +39,6 @@
       border-radius: 50%;
     }
     h1 {
-      margin-bottom: 24px;
       color: #2c4975;
       white-space: nowrap;
       font-size: 24px;
@@ -99,39 +98,35 @@
       width: 100%;
       border: 1px solid #ccc;
       border-radius: 4px;
-      font-size: 16px;
+      font-size: 14px;
     }
     textarea { resize: vertical; min-height: 100px; }
     #other-sport-row {
       margin-top: 16px;
       display: none;
     }
-    #other-sport-input {
-      padding: 10px;
-      width: 100%;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 16px;
-    }
   </style>
 </head>
-
 <body>
-
 <div class="container">
   <div class="title-row">
     <img src="logo.jpg" alt="Logo" class="logo-inline" />
     <h1>發起活動</h1>
   </div>
-
   <form id="preferenceForm">
-    <!-- 名稱 -->
+    <!-- 身分選擇放最前面 -->
     <div class="form-row">
-      <label class="form-label">名稱</label>
-      <input type="text" name="title" placeholder="請輸入名稱" required>
+      <label class="form-label">今天想以什麼身分發起活動？</label>
+      <div class="radio-card-group">
+        <label class="radio-card"><input type="radio" name="identity" value="教練" required>教練</label>
+        <label class="radio-card"><input type="radio" name="identity" value="學徒" required>學徒</label>
+        <label class="radio-card"><input type="radio" name="identity" value="不限" required>不限</label>
+      </div>
     </div>
-
-    <!-- 類型 -->
+    <div class="form-row">
+      <label class="form-label">活動名稱</label>
+      <input type="text" name="title" placeholder="公開顯示，請簡明清楚" required>
+    </div>
     <div class="form-row">
       <label class="form-label">類型</label>
       <div class="radio-card-group">
@@ -152,50 +147,22 @@
         <input type="text" id="other-sport-input" placeholder="請輸入其他類型">
       </div>
     </div>
-
-    <!-- 開始時間 -->
     <div class="form-row">
       <label class="form-label">開始時間</label>
       <input type="datetime-local" name="startTime" required>
     </div>
-    <!-- 結束時間 -->
     <div class="form-row">
       <label class="form-label">結束時間</label>
       <input type="datetime-local" name="endTime" required>
     </div>
-
-    <!-- 地點 -->
     <div class="form-row">
       <label class="form-label">地點</label>
       <input type="text" name="location" placeholder="請輸入完整地址" required>
     </div>
-
-    <!-- 人數 -->
     <div class="form-row">
-      <label class="form-label">
-        人數
-        <span style="font-weight: normal; font-size: 14px; color: #666;">（包含自己）</span>
-      </label>
+      <label class="form-label">人數（包含自己）</label>
       <input type="number" name="numPeople" placeholder="請輸入正確人數" required min="1">
     </div>
-
-    <!-- 尋找對象 -->
-    <div class="form-row">
-      <label class="form-label">想要尋找哪一類型的人？</label>
-      <div class="radio-card-group">
-        <label class="radio-card" title="教練：尋找能提供教學的人">
-          <input type="radio" name="identity" value="教練" required>教練
-        </label>
-        <label class="radio-card" title="學徒：尋找希望學習的人">
-          <input type="radio" name="identity" value="學徒" required>學徒
-        </label>
-        <label class="radio-card" title="不限：教練或學徒都可">
-          <input type="radio" name="identity" value="不限" required>不限
-        </label>
-      </div>
-    </div>
-
-    <!-- 性別 -->
     <div class="form-row">
       <label class="form-label">性別</label>
       <div class="radio-card-group">
@@ -204,8 +171,17 @@
         <label class="radio-card"><input type="radio" name="gender" value="女性" required>女性</label>
       </div>
     </div>
-
-    <!-- 等級 -->
+	<div class="form-row">
+	  <label class="form-label">年齡區間</label>
+	  <div class="radio-card-group">
+		<label class="radio-card"><input type="radio" name="ageRange" value="18-25" required>18–25　</label>
+		<label class="radio-card"><input type="radio" name="ageRange" value="26-35" required>26–35　</label>
+		<label class="radio-card"><input type="radio" name="ageRange" value="36-45" required>36–45　</label>
+		<label class="radio-card"><input type="radio" name="ageRange" value="46-64" required>46–64　</label>
+		<label class="radio-card"><input type="radio" name="ageRange" value="65+" required>65 以上</label>
+		<label class="radio-card"><input type="radio" name="ageRange" value="不限" required>不限</label>
+	  </div>
+	</div>
     <div class="form-row">
       <label class="form-label">等級</label>
       <div class="radio-card-group">
@@ -215,17 +191,13 @@
         <label class="radio-card"><input type="radio" name="level" value="不限" required>不限</label>
       </div>
     </div>
-
-    <!-- 補充說明 -->
     <div class="form-row">
       <label class="form-label">補充說明</label>
-      <textarea name="description" placeholder="可填寫補充內容"></textarea>
+      <textarea name="description" placeholder="EX：地標描述、裝備建議、注意事項..."></textarea>
     </div>
-
     <button type="submit" class="btn-primary" id="submitBtn">發起活動</button>
   </form>
 </div>
-
 <script>
   const sportRadios = document.querySelectorAll('input[name="sport"]');
   const otherSportRow = document.getElementById('other-sport-row');
@@ -234,111 +206,75 @@
 
   sportRadios.forEach(radio => {
     radio.addEventListener('change', function() {
-      if (this.value === '其他') {
-        otherSportRow.style.display = 'block';
-      } else {
-        otherSportRow.style.display = 'none';
-        otherSportInput.value = '';
-      }
+      otherSportRow.style.display = this.value === '其他' ? 'block' : 'none';
+      if (this.value !== '其他') otherSportInput.value = '';
     });
   });
 
-	document.getElementById('preferenceForm').addEventListener('submit', function (e) {
-	  e.preventDefault();
+  document.getElementById('preferenceForm').addEventListener('submit', function (e) {
+    e.preventDefault();
 
-	  let selectedSport = document.querySelector('input[name="sport"]:checked')?.value;
-	  if (selectedSport === '其他') {
-		selectedSport = document.getElementById('other-sport-input').value.trim();
-		if (!selectedSport) {
-		  alert("請輸入其他類型！");
-		  return;
-		}
-	  }
+    let selectedSport = document.querySelector('input[name="sport"]:checked')?.value;
+    if (selectedSport === '其他') {
+      selectedSport = otherSportInput.value.trim();
+      if (!selectedSport) return alert("請輸入其他類型！");
+    }
 
-	  const title = document.querySelector('input[name="title"]').value;
-	  const startTime = document.querySelector('input[name="startTime"]').value;
-	  const endTime = document.querySelector('input[name="endTime"]').value;
-	  const location = document.querySelector('input[name="location"]').value;
-	  const numPeople = document.querySelector('input[name="numPeople"]').value;
-	  const targetIdentity = document.querySelector('input[name="identity"]:checked')?.value;
-	  const gender = document.querySelector('input[name="gender"]:checked')?.value;
-	  const level = document.querySelector('input[name="level"]:checked')?.value;
-	  const description = document.querySelector('textarea[name="description"]').value;
+    const title = document.querySelector('input[name="title"]').value;
+    const startTime = document.querySelector('input[name="startTime"]').value;
+    const endTime = document.querySelector('input[name="endTime"]').value;
+    const location = document.querySelector('input[name="location"]').value;
+    const numPeople = document.querySelector('input[name="numPeople"]').value;
+    const myIdentity = document.querySelector('input[name="identity"]:checked')?.value;
+    const gender = document.querySelector('input[name="gender"]:checked')?.value;
+    const level = document.querySelector('input[name="level"]:checked')?.value;
+    const description = document.querySelector('textarea[name="description"]').value;
+	const ageRange = document.querySelector('input[name="ageRange"]:checked')?.value;
 
-	  // ✅ 修正：時間轉成 Date 物件再比較
-	  const startDate = new Date(startTime);
-	  const endDate = new Date(endTime);
-	  if (startDate >= endDate) {
-		alert("結束時間必須晚於開始時間！");
-		return;
-	  }
 
-	  const data = {
-		title: title,
-		start_time: startTime,
-		end_time: endTime,
-		location_name: location,
-		location_lat: 25.033,
-		location_lng: 121.565,
-		max_participants: parseInt(numPeople),
-		organizer_id: "test-123",
-		level: level,
-		sport_type_id: sportNameToId(selectedSport),
-		description: description,
-		status: "open",
-		has_review: false,
-		target_identity: targetIdentity,
-		target_gender: gender
-	  };
+    const startDate = new Date(startTime);
+    const endDate = new Date(endTime);
+    if (startDate >= endDate) return alert("結束時間必須晚於開始時間！");
 
-	  console.log("送出的資料：", data);
+    let targetIdentity = "不限";
+    if (myIdentity === "教練") targetIdentity = "學徒";
+    else if (myIdentity === "學徒") targetIdentity = "教練";
 
-	  // ---- 送出時按鈕變 Loading ----
-	  submitBtn.disabled = true;
-	  submitBtn.textContent = "發起中...";
+    const data = {
+      title, start_time: startTime, end_time: endTime,
+      location_name: location, location_lat: 25.033, location_lng: 121.565,
+      max_participants: parseInt(numPeople), organizer_id: "test-123",
+      level, sport_type_id: sportNameToId(selectedSport),
+      description, status: "open", identity: myIdentity,
+      target_identity: targetIdentity, gender
+	  age_range: ageRange,
 
-	  fetch('http://localhost:5002/api/activities', {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify(data)
-	  })
-	  .then(response => {
-		if (response.ok) {
-		  alert("活動成功發起！");
-		  window.location.href = "/home";
-		} else {
-		  alert("發起活動失敗！");
-		}
-	  })
-	  .catch(error => {
-		console.error('錯誤:', error);
-		alert("發起活動時出錯！");
-	  })
-	  .finally(() => {
-		submitBtn.disabled = false;
-		submitBtn.textContent = "發起活動";
-	  });
-	});
+    };
 
-	// 運動名稱對應運動ID
-	function sportNameToId(sport) {
-	  const mapping = {
-		"跑步": 1,
-		"羽球": 2,
-		"瑜珈": 3,
-		"健身": 4,
-		"騎單車": 5,
-		"籃球": 6,
-		"游泳": 7,
-		"排球": 8,
-		"網球": 9,
-		"棒球": 10,
-		"足球": 11
-	  };
-	  return mapping[sport] || 0;
-	}
+    console.log("送出的資料：", data);
+    submitBtn.disabled = true;
+    submitBtn.textContent = "發起中...";
 
+    fetch('http://localhost:5002/api/activities', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+    .then(res => res.ok ? window.location.href = "/home" : alert("發起活動失敗！"))
+    .catch(err => {
+      console.error('錯誤:', err);
+      alert("發起活動時出錯！");
+    })
+    .finally(() => {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "發起活動";
+    });
+  });
+
+  function sportNameToId(sport) {
+    const mapping = { "跑步": 1, "羽球": 2, "瑜珈": 3, "健身": 4, "騎單車": 5, "籃球": 6, "游泳": 7, "排球": 8, "網球": 9, "棒球": 10, "足球": 11 };
+    return mapping[sport] || 0;
+  }
 </script>
-
 </body>
 </html>

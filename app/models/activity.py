@@ -3,7 +3,7 @@ from sqlalchemy import (
     Integer,
     String,
     DateTime,
-    Float,
+    DECIMAL,
     ForeignKey,
     Text,
     Boolean,
@@ -20,8 +20,8 @@ class Activity(Base):
     start_time = Column(DateTime)
     end_time = Column(DateTime)
     location_name = Column(String(255))
-    location_lat = Column(Float)
-    location_lng = Column(Float)
+    location_lat = Column(DECIMAL(18, 15))
+    location_lng = Column(DECIMAL(18, 15))
     max_participants = Column(Integer)
     organizer_id = Column(String(36), ForeignKey("members.member_id"))
     level = Column(String(50))

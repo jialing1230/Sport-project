@@ -8,7 +8,7 @@ Create Date: 2025-04-19 20:30:00.000000
 import uuid
 import random
 import string
-from datetime import datetime, timezone, date
+from datetime import datetime, timezone, date, timedelta
 from typing import Sequence, Union
 
 from alembic import op
@@ -98,23 +98,36 @@ def upgrade() -> None:
     session.add_all(sport_types)
     session.flush()
 
+    location_data = [
+    ("臺北市松山運動中心", 25.04882705227739, 121.55032032150095),
+    ("新北市板橋國民運動中心", 25.02287397065614, 121.45770633684279),
+    ("桃園市桃園國民運動中心", 24.998268624636584, 121.3209204098562),
+    ("臺中市北區國民運動中心", 24.15730277802729, 120.68406857913797),
+    ("高雄市鳳山運動園區", 22.62152875490125, 120.3535411637387)
+    ]
     activities = []
     for i in range(1, 6):
+        name, lat, lng = location_data[i - 1]
         a = Activity(
             activity_id=i,
             title=f"Activity{i}",
-            time=now,
-            location_name=f"Location{i}",
-            location_lat=25.0 + i * 0.01,
-            location_lng=121.5 + i * 0.01,
-            max_participants=10 + i,
+            start_time=now,
+            end_time=now + timedelta(hours=1), 
+            location_name=name,
+            location_lat=lat,
+            location_lng=lng,
+            max_participants=2 + i,
             organizer_id=members[i - 1].member_id,
-            level="easy" if i % 2 == 0 else "medium",
+            level="初學" if i % 2 == 0 else "中階",
             sport_type_id=sport_types[i - 1].sport_type_id,
             description=f"Description for Activity{i}",
             status="open",
             created_at=now,
             has_review=False,
+            identity="學徒" if i % 2 == 0 else "教練", 
+            target_identity="不限",
+            gender="不限",
+            age_range="18-25"
         )
         activities.append(a)
     session.add_all(activities)

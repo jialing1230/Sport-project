@@ -50,13 +50,15 @@ def upgrade() -> None:
     sa.UniqueConstraint('name')
     )
     op.create_index(op.f('ix_sport_types_sport_type_id'), 'sport_types', ['sport_type_id'], unique=False)
-    op.create_table('activities',
+    op.create_table(
+    'activities',
     sa.Column('activity_id', sa.Integer(), nullable=False),
     sa.Column('title', sa.String(length=255), nullable=True),
-    sa.Column('time', sa.DateTime(), nullable=True),
+    sa.Column('start_time', sa.DateTime(), nullable=True),
+    sa.Column('end_time', sa.DateTime(), nullable=True),
     sa.Column('location_name', sa.String(length=255), nullable=True),
-    sa.Column('location_lat', sa.Float(), nullable=True),
-    sa.Column('location_lng', sa.Float(), nullable=True),
+    sa.Column('location_lat', sa.DECIMAL(18, 15), nullable=True),
+    sa.Column('location_lng', sa.DECIMAL(18, 15), nullable=True),
     sa.Column('max_participants', sa.Integer(), nullable=True),
     sa.Column('organizer_id', sa.String(length=36), nullable=True),
     sa.Column('level', sa.String(length=50), nullable=True),
@@ -65,10 +67,16 @@ def upgrade() -> None:
     sa.Column('status', sa.String(length=50), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('has_review', sa.Boolean(), nullable=True),
-    sa.ForeignKeyConstraint(['organizer_id'], ['members.member_id'], ),
-    sa.ForeignKeyConstraint(['sport_type_id'], ['sport_types.sport_type_id'], ),
+    # 新增欄位
+    sa.Column('identity', sa.String(length=50), nullable=True),
+    sa.Column('target_identity', sa.String(length=50), nullable=True),
+    sa.Column('gender', sa.String(length=10), nullable=True),
+    sa.Column('age_range', sa.String(length=20), nullable=True),
+    sa.ForeignKeyConstraint(['organizer_id'], ['members.member_id']),
+    sa.ForeignKeyConstraint(['sport_type_id'], ['sport_types.sport_type_id']),
     sa.PrimaryKeyConstraint('activity_id')
-    )
+)
+
     op.create_index(op.f('ix_activities_activity_id'), 'activities', ['activity_id'], unique=False)
     op.create_table('exercise_records',
     sa.Column('record_id', sa.Integer(), nullable=False),

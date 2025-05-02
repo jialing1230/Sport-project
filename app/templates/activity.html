@@ -113,7 +113,7 @@
     /* FAB按鈕 */
     .fab {
       position: fixed;
-      bottom: 30px;
+      bottom: 60px;
       right: 30px;
       width: 60px;
       height: 60px;
@@ -129,6 +129,7 @@
       cursor: pointer;
       transition: background-color 0.3s, opacity 0.3s ease, transform 0.2s ease;
       opacity: 1;
+      z-index: 1100;
     }
 
     .fab.hidden {
@@ -388,6 +389,30 @@
 .evaluate-button:hover .evaluate-icon {
   transform: scale(1.2); /* 滑鼠懸停時放大 */
 }
+
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  background-color: var(--tab-bg);
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.08);
+  z-index: 1000;
+}
+
+.bottom-bar-button {
+  background: none;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.bottom-bar-icon {
+  width: 24px;
+  height: 24px;
+}
   </style>
 </head>
 
@@ -461,7 +486,22 @@
 <!-- FAB按鈕 -->
 <button class="fab" id="fabButton" onclick="goToCreate()">＋</button>
 
+<div class="bottom-bar">
+  <button class="bottom-bar-button" onclick="goToActivity()">
+    <img src="/static/icons/clipboard.png" alt="活動" class="bottom-bar-icon">
+  </button>
+  <button class="bottom-bar-button" onclick="goToPage('/map')">
+    <img src="/static/icons/map.png" alt="地圖" class="bottom-bar-icon">
+  </button>
+  <button class="bottom-bar-button" onclick="goToProfile()">
+    <img src="/static/icons/user.png" alt="個人" class="bottom-bar-icon">
+  </button>
+</div>
+
 <script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const memberId = urlParams.get('member_id');
+
   function switchTab(index) {
     const tabs = document.querySelectorAll('.tab');
     const contents = document.querySelectorAll('.tab-content');
@@ -490,6 +530,18 @@
 
   function goToCreate() {
     window.location.href = "/create_activity";
+  }
+
+  function goToPage(path) {
+    window.location.href = path;
+  }
+
+  function goToProfile() {
+    if (!memberId) {
+      alert("無效的會員資訊！");
+      return;
+    }
+    window.location.href = `/profile_view?member_id=${memberId}`;
   }
 
   async function openModal(activityId) {
@@ -585,9 +637,6 @@
     indicator.style.left = tabWidth * activeIndex + "px";
   });
 
-
-  const urlParams = new URLSearchParams(window.location.search);
-  const memberId = urlParams.get('member_id');
 
   async function loadMyActivities() {
     if (!memberId) {

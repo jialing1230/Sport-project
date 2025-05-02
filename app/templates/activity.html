@@ -144,6 +144,93 @@
     .fab:active {
       transform: scale(0.95); /* ⭐點擊時微縮小 */
     }
+
+    .activity-card-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    padding: 20px;
+   }
+
+  .activity-card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    padding: 20px;
+    font-size: 16px;
+    color: var(--text-color);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .activity-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  .activity-card h3 {
+    font-size: 20px;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+  }
+
+  .activity-card p {
+    margin: 5px 0;
+    line-height: 1.5;
+  }
+
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  .modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    width: 400px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: left;
+  }
+
+  .modal-content h2 {
+    margin-top: 0;
+    color: var(--primary-color);
+    text-align: center;
+  }
+
+  .close {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 24px;
+    cursor: pointer;
+  }
+
+  .close-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: var(--primary-color);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.2s ease;
+  }
+
+  .close-button:hover {
+    background-color: #4aa3b5;
+  }
   </style>
 </head>
 
@@ -161,10 +248,25 @@
 
 <div id="tabContents">
   <div class="tab-content" id="content-0">
-    尚未發起任何活動
+    <div id="my-activities">載入中...</div>
   </div>
   <div class="tab-content" id="content-1" style="display: none;">
     尚未參加任何活動
+  </div>
+</div>
+
+<!-- Modal -->
+<div id="activityModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <h2 id="modal-title">活動標題</h2>
+    <p><strong>類型：</strong><span id="modal-sport-name"></span>/<span id="modal-level"></span></p>
+    <p><strong>開始時間：</strong><span id="modal-start-time"></span></p>
+    <p><strong>結束時間：</strong><span id="modal-end-time"></span></p>
+    <p><strong>地點：</strong><span id="modal-location"></span></p>
+    <p><strong>參加人數：</strong><span id="modal-participants"></span>/<span id="modal-max-participants"></span></p>
+    <p><strong>狀態：</strong><span id="modal-status"></span></p>
+    <button onclick="closeModal()" class="close-button">關閉</button>
   </div>
 </div>
 
@@ -202,6 +304,31 @@
     window.location.href = "/create_activity";
   }
 
+  async function openModal(activityId) {
+    try {
+      const res = await fetch(`/api/activities/details?activity_id=${activityId}`);
+      const data = await res.json();
+
+      document.getElementById("modal-title").innerText = data.title;
+      document.getElementById("modal-sport-name").innerText = data.sport_name;
+      document.getElementById("modal-start-time").innerText = new Date(data.start_time).toLocaleString();
+      document.getElementById("modal-end-time").innerText = new Date(data.end_time).toLocaleString();
+      document.getElementById("modal-location").innerText = data.location_name;
+      document.getElementById("modal-participants").innerText = data.current_participants;
+      document.getElementById("modal-max-participants").innerText = data.max_participants;
+      document.getElementById("modal-status").innerText = data.status === "open" ? "開放參加" : "關閉";
+      document.getElementById("modal-level").innerText = data.level || "未設定"; 
+
+      document.getElementById("activityModal").style.display = "flex";
+    } catch (error) {
+      console.error("無法載入活動詳細資訊", error);
+    }
+  }
+
+  function closeModal() {
+    document.getElementById("activityModal").style.display = "none";
+  }
+
   window.addEventListener('resize', () => {
     const tabs = document.querySelectorAll('.tab');
     const activeIndex = [...tabs].findIndex(tab => tab.classList.contains('active'));
@@ -210,6 +337,100 @@
     indicator.style.width = tabWidth + "px";
     indicator.style.left = tabWidth * activeIndex + "px";
   });
+
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const memberId = urlParams.get('member_id');
+
+  async function loadMyActivities() {
+    if (!memberId) {
+      document.getElementById("my-activities").innerText = "無效的會員資訊";
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/activities/my?member_id=${memberId}`);
+      const data = await res.json();
+
+      const container = document.getElementById("my-activities");
+      container.innerHTML = "";
+
+      if (data.length === 0) {
+        container.innerText = "尚未發起任何活動";
+        return;
+      }
+
+      const cardContainer = document.createElement("div");
+      cardContainer.className = "activity-card-container";
+
+      data.forEach(activity => {
+        const card = document.createElement("div");
+        card.className = "activity-card";
+        card.innerHTML = `
+          <h3>${activity.title}</h3>
+          <p><strong>類型：</strong>${activity.sport_name}</p>
+          <p><strong>開始：</strong>${activity.start_time ? new Date(activity.start_time).toLocaleString() : "未設定"}</p>
+          <p><strong>結束：</strong>${activity.end_time ? new Date(activity.end_time).toLocaleString() : "未設定"}</p>
+          <p><strong>地點：</strong>${activity.location_name}</p>
+        `;
+        card.addEventListener("click", () => openModal(activity.activity_id));
+        cardContainer.appendChild(card);
+      });
+
+      container.appendChild(cardContainer);
+    } catch (error) {
+      document.getElementById("my-activities").innerText = "載入失敗，請稍後再試。";
+      console.error(error);
+    }
+  }
+
+  async function loadJoinedActivities() {
+    if (!memberId) {
+      document.getElementById("content-1").innerText = "無效的會員資訊";
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/activities/joined?member_id=${memberId}`);
+      const data = await res.json();
+
+      const container = document.getElementById("content-1");
+      container.innerHTML = "";
+
+      if (data.length === 0) {
+        container.innerText = "尚未參加任何活動";
+        return;
+      }
+
+      const cardContainer = document.createElement("div");
+      cardContainer.className = "activity-card-container";
+
+      data.forEach(activity => {
+        const card = document.createElement("div");
+        card.className = "activity-card";
+        card.innerHTML = `
+          <h3>${activity.title}</h3>
+          <p><strong>類型：</strong>${activity.sport_name}</p>
+          <p><strong>開始：</strong>${activity.start_time ? new Date(activity.start_time).toLocaleString() : "未設定"}</p>
+          <p><strong>結束：</strong>${activity.end_time ? new Date(activity.end_time).toLocaleString() : "未設定"}</p>
+          <p><strong>地點：</strong>${activity.location_name}</p>
+        `;
+        card.addEventListener("click", () => openModal(activity.activity_id));
+        cardContainer.appendChild(card);
+      });
+
+      container.appendChild(cardContainer);
+    } catch (error) {
+      document.getElementById("content-1").innerText = "載入失敗，請稍後再試。";
+      console.error(error);
+    }
+  }
+
+  window.onload = function () {
+    switchTab(0);
+    loadMyActivities();
+    loadJoinedActivities(); // 新增載入「我參加的活動」
+  };
 </script>
 
 </body>

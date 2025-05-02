@@ -5,6 +5,8 @@ from app.routers.activity import activity_bp
 from app.routers.memeber import member_bp
 from app.routers.preference import preference_bp  
 from app.routers.yahoo_news import yahoo_news_bp  
+from app.database import get_db
+from app.models import Activity, SportType
 
 
 
@@ -68,7 +70,15 @@ def create_app():
 
     @app.route("/activity")
     def activity_page():
-        return render_template("activity.html")
+        member_id = request.args.get('member_id')
+        if not member_id:
+            # 如果缺少 member_id，導回登入頁面
+            return redirect(url_for('login_html'))
+        # 將 member_id 注入模板
+        return render_template('activity.html', member_id=member_id)
+    
+        
+
 
     
     @app.route("/home")

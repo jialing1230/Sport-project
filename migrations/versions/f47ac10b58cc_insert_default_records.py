@@ -49,7 +49,7 @@ def generate_password(length=8):
 def upgrade() -> None:
     bind = op.get_bind()
     session = Session(bind=bind)
-    now = datetime.now(timezone.utc)
+    now = datetime.now()
 
     members = []
     cities = ["台北市", "新北市", "桃園市", "台中市", "高雄市"]
@@ -108,16 +108,19 @@ def upgrade() -> None:
     activities = []
     for i in range(1, 6):
         name, lat, lng = location_data[i - 1]
+
+        activity_start = now if i <= 2 else now + timedelta(days=2)
+        activity_end = activity_start + timedelta(hours=1)
         a = Activity(
             activity_id=i,
             title=f"Activity{i}",
-            start_time=now,
-            end_time=now + timedelta(hours=1), 
+            start_time=activity_start,
+            end_time=activity_end, 
             location_name=name,
             location_lat=lat,
             location_lng=lng,
             max_participants=2 + i,
-            current_participants=1,
+            current_participants=2,
             organizer_id=members[i - 1].member_id,
             level="初學" if i % 2 == 0 else "中階",
             sport_type_id=sport_types[i - 1].sport_type_id,
@@ -218,7 +221,7 @@ def upgrade() -> None:
                 member_id=members[(i + 1) % 5].member_id,
                 activity_id=activities[i - 1].activity_id,
                 join_time=now,
-                status="joined" if i % 2 else "pending",
+                status="joined",
             )
         )
     session.add_all(joins)

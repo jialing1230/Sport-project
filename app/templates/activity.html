@@ -194,14 +194,16 @@
   }
 
   .modal-content {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    width: 400px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    text-align: left;
-  }
-
+  position: relative; /* 確保子元素的絕對定位基於此容器 */
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  width: 400px; /* 固定寬度 */
+  height: 450px; /* 固定高度 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: left;
+  overflow: hidden; /* 防止內容溢出 */
+}
   .modal-content h2 {
     margin-top: 0;
     color: var(--primary-color);
@@ -217,20 +219,175 @@
   }
 
   .close-button {
-    margin-top: 20px;
-    padding: 10px 20px;
-    background-color: var(--primary-color);
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.2s ease;
-  }
+  position: absolute; /* 絕對定位，基於父容器 .modal-content */
+  bottom: 20px; /* 距離模態框底部 20px */
+  left: 20px; /* 距離模態框左側 20px */
+  padding: 10px 20px;
+  background-color: var(--primary-color);
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.2s ease;
+}
 
   .close-button:hover {
     background-color: #4aa3b5;
   }
+  .modal-tabs {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    background-color: var(--tab-bg);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  }
+
+  .modal-tab {
+    flex: 1;
+    text-align: center;
+    line-height: 50px;
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--text-color);
+    cursor: pointer;
+    background-color: var(--tab-bg);
+    border: none;
+    position: relative;
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+
+  .modal-tab:hover {
+    transform: scale(1.05);
+  }
+
+  .modal-tab.active {
+    color: var(--primary-color);
+  }
+
+  .modal-divider {
+    height: 2px;
+    background: #e0e0e0;
+    position: relative;
+  }
+
+  .modal-indicator {
+    position: absolute;
+    top: 0;
+    height: 3px;
+    background-color: var(--primary-color);
+    transition: left 0.3s ease, width 0.3s ease;
+    border-radius: 2px;
+  }
+
+  .modal-tab-content {
+    display: none;
+    padding: 20px;
+    font-size: 16px;
+    color: var(--text-color);
+  }
+
+  .modal-tab-content.active {
+    display: block;
+  }
+
+  .modal-tab-content h3 {
+  margin-top: 5px; /* 調整上方間距，讓標題更靠上 */
+  margin-bottom: 10px; /* 調整下方間距 */
+  font-size: 18px; /* 確保字體大小適中 */
+  color: #2c4975; /* 深藍色，與主題一致 */
+  font-weight: bold; /* 加粗字體，讓標題更突出 */
+}
+
+  .participants-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 5px;
+  }
+
+  .participant-card {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 16px;
+    color: var(--text-color);
+  }
+
+  .participant-card.organizer {
+    background-color: #e8f5e9;
+    font-weight: bold;
+  }
+
+  .participant-card span {
+    margin-left: 10px;
+    color: var(--primary-color);
+  }
+
+  .participants-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  #evaluateModal .modal-content {
+  width: 400px;
+  height: auto;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+#evaluateModal textarea {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 16px;
+}
+
+#evaluateModal .submit-button {
+  padding: 10px 20px;
+  background-color: var(--primary-color);
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+#evaluateModal .submit-button:hover {
+  background-color: #4aa3b5;
+}
+
+.status-text {
+  font-weight: bold;
+  color: #2c4975; /* 深藍色，與主題一致 */
+  margin-right: 10px; /* 與按鈕保持間距 */
+}
+
+.evaluate-button {
+  display: inline-flex;
+  align-items: center;
+  background: none; /* 移除背景 */
+  border: none; /* 移除邊框 */
+  padding: 0; /* 移除內邊距 */
+  cursor: pointer;
+}
+
+.evaluate-icon {
+  width: 24px; /* 圖標寬度 */
+  height: 24px; /* 圖標高度 */
+  transition: transform 0.2s ease;
+}
+
+.evaluate-button:hover .evaluate-icon {
+  transform: scale(1.2); /* 滑鼠懸停時放大 */
+}
   </style>
 </head>
 
@@ -259,14 +416,45 @@
 <div id="activityModal" class="modal" style="display: none;">
   <div class="modal-content">
     <span class="close" onclick="closeModal()">&times;</span>
-    <h2 id="modal-title">活動標題</h2>
-    <p><strong>類型：</strong><span id="modal-sport-name"></span>/<span id="modal-level"></span></p>
-    <p><strong>開始時間：</strong><span id="modal-start-time"></span></p>
-    <p><strong>結束時間：</strong><span id="modal-end-time"></span></p>
-    <p><strong>地點：</strong><span id="modal-location"></span></p>
-    <p><strong>參加人數：</strong><span id="modal-participants"></span>/<span id="modal-max-participants"></span></p>
-    <p><strong>狀態：</strong><span id="modal-status"></span></p>
+    <div class="modal-tabs">
+      <div class="modal-tab active" onclick="switchModalTab(0)">活動細節</div>
+      <div class="modal-tab" onclick="switchModalTab(1)">查看參加者</div>
+    </div>
+    <div class="modal-divider">
+      <div id="modal-indicator" class="modal-indicator" style="width: 50%; left: 0;"></div>
+    </div>
+    <div class="modal-tab-content" id="modal-tab-0">
+      <h2 id="modal-title">活動標題</h2>
+      <p><strong>類型：</strong><span id="modal-sport-name"></span>/<span id="modal-level"></span></p>
+      <p><strong>開始時間：</strong><span id="modal-start-time"></span></p>
+      <p><strong>結束時間：</strong><span id="modal-end-time"></span></p>
+      <p><strong>地點：</strong><span id="modal-location"></span></p>
+      <p><strong>狀態：</strong><span id="modal-status"></span></p>
+      <p><strong>參加人數：</strong><span id="modal-participants"></span>/<span id="modal-max-participants"></span></p>
+      <progress id="progress" value="0" max="0" style="width: 100%;"></progress>
+    </div>
+    <div class="modal-tab-content" id="modal-tab-1">
+      <h3>參加者列表</h3>
+      <div class="participants-container">
+        <div class="participant-card organizer">
+          <strong>發起人：</strong>
+          <span id="organizer-name"></span>
+        </div>
+        <div id="participants-list" class="participants-list">
+          <!-- 參加者卡片將動態插入 -->
+        </div>
+      </div>
+    </div>
     <button onclick="closeModal()" class="close-button">關閉</button>
+  </div>
+</div>
+
+<div id="evaluateModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <span class="close" onclick="closeEvaluateModal()">&times;</span>
+    <h2>評價活動</h2>
+    <textarea id="evaluation-text" placeholder="請輸入您的評價..." style="width: 100%; height: 100px; margin-bottom: 20px;"></textarea>
+    <button onclick="submitEvaluation()" class="submit-button">提交評價</button>
   </div>
 </div>
 
@@ -310,6 +498,7 @@
       const data = await res.json();
 
       document.getElementById("modal-title").innerText = data.title;
+      document.getElementById("modal-title").setAttribute("data-activity-id", activityId); // 儲存活動 ID
       document.getElementById("modal-sport-name").innerText = data.sport_name;
       document.getElementById("modal-start-time").innerText = new Date(data.start_time).toLocaleString();
       document.getElementById("modal-end-time").innerText = new Date(data.end_time).toLocaleString();
@@ -317,7 +506,18 @@
       document.getElementById("modal-participants").innerText = data.current_participants;
       document.getElementById("modal-max-participants").innerText = data.max_participants;
       document.getElementById("modal-status").innerText = data.status === "open" ? "開放參加" : "關閉";
-      document.getElementById("modal-level").innerText = data.level || "未設定"; 
+      document.getElementById("modal-level").innerText = data.level || "未設定";
+
+      // 更新進度條
+      const progress = document.getElementById("progress");
+      progress.value = data.current_participants;
+      progress.max = data.max_participants;
+
+      // 預設顯示活動細節
+      switchModalTab(0);
+
+      // 預載入參加者資料
+      loadParticipants(activityId);
 
       document.getElementById("activityModal").style.display = "flex";
     } catch (error) {
@@ -325,8 +525,55 @@
     }
   }
 
+  async function loadParticipants(activityId) {
+    try {
+      const res = await fetch(`/api/activities/participants?activity_id=${activityId}`);
+      const data = await res.json();
+
+      if (res.status !== 200) {
+        console.error("無法載入參加者資料", data.error);
+        return;
+      }
+
+      // 顯示發起人
+      const organizerName = document.getElementById("organizer-name");
+      organizerName.innerText = data.organizer.name;
+
+      // 顯示參加者
+      const participantsList = document.getElementById("participants-list");
+      participantsList.innerHTML = ""; // 清空列表
+
+      data.participants.forEach(participant => {
+        const card = document.createElement("div");
+        card.className = "participant-card";
+        card.innerHTML = `<span>${participant.name}</span>`;
+        participantsList.appendChild(card);
+      });
+    } catch (error) {
+      console.error("無法載入參加者資料", error);
+    }
+  }
+
   function closeModal() {
     document.getElementById("activityModal").style.display = "none";
+  }
+
+  function switchModalTab(index) {
+    const tabs = document.querySelectorAll('.modal-tab');
+    const contents = document.querySelectorAll('.modal-tab-content');
+    const indicator = document.getElementById('modal-indicator');
+
+    tabs.forEach((tab, i) => {
+      tab.classList.toggle('active', i === index);
+    });
+
+    contents.forEach((content, i) => {
+      content.classList.toggle('active', i === index);
+    });
+
+    const tabWidth = tabs[0].offsetWidth;
+    indicator.style.width = tabWidth + "px";
+    indicator.style.left = tabWidth * index + "px";
   }
 
   window.addEventListener('resize', () => {
@@ -372,6 +619,7 @@
           <p><strong>開始：</strong>${activity.start_time ? new Date(activity.start_time).toLocaleString() : "未設定"}</p>
           <p><strong>結束：</strong>${activity.end_time ? new Date(activity.end_time).toLocaleString() : "未設定"}</p>
           <p><strong>地點：</strong>${activity.location_name}</p>
+          
         `;
         card.addEventListener("click", () => openModal(activity.activity_id));
         cardContainer.appendChild(card);
@@ -385,6 +633,7 @@
   }
 
   async function loadJoinedActivities() {
+  
     if (!memberId) {
       document.getElementById("content-1").innerText = "無效的會員資訊";
       return;
@@ -414,6 +663,14 @@
           <p><strong>開始：</strong>${activity.start_time ? new Date(activity.start_time).toLocaleString() : "未設定"}</p>
           <p><strong>結束：</strong>${activity.end_time ? new Date(activity.end_time).toLocaleString() : "未設定"}</p>
           <p><strong>地點：</strong>${activity.location_name}</p>
+          <p><strong>目前狀態：</strong>
+            ${activity.status === "close" ? `
+              <span class="status-text">已結束</span>
+              <button class="evaluate-button" onclick="openEvaluateModal(${activity.activity_id})">
+                <img src="/static/icons/message.png" alt="評價" class="evaluate-icon">
+              </button>
+            ` : activity.status === "open" ? "即將開始" : "進行中"}
+          </p>
         `;
         card.addEventListener("click", () => openModal(activity.activity_id));
         cardContainer.appendChild(card);
@@ -423,6 +680,50 @@
     } catch (error) {
       document.getElementById("content-1").innerText = "載入失敗，請稍後再試。";
       console.error(error);
+    }
+  }
+
+  let currentActivityId = null;
+
+  function openEvaluateModal(activityId) {
+    currentActivityId = activityId; // 儲存當前活動 ID
+    document.getElementById("evaluateModal").style.display = "flex";
+  }
+
+  function closeEvaluateModal() {
+    document.getElementById("evaluateModal").style.display = "none";
+    document.getElementById("evaluation-text").value = ""; // 清空評價內容
+  }
+
+  async function submitEvaluation() {
+    const evaluationText = document.getElementById("evaluation-text").value.trim();
+    if (!evaluationText) {
+      alert("請輸入評價內容！");
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/activities/evaluate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          activity_id: currentActivityId,
+          member_id: memberId,
+          evaluation: evaluationText
+        })
+      });
+
+      if (res.ok) {
+        alert("評價提交成功！");
+        closeEvaluateModal();
+      } else {
+        alert("提交評價失敗，請稍後再試！");
+      }
+    } catch (error) {
+      console.error("提交評價時發生錯誤：", error);
+      alert("提交評價失敗，請稍後再試！");
     }
   }
 

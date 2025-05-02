@@ -87,6 +87,15 @@ def get_activity_details():
         if not activity:
             return jsonify({"error": "活動不存在"}), 404
 
+        now = datetime.now()
+        if activity.end_time and activity.end_time < now:
+            status = "close"
+        elif activity.start_time and activity.start_time > now:
+            status = "open"
+        else:
+            status = "ongoing"
+        print(f"Status: {status}")
+
         return jsonify({
             "activity_id": activity.activity_id,
             "title": activity.title,
@@ -96,7 +105,7 @@ def get_activity_details():
             "location_name": activity.location_name,
             "current_participants": activity.current_participants,  # 假設有這個欄位
             "max_participants": activity.max_participants,
-            "status": activity.status,
+            "status": status,  # 動態設置的狀態
             "level": activity.level,
         }), 200
     
@@ -116,7 +125,17 @@ def list_joined_activities():
             .all()
         )
         result = []
+        now = datetime.now()  # 獲取當前時間
         for a in joined_activities:
+            # 根據時間判斷活動狀態
+            if a.end_time and a.end_time < now:
+                status = "close"  # 活動已結束
+            elif a.start_time and a.start_time > now:
+                status = "open"  # 活動尚未開始
+            else:
+                status = "ongoing"  # 活動正在進行中
+            print(f"Status: {status}")
+
             result.append({
                 "activity_id": a.activity_id,
                 "title": a.title,
@@ -124,6 +143,42 @@ def list_joined_activities():
                 "end_time": a.end_time.isoformat() if a.end_time else None,
                 "location_name": a.location_name,
                 "sport_name": a.sport_type.name if a.sport_type else "未分類",
+                "status": status,  # 動態設置的狀態
             })
+    return jsonify(result), 200
+
+@activity_bp.route("/participants", methods=["GET"])
+def get_activity_participants():
+    activity_id = request.args.get("activity_id")
+    if not activity_id:
+        return jsonify({"error": "缺少 activity_id"}), 400
+
+    with get_db() as db:
+        # 查詢活動
+        activity = db.query(Activity).filter(Activity.activity_id == activity_id).first()
+        if not activity:
+            return jsonify({"error": "活動不存在"}), 404
+
+        # 查詢參加者
+        participants = (
+            db.query(ActivityJoin)
+            .filter(ActivityJoin.activity_id == activity_id, ActivityJoin.status == "joined")
+            .all()
+        )
+
+        # 構建返回資料
+        result = {
+            "organizer": {
+                "member_id": activity.organizer_id,
+                "name": activity.organizer.name,  # 假設 Member 模型有 name 欄位
+            },
+            "participants": [
+                {
+                    "member_id": p.member_id,
+                    "name": p.member.name,  # 假設 Member 模型有 name 欄位
+                }
+                for p in participants
+            ],
+        }
     return jsonify(result), 200
 

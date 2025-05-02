@@ -68,7 +68,6 @@ def upgrade() -> None:
     sa.Column('status', sa.String(length=50), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('has_review', sa.Boolean(), nullable=True),
-    # 新增欄位
     sa.Column('identity', sa.String(length=50), nullable=True),
     sa.Column('target_identity', sa.String(length=50), nullable=True),
     sa.Column('gender', sa.String(length=10), nullable=True),

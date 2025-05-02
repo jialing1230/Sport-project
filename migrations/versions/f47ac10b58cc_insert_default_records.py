@@ -8,7 +8,7 @@ Create Date: 2025-04-19 20:30:00.000000
 import uuid
 import random
 import string
-from datetime import datetime, timezone, date, timedelta
+from datetime import datetime, date, timedelta
 from typing import Sequence, Union
 
 from alembic import op

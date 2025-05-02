@@ -1,7 +1,6 @@
 # app/routers/member.py
 import os
 from flask import Blueprint, request, jsonify, current_app
-from werkzeug.utils import secure_filename
 from datetime import datetime
 from sqlalchemy.exc import IntegrityError
 from app.database import get_db

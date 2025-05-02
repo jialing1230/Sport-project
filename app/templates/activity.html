@@ -384,9 +384,52 @@
     }
   }
 
+  async function loadJoinedActivities() {
+    if (!memberId) {
+      document.getElementById("content-1").innerText = "無效的會員資訊";
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/activities/joined?member_id=${memberId}`);
+      const data = await res.json();
+
+      const container = document.getElementById("content-1");
+      container.innerHTML = "";
+
+      if (data.length === 0) {
+        container.innerText = "尚未參加任何活動";
+        return;
+      }
+
+      const cardContainer = document.createElement("div");
+      cardContainer.className = "activity-card-container";
+
+      data.forEach(activity => {
+        const card = document.createElement("div");
+        card.className = "activity-card";
+        card.innerHTML = `
+          <h3>${activity.title}</h3>
+          <p><strong>類型：</strong>${activity.sport_name}</p>
+          <p><strong>開始：</strong>${activity.start_time ? new Date(activity.start_time).toLocaleString() : "未設定"}</p>
+          <p><strong>結束：</strong>${activity.end_time ? new Date(activity.end_time).toLocaleString() : "未設定"}</p>
+          <p><strong>地點：</strong>${activity.location_name}</p>
+        `;
+        card.addEventListener("click", () => openModal(activity.activity_id));
+        cardContainer.appendChild(card);
+      });
+
+      container.appendChild(cardContainer);
+    } catch (error) {
+      document.getElementById("content-1").innerText = "載入失敗，請稍後再試。";
+      console.error(error);
+    }
+  }
+
   window.onload = function () {
     switchTab(0);
     loadMyActivities();
+    loadJoinedActivities(); // 新增載入「我參加的活動」
   };
 </script>
 

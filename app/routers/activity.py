@@ -3,6 +3,7 @@ from datetime import datetime
 from app.database import get_db
 from app.models.activity import Activity
 from app.models.sport_type import SportType
+from app.models.activity_join import ActivityJoin 
 from flask import render_template
 
 activity_bp = Blueprint("activity", __name__, url_prefix="/api/activities")
@@ -98,4 +99,31 @@ def get_activity_details():
             "status": activity.status,
             "level": activity.level,
         }), 200
+    
+
+@activity_bp.route("/joined", methods=["GET"])
+def list_joined_activities():
+    member_id = request.args.get("member_id")
+    if not member_id:
+        return jsonify({"error": "缺少 member_id"}), 400
+
+    with get_db() as db:
+        # 查詢該會員參加的活動
+        joined_activities = (
+            db.query(Activity)
+            .join(ActivityJoin, Activity.activity_id == ActivityJoin.activity_id)
+            .filter(ActivityJoin.member_id == member_id, ActivityJoin.status == "joined")
+            .all()
+        )
+        result = []
+        for a in joined_activities:
+            result.append({
+                "activity_id": a.activity_id,
+                "title": a.title,
+                "start_time": a.start_time.isoformat() if a.start_time else None,
+                "end_time": a.end_time.isoformat() if a.end_time else None,
+                "location_name": a.location_name,
+                "sport_name": a.sport_type.name if a.sport_type else "未分類",
+            })
+    return jsonify(result), 200
 

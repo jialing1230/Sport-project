@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from datetime import datetime
 from app.database import get_db
 from app.models.activity import Activity
+from app.models.sport_type import SportType
 from flask import render_template
 
 activity_bp = Blueprint("activity", __name__, url_prefix="/api/activities")
@@ -53,4 +54,48 @@ def list_activities():
                 "sport_name": a.sport_type.name if a.sport_type else "未分類",
             })
     return jsonify(result), 200
+
+@activity_bp.route("/my", methods=["GET"])
+def list_my_activities():
+    member_id = request.args.get("member_id")
+    if not member_id:
+        return jsonify({"error": "缺少 member_id"}), 400
+
+    with get_db() as db:
+        activities = db.query(Activity).filter(Activity.organizer_id == member_id).join(SportType).all()
+        result = []
+        for a in activities:
+            result.append({
+                "activity_id": a.activity_id,
+                "title": a.title,
+                "start_time": a.start_time.isoformat() if a.start_time else None,
+                "end_time": a.end_time.isoformat() if a.end_time else None,
+                "location_name": a.location_name,
+                "sport_name": a.sport_type.name if a.sport_type else "未分類",
+            })
+    return jsonify(result), 200
+
+@activity_bp.route("/details", methods=["GET"])
+def get_activity_details():
+    activity_id = request.args.get("activity_id")
+    if not activity_id:
+        return jsonify({"error": "缺少 activity_id"}), 400
+
+    with get_db() as db:
+        activity = db.query(Activity).filter(Activity.activity_id == activity_id).first()
+        if not activity:
+            return jsonify({"error": "活動不存在"}), 404
+
+        return jsonify({
+            "activity_id": activity.activity_id,
+            "title": activity.title,
+            "sport_name": activity.sport_type.name if activity.sport_type else "未分類",
+            "start_time": activity.start_time.isoformat() if activity.start_time else None,
+            "end_time": activity.end_time.isoformat() if activity.end_time else None,
+            "location_name": activity.location_name,
+            "current_participants": activity.current_participants,  # 假設有這個欄位
+            "max_participants": activity.max_participants,
+            "status": activity.status,
+            "level": activity.level,
+        }), 200
 

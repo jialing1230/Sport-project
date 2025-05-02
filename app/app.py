@@ -3,11 +3,9 @@ from flask import Flask, render_template, request, redirect, url_for
 from app.routers.auth import auth_bp
 from app.routers.activity import activity_bp
 from app.routers.memeber import member_bp
-from app.routers.preference import preference_bp  
-from app.routers.yahoo_news import yahoo_news_bp  
-from app.database import get_db
-from app.models import Activity, SportType
-
+from app.routers.preference import preference_bp
+from app.routers.yahoo_news import yahoo_news_bp
+from app.services.scheduler import start_scheduler
 
 
 def create_app():
@@ -23,15 +21,14 @@ def create_app():
     app.register_blueprint(activity_bp)
     app.register_blueprint(member_bp)
     app.register_blueprint(preference_bp)
-    app.register_blueprint(yahoo_news_bp)  
+    app.register_blueprint(yahoo_news_bp)
 
-    
     # 前端頁面路由
     @app.route("/")
     def index():
         return render_template("index.html")
 
-    @app.route("/login", endpoint='login_html')
+    @app.route("/login", endpoint="login_html")
     def login_page():
         return render_template("login.html")
 
@@ -43,54 +40,49 @@ def create_app():
     def activities_overview_page():
         return render_template("activities_overview.html")
 
-
     @app.route("/profiles")
     def profiles_page():
         # 從查詢參數取得 member_id
-        member_id = request.args.get('member_id')
+        member_id = request.args.get("member_id")
         if not member_id:
             # 如果缺少 member_id，導回登入頁面
-            return redirect(url_for('login_html'))
+            return redirect(url_for("login_html"))
         # 將 member_id 注入模板
-        return render_template('profiles.html', member_id=member_id)
-    
+        return render_template("profiles.html", member_id=member_id)
+
     @app.route("/preference")
     def user_preference_page():
         # 從查詢參數取得 member_id
-        member_id = request.args.get('member_id')
+        member_id = request.args.get("member_id")
         if not member_id:
             # 如果缺少 member_id，導回登入頁面
-            return redirect(url_for('login_html'))
+            return redirect(url_for("login_html"))
         # 將 member_id 注入模板
-        return render_template('preference.html', member_id=member_id)
-    
-    @app.route("/create_activity", endpoint='create_activity_html')
+        return render_template("preference.html", member_id=member_id)
+
+    @app.route("/create_activity", endpoint="create_activity_html")
     def create_activity_page():
         return render_template("create_activity.html")
 
     @app.route("/activity")
     def activity_page():
-        member_id = request.args.get('member_id')
+        member_id = request.args.get("member_id")
         if not member_id:
             # 如果缺少 member_id，導回登入頁面
-            return redirect(url_for('login_html'))
+            return redirect(url_for("login_html"))
         # 將 member_id 注入模板
-        return render_template('activity.html', member_id=member_id)
-    
-        
+        return render_template("activity.html", member_id=member_id)
 
-
-    
     @app.route("/home")
     def system_home_page():
         # 從查詢參數取得 member_id
-        member_id = request.args.get('member_id')
+        member_id = request.args.get("member_id")
         if not member_id:
             # 如果缺少 member_id，導回登入頁面
-            return redirect(url_for('login_html'))
+            return redirect(url_for("login_html"))
         # 將 member_id 注入模板
-        return render_template('home.html', member_id=member_id)
-    
+        return render_template("home.html", member_id=member_id)
+
     @app.route("/profile_view")
     def profile_view():
         member_id = request.args.get("member_id")
@@ -101,4 +93,5 @@ def create_app():
 
 if __name__ == "__main__":
     app = create_app()
+    start_scheduler()  # 啟動排程
     app.run(debug=True)

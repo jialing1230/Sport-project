@@ -696,59 +696,86 @@
         originalData = JSON.parse(JSON.stringify(data));
 
         // 姓名、Email、性別
-        document.getElementById("name").textContent = data.name || "未填寫";
-        document.getElementById("email").textContent = data.email || "未填寫";
-        const gMap = { 男: "男", 女: "女", 不限: "不限" };
-        const genderKey = (data.gender || "").trim();
-        document.getElementById("gender").textContent =
-          gMap[genderKey] || "未填寫";
+        const nameElement = document.getElementById("name");
+        if (nameElement) nameElement.textContent = data.name || "未填寫";
+
+        const emailElement = document.getElementById("email");
+        if (emailElement) emailElement.textContent = data.email || "未填寫";
+
+        const genderElement = document.getElementById("gender");
+        if (genderElement) {
+          const gMap = { 男: "男", 女: "女", 不限: "不限" };
+          const genderKey = (data.gender || "").trim();
+          genderElement.textContent = gMap[genderKey] || "未填寫";
+        }
 
         // 生日
-        if (data.birthdate) {
-          const [y, m] = data.birthdate.split("-");
-          const age =
-            new Date().getFullYear() -
-            +y -
-            (new Date().getMonth() < +m - 1 ? 1 : 0);
-          document.getElementById(
-            "birthdate"
-          ).textContent = `${y}年${m}月（${age}歲）`;
-        } else {
-          document.getElementById("birthdate").textContent = "未填寫";
+        const birthdateElement = document.getElementById("birthdate");
+        if (birthdateElement) {
+          if (data.birthdate) {
+            const [y, m] = data.birthdate.split("-");
+            const age =
+              new Date().getFullYear() -
+              +y -
+              (new Date().getMonth() < +m - 1 ? 1 : 0);
+            birthdateElement.textContent = `${y}年${m}月（${age}歲）`;
+          } else {
+            birthdateElement.textContent = "未填寫";
+          }
         }
 
         // 身高、體重、地區
-        document.getElementById("height").textContent = data.height || "未填寫";
-        document.getElementById("weight").textContent = data.weight || "未填寫";
-        document.getElementById("location").textContent =
-          (data.city ? data.city : "") + (data.area ? "/" + data.area : "") ||
-          "未填寫";
+        const heightElement = document.getElementById("height");
+        if (heightElement) heightElement.textContent = data.height || "未填寫";
+
+        const weightElement = document.getElementById("weight");
+        if (weightElement) weightElement.textContent = data.weight || "未填寫";
+
+        const locationElement = document.getElementById("location");
+        if (locationElement) {
+          locationElement.textContent =
+            (data.city ? data.city : "") + (data.area ? "/" + data.area : "") || "未填寫";
+        }
 
         // 運動偏好
-        const p = data.sport_preferences || {};
-        document.getElementById("sports").textContent =
-          (p.sports || []).join("、") || "未填寫";
+        const sportsElement = document.getElementById("sports");
+        if (sportsElement) {
+          const p = data.sport_preferences || {};
+          sportsElement.textContent = (p.sports || []).join("、") || "未填寫";
+        }
 
-        // 偏好性別（直接顯示中文）
-        document.getElementById("match-gender").textContent =
-          p.match_gender || "不限";
+        // 偏好性別
+        const matchGenderElement = document.getElementById("match-gender");
+        if (matchGenderElement) {
+          const p = data.sport_preferences || {};
+          matchGenderElement.textContent = p.match_gender || "不限";
+        }
 
         // 偏好年齡、時段
-        document.getElementById("match-age").textContent =
-          p.match_age || "未填寫";
-        document.getElementById("times-weekday").textContent =
-          (p.times?.weekday || []).join("、") || "未填寫";
-        document.getElementById("times-weekend").textContent =
-          (p.times?.weekend || []).join("、") || "未填寫";
+        const matchAgeElement = document.getElementById("match-age");
+        if (matchAgeElement) {
+          const p = data.sport_preferences || {};
+          matchAgeElement.textContent = p.match_age || "未填寫";
+        }
+
+        const timesWeekdayElement = document.getElementById("times-weekday");
+        if (timesWeekdayElement) {
+          const p = data.sport_preferences || {};
+          timesWeekdayElement.textContent = (p.times?.weekday || []).join("、") || "未填寫";
+        }
+
+        const timesWeekendElement = document.getElementById("times-weekend");
+        if (timesWeekendElement) {
+          const p = data.sport_preferences || {};
+          timesWeekendElement.textContent = (p.times?.weekend || []).join("、") || "未填寫";
+        }
       }
 
       fetchData();
 
       document.getElementById("edit-btn").onclick = enterEditMode;
       document.getElementById("cancel-btn").onclick = function () {
-        document.getElementById("view-btns").style.display = "";
-        document.getElementById("edit-btns").style.display = "none";
-        fetchData();
+        location.reload(); // 按取消直接重新載入頁面
       };
 
       document.getElementById("save-btn").onclick = async () => {
@@ -1023,3 +1050,4 @@
     </script>
   </body>
 </html>
+`

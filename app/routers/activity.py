@@ -31,7 +31,7 @@ def create_activity():
     return jsonify({"activity_id": act.activity_id}), 201
 
 
-@activity_bp.route("", methods=["GET"])
+@activity_bp.route("/<int:activity_id>", methods=["GET"])
 def list_activities():
     with get_db() as db:
         activities = db.query(Activity).all()

@@ -112,38 +112,39 @@
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       const params = new URLSearchParams(window.location.search);
-      const activityId = params.get('id'); // 活動 id
+      const activityId = params.get('id'); // URL 中的 id
     
-      // 先抓活動資料
+      if (!activityId) {
+        alert("⚠️ 無活動 ID，請重新操作。");
+        return;
+      }
+    
+      // 抓特定活動資料
       fetch(`http://localhost:5002/api/activities/${activityId}`)
         .then(response => {
-          if (!response.ok) {
-            throw new Error('後端錯誤');
-          }
+          if (!response.ok) throw new Error('後端活動資料錯誤');
           return response.json();
         })
         .then(activityData => {
           console.log('活動資料:', activityData);
     
+          // 更新畫面文字
           document.getElementById('activity-title').textContent = activityData.title ?? '未提供標題';
           document.getElementById('activityTime').textContent = `活動時間：${activityData.time ?? '未提供'}`;
           document.getElementById('location').textContent = `活動地點：${activityData.location ?? '未提供'}`;
           document.getElementById('numPeople').textContent = `目前人數：${activityData.current_people ?? 0}/${activityData.max_people ?? '?'}`;
-          document.getElementById('name').textContent = `主辦人：${activityData.host_name ?? '未提供'}`;
+          document.getElementById('name').textContent = activityData.host_name ?? '未提供';
     
+          // 接著查詢運動類型
           const sportTypeId = activityData.sport_type_id;
-    
-          return fetch(`http://localhost:5002/api/activities/`);
+          return fetch(`http://localhost:5002/api/sport-types/${sportTypeId}`);
         })
         .then(response => {
-          if (!response.ok) {
-            throw new Error('後端錯誤');
-          }
+          if (!response.ok) throw new Error('運動類型資料錯誤');
           return response.json();
         })
         .then(sportTypeData => {
           console.log('運動類型資料:', sportTypeData);
-    
           document.getElementById('sport_type_id').textContent = sportTypeData.name ?? '未知類型';
         })
         .catch(error => {
@@ -151,6 +152,7 @@
         });
     });
     </script>
+    
     
     
 

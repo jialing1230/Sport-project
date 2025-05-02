@@ -37,6 +37,11 @@ def create_app():
     def members_page():
         return render_template("member_management.html")
 
+    @app.route("/activities_overview")
+    def activities_overview_page():
+        return render_template("activities_overview.html")
+
+
     @app.route("/profiles")
     def profiles_page():
         # 從查詢參數取得 member_id

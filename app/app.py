@@ -88,10 +88,8 @@ def create_app():
         member_id = request.args.get("member_id")
         return render_template("profile_view.html", member_id=member_id)
 
+    start_scheduler()  # 啟動排程
     return app
 
 
-if __name__ == "__main__":
-    app = create_app()
-    start_scheduler()  # 啟動排程
-    app.run(debug=True)
+

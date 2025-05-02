@@ -6,9 +6,8 @@
   <title>地圖探索</title>
   <style>
     :root {
-      --main-color: #64bcd0;  /* ✅ 水藍色統一 */
-      --gray-text: #666;
-      --click-bg: rgba(100, 188, 208, 0.15);
+      --deep-blue: #2c4975;
+      --light-blue: #81d3e1;
     }
 
     body {
@@ -18,6 +17,7 @@
       display: flex;
       flex-direction: column;
       height: 100vh;
+      color: var(--deep-blue);
     }
 
     .search-bar {
@@ -37,21 +37,55 @@
       width: 80%;
       max-width: 480px;
       box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
     }
 
-    .search-box img {
+    .search-icon {
       width: 20px;
       height: 20px;
+      color: var(--deep-blue);
+      flex-shrink: 0;
+      transition: all 0.3s ease;
     }
 
     .search-box input {
       border: none;
       background: transparent;
       outline: none;
-      color: var(--gray-text);
+      color: #000 !important;
       font-size: 16px;
       flex: 1;
       margin-left: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .search-box input::placeholder {
+      font-size: 13px;
+      color: var(--deep-blue);
+      opacity: 0.6;
+    }
+
+    .filter-icon {
+      width: 24px;
+      height: 24px;
+      margin-left: 12px;
+      color: var(--deep-blue);
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .filter-icon:hover {
+      color: var(--light-blue);
+    }
+
+    .search-box:hover .search-icon,
+    .search-box:focus-within .search-icon {
+      color: var(--light-blue);
+    }
+
+    .search-box:hover,
+    .search-box:focus-within {
+      box-shadow: 0 0 6px rgba(129, 211, 225, 0.4);
     }
 
     .map-area {
@@ -75,44 +109,14 @@
 
     .bottom-item {
       display: flex;
-      flex-direction: column;
       align-items: center;
-      text-decoration: none;
-      color: var(--gray-text);
-      font-size: 14px;
-      padding: 10px 8px;
-      border-radius: 16px;
-      transition: all 0.5s ease-in-out;
+      justify-content: center;
+      padding: 10px;
     }
 
     .bottom-item img {
       width: 32px;
       height: 32px;
-      filter: grayscale(100%);
-      transition: all 0.5s ease-in-out;
-    }
-
-    .bottom-item span {
-      font-size: 13px;
-      margin-top: 4px;
-      opacity: 0;
-      height: 0;
-      overflow: hidden;
-      transition: all 0.5s ease-in-out;
-    }
-
-    .bottom-item.active {
-      background-color: var(--click-bg);
-      color: var(--main-color);
-    }
-
-    .bottom-item.active img {
-      filter: none;
-    }
-
-    .bottom-item.active span {
-      opacity: 1;
-      height: auto;
     }
   </style>
 </head>
@@ -120,8 +124,26 @@
 
   <div class="search-bar">
     <div class="search-box">
-      <img src="search.png" alt="search icon">
+      <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path
+          d="M15.8 15.8L21 21M18 10.5C18 14.64 14.64 18 10.5 18C6.36 18 3 14.64 3 10.5C3 6.36 6.36 3 10.5 3C14.64 3 18 6.36 18 10.5Z"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
       <input type="text" placeholder="搜尋地點或活動名稱" />
+      <svg class="filter-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+		  <line x1="4" y1="7" x2="12" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+		  <line x1="4" y1="17" x2="6" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+		  <line x1="18" y1="7" x2="20" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+		  <line x1="13" y1="17" x2="20" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+		  <circle cx="15" cy="7" r="3" stroke="currentColor" stroke-width="2" fill="none" />
+		  <circle cx="9" cy="17" r="3" stroke="currentColor" stroke-width="2" fill="none" />
+	  </svg>
+
     </div>
   </div>
 
@@ -130,38 +152,22 @@
   </div>
 
   <div class="bottom-nav">
-    <a href="#" class="bottom-item active">
+    <a href="#" class="bottom-item">
       <img src="exam.png" alt="活動">
-      <span>活動</span>
     </a>
     <a href="#" class="bottom-item">
       <img src="star.png" alt="精選">
-      <span>精選</span>
     </a>
     <a href="#" class="bottom-item">
       <img src="map.png" alt="地圖">
-      <span>地圖</span>
     </a>
     <a href="#" class="bottom-item">
       <img src="notification.png" alt="通知">
-      <span>通知</span>
     </a>
     <a href="#" class="bottom-item">
       <img src="user.png" alt="會員">
-      <span>會員</span>
     </a>
   </div>
-
-  <script>
-    const navItems = document.querySelectorAll('.bottom-item');
-    navItems.forEach(item => {
-      item.addEventListener('click', e => {
-        e.preventDefault();
-        navItems.forEach(i => i.classList.remove('active'));
-        item.classList.add('active');
-      });
-    });
-  </script>
 
 </body>
 </html>

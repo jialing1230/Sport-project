@@ -164,6 +164,7 @@
         font-size: 16px;
         color: var(--text-color);
         transition: transform 0.2s ease, box-shadow 0.2s ease;
+        position: relative;
       }
 
       .activity-card:hover {
@@ -388,6 +389,31 @@
       }
 
       .evaluate-button:hover .evaluate-icon {
+        transform: scale(1.2); /* 滑鼠懸停時放大 */
+      }
+
+      button[onclick^="cancelParticipation"] {
+        width: 10px; /* 增加按鈕寬度 */
+        height: 10px; /* 增加按鈕高度 */
+        background: none;
+        border: none;
+        cursor: pointer;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      button[onclick^="cancelParticipation"] img {
+        width: 100%; /* 圖標填滿按鈕 */
+        height: 100%;
+        transition: transform 0.2s ease; /* 添加平滑過渡效果 */
+      }
+
+      button[onclick^="cancelParticipation"]:hover img {
         transform: scale(1.2); /* 滑鼠懸停時放大 */
       }
 
@@ -772,6 +798,20 @@
             const card = document.createElement("div");
             card.className = "activity-card";
             card.innerHTML = `
+          <div style="position: relative;">
+            ${activity.status !== "close" ? `
+            <button style="
+              position: absolute;
+              top: 10px;
+              right: 10px;
+              background: none;
+              border: none;
+              cursor: pointer;
+            " onclick="cancelParticipation(${activity.activity_id}); event.stopPropagation();">
+              <img src="/static/icons/cancel.png" alt="取消參加" style="width: 20px; height: 20px;">
+            </button>
+            ` : ""}
+          </div>
           <h3>${activity.title}</h3>
           <p><strong>類型：</strong>${activity.sport_name}</p>
           <p><strong>開始：</strong>${
@@ -861,6 +901,36 @@
         } catch (error) {
           console.error("提交評價時發生錯誤：", error);
           alert("提交評價失敗，請稍後再試！");
+        }
+      }
+
+      async function cancelParticipation(activityId) {
+        const confirmCancel = confirm("確定要取消參加此活動嗎？");
+        if (!confirmCancel) {
+          return; // 如果使用者選擇取消，則不執行後續邏輯
+        }
+
+        try {
+          const res = await fetch(`/api/activities/cancel`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              activity_id: activityId,
+              member_id: memberId,
+            }),
+          });
+
+          if (res.ok) {
+            alert("已取消參加活動！");
+            loadJoinedActivities(); // 重新載入參加的活動
+          } else {
+            alert("取消參加失敗，請稍後再試！");
+          }
+        } catch (error) {
+          console.error("取消參加時發生錯誤：", error);
+          alert("取消參加失敗，請稍後再試！");
         }
       }
 

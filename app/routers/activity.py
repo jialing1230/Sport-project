@@ -163,3 +163,30 @@ def get_activity_participants():
         }
     return jsonify(result), 200
 
+@activity_bp.route("/cancel", methods=["POST"])
+def cancel_participation():
+    data = request.get_json()
+    member_id = data.get("member_id")
+    activity_id = data.get("activity_id")
+
+    if not member_id or not activity_id:
+        return jsonify({"error": "缺少必要參數"}), 400
+
+    with get_db() as db:
+        # 查找該會員參加的活動記錄
+        activity_join = db.query(ActivityJoin).filter_by(member_id=member_id, activity_id=activity_id).first()
+        if not activity_join:
+            return jsonify({"error": "未找到參加記錄"}), 404
+
+        # 刪除參加記錄
+        db.delete(activity_join)
+
+        # 更新活動的 current_participants
+        activity = db.query(Activity).filter_by(activity_id=activity_id).first()
+        if activity and activity.current_participants > 0:
+            activity.current_participants -= 1
+
+        db.commit()
+
+    return jsonify({"message": "已取消參加活動"}), 200
+

@@ -780,24 +780,24 @@
           }</p>
           <p><strong>地點：</strong>${activity.location_name}</p>
           <p><strong>目前狀態：</strong>
-  ${
-    activity.status === "close"
-      ? `
-    <span class="status-text">已結束</span>
-    <button class="evaluate-button" onclick="openEvaluateModal(${activity.activity_id})">
-      <img src="/static/icons/message.png" alt="評價" class="evaluate-icon">
-    </button>
-  `
-      : activity.status === "open"
-      ? `
-    <span class="status-text">開放參加</span>
-  `
-      : `
-    <span class="status-text">正在進行</span>
-  `
-  }
-</p>
-        `;
+         ${
+          activity.status === "close"
+          ? `
+          <span class="status-text">已結束</span>
+          <button class="evaluate-button" onclick="openEvaluateModal(${activity.activity_id})">
+          <img src="/static/icons/message.png" alt="評價" class="evaluate-icon">
+          </button>
+         `
+          : activity.status === "open"
+         ? `
+         <span class="status-text">開放參加</span>
+          `
+         : `
+          <span class="status-text">正在進行</span>
+          `
+         }
+        </p>
+          `;
             card.addEventListener("click", () =>
               openModal(activity.activity_id)
             );

@@ -401,6 +401,7 @@
         background-color: var(--tab-bg);
         box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.08);
         z-index: 1000;
+        height: 60px; /* 統一高度 */
       }
 
       .bottom-bar-button {
@@ -408,6 +409,11 @@
         border: none;
         padding: 10px;
         cursor: pointer;
+        transition: transform 0.2s ease; /* 新增過渡效果 */
+      }
+
+      .bottom-bar-button:hover {
+        transform: scale(1.2); /* 滑鼠懸停時放大 */
       }
 
       .bottom-bar-icon {

@@ -22,17 +22,23 @@
         padding: 40px 20px;
       }
       .profile-card {
-        max-width: 800px;
-        margin: 0 auto;
         background: #fff;
-        padding: 30px;
-        border-radius: 16px;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        padding: 15px;
+        margin: 10px auto;
+        max-width: 360px;
+        text-align: left;
       }
+
       .avatar-wrapper {
-        width: 140px;
-        height: 140px;
-        margin: 0 auto 20px;
+        width: 120px;
+        height: 120px;
+        margin: 20px auto 30px; /* 調整 margin，讓頭像更靠近卡片 */
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
       .profile-avatar {
         width: 100%;
@@ -47,7 +53,8 @@
       .profile-info h2 {
         text-align: center;
         color: var(--deep-blue);
-        margin-bottom: 10px;
+        margin-bottom: 5px;
+        margin-top: -10px;
       }
       .profile-row {
         display: flex;
@@ -112,6 +119,76 @@
         border: 1.5px solid var(--main-color);
         border-radius: 6px;
         padding: 6px;
+      }
+      @media (max-width: 768px) {
+        .profile-card {
+          max-width: 90%;
+          padding: 15px;
+        }
+
+        #changeAvatarBtn {
+          width: 30px;
+          height: 30px;
+        }
+
+        #changeAvatarBtn img {
+          width: 20px;
+          height: 20px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .profile-card {
+          padding: 10px;
+        }
+
+        #changeAvatarBtn {
+          width: 25px;
+          height: 25px;
+        }
+
+        #changeAvatarBtn img {
+          width: 15px;
+          height: 15px;
+        }
+      }
+      #changeAvatarBtn {
+        position: absolute;
+        bottom: -10px;
+        right: 0;
+        background: var(--main-color);
+        border: none;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
+
+      #changeAvatarBtn img {
+        width: 18px;
+        height: 18px;
+      }
+
+      .profile-card h3 {
+        color: #2c4975;
+        font-size: 16px;
+        margin-bottom: 8px;
+        border-bottom: 1px solid #81d3e1;
+        padding-bottom: 4px;
+      }
+
+      .profile-card p {
+        margin: 6px 0;
+        color: #444;
+        font-size: 13px;
+        line-height: 1.4;
+      }
+
+      .profile-card strong {
+        color: #2c4975;
       }
       @media (max-width: 768px) {
         .profile-card {
@@ -187,7 +264,7 @@
           id="changeAvatarBtn"
           style="
             position: absolute;
-            bottom: 0;
+            bottom: -5px;
             right: 0;
             background: var(--main-color);
             border: none;
@@ -209,50 +286,27 @@
       </div>
       <div class="profile-info">
         <h2 id="name">會員姓名</h2>
-        <div class="profile-row">
-          <span class="label">Email：</span
-          ><span class="value" id="email"></span>
+        <div class="profile-card">
+          <h3>基本資料</h3>
+          <p><strong>Email：</strong><span id="email"></span></p>
+          <p><strong>性別：</strong><span id="gender"></span></p>
+          <p><strong>生日：</strong><span id="birthdate"></span></p>
+          <p><strong>地區：</strong><span id="location"></span></p>
         </div>
-        <div class="profile-row">
-          <span class="label">性別：</span
-          ><span class="value" id="gender"></span>
+
+        <div class="profile-card">
+          <h3>身體資訊</h3>
+          <p><strong>身高：</strong><span id="height"></span> cm</p>
+          <p><strong>體重：</strong><span id="weight"></span> kg</p>
         </div>
-        <div class="profile-row">
-          <span class="label">生日：</span
-          ><span class="value" id="birthdate"></span>
-        </div>
-        <div class="profile-row">
-          <span class="label">身高：</span
-          ><span class="value" id="height"></span>cm
-        </div>
-        <div class="profile-row">
-          <span class="label">體重：</span
-          ><span class="value" id="weight"></span>kg
-        </div>
-        <div class="profile-row">
-          <span class="label">地區：</span
-          ><span class="value" id="location"></span>
-        </div>
-        <hr style="margin: 20px 0" />
-        <div class="profile-row">
-          <span class="label">喜好運動：</span
-          ><span class="value" id="sports"></span>
-        </div>
-        <div class="profile-row">
-          <span class="label">偏好性別：</span
-          ><span class="value" id="match-gender"></span>
-        </div>
-        <div class="profile-row">
-          <span class="label">偏好年齡：</span
-          ><span class="value" id="match-age"></span>
-        </div>
-        <div class="profile-row">
-          <span class="label">平日時段：</span
-          ><span class="value" id="times-weekday"></span>
-        </div>
-        <div class="profile-row">
-          <span class="label">週末時段：</span
-          ><span class="value" id="times-weekend"></span>
+
+        <div class="profile-card">
+          <h3>運動偏好</h3>
+          <p><strong>喜好運動：</strong><span id="sports"></span></p>
+          <p><strong>偏好性別：</strong><span id="match-gender"></span></p>
+          <p><strong>偏好年齡：</strong><span id="match-age"></span></p>
+          <p><strong>平日時段：</strong><span id="times-weekday"></span></p>
+          <p><strong>週末時段：</strong><span id="times-weekend"></span></p>
         </div>
       </div>
       <div class="btn-group" id="view-btns">
@@ -326,13 +380,17 @@
 
     <div class="bottom-bar">
       <button class="bottom-bar-button" onclick="goToActivity()">
-        <img src="/static/icons/clipboard.png" alt="活動" class="bottom-bar-icon">
+        <img
+          src="/static/icons/clipboard.png"
+          alt="活動"
+          class="bottom-bar-icon"
+        />
       </button>
       <button class="bottom-bar-button" onclick="goToPage('/map')">
-        <img src="/static/icons/map.png" alt="地圖" class="bottom-bar-icon">
+        <img src="/static/icons/map.png" alt="地圖" class="bottom-bar-icon" />
       </button>
       <button class="bottom-bar-button" onclick="goToProfile()">
-        <img src="/static/icons/user.png" alt="個人" class="bottom-bar-icon">
+        <img src="/static/icons/user.png" alt="個人" class="bottom-bar-icon" />
       </button>
     </div>
 
@@ -767,7 +825,8 @@
         const locationElement = document.getElementById("location");
         if (locationElement) {
           locationElement.textContent =
-            (data.city ? data.city : "") + (data.area ? "/" + data.area : "") || "未填寫";
+            (data.city ? data.city : "") + (data.area ? "/" + data.area : "") ||
+            "未填寫";
         }
 
         // 運動偏好
@@ -794,13 +853,15 @@
         const timesWeekdayElement = document.getElementById("times-weekday");
         if (timesWeekdayElement) {
           const p = data.sport_preferences || {};
-          timesWeekdayElement.textContent = (p.times?.weekday || []).join("、") || "未填寫";
+          timesWeekdayElement.textContent =
+            (p.times?.weekday || []).join("、") || "未填寫";
         }
 
         const timesWeekendElement = document.getElementById("times-weekend");
         if (timesWeekendElement) {
           const p = data.sport_preferences || {};
-          timesWeekendElement.textContent = (p.times?.weekend || []).join("、") || "未填寫";
+          timesWeekendElement.textContent =
+            (p.times?.weekend || []).join("、") || "未填寫";
         }
       }
 
@@ -976,7 +1037,9 @@
             document.getElementById(
               "match-gender"
             ).outerHTML = `<select id="match-gender-input" class="edit-field">
-              <option value="不限" ${mg === "不限" ? "selected" : ""}>不限</option>
+              <option value="不限" ${
+                mg === "不限" ? "selected" : ""
+              }>不限</option>
               <option value="男" ${mg === "男" ? "selected" : ""}>男</option>
               <option value="女" ${mg === "女" ? "selected" : ""}>女</option>
             </select>`;
@@ -1095,4 +1158,3 @@
     </script>
   </body>
 </html>
-``` 

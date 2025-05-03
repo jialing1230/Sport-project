@@ -5,6 +5,7 @@ from app.models.activity import Activity
 from app.models.sport_type import SportType
 from app.models.activity_join import ActivityJoin 
 from flask import render_template
+import os
 
 activity_bp = Blueprint("activity", __name__, url_prefix="/api/activities")
 
@@ -151,12 +152,18 @@ def get_activity_participants():
         result = {
             "organizer": {
                 "member_id": activity.organizer_id,
-                "name": activity.organizer.name,  # 假設 Member 模型有 name 欄位
+                "name": activity.organizer.name,
+                "avatar": f"/static/avatars/{activity.organizer_id}.png"
+                if os.path.exists(os.path.join("static", "avatars", f"{activity.organizer_id}.png"))
+                else "/static/avatars/default.jpg",
             },
             "participants": [
                 {
                     "member_id": p.member_id,
-                    "name": p.member.name,  # 假設 Member 模型有 name 欄位
+                    "name": p.member.name,
+                    "avatar": f"/static/avatars/{p.member_id}.png"
+                    if os.path.exists(os.path.join("static", "avatars", f"{p.member_id}.png"))
+                    else "/static/avatars/default.jpg",
                 }
                 for p in participants
             ],

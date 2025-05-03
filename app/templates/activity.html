@@ -330,6 +330,18 @@
         color: var(--primary-color);
       }
 
+      .participant-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 10px;
+      }
+
+      .participant-card img {
+        margin-right: 10px;
+      }
+
       .participants-list {
         display: flex;
         flex-direction: column;
@@ -676,7 +688,15 @@
           data.participants.forEach((participant) => {
             const card = document.createElement("div");
             card.className = "participant-card";
-            card.innerHTML = `<span>${participant.name}</span>`;
+            card.innerHTML = `
+              <img
+                class="participant-avatar"
+                src="/static/avatars/${participant.member_id}.png"
+                alt="${participant.name} 頭像"
+                onerror="this.src='/static/avatars/default.jpg';"
+              />
+              <span>${participant.name}</span>
+            `;
             participantsList.appendChild(card);
           });
         } catch (error) {
@@ -942,3 +962,4 @@
     </script>
   </body>
 </html>
+

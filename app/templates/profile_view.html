@@ -151,6 +151,26 @@
           font-size: 17px;
         }
       }
+      .bottom-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        display: flex;
+        justify-content: space-around;
+        background-color: #fff;
+        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+        padding: 10px 0;
+      }
+      .bottom-bar-button {
+        background: none;
+        border: none;
+        cursor: pointer;
+      }
+      .bottom-bar-icon {
+        width: 24px;
+        height: 24px;
+      }
     </style>
   </head>
   <body>
@@ -276,11 +296,12 @@
             id="cropConfirm"
             style="
               padding: 10px 20px;
-              background: #2c4975;
-              color: #fff;
+              background: #e0f7fa; /* 淡化按鈕顏色 */
+              color: #444;
               border: none;
               border-radius: 8px;
               cursor: pointer;
+              font-size: 16px;
             "
           >
             完成裁剪
@@ -301,6 +322,18 @@
           </button>
         </div>
       </div>
+    </div>
+
+    <div class="bottom-bar">
+      <button class="bottom-bar-button" onclick="goToActivity()">
+        <img src="/static/icons/clipboard.png" alt="活動" class="bottom-bar-icon">
+      </button>
+      <button class="bottom-bar-button" onclick="goToPage('/map')">
+        <img src="/static/icons/map.png" alt="地圖" class="bottom-bar-icon">
+      </button>
+      <button class="bottom-bar-button" onclick="goToProfile()">
+        <img src="/static/icons/user.png" alt="個人" class="bottom-bar-icon">
+      </button>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
@@ -1047,7 +1080,19 @@
         cropModal.style.display = "none";
         if (cropper) cropper.destroy();
       });
+
+      function goToActivity() {
+        window.location.href = "/activity?member_id={{ member_id }}";
+      }
+
+      function goToPage(path) {
+        window.location.href = path;
+      }
+
+      function goToProfile() {
+        window.location.href = `/profile_view?member_id={{ member_id }}`;
+      }
     </script>
   </body>
 </html>
-`
+``` 

@@ -142,9 +142,15 @@ def get_activity_participants():
             return jsonify({"error": "活動不存在"}), 404
 
         # 查詢參加者
-        participants = (
+        joined_participants = (
             db.query(ActivityJoin)
             .filter(ActivityJoin.activity_id == activity_id, ActivityJoin.status == "joined")
+            .all()
+        )
+
+        pending_participants = (
+            db.query(ActivityJoin)
+            .filter(ActivityJoin.activity_id == activity_id, ActivityJoin.status == "pending")
             .all()
         )
 
@@ -154,13 +160,19 @@ def get_activity_participants():
                 "member_id": activity.organizer_id,
                 "name": activity.organizer.name,
             },
-            "participants": [
+            "joined_participants": [
                 {
                     "member_id": p.member_id,
                     "name": p.member.name,
-                    
                 }
-                for p in participants
+                for p in joined_participants
+            ],
+            "pending_participants": [
+                {
+                    "member_id": p.member_id,
+                    "name": p.member.name,
+                }
+                for p in pending_participants
             ],
         }
     return jsonify(result), 200

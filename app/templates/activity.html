@@ -363,6 +363,22 @@
         display: flex;
         flex-direction: column;
         gap: 10px;
+        max-height: 200px; /* 限制高度 */
+        overflow-y: auto; /* 滾動條 */
+        padding-right: 10px; /* 增加內邊距，避免滾動條遮住內容 */
+      }
+
+      .participants-list::-webkit-scrollbar {
+        width: 8px; /* 滾動條寬度 */
+      }
+
+      .participants-list::-webkit-scrollbar-thumb {
+        background-color: var(--primary-color); /* 滾動條顏色 */
+        border-radius: 4px; /* 圓角 */
+      }
+
+      .participants-list::-webkit-scrollbar-track {
+        background-color: #f0f0f0; /* 滾動條背景 */
       }
 
       #evaluateModal .modal-content {
@@ -719,20 +735,49 @@
           const participantsList = document.getElementById("participants-list");
           participantsList.innerHTML = ""; // 清空列表
 
-          data.participants.forEach((participant) => {
-            const card = document.createElement("div");
-            card.className = "participant-card";
-            card.innerHTML = `
-              <img
-                class="participant-avatar"
-                src="/static/avatars/${participant.member_id}.png"
-                alt="${participant.name} 頭像"
-                onerror="this.src='/static/avatars/default.jpg';"
-              />
-              <span>${participant.name}</span>
-            `;
-            participantsList.appendChild(card);
-          });
+          // 顯示已參加的參加者
+          if (data.joined_participants.length > 0) {
+            const joinedHeader = document.createElement("h4");
+            joinedHeader.innerText = "已參加";
+            participantsList.appendChild(joinedHeader);
+
+            data.joined_participants.forEach((participant) => {
+              const card = document.createElement("div");
+              card.className = "participant-card";
+              card.innerHTML = `
+                <img
+                  class="participant-avatar"
+                  src="/static/avatars/${participant.member_id}.png"
+                  alt="${participant.name} 頭像"
+                  onerror="this.src='/static/avatars/default.jpg';"
+                />
+                <span>${participant.name}</span>
+              `;
+              participantsList.appendChild(card);
+            });
+          }
+
+          // 僅在發起人查看時顯示待審核的參加者
+          if (data.pending_participants && data.pending_participants.length > 0 && data.organizer.member_id === memberId) {
+            const pendingHeader = document.createElement("h4");
+            pendingHeader.innerText = "待審核";
+            participantsList.appendChild(pendingHeader);
+
+            data.pending_participants.forEach((participant) => {
+              const card = document.createElement("div");
+              card.className = "participant-card";
+              card.innerHTML = `
+                <img
+                  class="participant-avatar"
+                  src="/static/avatars/${participant.member_id}.png"
+                  alt="${participant.name} 頭像"
+                  onerror="this.src='/static/avatars/default.jpg';"
+                />
+                <span>${participant.name}</span>
+              `;
+              participantsList.appendChild(card);
+            });
+          }
         } catch (error) {
           console.error("無法載入參加者資料", error);
         }
@@ -1000,3 +1045,4 @@
     </script>
   </body>
 </html>
+`

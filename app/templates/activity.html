@@ -527,6 +527,12 @@
           <div class="participants-container">
             <div class="participant-card organizer">
               <strong>發起人：</strong>
+              <img
+                class="participant-avatar"
+                src="/static/avatars/${data.organizer.member_id}.png"
+                alt="${data.organizer.name} 頭像"
+                onerror="this.src='/static/avatars/default.jpg';"
+              />
               <span id="organizer-name"></span>
             </div>
             <div id="participants-list" class="participants-list">
@@ -678,8 +684,19 @@
           }
 
           // 顯示發起人
-          const organizerName = document.getElementById("organizer-name");
-          organizerName.innerText = data.organizer.name;
+          const organizerCard = document.querySelector(
+            ".participant-card.organizer"
+          );
+          organizerCard.innerHTML = `
+  <strong>發起人：</strong>
+  <img
+    class="participant-avatar"
+    src="/static/avatars/${data.organizer.member_id}.png"
+    alt="${data.organizer.name} 頭像"
+    onerror="this.src='/static/avatars/default.jpg';"
+  />
+  <span>${data.organizer.name}</span>
+`;
 
           // 顯示參加者
           const participantsList = document.getElementById("participants-list");
@@ -819,7 +836,9 @@
             card.className = "activity-card";
             card.innerHTML = `
           <div style="position: relative;">
-            ${activity.status !== "close" ? `
+            ${
+              activity.status !== "close"
+                ? `
             <button style="
               position: absolute;
               top: 10px;
@@ -830,7 +849,9 @@
             " onclick="cancelParticipation(${activity.activity_id}); event.stopPropagation();">
               <img src="/static/icons/cancel.png" alt="取消參加" style="width: 20px; height: 20px;">
             </button>
-            ` : ""}
+            `
+                : ""
+            }
           </div>
           <h3>${activity.title}</h3>
           <p><strong>類型：</strong>${activity.sport_name}</p>
@@ -847,18 +868,18 @@
           <p><strong>地點：</strong>${activity.location_name}</p>
           <p><strong>目前狀態：</strong>
          ${
-          activity.status === "close"
-          ? `
+           activity.status === "close"
+             ? `
           <span class="status-text">已結束</span>
           <button class="evaluate-button" onclick="openEvaluateModal(${activity.activity_id})">
           <img src="/static/icons/message.png" alt="評價" class="evaluate-icon">
           </button>
          `
-          : activity.status === "open"
-         ? `
+             : activity.status === "open"
+             ? `
          <span class="status-text">開放參加</span>
           `
-         : `
+             : `
           <span class="status-text">正在進行</span>
           `
          }
@@ -962,4 +983,3 @@
     </script>
   </body>
 </html>
-

@@ -153,17 +153,12 @@ def get_activity_participants():
             "organizer": {
                 "member_id": activity.organizer_id,
                 "name": activity.organizer.name,
-                "avatar": f"/static/avatars/{activity.organizer_id}.png"
-                if os.path.exists(os.path.join("static", "avatars", f"{activity.organizer_id}.png"))
-                else "/static/avatars/default.jpg",
             },
             "participants": [
                 {
                     "member_id": p.member_id,
                     "name": p.member.name,
-                    "avatar": f"/static/avatars/{p.member_id}.png"
-                    if os.path.exists(os.path.join("static", "avatars", f"{p.member_id}.png"))
-                    else "/static/avatars/default.jpg",
+                    
                 }
                 for p in participants
             ],

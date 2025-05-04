@@ -462,6 +462,28 @@
         transform: scale(1.2); /* 滑鼠懸停時放大 */
       }
 
+      .action-button {
+        background: none; /* 移除按鈕背景 */
+        border: none; /* 移除按鈕邊框 */
+        padding: 0; /* 移除內邊距 */
+        cursor: pointer; /* 設置為可點擊 */
+      }
+
+      .action-button img {
+        width: 24px; /* 設定圖片大小 */
+        height: 24px;
+        border-radius: 50%; /* 確保圖片為圓形 */
+        transition: transform 0.2s ease; /* 添加平滑過渡效果 */
+      }
+
+      .action-button img:hover {
+        transform: scale(1.2); /* 滑鼠懸停時放大 */
+      }
+
+      .action-button img:active {
+        transform: scale(0.9); /* 按下時縮小 */
+      }
+
       .bottom-bar {
         position: fixed;
         bottom: 0;
@@ -758,7 +780,7 @@
           }
 
           // 僅在發起人查看時顯示待審核的參加者
-          if (data.pending_participants && data.pending_participants.length > 0 && data.organizer.member_id === memberId) {
+          if (data.pending_participants.length > 0 && data.organizer.member_id === memberId) {
             const pendingHeader = document.createElement("h4");
             pendingHeader.innerText = "待審核";
             participantsList.appendChild(pendingHeader);
@@ -774,12 +796,59 @@
                   onerror="this.src='/static/avatars/default.jpg';"
                 />
                 <span>${participant.name}</span>
+                <span>  </span>
+                <span>  </span>
+                <span>  </span>
+                <span>  </span>
+                <span>  </span>
+                <span>  </span>
+                <span>  </span>
+                <span>  </span>
+                <span>  </span>
+                <span>  </span>
+                <span>  </span>
+                <span>  </span>
+                <span>  </span>
+                <button class="action-button" onclick="updateParticipantStatus('${data.activity_id}', '${participant.member_id}', 'joined')">
+                  <img src="/static/icons/accept.png" alt="同意" />
+                </button>
+                <span>    </span>
+                <button class="action-button" onclick="updateParticipantStatus('${data.activity_id}', '${participant.member_id}', 'reject')">
+                  <img src="/static/icons/cancel.png" alt="不同意" />
+                </button>
               `;
               participantsList.appendChild(card);
             });
           }
         } catch (error) {
           console.error("無法載入參加者資料", error);
+        }
+      }
+
+      async function updateParticipantStatus(activityId, memberId, status) {
+        try {
+          const res = await fetch("/api/activities/update_status", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              activity_id: activityId,
+              member_id: memberId,
+              status: status,
+            }),
+          });
+
+          if (res.ok) {
+            alert("狀態更新成功");
+            loadParticipants(activityId); // 重新載入參加者列表
+          } else {
+            const errorData = await res.json();
+            alert(`狀態更新失敗: ${errorData.error}`);
+          }
+        } catch (error) {
+          console.error("更新狀態時發生錯誤", error);
+          alert("狀態更新失敗，請稍後再試");
         }
       }
 
@@ -1045,4 +1114,3 @@
     </script>
   </body>
 </html>
-`

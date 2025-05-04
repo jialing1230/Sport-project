@@ -204,3 +204,28 @@ def cancel_participation():
 
     return jsonify({"message": "已取消參加活動"}), 200
 
+@activity_bp.route("/update_status", methods=["POST"])
+def update_participant_status():
+    data = request.get_json()
+    activity_id = data.get("activity_id")
+    member_id = data.get("member_id")
+    new_status = data.get("status")
+
+    if not activity_id or not member_id or new_status not in ["joined", "reject"]:
+        return jsonify({"error": "缺少必要參數或狀態無效"}), 400
+
+    with get_db() as db:
+        participant = (
+            db.query(ActivityJoin)
+            .filter(ActivityJoin.activity_id == activity_id, ActivityJoin.member_id == member_id)
+            .first()
+        )
+
+        if not participant:
+            return jsonify({"error": "參加者記錄不存在"}), 404
+
+        participant.status = new_status
+        db.commit()
+
+    return jsonify({"message": "狀態更新成功"}), 200
+

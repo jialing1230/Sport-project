@@ -192,7 +192,8 @@
         background-color: rgba(0, 0, 0, 0.5);
         display: flex;
         justify-content: center;
-        align-items: center;
+        align-items: flex-start;
+        padding-top: 20px;
         z-index: 1000;
       }
 
@@ -202,10 +203,10 @@
         padding: 20px;
         border-radius: 10px;
         width: 400px; /* 固定寬度 */
-        height: 450px; /* 固定高度 */
+        height: 420px; /* 固定高度 */
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         text-align: left;
-        overflow: hidden; /* 防止內容溢出 */
+        overflow: visible; /* 防止內容溢出 */
       }
       .modal-content h2 {
         margin-top: 0;
@@ -215,10 +216,26 @@
 
       .close {
         position: absolute;
-        top: 10px;
-        right: 20px;
-        font-size: 24px;
+        top: -15px; /* 將按鈕移到卡片外 */
+        right: -30px; /* 將按鈕移到卡片外 */
+        font-size: 32px; /* 放大按鈕 */
         cursor: pointer;
+        background-color: #fff; /* 添加背景色，讓按鈕更明顯 */
+        border: 2px solid var(--primary-color); /* 添加邊框 */
+        border-radius: 50%; /* 圓形按鈕 */
+        width: 40px; /* 設定寬度 */
+        height: 40px; /* 設定高度 */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 添加陰影 */
+        transition: transform 0.2s ease, background-color 0.2s ease; /* 添加過渡效果 */
+      }
+
+      .close:hover {
+        transform: scale(1.2); /* 滑鼠懸停時放大 */
+        background-color: var(--primary-color); /* 改變背景色 */
+        color: #fff; /* 改變文字顏色 */
       }
 
       .close-button {
@@ -540,7 +557,7 @@
             </div>
           </div>
         </div>
-        <button onclick="closeModal()" class="close-button">關閉</button>
+        
       </div>
     </div>
 

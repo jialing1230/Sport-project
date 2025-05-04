@@ -104,24 +104,11 @@
     fetch(`/api/activities/${activityId}`)
       .then(response => response.json())
       .then(data => {
-        const today = new Date();
-        const deadline = new Date(data.deadline);
-
-        if (today > deadline) {
-          document.querySelector('.container').innerHTML = `
-            <div style="text-align:center; color: red; font-weight: bold; font-size: 20px;">
-              此活動已截止報名，無法瀏覽。
-            </div>
-          `;
-        return;
-        }
         document.getElementById('activity-info').innerHTML = `
           <h2>${data.title}</h2>
           <p><strong>時間：</strong>${data.date} ${data.time}</p>
           <p><strong>地點：</strong>${data.location}</p>
           <p><strong>類型：</strong>${data.type}</p>
-          <p><strong>報名截止：</strong>${data.deadline}</p>
-          <p><strong>報名費用：</strong>${data.fee === 0 ? "免費" : data.fee + " 元"}</p>
           `;
 
         const isFull = data.current_participants >= data.max_participants;
@@ -132,10 +119,15 @@
           ${isFull ? `<p style="color: red; font-weight: bold;">報名人數已額滿囉！</p>` : ''}
         `;
 
-        document.getElementById('description').innerHTML = `
-          <h3>活動介紹</h3>
-          <p>${data.description}</p>
-        `;
+        if (data.description && data.description.trim() !== "") {
+          document.getElementById('description').innerHTML = `
+            <h3>活動介紹</h3>
+            <p>${data.description}</p>
+          `;
+        } else {
+          document.getElementById('description').style.display = "none";
+          }
+
 
         const joinBtn = document.querySelector('.btn');
           if (isFull) {
@@ -147,6 +139,11 @@
       })
       .catch(error => {
         console.error('載入活動資料失敗', error);
+        document.querySelector('.container').innerHTML = `
+          <div style="text-align:center; color: red; font-weight: bold; font-size: 20px;">
+            無法載入活動資料，請稍後再試。
+          </div>
+        `;
       });
   </script>
 </body>

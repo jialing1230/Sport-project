@@ -13,6 +13,10 @@ def update_activity_status():
         now = datetime.now()
         activities = db.query(Activity).all()
         for activity in activities:
+            # 如果活動已經是 close，則跳過更新
+            if activity.status == "close":
+                continue
+
             if activity.end_time and activity.end_time < now:
                 activity.status = "close"
 
@@ -34,5 +38,5 @@ def update_activity_status():
 def start_scheduler():
     logger.info("Starting the scheduler...")
     scheduler = BackgroundScheduler()
-    scheduler.add_job(update_activity_status, 'interval', minutes=1)  # 每5分鐘執行一次
+    scheduler.add_job(update_activity_status, 'interval', minutes=1)  
     scheduler.start()

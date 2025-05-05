@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>地圖頁面</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    #map {
+      height: calc(100% - 70px);
+      width: 100%;
+    }
+    .bottom-bar {
+      height: 70px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      background-color: #fff;
+      box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.08);
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+    .bottom-bar-icon {
+      width: 28px;
+      height: 28px;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <div class="bottom-bar">
+    <button onclick="window.location.href='/activity'">
+      <img src="/static/icons/clipboard.png" class="bottom-bar-icon" alt="活動">
+    </button>
+    <button onclick="window.location.href='/google_map'">
+      <img src="/static/icons/map.png" class="bottom-bar-icon" alt="地圖">
+    </button>
+    <button onclick="window.location.href='/profile_view'">
+      <img src="/static/icons/user.png" class="bottom-bar-icon" alt="個人">
+    </button>
+  </div>
+
+  <script>
+    function initMap() {
+      const center = { lat: 25.033964, lng: 121.562321 };
+      const map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 15,
+        center: center,
+      });
+
+      new google.maps.Marker({
+        position: center,
+        map: map,
+        title: "台北 101",
+      });
+    }
+  </script>
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap">
+  </script>
+</body>
+</html>

@@ -785,6 +785,39 @@
         }
       }
 
+      function renderPendingParticipantCard(activityId, participant) {
+        return `
+          <div class="participant-card">
+            <img
+              class="participant-avatar"
+              src="/static/avatars/${participant.member_id}.png"
+              alt="${participant.name} 頭像"
+              onerror="this.src='/static/avatars/default.jpg';"
+            />
+            <span>${participant.name}</span>
+            <span> </span>
+            <span> </span>
+            <span> </span>
+            <span> </span>
+            <span> </span>
+            <span> </span>
+            <span> </span>
+            <span> </span>
+            <span> </span>
+            <span> </span>
+            <span> </span>
+            <span> </span>
+            <button class="action-button" onclick="updateParticipantStatus('${activityId}', '${participant.member_id}', 'joined')">
+              <img src="/static/icons/accept.png" alt="同意" />
+            </button>
+            <span> </span>
+            <button class="action-button" onclick="updateParticipantStatus('${activityId}', '${participant.member_id}', 'reject')">
+              <img src="/static/icons/cancel.png" alt="不同意" />
+            </button>
+          </div>
+        `;
+      }
+
       async function loadParticipants(activityId) {
         try {
           const res = await fetch(
@@ -845,38 +878,10 @@
             participantsList.appendChild(pendingHeader);
 
             data.pending_participants.forEach((participant) => {
-              const card = document.createElement("div");
-              card.className = "participant-card";
-              card.innerHTML = `
-                <img
-                  class="participant-avatar"
-                  src="/static/avatars/${participant.member_id}.png"
-                  alt="${participant.name} 頭像"
-                  onerror="this.src='/static/avatars/default.jpg';"
-                />
-                <span>${participant.name}</span>
-                <span>  </span>
-                <span>  </span>
-                <span>  </span>
-                <span>  </span>
-                <span>  </span>
-                <span>  </span>
-                <span>  </span>
-                <span>  </span>
-                <span>  </span>
-                <span>  </span>
-                <span>  </span>
-                <span>  </span>
-                <span>  </span>
-                <button class="action-button" onclick="updateParticipantStatus('${data.activity_id}', '${participant.member_id}', 'joined')">
-                  <img src="/static/icons/accept.png" alt="同意" />
-                </button>
-                <span>    </span>
-                <button class="action-button" onclick="updateParticipantStatus('${data.activity_id}', '${participant.member_id}', 'reject')">
-                  <img src="/static/icons/cancel.png" alt="不同意" />
-                </button>
-              `;
-              participantsList.appendChild(card);
+              participantsList.innerHTML += renderPendingParticipantCard(
+                activityId,
+                participant
+              );
             });
           }
         } catch (error) {
@@ -885,6 +890,11 @@
       }
 
       async function updateParticipantStatus(activityId, memberId, status) {
+        if (!activityId) {
+          alert("無法取得活動 ID，請稍後再試！");
+          return;
+        }
+
         try {
           const res = await fetch("/api/activities/update_status", {
             method: "POST",
@@ -931,6 +941,52 @@
         const tabWidth = tabs[0].offsetWidth;
         indicator.style.width = tabWidth + "px";
         indicator.style.left = tabWidth * index + "px";
+
+        // 如果切換到活動細節 tab，重新載入活動細節
+        if (index === 0) {
+          const activityId = document
+            .getElementById("modal-title")
+            .getAttribute("data-activity-id");
+          if (activityId) {
+            loadActivityDetails(activityId);
+          }
+        }
+      }
+
+      async function loadActivityDetails(activityId) {
+        try {
+          const res = await fetch(`/api/activities/details?activity_id=${activityId}`);
+          const data = await res.json();
+
+          if (res.status !== 200) {
+            console.error("無法載入活動詳細資訊", data.error);
+            return;
+          }
+
+          document.getElementById("modal-title").innerText = data.title;
+          document.getElementById("modal-sport-name").innerText = data.sport_name;
+          document.getElementById("modal-start-time").innerText = new Date(
+            data.start_time
+          ).toLocaleString();
+          document.getElementById("modal-end-time").innerText = new Date(
+            data.end_time
+          ).toLocaleString();
+          document.getElementById("modal-location").innerText = data.location_name;
+          document.getElementById("modal-participants").innerText =
+            data.current_participants;
+          document.getElementById("modal-max-participants").innerText =
+            data.max_participants;
+          document.getElementById("modal-status").innerText =
+            data.status === "open" ? "開放參加" : "關閉";
+          document.getElementById("modal-level").innerText = data.level || "未設定";
+
+          // 更新進度條
+          const progress = document.getElementById("progress");
+          progress.value = data.current_participants;
+          progress.max = data.max_participants;
+        } catch (error) {
+          console.error("無法載入活動詳細資訊", error);
+        }
       }
 
       window.addEventListener("resize", () => {

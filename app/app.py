@@ -88,6 +88,10 @@ def create_app():
         member_id = request.args.get("member_id")
         return render_template("profile_view.html", member_id=member_id)
 
+    @app.route("/view_activity", endpoint="view_activity_html")
+    def view_activity_page():
+        return render_template("view.activity.html")
+
     start_scheduler()  # 啟動排程
     return app
 

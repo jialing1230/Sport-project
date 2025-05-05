@@ -785,6 +785,39 @@
         }
       }
 
+      function renderPendingParticipantCard(activityId, participant) {
+        return `
+          <div class="participant-card">
+            <img
+              class="participant-avatar"
+              src="/static/avatars/${participant.member_id}.png"
+              alt="${participant.name} 頭像"
+              onerror="this.src='/static/avatars/default.jpg';"
+            />
+            <span>${participant.name}</span>
+            <span> </span>
+            <span> </span>
+            <span> </span>
+            <span> </span>
+            <span> </span>
+            <span> </span>
+            <span> </span>
+            <span> </span>
+            <span> </span>
+            <span> </span>
+            <span> </span>
+            <span> </span>
+            <button class="action-button" onclick="updateParticipantStatus('${activityId}', '${participant.member_id}', 'joined')">
+              <img src="/static/icons/accept.png" alt="同意" />
+            </button>
+            <span> </span>
+            <button class="action-button" onclick="updateParticipantStatus('${activityId}', '${participant.member_id}', 'reject')">
+              <img src="/static/icons/cancel.png" alt="不同意" />
+            </button>
+          </div>
+        `;
+      }
+
       async function loadParticipants(activityId) {
         try {
           const res = await fetch(
@@ -845,38 +878,10 @@
             participantsList.appendChild(pendingHeader);
 
             data.pending_participants.forEach((participant) => {
-              const card = document.createElement("div");
-              card.className = "participant-card";
-              card.innerHTML = `
-                <img
-                  class="participant-avatar"
-                  src="/static/avatars/${participant.member_id}.png"
-                  alt="${participant.name} 頭像"
-                  onerror="this.src='/static/avatars/default.jpg';"
-                />
-                <span>${participant.name}</span>
-                <span>  </span>
-                <span>  </span>
-                <span>  </span>
-                <span>  </span>
-                <span>  </span>
-                <span>  </span>
-                <span>  </span>
-                <span>  </span>
-                <span>  </span>
-                <span>  </span>
-                <span>  </span>
-                <span>  </span>
-                <span>  </span>
-                <button class="action-button" onclick="updateParticipantStatus('${data.activity_id}', '${participant.member_id}', 'joined')">
-                  <img src="/static/icons/accept.png" alt="同意" />
-                </button>
-                <span>    </span>
-                <button class="action-button" onclick="updateParticipantStatus('${data.activity_id}', '${participant.member_id}', 'reject')">
-                  <img src="/static/icons/cancel.png" alt="不同意" />
-                </button>
-              `;
-              participantsList.appendChild(card);
+              participantsList.innerHTML += renderPendingParticipantCard(
+                activityId,
+                participant
+              );
             });
           }
         } catch (error) {
@@ -885,6 +890,11 @@
       }
 
       async function updateParticipantStatus(activityId, memberId, status) {
+        if (!activityId) {
+          alert("無法取得活動 ID，請稍後再試！");
+          return;
+        }
+
         try {
           const res = await fetch("/api/activities/update_status", {
             method: "POST",
@@ -1173,3 +1183,4 @@
     </script>
   </body>
 </html>
+``` 

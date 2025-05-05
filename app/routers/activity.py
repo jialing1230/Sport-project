@@ -215,17 +215,22 @@ def update_participant_status():
         return jsonify({"error": "缺少必要參數或狀態無效"}), 400
 
     with get_db() as db:
-        participant = (
-            db.query(ActivityJoin)
-            .filter(ActivityJoin.activity_id == activity_id, ActivityJoin.member_id == member_id)
-            .first()
-        )
+        try:
+            participant = (
+                db.query(ActivityJoin)
+                .filter(ActivityJoin.activity_id == activity_id, ActivityJoin.member_id == member_id)
+                .first()
+            )
 
-        if not participant:
-            return jsonify({"error": "參加者記錄不存在"}), 404
+            if not participant:
+                # 添加詳細日誌
+                return jsonify({"error": f"參加者記錄不存在，activity_id: {activity_id}, member_id: {member_id}"}), 404
 
-        participant.status = new_status
-        db.commit()
+            participant.status = new_status
+            db.commit()
+        except Exception as e:
+            # 捕獲並記錄例外情況
+            return jsonify({"error": f"伺服器錯誤: {str(e)}"}), 500
 
     return jsonify({"message": "狀態更新成功"}), 200
 

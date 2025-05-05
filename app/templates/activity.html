@@ -195,24 +195,82 @@
         align-items: flex-start;
         padding-top: 20px;
         z-index: 1000;
+        overflow: visible;
       }
 
       .modal-content {
         position: relative; /* 確保子元素的絕對定位基於此容器 */
         background-color: #fff;
-        padding: 20px;
+        padding: 15px;
         border-radius: 10px;
-        width: 400px; /* 固定寬度 */
-        height: 420px; /* 固定高度 */
+        width: 80%; /* 使用百分比寬度 */
+        max-width: 400px; /* 設置最大寬度 */
+        height: auto; /* 高度自適應內容 */
+        max-height: 90%; /* 設置最大高度 */
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         text-align: left;
         overflow: visible; /* 防止內容溢出 */
       }
+
+      .modal-content .scrollable-content {
+        max-height: 80%; /* 限制滾動區域的高度 */
+        overflow-y: auto; /* 僅在此區域啟用垂直滾動 */
+      }
+
       .modal-content h2 {
         margin-top: 0;
         color: var(--primary-color);
         text-align: center;
       }
+      @media (max-width: 768px) {
+  .modal-content {
+    padding: 15px; /* 減少內邊距 */
+    border-radius: 8px; /* 調整圓角 */
+  }
+
+  .modal-content h2 {
+    font-size: 18px; /* 縮小標題字體 */
+  }
+
+  .participant-card {
+    font-size: 14px; /* 縮小參加者卡片字體 */
+    padding: 8px 10px; /* 減少內邊距 */
+  }
+
+  .participant-avatar {
+    width: 30px; /* 縮小頭像大小 */
+    height: 30px;
+  }
+
+  .participants-list {
+    max-height: 150px; /* 限制列表高度 */
+  }
+} 
+      
+/* 針對更小的螢幕進行進一步優化 */
+@media (max-width: 480px) {
+  .modal-content {
+    padding: 10px; /* 進一步減少內邊距 */
+  }
+
+  .modal-content h2 {
+    font-size: 16px; /* 再次縮小標題字體 */
+  }
+
+  .participant-card {
+    font-size: 12px; /* 再次縮小參加者卡片字體 */
+    padding: 5px 8px; /* 減少內邊距 */
+  }
+
+  .participant-avatar {
+    width: 25px; /* 再次縮小頭像大小 */
+    height: 25px;
+  }
+
+  .participants-list {
+    max-height: 120px; /* 進一步限制列表高度 */
+  }
+}
 
       .close {
         position: absolute;
@@ -553,49 +611,50 @@
             style="width: 50%; left: 0"
           ></div>
         </div>
-        <div class="modal-tab-content" id="modal-tab-0">
-          <h2 id="modal-title">活動標題</h2>
-          <p>
-            <strong>類型：</strong><span id="modal-sport-name"></span>/<span
-              id="modal-level"
-            ></span>
-          </p>
-          <p><strong>開始時間：</strong><span id="modal-start-time"></span></p>
-          <p><strong>結束時間：</strong><span id="modal-end-time"></span></p>
-          <p><strong>地點：</strong><span id="modal-location"></span></p>
-          <p><strong>狀態：</strong><span id="modal-status"></span></p>
-          <p>
-            <strong>參加人數：</strong
-            ><span id="modal-participants"></span>/<span
-              id="modal-max-participants"
-            ></span>
-          </p>
-          <progress
-            id="progress"
-            value="0"
-            max="0"
-            style="width: 100%"
-          ></progress>
-        </div>
-        <div class="modal-tab-content" id="modal-tab-1">
-          <h3>參加者列表</h3>
-          <div class="participants-container">
-            <div class="participant-card organizer">
-              <strong>發起人：</strong>
-              <img
-                class="participant-avatar"
-                src="/static/avatars/${data.organizer.member_id}.png"
-                alt="${data.organizer.name} 頭像"
-                onerror="this.src='/static/avatars/default.jpg';"
-              />
-              <span id="organizer-name"></span>
-            </div>
-            <div id="participants-list" class="participants-list">
-              <!-- 參加者卡片將動態插入 -->
+        <div class="scrollable-content">
+          <div class="modal-tab-content" id="modal-tab-0">
+            <h2 id="modal-title">活動標題</h2>
+            <p>
+              <strong>類型：</strong><span id="modal-sport-name"></span>/<span
+                id="modal-level"
+              ></span>
+            </p>
+            <p><strong>開始時間：</strong><span id="modal-start-time"></span></p>
+            <p><strong>結束時間：</strong><span id="modal-end-time"></span></p>
+            <p><strong>地點：</strong><span id="modal-location"></span></p>
+            <p><strong>狀態：</strong><span id="modal-status"></span></p>
+            <p>
+              <strong>參加人數：</strong
+              ><span id="modal-participants"></span>/<span
+                id="modal-max-participants"
+              ></span>
+            </p>
+            <progress
+              id="progress"
+              value="0"
+              max="0"
+              style="width: 100%"
+            ></progress>
+          </div>
+          <div class="modal-tab-content" id="modal-tab-1">
+            <h3>參加者列表</h3>
+            <div class="participants-container">
+              <div class="participant-card organizer">
+                <strong>發起人：</strong>
+                <img
+                  class="participant-avatar"
+                  src="/static/avatars/${data.organizer.member_id}.png"
+                  alt="${data.organizer.name} 頭像"
+                  onerror="this.src='/static/avatars/default.jpg';"
+                />
+                <span id="organizer-name"></span>
+              </div>
+              <div id="participants-list" class="participants-list">
+                <!-- 參加者卡片將動態插入 -->
+              </div>
             </div>
           </div>
         </div>
-        
       </div>
     </div>
 

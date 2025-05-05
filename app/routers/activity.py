@@ -226,6 +226,12 @@ def update_participant_status():
                 # 添加詳細日誌
                 return jsonify({"error": f"參加者記錄不存在，activity_id: {activity_id}, member_id: {member_id}"}), 404
 
+            if new_status == "joined" and participant.status == "pending":
+                # 更新活動的 current_participants
+                activity = db.query(Activity).filter(Activity.activity_id == activity_id).first()
+                if activity:
+                    activity.current_participants += 1
+
             participant.status = new_status
             db.commit()
         except Exception as e:

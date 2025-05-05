@@ -1,787 +1,1175 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>我的活動</title>
-  <style>
-    :root {
-      --primary-color: #64bcd0;
-      --text-color: #2c4975;
-      --fab-color: #fea3a8;
-      --beige-color: #fdf9ed;
-      --bg-color: #f5f5f5;
-      --tab-bg: #ffffff;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>我的活動</title>
+    <style>
+      :root {
+        --primary-color: #64bcd0;
+        --text-color: #2c4975;
+        --fab-color: #fea3a8;
+        --beige-color: #fdf9ed;
+        --bg-color: #f5f5f5;
+        --tab-bg: #ffffff;
+      }
 
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      font-size: 16px;
-    }
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        font-size: 16px;
+      }
 
-    .tabs-wrapper {
-      background-color: var(--tab-bg);
-      position: relative;
-      z-index: 10;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08); /* ⭐ tabs區域增加微陰影 */
-    }
+      .tabs-wrapper {
+        background-color: var(--tab-bg);
+        position: relative;
+        z-index: 10;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08); /* ⭐ tabs區域增加微陰影 */
+      }
 
-    .tabs-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-      height: 64px; /* ⭐略提高 */
-    }
+      .tabs-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        height: 64px; /* ⭐略提高 */
+      }
 
-    .tab {
-      flex: 1;
-      text-align: center;
-      line-height: 64px;
-      font-size: 18px;
-      font-weight: bold;
-      letter-spacing: 0.5px;
-      color: var(--text-color);
-      cursor: pointer;
-      background-color: var(--tab-bg);
-      border: none;
-      position: relative;
-      overflow: hidden;
-      transition: transform 0.2s ease;
-    }
+      .tab {
+        flex: 1;
+        text-align: center;
+        line-height: 64px;
+        font-size: 18px;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+        color: var(--text-color);
+        cursor: pointer;
+        background-color: var(--tab-bg);
+        border: none;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.2s ease;
+      }
 
-    /* Hover效果：微縮放 */
-    .tab:hover {
-      transform: scale(1.05);
-    }
+      /* Hover效果：微縮放 */
+      .tab:hover {
+        transform: scale(1.05);
+      }
 
-    /* 點擊特效 */
-    .tab::after {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: var(--primary-color);
-      opacity: 0;
-      transition: opacity 0.6s ease;
-      pointer-events: none;
-    }
+      /* 點擊特效 */
+      .tab::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--primary-color);
+        opacity: 0;
+        transition: opacity 0.6s ease;
+        pointer-events: none;
+      }
 
-    .tab:active::after {
-      opacity: 0.4;
-      transition: opacity 0.6s ease;
-    }
+      .tab:active::after {
+        opacity: 0.4;
+        transition: opacity 0.6s ease;
+      }
 
-    /* 被選中的Tab文字變水藍色 */
-    .tab.active {
-      color: var(--primary-color);
-    }
+      /* 被選中的Tab文字變水藍色 */
+      .tab.active {
+        color: var(--primary-color);
+      }
 
-    .divider {
-      height: 2px;
-      background: #e0e0e0;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* ⭐微加深陰影 */
-      position: relative;
-      z-index: 1;
-    }
+      .divider {
+        height: 2px;
+        background: #e0e0e0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* ⭐微加深陰影 */
+        position: relative;
+        z-index: 1;
+      }
 
-    .indicator {
-      position: absolute;
-      top: 0;
-      height: 3px;
-      background-color: var(--primary-color);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-      transition: left 0.3s ease, width 0.3s ease;
-      z-index: 2;
-      border-radius: 2px;
-    }
+      .indicator {
+        position: absolute;
+        top: 0;
+        height: 3px;
+        background-color: var(--primary-color);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        transition: left 0.3s ease, width 0.3s ease;
+        z-index: 2;
+        border-radius: 2px;
+      }
 
-    .tab-content {
-      padding: 50px 20px;
-      font-size: 24px;
-      text-align: center;
-      font-weight: 600;
-      line-height: 1.8;
-      letter-spacing: 0.5px;
-    }
+      .tab-content {
+        padding: 50px 20px;
+        font-size: 24px;
+        text-align: center;
+        font-weight: 600;
+        line-height: 1.8;
+        letter-spacing: 0.5px;
+      }
 
-    /* FAB按鈕 */
-    .fab {
-      position: fixed;
-      bottom: 60px;
-      right: 30px;
-      width: 60px;
-      height: 60px;
-      background-color: var(--fab-color);
-      color: var(--beige-color);
-      border: none;
-      border-radius: 50%;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-      font-size: 30px;
-      font-weight: bold;
-      text-align: center;
-      line-height: 60px;
-      cursor: pointer;
-      transition: background-color 0.3s, opacity 0.3s ease, transform 0.2s ease;
-      opacity: 1;
-      z-index: 1100;
-    }
+      /* FAB按鈕 */
+      .fab {
+        position: fixed;
+        bottom: 60px;
+        right: 30px;
+        width: 60px;
+        height: 60px;
+        background-color: var(--fab-color);
+        color: var(--beige-color);
+        border: none;
+        border-radius: 50%;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        font-size: 30px;
+        font-weight: bold;
+        text-align: center;
+        line-height: 60px;
+        cursor: pointer;
+        transition: background-color 0.3s, opacity 0.3s ease,
+          transform 0.2s ease;
+        opacity: 1;
+        z-index: 1100;
+      }
 
-    .fab.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
+      .fab.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
 
-    .fab:hover {
-      background-color: #f98d92;
-      transform: scale(1.08); /* ⭐hover時微放大 */
-    }
+      .fab:hover {
+        background-color: #f98d92;
+        transform: scale(1.08); /* ⭐hover時微放大 */
+      }
 
-    .fab:active {
-      transform: scale(0.95); /* ⭐點擊時微縮小 */
-    }
+      .fab:active {
+        transform: scale(0.95); /* ⭐點擊時微縮小 */
+      }
 
-    .activity-card-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-    padding: 20px;
-   }
+      .activity-card-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+        padding: 20px;
+      }
 
-  .activity-card {
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 300px;
-    padding: 20px;
-    font-size: 16px;
-    color: var(--text-color);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
+      .activity-card {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        width: 300px;
+        padding: 20px;
+        font-size: 16px;
+        color: var(--text-color);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        position: relative;
+      }
 
-  .activity-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  }
+      .activity-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      }
 
-  .activity-card h3 {
-    font-size: 20px;
-    color: var(--primary-color);
-    margin-bottom: 10px;
-  }
+      .activity-card h3 {
+        font-size: 20px;
+        color: var(--primary-color);
+        margin-bottom: 10px;
+      }
 
-  .activity-card p {
-    margin: 5px 0;
-    line-height: 1.5;
-  }
+      .activity-card p {
+        margin: 5px 0;
+        line-height: 1.5;
+      }
 
-  .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding-top: 20px;
+        z-index: 1000;
+        overflow: visible;
+      }
 
+      .modal-content {
+        position: relative; /* 確保子元素的絕對定位基於此容器 */
+        background-color: #fff;
+        padding: 15px;
+        border-radius: 10px;
+        width: 80%; /* 使用百分比寬度 */
+        max-width: 400px; /* 設置最大寬度 */
+        height: auto; /* 高度自適應內容 */
+        max-height: 90%; /* 設置最大高度 */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        text-align: left;
+        overflow: visible; /* 防止內容溢出 */
+      }
+
+      .modal-content .scrollable-content {
+        max-height: 80%; /* 限制滾動區域的高度 */
+        overflow-y: auto; /* 僅在此區域啟用垂直滾動 */
+      }
+
+      .modal-content h2 {
+        margin-top: 0;
+        color: var(--primary-color);
+        text-align: center;
+      }
+      @media (max-width: 768px) {
   .modal-content {
-  position: relative; /* 確保子元素的絕對定位基於此容器 */
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  width: 400px; /* 固定寬度 */
-  height: 450px; /* 固定高度 */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  text-align: left;
-  overflow: hidden; /* 防止內容溢出 */
-}
+    padding: 15px; /* 減少內邊距 */
+    border-radius: 8px; /* 調整圓角 */
+  }
+
   .modal-content h2 {
-    margin-top: 0;
-    color: var(--primary-color);
-    text-align: center;
-  }
-
-  .close {
-    position: absolute;
-    top: 10px;
-    right: 20px;
-    font-size: 24px;
-    cursor: pointer;
-  }
-
-  .close-button {
-  position: absolute; /* 絕對定位，基於父容器 .modal-content */
-  bottom: 20px; /* 距離模態框底部 20px */
-  left: 20px; /* 距離模態框左側 20px */
-  padding: 10px 20px;
-  background-color: var(--primary-color);
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.2s ease;
-}
-
-  .close-button:hover {
-    background-color: #4aa3b5;
-  }
-  .modal-tabs {
-    display: flex;
-    justify-content: center;
-    position: relative;
-    background-color: var(--tab-bg);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-  }
-
-  .modal-tab {
-    flex: 1;
-    text-align: center;
-    line-height: 50px;
-    font-size: 18px;
-    font-weight: bold;
-    color: var(--text-color);
-    cursor: pointer;
-    background-color: var(--tab-bg);
-    border: none;
-    position: relative;
-    transition: transform 0.2s ease, color 0.2s ease;
-  }
-
-  .modal-tab:hover {
-    transform: scale(1.05);
-  }
-
-  .modal-tab.active {
-    color: var(--primary-color);
-  }
-
-  .modal-divider {
-    height: 2px;
-    background: #e0e0e0;
-    position: relative;
-  }
-
-  .modal-indicator {
-    position: absolute;
-    top: 0;
-    height: 3px;
-    background-color: var(--primary-color);
-    transition: left 0.3s ease, width 0.3s ease;
-    border-radius: 2px;
-  }
-
-  .modal-tab-content {
-    display: none;
-    padding: 20px;
-    font-size: 16px;
-    color: var(--text-color);
-  }
-
-  .modal-tab-content.active {
-    display: block;
-  }
-
-  .modal-tab-content h3 {
-  margin-top: 5px; /* 調整上方間距，讓標題更靠上 */
-  margin-bottom: 10px; /* 調整下方間距 */
-  font-size: 18px; /* 確保字體大小適中 */
-  color: #2c4975; /* 深藍色，與主題一致 */
-  font-weight: bold; /* 加粗字體，讓標題更突出 */
-}
-
-  .participants-container {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-top: 5px;
+    font-size: 18px; /* 縮小標題字體 */
   }
 
   .participant-card {
-    display: flex;
-    align-items: center;
-    padding: 10px 15px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    font-size: 16px;
-    color: var(--text-color);
+    font-size: 14px; /* 縮小參加者卡片字體 */
+    padding: 8px 10px; /* 減少內邊距 */
   }
 
-  .participant-card.organizer {
-    background-color: #e8f5e9;
-    font-weight: bold;
-  }
-
-  .participant-card span {
-    margin-left: 10px;
-    color: var(--primary-color);
+  .participant-avatar {
+    width: 30px; /* 縮小頭像大小 */
+    height: 30px;
   }
 
   .participants-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    max-height: 150px; /* 限制列表高度 */
+  }
+} 
+      
+/* 針對更小的螢幕進行進一步優化 */
+@media (max-width: 480px) {
+  .modal-content {
+    padding: 10px; /* 進一步減少內邊距 */
   }
 
-  #evaluateModal .modal-content {
-  width: 400px;
-  height: auto;
-  padding: 20px;
-  border-radius: 10px;
-  background-color: #fff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  text-align: center;
+  .modal-content h2 {
+    font-size: 16px; /* 再次縮小標題字體 */
+  }
+
+  .participant-card {
+    font-size: 12px; /* 再次縮小參加者卡片字體 */
+    padding: 5px 8px; /* 減少內邊距 */
+  }
+
+  .participant-avatar {
+    width: 25px; /* 再次縮小頭像大小 */
+    height: 25px;
+  }
+
+  .participants-list {
+    max-height: 120px; /* 進一步限制列表高度 */
+  }
 }
 
-#evaluateModal textarea {
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 10px;
-  font-size: 16px;
-}
+      .close {
+        position: absolute;
+        top: -15px; /* 將按鈕移到卡片外 */
+        right: -30px; /* 將按鈕移到卡片外 */
+        font-size: 32px; /* 放大按鈕 */
+        cursor: pointer;
+        background-color: #fff; /* 添加背景色，讓按鈕更明顯 */
+        border: 2px solid var(--primary-color); /* 添加邊框 */
+        border-radius: 50%; /* 圓形按鈕 */
+        width: 40px; /* 設定寬度 */
+        height: 40px; /* 設定高度 */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 添加陰影 */
+        transition: transform 0.2s ease, background-color 0.2s ease; /* 添加過渡效果 */
+      }
 
-#evaluateModal .submit-button {
-  padding: 10px 20px;
-  background-color: var(--primary-color);
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-}
+      .close:hover {
+        transform: scale(1.2); /* 滑鼠懸停時放大 */
+        background-color: var(--primary-color); /* 改變背景色 */
+        color: #fff; /* 改變文字顏色 */
+      }
 
-#evaluateModal .submit-button:hover {
-  background-color: #4aa3b5;
-}
+      .close-button {
+        position: absolute; /* 絕對定位，基於父容器 .modal-content */
+        bottom: 20px; /* 距離模態框底部 20px */
+        left: 20px; /* 距離模態框左側 20px */
+        padding: 10px 20px;
+        background-color: var(--primary-color);
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.2s ease;
+      }
 
-.status-text {
-  font-weight: bold;
-  color: #2c4975; /* 深藍色，與主題一致 */
-  margin-right: 10px; /* 與按鈕保持間距 */
-}
+      .close-button:hover {
+        background-color: #4aa3b5;
+      }
+      .modal-tabs {
+        display: flex;
+        justify-content: center;
+        position: relative;
+        background-color: var(--tab-bg);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      }
 
-.evaluate-button {
-  display: inline-flex;
-  align-items: center;
-  background: none; /* 移除背景 */
-  border: none; /* 移除邊框 */
-  padding: 0; /* 移除內邊距 */
-  cursor: pointer;
-}
+      .modal-tab {
+        flex: 1;
+        text-align: center;
+        line-height: 50px;
+        font-size: 18px;
+        font-weight: bold;
+        color: var(--text-color);
+        cursor: pointer;
+        background-color: var(--tab-bg);
+        border: none;
+        position: relative;
+        transition: transform 0.2s ease, color 0.2s ease;
+      }
 
-.evaluate-icon {
-  width: 24px; /* 圖標寬度 */
-  height: 24px; /* 圖標高度 */
-  transition: transform 0.2s ease;
-}
+      .modal-tab:hover {
+        transform: scale(1.05);
+      }
 
-.evaluate-button:hover .evaluate-icon {
-  transform: scale(1.2); /* 滑鼠懸停時放大 */
-}
+      .modal-tab.active {
+        color: var(--primary-color);
+      }
 
-.bottom-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  display: flex;
-  justify-content: space-around;
-  background-color: var(--tab-bg);
-  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.08);
-  z-index: 1000;
-}
+      .modal-divider {
+        height: 2px;
+        background: #e0e0e0;
+        position: relative;
+      }
 
-.bottom-bar-button {
-  background: none;
-  border: none;
-  padding: 10px;
-  cursor: pointer;
-}
+      .modal-indicator {
+        position: absolute;
+        top: 0;
+        height: 3px;
+        background-color: var(--primary-color);
+        transition: left 0.3s ease, width 0.3s ease;
+        border-radius: 2px;
+      }
 
-.bottom-bar-icon {
-  width: 24px;
-  height: 24px;
-}
-  </style>
-</head>
+      .modal-tab-content {
+        display: none;
+        padding: 20px;
+        font-size: 16px;
+        color: var(--text-color);
+      }
 
-<body>
+      .modal-tab-content.active {
+        display: block;
+      }
 
-<div class="tabs-wrapper">
-  <div class="tabs-container" id="tabs">
-    <div class="tab active" onclick="switchTab(0)">我發起的活動</div>
-    <div class="tab" onclick="switchTab(1)">我參加的活動</div>
-  </div>
-  <div class="divider">
-    <div id="indicator" class="indicator" style="width: 50%; left: 0;"></div>
-  </div>
-</div>
+      .modal-tab-content h3 {
+        margin-top: 5px; /* 調整上方間距，讓標題更靠上 */
+        margin-bottom: 10px; /* 調整下方間距 */
+        font-size: 18px; /* 確保字體大小適中 */
+        color: #2c4975; /* 深藍色，與主題一致 */
+        font-weight: bold; /* 加粗字體，讓標題更突出 */
+      }
 
-<div id="tabContents">
-  <div class="tab-content" id="content-0">
-    <div id="my-activities">載入中...</div>
-  </div>
-  <div class="tab-content" id="content-1" style="display: none;">
-    尚未參加任何活動
-  </div>
-</div>
+      .participants-container {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-top: 5px;
+      }
 
-<!-- Modal -->
-<div id="activityModal" class="modal" style="display: none;">
-  <div class="modal-content">
-    <span class="close" onclick="closeModal()">&times;</span>
-    <div class="modal-tabs">
-      <div class="modal-tab active" onclick="switchModalTab(0)">活動細節</div>
-      <div class="modal-tab" onclick="switchModalTab(1)">查看參加者</div>
+      .participant-card {
+        display: flex;
+        align-items: center;
+        padding: 10px 15px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        font-size: 16px;
+        color: var(--text-color);
+      }
+
+      .participant-card.organizer {
+        background-color: #e8f5e9;
+        font-weight: bold;
+      }
+
+      .participant-card span {
+        margin-left: 10px;
+        color: var(--primary-color);
+      }
+
+      .participant-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 10px;
+      }
+
+      .participant-card img {
+        margin-right: 10px;
+      }
+
+      .participants-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-height: 200px; /* 限制高度 */
+        overflow-y: auto; /* 滾動條 */
+        padding-right: 10px; /* 增加內邊距，避免滾動條遮住內容 */
+      }
+
+      .participants-list::-webkit-scrollbar {
+        width: 8px; /* 滾動條寬度 */
+      }
+
+      .participants-list::-webkit-scrollbar-thumb {
+        background-color: var(--primary-color); /* 滾動條顏色 */
+        border-radius: 4px; /* 圓角 */
+      }
+
+      .participants-list::-webkit-scrollbar-track {
+        background-color: #f0f0f0; /* 滾動條背景 */
+      }
+
+      #evaluateModal .modal-content {
+        width: 400px;
+        height: auto;
+        padding: 20px;
+        border-radius: 10px;
+        background-color: #fff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        text-align: center;
+      }
+
+      #evaluateModal textarea {
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 10px;
+        font-size: 16px;
+      }
+
+      #evaluateModal .submit-button {
+        padding: 10px 20px;
+        background-color: var(--primary-color);
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      #evaluateModal .submit-button:hover {
+        background-color: #4aa3b5;
+      }
+
+      .status-text {
+        font-weight: bold;
+        color: #2c4975; /* 深藍色，與主題一致 */
+        margin-right: 10px; /* 與按鈕保持間距 */
+      }
+
+      .evaluate-button {
+        display: inline-flex;
+        align-items: center;
+        background: none; /* 移除背景 */
+        border: none; /* 移除邊框 */
+        padding: 0; /* 移除內邊距 */
+        cursor: pointer;
+      }
+
+      .evaluate-icon {
+        width: 24px; /* 圖標寬度 */
+        height: 24px; /* 圖標高度 */
+        transition: transform 0.2s ease;
+      }
+
+      .evaluate-button:hover .evaluate-icon {
+        transform: scale(1.2); /* 滑鼠懸停時放大 */
+      }
+
+      button[onclick^="cancelParticipation"] {
+        width: 10px; /* 增加按鈕寬度 */
+        height: 10px; /* 增加按鈕高度 */
+        background: none;
+        border: none;
+        cursor: pointer;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      button[onclick^="cancelParticipation"] img {
+        width: 100%; /* 圖標填滿按鈕 */
+        height: 100%;
+        transition: transform 0.2s ease; /* 添加平滑過渡效果 */
+      }
+
+      button[onclick^="cancelParticipation"]:hover img {
+        transform: scale(1.2); /* 滑鼠懸停時放大 */
+      }
+
+      .action-button {
+        background: none; /* 移除按鈕背景 */
+        border: none; /* 移除按鈕邊框 */
+        padding: 0; /* 移除內邊距 */
+        cursor: pointer; /* 設置為可點擊 */
+      }
+
+      .action-button img {
+        width: 24px; /* 設定圖片大小 */
+        height: 24px;
+        border-radius: 50%; /* 確保圖片為圓形 */
+        transition: transform 0.2s ease; /* 添加平滑過渡效果 */
+      }
+
+      .action-button img:hover {
+        transform: scale(1.2); /* 滑鼠懸停時放大 */
+      }
+
+      .action-button img:active {
+        transform: scale(0.9); /* 按下時縮小 */
+      }
+
+      .bottom-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        display: flex;
+        justify-content: space-around;
+        background-color: var(--tab-bg);
+        box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.08);
+        z-index: 1000;
+        height: 60px; /* 統一高度 */
+      }
+
+      .bottom-bar-button {
+        background: none;
+        border: none;
+        padding: 10px;
+        cursor: pointer;
+        transition: transform 0.2s ease; /* 新增過渡效果 */
+      }
+
+      .bottom-bar-button:hover {
+        transform: scale(1.2); /* 滑鼠懸停時放大 */
+      }
+
+      .bottom-bar-icon {
+        width: 24px;
+        height: 24px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="tabs-wrapper">
+      <div class="tabs-container" id="tabs">
+        <div class="tab active" onclick="switchTab(0)">我發起的活動</div>
+        <div class="tab" onclick="switchTab(1)">我參加的活動</div>
+      </div>
+      <div class="divider">
+        <div id="indicator" class="indicator" style="width: 50%; left: 0"></div>
+      </div>
     </div>
-    <div class="modal-divider">
-      <div id="modal-indicator" class="modal-indicator" style="width: 50%; left: 0;"></div>
+
+    <div id="tabContents">
+      <div class="tab-content" id="content-0">
+        <div id="my-activities">載入中...</div>
+      </div>
+      <div class="tab-content" id="content-1" style="display: none">
+        尚未參加任何活動
+      </div>
     </div>
-    <div class="modal-tab-content" id="modal-tab-0">
-      <h2 id="modal-title">活動標題</h2>
-      <p><strong>類型：</strong><span id="modal-sport-name"></span>/<span id="modal-level"></span></p>
-      <p><strong>開始時間：</strong><span id="modal-start-time"></span></p>
-      <p><strong>結束時間：</strong><span id="modal-end-time"></span></p>
-      <p><strong>地點：</strong><span id="modal-location"></span></p>
-      <p><strong>狀態：</strong><span id="modal-status"></span></p>
-      <p><strong>參加人數：</strong><span id="modal-participants"></span>/<span id="modal-max-participants"></span></p>
-      <progress id="progress" value="0" max="0" style="width: 100%;"></progress>
-    </div>
-    <div class="modal-tab-content" id="modal-tab-1">
-      <h3>參加者列表</h3>
-      <div class="participants-container">
-        <div class="participant-card organizer">
-          <strong>發起人：</strong>
-          <span id="organizer-name"></span>
+
+    <!-- Modal -->
+    <div id="activityModal" class="modal" style="display: none">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <div class="modal-tabs">
+          <div class="modal-tab active" onclick="switchModalTab(0)">
+            活動細節
+          </div>
+          <div class="modal-tab" onclick="switchModalTab(1)">查看參加者</div>
         </div>
-        <div id="participants-list" class="participants-list">
-          <!-- 參加者卡片將動態插入 -->
+        <div class="modal-divider">
+          <div
+            id="modal-indicator"
+            class="modal-indicator"
+            style="width: 50%; left: 0"
+          ></div>
+        </div>
+        <div class="scrollable-content">
+          <div class="modal-tab-content" id="modal-tab-0">
+            <h2 id="modal-title">活動標題</h2>
+            <p>
+              <strong>類型：</strong><span id="modal-sport-name"></span>/<span
+                id="modal-level"
+              ></span>
+            </p>
+            <p><strong>開始時間：</strong><span id="modal-start-time"></span></p>
+            <p><strong>結束時間：</strong><span id="modal-end-time"></span></p>
+            <p><strong>地點：</strong><span id="modal-location"></span></p>
+            <p><strong>狀態：</strong><span id="modal-status"></span></p>
+            <p>
+              <strong>參加人數：</strong
+              ><span id="modal-participants"></span>/<span
+                id="modal-max-participants"
+              ></span>
+            </p>
+            <progress
+              id="progress"
+              value="0"
+              max="0"
+              style="width: 100%"
+            ></progress>
+          </div>
+          <div class="modal-tab-content" id="modal-tab-1">
+            <h3>參加者列表</h3>
+            <div class="participants-container">
+              <div class="participant-card organizer">
+                <strong>發起人：</strong>
+                <img
+                  class="participant-avatar"
+                  src="/static/avatars/${data.organizer.member_id}.png"
+                  alt="${data.organizer.name} 頭像"
+                  onerror="this.src='/static/avatars/default.jpg';"
+                />
+                <span id="organizer-name"></span>
+              </div>
+              <div id="participants-list" class="participants-list">
+                <!-- 參加者卡片將動態插入 -->
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <button onclick="closeModal()" class="close-button">關閉</button>
-  </div>
-</div>
 
-<div id="evaluateModal" class="modal" style="display: none;">
-  <div class="modal-content">
-    <span class="close" onclick="closeEvaluateModal()">&times;</span>
-    <h2>評價活動</h2>
-    <textarea id="evaluation-text" placeholder="請輸入您的評價..." style="width: 100%; height: 100px; margin-bottom: 20px;"></textarea>
-    <button onclick="submitEvaluation()" class="submit-button">提交評價</button>
-  </div>
-</div>
+    <div id="evaluateModal" class="modal" style="display: none">
+      <div class="modal-content">
+        <span class="close" onclick="closeEvaluateModal()">&times;</span>
+        <h2>評價活動</h2>
+        <textarea
+          id="evaluation-text"
+          placeholder="請輸入您的評價..."
+          style="width: 100%; height: 100px; margin-bottom: 20px"
+        ></textarea>
+        <button onclick="submitEvaluation()" class="submit-button">
+          提交評價
+        </button>
+      </div>
+    </div>
 
-<!-- FAB按鈕 -->
-<button class="fab" id="fabButton" onclick="goToCreate()">＋</button>
+    <!-- FAB按鈕 -->
+    <button class="fab" id="fabButton" onclick="goToCreate()">＋</button>
 
-<div class="bottom-bar">
-  <button class="bottom-bar-button" onclick="goToActivity()">
-    <img src="/static/icons/clipboard.png" alt="活動" class="bottom-bar-icon">
-  </button>
-  <button class="bottom-bar-button" onclick="goToPage('/map')">
-    <img src="/static/icons/map.png" alt="地圖" class="bottom-bar-icon">
-  </button>
-  <button class="bottom-bar-button" onclick="goToProfile()">
-    <img src="/static/icons/user.png" alt="個人" class="bottom-bar-icon">
-  </button>
-</div>
+    <div class="bottom-bar">
+      <button class="bottom-bar-button" onclick="goToActivity()">
+        <img
+          src="/static/icons/clipboard.png"
+          alt="活動"
+          class="bottom-bar-icon"
+        />
+      </button>
+      <button class="bottom-bar-button" onclick="goToPage('/map')">
+        <img src="/static/icons/map.png" alt="地圖" class="bottom-bar-icon" />
+      </button>
+      <button class="bottom-bar-button" onclick="goToProfile()">
+        <img src="/static/icons/user.png" alt="個人" class="bottom-bar-icon" />
+      </button>
+    </div>
 
-<script>
-  const urlParams = new URLSearchParams(window.location.search);
-  const memberId = urlParams.get('member_id');
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      const memberId = urlParams.get("member_id");
 
-  function switchTab(index) {
-    const tabs = document.querySelectorAll('.tab');
-    const contents = document.querySelectorAll('.tab-content');
-    const indicator = document.getElementById('indicator');
-    const fab = document.getElementById('fabButton');
+      function switchTab(index) {
+        const tabs = document.querySelectorAll(".tab");
+        const contents = document.querySelectorAll(".tab-content");
+        const indicator = document.getElementById("indicator");
+        const fab = document.getElementById("fabButton");
 
-    tabs.forEach((tab, i) => {
-      tab.classList.toggle('active', i === index);
-    });
+        tabs.forEach((tab, i) => {
+          tab.classList.toggle("active", i === index);
+        });
 
-    contents.forEach((content, i) => {
-      content.style.display = i === index ? 'block' : 'none';
-    });
+        contents.forEach((content, i) => {
+          content.style.display = i === index ? "block" : "none";
+        });
 
-    const tabWidth = tabs[0].offsetWidth;
-    indicator.style.width = tabWidth + "px";
-    indicator.style.left = tabWidth * index + "px";
+        const tabWidth = tabs[0].offsetWidth;
+        indicator.style.width = tabWidth + "px";
+        indicator.style.left = tabWidth * index + "px";
 
-    // FAB顯示與隱藏：只有發起活動時顯示
-    if (index === 0) {
-      fab.classList.remove('hidden');
-    } else {
-      fab.classList.add('hidden');
-    }
-  }
-
-  function goToCreate() {
-    window.location.href = "/create_activity";
-  }
-
-  function goToPage(path) {
-    window.location.href = path;
-  }
-
-  function goToProfile() {
-    if (!memberId) {
-      alert("無效的會員資訊！");
-      return;
-    }
-    window.location.href = `/profile_view?member_id=${memberId}`;
-  }
-
-  async function openModal(activityId) {
-    try {
-      const res = await fetch(`/api/activities/details?activity_id=${activityId}`);
-      const data = await res.json();
-
-      document.getElementById("modal-title").innerText = data.title;
-      document.getElementById("modal-title").setAttribute("data-activity-id", activityId); // 儲存活動 ID
-      document.getElementById("modal-sport-name").innerText = data.sport_name;
-      document.getElementById("modal-start-time").innerText = new Date(data.start_time).toLocaleString();
-      document.getElementById("modal-end-time").innerText = new Date(data.end_time).toLocaleString();
-      document.getElementById("modal-location").innerText = data.location_name;
-      document.getElementById("modal-participants").innerText = data.current_participants;
-      document.getElementById("modal-max-participants").innerText = data.max_participants;
-      document.getElementById("modal-status").innerText = data.status === "open" ? "開放參加" : "關閉";
-      document.getElementById("modal-level").innerText = data.level || "未設定";
-
-      // 更新進度條
-      const progress = document.getElementById("progress");
-      progress.value = data.current_participants;
-      progress.max = data.max_participants;
-
-      // 預設顯示活動細節
-      switchModalTab(0);
-
-      // 預載入參加者資料
-      loadParticipants(activityId);
-
-      document.getElementById("activityModal").style.display = "flex";
-    } catch (error) {
-      console.error("無法載入活動詳細資訊", error);
-    }
-  }
-
-  async function loadParticipants(activityId) {
-    try {
-      const res = await fetch(`/api/activities/participants?activity_id=${activityId}`);
-      const data = await res.json();
-
-      if (res.status !== 200) {
-        console.error("無法載入參加者資料", data.error);
-        return;
+        // FAB顯示與隱藏：只有發起活動時顯示
+        if (index === 0) {
+          fab.classList.remove("hidden");
+        } else {
+          fab.classList.add("hidden");
+        }
       }
 
-      // 顯示發起人
-      const organizerName = document.getElementById("organizer-name");
-      organizerName.innerText = data.organizer.name;
+      function goToCreate() {
+        window.location.href = "/create_activity";
+      }
 
-      // 顯示參加者
-      const participantsList = document.getElementById("participants-list");
-      participantsList.innerHTML = ""; // 清空列表
+      function goToPage(path) {
+        window.location.href = path;
+      }
 
-      data.participants.forEach(participant => {
-        const card = document.createElement("div");
-        card.className = "participant-card";
-        card.innerHTML = `<span>${participant.name}</span>`;
-        participantsList.appendChild(card);
+      function goToProfile() {
+        if (!memberId) {
+          alert("無效的會員資訊！");
+          return;
+        }
+        window.location.href = `/profile_view?member_id=${memberId}`;
+      }
+
+      async function openModal(activityId) {
+        try {
+          const res = await fetch(
+            `/api/activities/details?activity_id=${activityId}`
+          );
+          const data = await res.json();
+
+          document.getElementById("modal-title").innerText = data.title;
+          document
+            .getElementById("modal-title")
+            .setAttribute("data-activity-id", activityId); // 儲存活動 ID
+          document.getElementById("modal-sport-name").innerText =
+            data.sport_name;
+          document.getElementById("modal-start-time").innerText = new Date(
+            data.start_time
+          ).toLocaleString();
+          document.getElementById("modal-end-time").innerText = new Date(
+            data.end_time
+          ).toLocaleString();
+          document.getElementById("modal-location").innerText =
+            data.location_name;
+          document.getElementById("modal-participants").innerText =
+            data.current_participants;
+          document.getElementById("modal-max-participants").innerText =
+            data.max_participants;
+          document.getElementById("modal-status").innerText =
+            data.status === "open" ? "開放參加" : "關閉";
+          document.getElementById("modal-level").innerText =
+            data.level || "未設定";
+
+          // 更新進度條
+          const progress = document.getElementById("progress");
+          progress.value = data.current_participants;
+          progress.max = data.max_participants;
+
+          // 預設顯示活動細節
+          switchModalTab(0);
+
+          // 預載入參加者資料
+          loadParticipants(activityId);
+
+          document.getElementById("activityModal").style.display = "flex";
+        } catch (error) {
+          console.error("無法載入活動詳細資訊", error);
+        }
+      }
+
+      async function loadParticipants(activityId) {
+        try {
+          const res = await fetch(
+            `/api/activities/participants?activity_id=${activityId}`
+          );
+          const data = await res.json();
+
+          if (res.status !== 200) {
+            console.error("無法載入參加者資料", data.error);
+            return;
+          }
+
+          // 顯示發起人
+          const organizerCard = document.querySelector(
+            ".participant-card.organizer"
+          );
+          organizerCard.innerHTML = `
+  <strong>發起人：</strong>
+  <img
+    class="participant-avatar"
+    src="/static/avatars/${data.organizer.member_id}.png"
+    alt="${data.organizer.name} 頭像"
+    onerror="this.src='/static/avatars/default.jpg';"
+  />
+  <span>${data.organizer.name}</span>
+`;
+
+          // 顯示參加者
+          const participantsList = document.getElementById("participants-list");
+          participantsList.innerHTML = ""; // 清空列表
+
+          // 顯示已參加的參加者
+          if (data.joined_participants.length > 0) {
+            const joinedHeader = document.createElement("h4");
+            joinedHeader.innerText = "已參加";
+            participantsList.appendChild(joinedHeader);
+
+            data.joined_participants.forEach((participant) => {
+              const card = document.createElement("div");
+              card.className = "participant-card";
+              card.innerHTML = `
+                <img
+                  class="participant-avatar"
+                  src="/static/avatars/${participant.member_id}.png"
+                  alt="${participant.name} 頭像"
+                  onerror="this.src='/static/avatars/default.jpg';"
+                />
+                <span>${participant.name}</span>
+              `;
+              participantsList.appendChild(card);
+            });
+          }
+
+          // 僅在發起人查看時顯示待審核的參加者
+          if (data.pending_participants.length > 0 && data.organizer.member_id === memberId) {
+            const pendingHeader = document.createElement("h4");
+            pendingHeader.innerText = "待審核";
+            participantsList.appendChild(pendingHeader);
+
+            data.pending_participants.forEach((participant) => {
+              const card = document.createElement("div");
+              card.className = "participant-card";
+              card.innerHTML = `
+                <img
+                  class="participant-avatar"
+                  src="/static/avatars/${participant.member_id}.png"
+                  alt="${participant.name} 頭像"
+                  onerror="this.src='/static/avatars/default.jpg';"
+                />
+                <span>${participant.name}</span>
+                <span>  </span>
+                <span>  </span>
+                <span>  </span>
+                <span>  </span>
+                <span>  </span>
+                <span>  </span>
+                <span>  </span>
+                <span>  </span>
+                <span>  </span>
+                <span>  </span>
+                <span>  </span>
+                <span>  </span>
+                <span>  </span>
+                <button class="action-button" onclick="updateParticipantStatus('${data.activity_id}', '${participant.member_id}', 'joined')">
+                  <img src="/static/icons/accept.png" alt="同意" />
+                </button>
+                <span>    </span>
+                <button class="action-button" onclick="updateParticipantStatus('${data.activity_id}', '${participant.member_id}', 'reject')">
+                  <img src="/static/icons/cancel.png" alt="不同意" />
+                </button>
+              `;
+              participantsList.appendChild(card);
+            });
+          }
+        } catch (error) {
+          console.error("無法載入參加者資料", error);
+        }
+      }
+
+      async function updateParticipantStatus(activityId, memberId, status) {
+        try {
+          const res = await fetch("/api/activities/update_status", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              activity_id: activityId,
+              member_id: memberId,
+              status: status,
+            }),
+          });
+
+          if (res.ok) {
+            alert("狀態更新成功");
+            loadParticipants(activityId); // 重新載入參加者列表
+          } else {
+            const errorData = await res.json();
+            alert(`狀態更新失敗: ${errorData.error}`);
+          }
+        } catch (error) {
+          console.error("更新狀態時發生錯誤", error);
+          alert("狀態更新失敗，請稍後再試");
+        }
+      }
+
+      function closeModal() {
+        document.getElementById("activityModal").style.display = "none";
+      }
+
+      function switchModalTab(index) {
+        const tabs = document.querySelectorAll(".modal-tab");
+        const contents = document.querySelectorAll(".modal-tab-content");
+        const indicator = document.getElementById("modal-indicator");
+
+        tabs.forEach((tab, i) => {
+          tab.classList.toggle("active", i === index);
+        });
+
+        contents.forEach((content, i) => {
+          content.classList.toggle("active", i === index);
+        });
+
+        const tabWidth = tabs[0].offsetWidth;
+        indicator.style.width = tabWidth + "px";
+        indicator.style.left = tabWidth * index + "px";
+      }
+
+      window.addEventListener("resize", () => {
+        const tabs = document.querySelectorAll(".tab");
+        const activeIndex = [...tabs].findIndex((tab) =>
+          tab.classList.contains("active")
+        );
+        const indicator = document.getElementById("indicator");
+        const tabWidth = tabs[0].offsetWidth;
+        indicator.style.width = tabWidth + "px";
+        indicator.style.left = tabWidth * activeIndex + "px";
       });
-    } catch (error) {
-      console.error("無法載入參加者資料", error);
-    }
-  }
 
-  function closeModal() {
-    document.getElementById("activityModal").style.display = "none";
-  }
+      async function loadMyActivities() {
+        if (!memberId) {
+          document.getElementById("my-activities").innerText = "無效的會員資訊";
+          return;
+        }
 
-  function switchModalTab(index) {
-    const tabs = document.querySelectorAll('.modal-tab');
-    const contents = document.querySelectorAll('.modal-tab-content');
-    const indicator = document.getElementById('modal-indicator');
+        try {
+          const res = await fetch(`/api/activities/my?member_id=${memberId}`);
+          const data = await res.json();
 
-    tabs.forEach((tab, i) => {
-      tab.classList.toggle('active', i === index);
-    });
+          const container = document.getElementById("my-activities");
+          container.innerHTML = "";
 
-    contents.forEach((content, i) => {
-      content.classList.toggle('active', i === index);
-    });
+          if (data.length === 0) {
+            container.innerText = "尚未發起任何活動";
+            return;
+          }
 
-    const tabWidth = tabs[0].offsetWidth;
-    indicator.style.width = tabWidth + "px";
-    indicator.style.left = tabWidth * index + "px";
-  }
+          const cardContainer = document.createElement("div");
+          cardContainer.className = "activity-card-container";
 
-  window.addEventListener('resize', () => {
-    const tabs = document.querySelectorAll('.tab');
-    const activeIndex = [...tabs].findIndex(tab => tab.classList.contains('active'));
-    const indicator = document.getElementById('indicator');
-    const tabWidth = tabs[0].offsetWidth;
-    indicator.style.width = tabWidth + "px";
-    indicator.style.left = tabWidth * activeIndex + "px";
-  });
-
-
-  async function loadMyActivities() {
-    if (!memberId) {
-      document.getElementById("my-activities").innerText = "無效的會員資訊";
-      return;
-    }
-
-    try {
-      const res = await fetch(`/api/activities/my?member_id=${memberId}`);
-      const data = await res.json();
-
-      const container = document.getElementById("my-activities");
-      container.innerHTML = "";
-
-      if (data.length === 0) {
-        container.innerText = "尚未發起任何活動";
-        return;
-      }
-
-      const cardContainer = document.createElement("div");
-      cardContainer.className = "activity-card-container";
-
-      data.forEach(activity => {
-        const card = document.createElement("div");
-        card.className = "activity-card";
-        card.innerHTML = `
+          data.forEach((activity) => {
+            const card = document.createElement("div");
+            card.className = "activity-card";
+            card.innerHTML = `
           <h3>${activity.title}</h3>
           <p><strong>類型：</strong>${activity.sport_name}</p>
-          <p><strong>開始：</strong>${activity.start_time ? new Date(activity.start_time).toLocaleString() : "未設定"}</p>
-          <p><strong>結束：</strong>${activity.end_time ? new Date(activity.end_time).toLocaleString() : "未設定"}</p>
+          <p><strong>開始：</strong>${
+            activity.start_time
+              ? new Date(activity.start_time).toLocaleString()
+              : "未設定"
+          }</p>
+          <p><strong>結束：</strong>${
+            activity.end_time
+              ? new Date(activity.end_time).toLocaleString()
+              : "未設定"
+          }</p>
           <p><strong>地點：</strong>${activity.location_name}</p>
           
         `;
-        card.addEventListener("click", () => openModal(activity.activity_id));
-        cardContainer.appendChild(card);
-      });
+            card.addEventListener("click", () =>
+              openModal(activity.activity_id)
+            );
+            cardContainer.appendChild(card);
+          });
 
-      container.appendChild(cardContainer);
-    } catch (error) {
-      document.getElementById("my-activities").innerText = "載入失敗，請稍後再試。";
-      console.error(error);
-    }
-  }
-
-  async function loadJoinedActivities() {
-  
-    if (!memberId) {
-      document.getElementById("content-1").innerText = "無效的會員資訊";
-      return;
-    }
-
-    try {
-      const res = await fetch(`/api/activities/joined?member_id=${memberId}`);
-      const data = await res.json();
-
-      const container = document.getElementById("content-1");
-      container.innerHTML = "";
-
-      if (data.length === 0) {
-        container.innerText = "尚未參加任何活動";
-        return;
+          container.appendChild(cardContainer);
+        } catch (error) {
+          document.getElementById("my-activities").innerText =
+            "載入失敗，請稍後再試。";
+          console.error(error);
+        }
       }
 
-      const cardContainer = document.createElement("div");
-      cardContainer.className = "activity-card-container";
+      async function loadJoinedActivities() {
+        if (!memberId) {
+          document.getElementById("content-1").innerText = "無效的會員資訊";
+          return;
+        }
 
-      data.forEach(activity => {
-        const card = document.createElement("div");
-        card.className = "activity-card";
-        card.innerHTML = `
+        try {
+          const res = await fetch(
+            `/api/activities/joined?member_id=${memberId}`
+          );
+          const data = await res.json();
+
+          const container = document.getElementById("content-1");
+          container.innerHTML = "";
+
+          if (data.length === 0) {
+            container.innerText = "尚未參加任何活動";
+            return;
+          }
+
+          const cardContainer = document.createElement("div");
+          cardContainer.className = "activity-card-container";
+
+          data.forEach((activity) => {
+            const card = document.createElement("div");
+            card.className = "activity-card";
+            card.innerHTML = `
+          <div style="position: relative;">
+            ${
+              activity.status !== "close"
+                ? `
+            <button style="
+              position: absolute;
+              top: 10px;
+              right: 10px;
+              background: none;
+              border: none;
+              cursor: pointer;
+            " onclick="cancelParticipation(${activity.activity_id}); event.stopPropagation();">
+              <img src="/static/icons/cancel.png" alt="取消參加" style="width: 20px; height: 20px;">
+            </button>
+            `
+                : ""
+            }
+          </div>
           <h3>${activity.title}</h3>
           <p><strong>類型：</strong>${activity.sport_name}</p>
-          <p><strong>開始：</strong>${activity.start_time ? new Date(activity.start_time).toLocaleString() : "未設定"}</p>
-          <p><strong>結束：</strong>${activity.end_time ? new Date(activity.end_time).toLocaleString() : "未設定"}</p>
+          <p><strong>開始：</strong>${
+            activity.start_time
+              ? new Date(activity.start_time).toLocaleString()
+              : "未設定"
+          }</p>
+          <p><strong>結束：</strong>${
+            activity.end_time
+              ? new Date(activity.end_time).toLocaleString()
+              : "未設定"
+          }</p>
           <p><strong>地點：</strong>${activity.location_name}</p>
           <p><strong>目前狀態：</strong>
-            ${activity.status === "close" ? `
-              <span class="status-text">已結束</span>
-              <button class="evaluate-button" onclick="openEvaluateModal(${activity.activity_id})">
-                <img src="/static/icons/message.png" alt="評價" class="evaluate-icon">
-              </button>
-            ` : activity.status === "open" ? "即將開始" : "進行中"}
-          </p>
-        `;
-        card.addEventListener("click", () => openModal(activity.activity_id));
-        cardContainer.appendChild(card);
-      });
+         ${
+           activity.status === "close"
+             ? `
+          <span class="status-text">已結束</span>
+          <button class="evaluate-button" onclick="openEvaluateModal(${activity.activity_id})">
+          <img src="/static/icons/message.png" alt="評價" class="evaluate-icon">
+          </button>
+         `
+             : activity.status === "open"
+             ? `
+         <span class="status-text">開放參加</span>
+          `
+             : `
+          <span class="status-text">正在進行</span>
+          `
+         }
+        </p>
+          `;
+            card.addEventListener("click", () =>
+              openModal(activity.activity_id)
+            );
+            cardContainer.appendChild(card);
+          });
 
-      container.appendChild(cardContainer);
-    } catch (error) {
-      document.getElementById("content-1").innerText = "載入失敗，請稍後再試。";
-      console.error(error);
-    }
-  }
-
-  let currentActivityId = null;
-
-  function openEvaluateModal(activityId) {
-    currentActivityId = activityId; // 儲存當前活動 ID
-    document.getElementById("evaluateModal").style.display = "flex";
-  }
-
-  function closeEvaluateModal() {
-    document.getElementById("evaluateModal").style.display = "none";
-    document.getElementById("evaluation-text").value = ""; // 清空評價內容
-  }
-
-  async function submitEvaluation() {
-    const evaluationText = document.getElementById("evaluation-text").value.trim();
-    if (!evaluationText) {
-      alert("請輸入評價內容！");
-      return;
-    }
-
-    try {
-      const res = await fetch(`/api/activities/evaluate`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          activity_id: currentActivityId,
-          member_id: memberId,
-          evaluation: evaluationText
-        })
-      });
-
-      if (res.ok) {
-        alert("評價提交成功！");
-        closeEvaluateModal();
-      } else {
-        alert("提交評價失敗，請稍後再試！");
+          container.appendChild(cardContainer);
+        } catch (error) {
+          document.getElementById("content-1").innerText =
+            "載入失敗，請稍後再試。";
+          console.error(error);
+        }
       }
-    } catch (error) {
-      console.error("提交評價時發生錯誤：", error);
-      alert("提交評價失敗，請稍後再試！");
-    }
-  }
 
-  window.onload = function () {
-    switchTab(0);
-    loadMyActivities();
-    loadJoinedActivities(); // 新增載入「我參加的活動」
-  };
-</script>
+      let currentActivityId = null;
 
-</body>
+      function openEvaluateModal(activityId) {
+        currentActivityId = activityId; // 儲存當前活動 ID
+        document.getElementById("evaluateModal").style.display = "flex";
+      }
+
+      function closeEvaluateModal() {
+        document.getElementById("evaluateModal").style.display = "none";
+        document.getElementById("evaluation-text").value = ""; // 清空評價內容
+      }
+
+      async function submitEvaluation() {
+        const evaluationText = document
+          .getElementById("evaluation-text")
+          .value.trim();
+        if (!evaluationText) {
+          alert("請輸入評價內容！");
+          return;
+        }
+
+        try {
+          const res = await fetch(`/api/activities/evaluate`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              activity_id: currentActivityId,
+              member_id: memberId,
+              evaluation: evaluationText,
+            }),
+          });
+
+          if (res.ok) {
+            alert("評價提交成功！");
+            closeEvaluateModal();
+          } else {
+            alert("提交評價失敗，請稍後再試！");
+          }
+        } catch (error) {
+          console.error("提交評價時發生錯誤：", error);
+          alert("提交評價失敗，請稍後再試！");
+        }
+      }
+
+      async function cancelParticipation(activityId) {
+        const confirmCancel = confirm("確定要取消參加此活動嗎？");
+        if (!confirmCancel) {
+          return; // 如果使用者選擇取消，則不執行後續邏輯
+        }
+
+        try {
+          const res = await fetch(`/api/activities/cancel`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              activity_id: activityId,
+              member_id: memberId,
+            }),
+          });
+
+          if (res.ok) {
+            alert("已取消參加活動！");
+            loadJoinedActivities(); // 重新載入參加的活動
+          } else {
+            alert("取消參加失敗，請稍後再試！");
+          }
+        } catch (error) {
+          console.error("取消參加時發生錯誤：", error);
+          alert("取消參加失敗，請稍後再試！");
+        }
+      }
+
+      window.onload = function () {
+        switchTab(0);
+        loadMyActivities();
+        loadJoinedActivities(); // 新增載入「我參加的活動」
+      };
+    </script>
+  </body>
 </html>

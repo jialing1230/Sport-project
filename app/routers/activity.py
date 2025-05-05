@@ -5,6 +5,7 @@ from app.models.activity import Activity
 from app.models.sport_type import SportType
 from app.models.activity_join import ActivityJoin 
 from flask import render_template
+import os
 
 activity_bp = Blueprint("activity", __name__, url_prefix="/api/activities")
 
@@ -141,9 +142,15 @@ def get_activity_participants():
             return jsonify({"error": "活動不存在"}), 404
 
         # 查詢參加者
-        participants = (
+        joined_participants = (
             db.query(ActivityJoin)
             .filter(ActivityJoin.activity_id == activity_id, ActivityJoin.status == "joined")
+            .all()
+        )
+
+        pending_participants = (
+            db.query(ActivityJoin)
+            .filter(ActivityJoin.activity_id == activity_id, ActivityJoin.status == "pending")
             .all()
         )
 
@@ -151,15 +158,74 @@ def get_activity_participants():
         result = {
             "organizer": {
                 "member_id": activity.organizer_id,
-                "name": activity.organizer.name,  # 假設 Member 模型有 name 欄位
+                "name": activity.organizer.name,
             },
-            "participants": [
+            "joined_participants": [
                 {
                     "member_id": p.member_id,
-                    "name": p.member.name,  # 假設 Member 模型有 name 欄位
+                    "name": p.member.name,
                 }
-                for p in participants
+                for p in joined_participants
+            ],
+            "pending_participants": [
+                {
+                    "member_id": p.member_id,
+                    "name": p.member.name,
+                }
+                for p in pending_participants
             ],
         }
     return jsonify(result), 200
+
+@activity_bp.route("/cancel", methods=["POST"])
+def cancel_participation():
+    data = request.get_json()
+    member_id = data.get("member_id")
+    activity_id = data.get("activity_id")
+
+    if not member_id or not activity_id:
+        return jsonify({"error": "缺少必要參數"}), 400
+
+    with get_db() as db:
+        # 查找該會員參加的活動記錄
+        activity_join = db.query(ActivityJoin).filter_by(member_id=member_id, activity_id=activity_id).first()
+        if not activity_join:
+            return jsonify({"error": "未找到參加記錄"}), 404
+
+        # 刪除參加記錄
+        db.delete(activity_join)
+
+        # 更新活動的 current_participants
+        activity = db.query(Activity).filter_by(activity_id=activity_id).first()
+        if activity and activity.current_participants > 0:
+            activity.current_participants -= 1
+
+        db.commit()
+
+    return jsonify({"message": "已取消參加活動"}), 200
+
+@activity_bp.route("/update_status", methods=["POST"])
+def update_participant_status():
+    data = request.get_json()
+    activity_id = data.get("activity_id")
+    member_id = data.get("member_id")
+    new_status = data.get("status")
+
+    if not activity_id or not member_id or new_status not in ["joined", "reject"]:
+        return jsonify({"error": "缺少必要參數或狀態無效"}), 400
+
+    with get_db() as db:
+        participant = (
+            db.query(ActivityJoin)
+            .filter(ActivityJoin.activity_id == activity_id, ActivityJoin.member_id == member_id)
+            .first()
+        )
+
+        if not participant:
+            return jsonify({"error": "參加者記錄不存在"}), 404
+
+        participant.status = new_status
+        db.commit()
+
+    return jsonify({"message": "狀態更新成功"}), 200
 

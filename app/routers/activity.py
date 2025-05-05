@@ -232,6 +232,20 @@ def update_participant_status():
                 if activity:
                     activity.current_participants += 1
 
+                    # 如果人數達到上限，將活動狀態設為 close，並拒絕所有 pending 狀態的參加者
+                    if activity.current_participants == activity.max_participants:
+                        activity.status = "close"
+
+                        db.commit()
+
+                        pending_participants = db.query(ActivityJoin).filter(
+                            ActivityJoin.activity_id == activity.activity_id,
+                            ActivityJoin.status == "pending"
+                        ).all()
+
+                        for pending_participant in pending_participants:
+                            pending_participant.status = "reject"
+
             participant.status = new_status
             db.commit()
         except Exception as e:

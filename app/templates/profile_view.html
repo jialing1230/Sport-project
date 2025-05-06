@@ -251,7 +251,21 @@
       .bottom-bar-button:hover {
         transform: scale(1.2); /* 滑鼠懸停時放大 */
       }
+      .bottom-bar-button {
+          background: none;
+          border: none;
+          padding: 5px 0;
+          cursor: pointer;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+      }
 
+      .bottom-bar-label {
+          font-size: 12px;
+          color: #2c4975;
+          margin-top: 4px;
+      }
       .bottom-bar-icon {
         width: 24px;
         height: 24px;
@@ -412,19 +426,19 @@
 
     <div class="bottom-bar">
       <button class="bottom-bar-button" onclick="goToActivity()">
-        <img
-          src="/static/icons/clipboard.png"
-          alt="活動"
-          class="bottom-bar-icon"
-        />
+        <img src="/static/icons/clipboard.png" alt="活動" class="bottom-bar-icon" />
+        <div class="bottom-bar-label">活動</div>
       </button>
       <button class="bottom-bar-button" onclick="goToPage('/map')">
         <img src="/static/icons/map.png" alt="地圖" class="bottom-bar-icon" />
+        <div class="bottom-bar-label">地圖</div>
       </button>
       <button class="bottom-bar-button" onclick="goToProfile()">
         <img src="/static/icons/user.png" alt="個人" class="bottom-bar-icon" />
+        <div class="bottom-bar-label">個人</div>
       </button>
     </div>
+    
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script>

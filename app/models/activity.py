@@ -31,12 +31,11 @@ class Activity(Base):
     status = Column(String(50))
     created_at = Column(DateTime)
     has_review = Column(Boolean)
-
-    # 新增欄位
-    identity = Column(String(50))
     target_identity = Column(String(50))
     gender = Column(String(10))
     age_range = Column(String(20))
+    venue_fee = Column(DECIMAL(10, 2))  
+    registration_deadline = Column(DateTime)  
 
     organizer = relationship("Member", back_populates="activities")
     sport_type = relationship("SportType", back_populates="activities")

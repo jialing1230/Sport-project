@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
   <head>
+    <link rel="manifest" href="/static/manifest.json" />
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          .register("/static/service-worker.js")
+          .then(() => console.log("Service Worker Registered"))
+          .catch((error) =>
+            console.error("Service Worker Registration Failed:", error)
+          );
+      }
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>我的活動</title>
@@ -223,54 +234,54 @@
         text-align: center;
       }
       @media (max-width: 768px) {
-  .modal-content {
-    padding: 15px; /* 減少內邊距 */
-    border-radius: 8px; /* 調整圓角 */
-  }
+        .modal-content {
+          padding: 15px; /* 減少內邊距 */
+          border-radius: 8px; /* 調整圓角 */
+        }
 
-  .modal-content h2 {
-    font-size: 18px; /* 縮小標題字體 */
-  }
+        .modal-content h2 {
+          font-size: 18px; /* 縮小標題字體 */
+        }
 
-  .participant-card {
-    font-size: 14px; /* 縮小參加者卡片字體 */
-    padding: 8px 10px; /* 減少內邊距 */
-  }
+        .participant-card {
+          font-size: 14px; /* 縮小參加者卡片字體 */
+          padding: 8px 10px; /* 減少內邊距 */
+        }
 
-  .participant-avatar {
-    width: 30px; /* 縮小頭像大小 */
-    height: 30px;
-  }
+        .participant-avatar {
+          width: 30px; /* 縮小頭像大小 */
+          height: 30px;
+        }
 
-  .participants-list {
-    max-height: 150px; /* 限制列表高度 */
-  }
-} 
-      
-/* 針對更小的螢幕進行進一步優化 */
-@media (max-width: 480px) {
-  .modal-content {
-    padding: 10px; /* 進一步減少內邊距 */
-  }
+        .participants-list {
+          max-height: 150px; /* 限制列表高度 */
+        }
+      }
 
-  .modal-content h2 {
-    font-size: 16px; /* 再次縮小標題字體 */
-  }
+      /* 針對更小的螢幕進行進一步優化 */
+      @media (max-width: 480px) {
+        .modal-content {
+          padding: 10px; /* 進一步減少內邊距 */
+        }
 
-  .participant-card {
-    font-size: 12px; /* 再次縮小參加者卡片字體 */
-    padding: 5px 8px; /* 減少內邊距 */
-  }
+        .modal-content h2 {
+          font-size: 16px; /* 再次縮小標題字體 */
+        }
 
-  .participant-avatar {
-    width: 25px; /* 再次縮小頭像大小 */
-    height: 25px;
-  }
+        .participant-card {
+          font-size: 12px; /* 再次縮小參加者卡片字體 */
+          padding: 5px 8px; /* 減少內邊距 */
+        }
 
-  .participants-list {
-    max-height: 120px; /* 進一步限制列表高度 */
-  }
-}
+        .participant-avatar {
+          width: 25px; /* 再次縮小頭像大小 */
+          height: 25px;
+        }
+
+        .participants-list {
+          max-height: 120px; /* 進一步限制列表高度 */
+        }
+      }
 
       .close {
         position: absolute;
@@ -495,19 +506,19 @@
         transform: scale(1.2); /* 滑鼠懸停時放大 */
       }
       .bottom-bar-button {
-          background: none;
-          border: none;
-          padding: 5px 0;
-          cursor: pointer;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
+        background: none;
+        border: none;
+        padding: 5px 0;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
       }
 
       .bottom-bar-label {
-          font-size: 12px;
-          color: #2c4975;
-          margin-top: 4px;
+        font-size: 12px;
+        color: #2c4975;
+        margin-top: 4px;
       }
       button[onclick^="cancelParticipation"] {
         width: 10px; /* 增加按鈕寬度 */
@@ -633,7 +644,9 @@
                 id="modal-level"
               ></span>
             </p>
-            <p><strong>開始時間：</strong><span id="modal-start-time"></span></p>
+            <p>
+              <strong>開始時間：</strong><span id="modal-start-time"></span>
+            </p>
             <p><strong>結束時間：</strong><span id="modal-end-time"></span></p>
             <p><strong>地點：</strong><span id="modal-location"></span></p>
             <p><strong>狀態：</strong><span id="modal-status"></span></p>
@@ -692,7 +705,11 @@
 
     <div class="bottom-bar">
       <button class="bottom-bar-button" onclick="goToActivity()">
-        <img src="/static/icons/clipboard.png" alt="活動" class="bottom-bar-icon" />
+        <img
+          src="/static/icons/clipboard.png"
+          alt="活動"
+          class="bottom-bar-icon"
+        />
         <div class="bottom-bar-label">活動</div>
       </button>
       <button class="bottom-bar-button" onclick="goToPage('/map')">
@@ -704,7 +721,6 @@
         <div class="bottom-bar-label">個人</div>
       </button>
     </div>
-    
 
     <script>
       const urlParams = new URLSearchParams(window.location.search);
@@ -886,7 +902,10 @@
           }
 
           // 僅在發起人查看時顯示待審核的參加者
-          if (data.pending_participants.length > 0 && data.organizer.member_id === memberId) {
+          if (
+            data.pending_participants.length > 0 &&
+            data.organizer.member_id === memberId
+          ) {
             const pendingHeader = document.createElement("h4");
             pendingHeader.innerText = "待審核";
             participantsList.appendChild(pendingHeader);
@@ -969,7 +988,9 @@
 
       async function loadActivityDetails(activityId) {
         try {
-          const res = await fetch(`/api/activities/details?activity_id=${activityId}`);
+          const res = await fetch(
+            `/api/activities/details?activity_id=${activityId}`
+          );
           const data = await res.json();
 
           if (res.status !== 200) {
@@ -978,21 +999,24 @@
           }
 
           document.getElementById("modal-title").innerText = data.title;
-          document.getElementById("modal-sport-name").innerText = data.sport_name;
+          document.getElementById("modal-sport-name").innerText =
+            data.sport_name;
           document.getElementById("modal-start-time").innerText = new Date(
             data.start_time
           ).toLocaleString();
           document.getElementById("modal-end-time").innerText = new Date(
             data.end_time
           ).toLocaleString();
-          document.getElementById("modal-location").innerText = data.location_name;
+          document.getElementById("modal-location").innerText =
+            data.location_name;
           document.getElementById("modal-participants").innerText =
             data.current_participants;
           document.getElementById("modal-max-participants").innerText =
             data.max_participants;
           document.getElementById("modal-status").innerText =
             data.status === "open" ? "開放參加" : "關閉";
-          document.getElementById("modal-level").innerText = data.level || "未設定";
+          document.getElementById("modal-level").innerText =
+            data.level || "未設定";
 
           // 更新進度條
           const progress = document.getElementById("progress");

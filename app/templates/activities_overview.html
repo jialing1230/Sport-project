@@ -1,176 +1,199 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>活動總覽</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f5f5f5;
-      color: #2c4975;
-      padding: 20px;
-      margin: 0;
-    }
-    h1 {
-      text-align: center;
-      margin-bottom: 28px;
-      font-size: 28px;
-    }
-    .label {
-      color: #2c4975;
-      font-weight: 1000;
-    }
+  <head>
+    <link rel="manifest" href="/static/manifest.json" />
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          .register("/static/service-worker.js")
+          .then(() => console.log("Service Worker Registered"))
+          .catch((error) =>
+            console.error("Service Worker Registration Failed:", error)
+          );
+      }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>活動總覽</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+        color: #2c4975;
+        padding: 20px;
+        margin: 0;
+      }
+      h1 {
+        text-align: center;
+        margin-bottom: 28px;
+        font-size: 28px;
+      }
+      .label {
+        color: #2c4975;
+        font-weight: 1000;
+      }
 
-    .value {
-      color: #000;
-    }
-    .filters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      justify-content: center;
-      margin-bottom: 20px;
-    }
-    .filters input, .filters select {
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 14px;
-    }
-    .filters button {
+      .value {
+        color: #000;
+      }
+      .filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+      .filters input,
+      .filters select {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 14px;
+      }
+      .filters button {
         padding: 8px 16px;
-        background-color: #81D3E1;
+        background-color: #81d3e1;
         color: white;
         border: none;
         border-radius: 6px;
         font-size: 16px;
         cursor: pointer;
-    }
-    .filters button:hover {
-  background-color: #1f3657;
-    }
-
-    .activity-list {
-      display: grid;
-      grid-template-columns: repeat(1, 1fr); 
-      gap: 20px;
-      max-width: 500px;
-      margin: 0 auto;
-    }
-
-    .activity-card {
-      background: white;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
-    .activity-card:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      transform: translateY(-2px);
-      transition: box-shadow 0.3s ease, transform 0.3s ease;
-    }
-    .activity-title {
-      font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-    .activity-info {
-      font-size: 14px;
-      margin: 4px 0;
-      color: #444;
-    }
-    .center-message {
-      grid-column: 1 / -1;
-      text-align: center;
-      color: #999;
-      font-weight: bold;
-    }
-    .error-message {
-      color: red;
-      text-align: center;
-      font-weight: bold;
-    }
-
-
-  </style>
-</head>
-<body>
-  <h1>所有活動總覽</h1>
-
-  <div class="filters">
-    <input type="text" id="searchTitle" placeholder="搜尋活動名稱">
-    <input type="text" id="searchLocation" placeholder="搜尋地點">
-    <input type="text" id="searchType" placeholder="搜尋活動類型">
-    <button id="searchBtn">搜尋</button>
-  </div>
-  
-
-  <div class="activity-list" id="activityList">
-    <p>載入中...</p>
-  </div>
-
-  <script>
-    let activities = [];
-
-    function renderActivities(list) {
-      const container = document.getElementById("activityList");
-      container.innerHTML = "";
-
-      if (list.length === 0) {
-        container.innerHTML = `<div class="center-message">查無符合條件的活動。</div>`;
-      return;
+      }
+      .filters button:hover {
+        background-color: #1f3657;
       }
 
-      list.forEach(act => {
-        const card = document.createElement("div");
-        card.className = "activity-card";
-        card.innerHTML = 
-          `<a href="/activity_detail.html?id=${act.activity_id}" style="text-decoration: none; color: inherit;">
-            <div class="activity-info"><span class="label">類型：</span><span class="value">${act.sport_type || "－"}</span></div>
-            <div class="activity-info"><span class="label">開始：</span><span class="value">${new Date(act.start_time).toLocaleString()}</span></div>
-            <div class="activity-info"><span class="label">地點：</span><span class="value">${act.location_name}</span></div>
+      .activity-list {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        gap: 20px;
+        max-width: 500px;
+        margin: 0 auto;
+      }
+
+      .activity-card {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+      .activity-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
+        transition: box-shadow 0.3s ease, transform 0.3s ease;
+      }
+      .activity-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+      .activity-info {
+        font-size: 14px;
+        margin: 4px 0;
+        color: #444;
+      }
+      .center-message {
+        grid-column: 1 / -1;
+        text-align: center;
+        color: #999;
+        font-weight: bold;
+      }
+      .error-message {
+        color: red;
+        text-align: center;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>所有活動總覽</h1>
+
+    <div class="filters">
+      <input type="text" id="searchTitle" placeholder="搜尋活動名稱" />
+      <input type="text" id="searchLocation" placeholder="搜尋地點" />
+      <input type="text" id="searchType" placeholder="搜尋活動類型" />
+      <button id="searchBtn">搜尋</button>
+    </div>
+
+    <div class="activity-list" id="activityList">
+      <p>載入中...</p>
+    </div>
+
+    <script>
+      let activities = [];
+
+      function renderActivities(list) {
+        const container = document.getElementById("activityList");
+        container.innerHTML = "";
+
+        if (list.length === 0) {
+          container.innerHTML = `<div class="center-message">查無符合條件的活動。</div>`;
+          return;
+        }
+
+        list.forEach((act) => {
+          const card = document.createElement("div");
+          card.className = "activity-card";
+          card.innerHTML = `<a href="/activity_detail.html?id=${
+            act.activity_id
+          }" style="text-decoration: none; color: inherit;">
+            <div class="activity-info"><span class="label">類型：</span><span class="value">${
+              act.sport_type || "－"
+            }</span></div>
+            <div class="activity-info"><span class="label">開始：</span><span class="value">${new Date(
+              act.start_time
+            ).toLocaleString()}</span></div>
+            <div class="activity-info"><span class="label">地點：</span><span class="value">${
+              act.location_name
+            }</span></div>
           </a>`;
-        container.appendChild(card);
-      });
-    }
+          container.appendChild(card);
+        });
+      }
 
-    function filterActivities() {
-      const title = document.getElementById("searchTitle").value.toLowerCase();
-      const location = document.getElementById("searchLocation").value.toLowerCase();
-      const type = document.getElementById("searchType").value.toLowerCase();
+      function filterActivities() {
+        const title = document
+          .getElementById("searchTitle")
+          .value.toLowerCase();
+        const location = document
+          .getElementById("searchLocation")
+          .value.toLowerCase();
+        const type = document.getElementById("searchType").value.toLowerCase();
 
-      const filtered = activities.filter(act =>
-        (act.title || "").toLowerCase().includes(title) &&
-        (act.location_name || "").toLowerCase().includes(location) &&
-        (act.sport_type || "").toLowerCase().includes(type)
-      );
+        const filtered = activities.filter(
+          (act) =>
+            (act.title || "").toLowerCase().includes(title) &&
+            (act.location_name || "").toLowerCase().includes(location) &&
+            (act.sport_type || "").toLowerCase().includes(type)
+        );
 
-      renderActivities(filtered);
-    }
+        renderActivities(filtered);
+      }
 
-    fetch("/api/activities")
-      .then(res => res.json())
-      .then(data => {
-        // 根據後端返回的格式修正資料轉換
-        activities = data.map(a => ({
-          activity_id: a.activity_id,
-          title: a.title || "", // 新增 title 欄位處理
-          sport_type: a.sport_name || "", // 若你前端 fetch 沒有 sport_name，請後端補上
-          start_time: a.start_time || a.time,  // 兼容舊欄位
-          location_name: a.location_name || a.location
-        }));
-        renderActivities(activities);
-      })
-      .catch(err => {
-        console.error("載入錯誤", err);
-        document.getElementById("activityList").innerHTML = 
-          `<div class="error-message">無法載入活動資料，請稍後再試。</div>`;
-      });
+      fetch("/api/activities")
+        .then((res) => res.json())
+        .then((data) => {
+          // 根據後端返回的格式修正資料轉換
+          activities = data.map((a) => ({
+            activity_id: a.activity_id,
+            title: a.title || "", // 新增 title 欄位處理
+            sport_type: a.sport_name || "", // 若你前端 fetch 沒有 sport_name，請後端補上
+            start_time: a.start_time || a.time, // 兼容舊欄位
+            location_name: a.location_name || a.location,
+          }));
+          renderActivities(activities);
+        })
+        .catch((err) => {
+          console.error("載入錯誤", err);
+          document.getElementById(
+            "activityList"
+          ).innerHTML = `<div class="error-message">無法載入活動資料，請稍後再試。</div>`;
+        });
 
-
-      document.getElementById("searchBtn").addEventListener("click", filterActivities);
-  </script>
-</body>
+      document
+        .getElementById("searchBtn")
+        .addEventListener("click", filterActivities);
+    </script>
+  </body>
 </html>

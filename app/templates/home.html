@@ -1,14 +1,31 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
   <head>
+    <link rel="manifest" href="/static/manifest.json" />
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          .register("/static/service-worker.js")
+          .then(() => console.log("Service Worker Registered"))
+          .catch((error) =>
+            console.error("Service Worker Registration Failed:", error)
+          );
+      }
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>首頁｜運動夥伴平台</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
     <style>
       body {
-        font-family: 'Arial', sans-serif;
+        font-family: "Arial", sans-serif;
         background-color: #fdf9ed;
         color: #2c4975;
         padding: 20px;
@@ -108,7 +125,9 @@
           padding: 10px;
           font-size: 15px;
         }
-        h1, h2, h3 {
+        h1,
+        h2,
+        h3 {
           font-size: 17px !important;
         }
         .news-card {
@@ -135,17 +154,15 @@
             onerror="this.src='{{ url_for('static', filename='avatars/default.jpg') }}';"
           />
         </a>
-        
       </nav>
     </header>
 
-    <a href="/activity?member_id={{ member_id }}" style="text-decoration: none;">
+    <a href="/activity?member_id={{ member_id }}" style="text-decoration: none">
       <div class="hero">
         <h2>找到屬於你的運動夥伴</h2>
         <p>根據興趣、時間、地點智能媒合，一起動起來！</p>
       </div>
     </a>
-    
 
     <section class="map-section">
       <h3><i class="fas fa-map-marked-alt"></i> 附近熱門運動場地</h3>
@@ -156,38 +173,35 @@
     </section>
 
     <section class="news-section">
-  <div id="news-container">
-    <p>載入中...</p>
-  </div>
+      <div id="news-container">
+        <p>載入中...</p>
+      </div>
     </section>
 
     <script>
-  fetch("/api/yahoo-sports-news")
-    .then(res => res.json())
-    .then(data => {
-      const container = document.getElementById("news-container");
-      container.innerHTML = ""; // 清掉「載入中...」
+      fetch("/api/yahoo-sports-news")
+        .then((res) => res.json())
+        .then((data) => {
+          const container = document.getElementById("news-container");
+          container.innerHTML = ""; // 清掉「載入中...」
 
-      data.forEach(article => {
-        const card = document.createElement("div");
-        card.className = "news-card";
-        card.innerHTML = `
+          data.forEach((article) => {
+            const card = document.createElement("div");
+            card.className = "news-card";
+            card.innerHTML = `
           <h5><a href="${article.url}" target="_blank">${article.title}</a></h5>
           <p>${article.summary}</p>
         `;
-        container.appendChild(card);
-      });
-    })
-    .catch(err => {
-      // ❌ 不覆蓋畫面、不影響靜態內容
-      console.warn("載入動態新聞失敗：", err);
-      const container = document.getElementById("news-container");
-      container.innerHTML = "";
-    });
-</script>
-
-    
-
+            container.appendChild(card);
+          });
+        })
+        .catch((err) => {
+          // ❌ 不覆蓋畫面、不影響靜態內容
+          console.warn("載入動態新聞失敗：", err);
+          const container = document.getElementById("news-container");
+          container.innerHTML = "";
+        });
+    </script>
 
     <script>
       function initMap() {
@@ -203,7 +217,7 @@
           { lat: 25.0375, lng: 121.5637, title: "台北市政府前廣場" },
         ];
 
-        locations.forEach(loc => {
+        locations.forEach((loc) => {
           new google.maps.Marker({
             position: { lat: loc.lat, lng: loc.lng },
             map: map,
@@ -212,8 +226,10 @@
         });
       }
     </script>
-    <script async defer
-      src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap">
-    </script>
+    <script
+      async
+      defer
+      src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap"
+    ></script>
   </body>
 </html>

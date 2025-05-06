@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
   <head>
+    <link rel="manifest" href="/static/manifest.json" />
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          .register("/static/service-worker.js")
+          .then(() => console.log("Service Worker Registered"))
+          .catch((error) =>
+            console.error("Service Worker Registration Failed:", error)
+          );
+      }
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>會員登入</title>
@@ -248,11 +259,11 @@
 
           // 根據後端回傳的狀態導向不同頁面
           if (result.is_first_login) {
-         window.location.href = `/profiles?member_id=${result.member_id}`;
+            window.location.href = `/profiles?member_id=${result.member_id}`;
           } else if (result.is_unfinish_preference) {
             window.location.href = `/preference?member_id=${result.member_id}`;
           } else {
-           window.location.href = `/home?member_id=${result.member_id}`;
+            window.location.href = `/home?member_id=${result.member_id}`;
           }
         } catch (err) {
           alert(err.message);

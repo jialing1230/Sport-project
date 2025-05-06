@@ -753,7 +753,11 @@
       }
 
       function goToCreate() {
-        window.location.href = "/create_activity";
+        if (!memberId) {
+          alert("無效的會員資訊！");
+          return;
+        }
+        window.location.href = `/create_activity?member_id=${memberId}`;
       }
 
       function goToPage(path) {
@@ -1267,3 +1271,4 @@
     </script>
   </body>
 </html>
+

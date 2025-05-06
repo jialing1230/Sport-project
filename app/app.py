@@ -60,9 +60,14 @@ def create_app():
         # 將 member_id 注入模板
         return render_template("preference.html", member_id=member_id)
 
-    @app.route("/create_activity", endpoint="create_activity_html")
+    @app.route("/create_activity")
     def create_activity_page():
-        return render_template("create_activity.html")
+        member_id = request.args.get("member_id")
+        if not member_id:
+            # 如果缺少 member_id，導回登入頁面
+            return redirect(url_for("login_html"))
+        # 將 member_id 注入模板
+        return render_template("create_activity.html", member_id=member_id)
 
     @app.route("/activity")
     def activity_page():
@@ -72,16 +77,6 @@ def create_app():
             return redirect(url_for("login_html"))
         # 將 member_id 注入模板
         return render_template("activity.html", member_id=member_id)
-
-    @app.route("/home")
-    def system_home_page():
-        # 從查詢參數取得 member_id
-        member_id = request.args.get("member_id")
-        if not member_id:
-            # 如果缺少 member_id，導回登入頁面
-            return redirect(url_for("login_html"))
-        # 將 member_id 注入模板
-        return render_template("home.html", member_id=member_id)
 
     @app.route("/profile_view")
     def profile_view():

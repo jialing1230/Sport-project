@@ -753,19 +753,23 @@
       }
 
       function goToCreate() {
-        window.location.href = "/create_activity";
-      }
-
-      function goToPage(path) {
-        window.location.href = path;
-      }
-
-      function goToProfile() {
         if (!memberId) {
           alert("無效的會員資訊！");
           return;
         }
-        window.location.href = `/profile_view?member_id=${memberId}`;
+        window.location.href = `/create_activity?member_id=${memberId}`;
+      }
+
+      function goToPage(path) {
+        window.location.href = `/home?member_id={{ member_id }}`;
+      }
+
+      function goToActivity() {
+        window.location.href = "/activity?member_id={{ member_id }}";
+      }
+
+      function goToProfile() {
+        window.location.href = `/profile_view?member_id={{ member_id }}`;
       }
 
       async function openModal(activityId) {
@@ -1267,3 +1271,4 @@
     </script>
   </body>
 </html>
+

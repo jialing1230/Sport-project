@@ -68,10 +68,11 @@ def upgrade() -> None:
     sa.Column('status', sa.String(length=50), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('has_review', sa.Boolean(), nullable=True),
-    sa.Column('identity', sa.String(length=50), nullable=True),
     sa.Column('target_identity', sa.String(length=50), nullable=True),
     sa.Column('gender', sa.String(length=10), nullable=True),
     sa.Column('age_range', sa.String(length=20), nullable=True),
+    sa.Column('venue_fee', sa.DECIMAL(10, 2), nullable=True),
+    sa.Column('registration_deadline', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['organizer_id'], ['members.member_id']),
     sa.ForeignKeyConstraint(['sport_type_id'], ['sport_types.sport_type_id']),
     sa.PrimaryKeyConstraint('activity_id')

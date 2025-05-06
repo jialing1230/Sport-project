@@ -5,7 +5,7 @@ from app.models.activity import Activity
 from app.models.sport_type import SportType
 from app.models.activity_join import ActivityJoin 
 from flask import render_template
-import os
+
 
 activity_bp = Blueprint("activity", __name__, url_prefix="/api/activities")
 
@@ -16,18 +16,25 @@ def create_activity():
     with get_db() as db:
         act = Activity(
             title=payload["title"],
-            time=datetime.fromisoformat(payload["time"]),
+            start_time=datetime.fromisoformat(payload["start_time"]),
+            end_time=datetime.fromisoformat(payload["end_time"]),
             location_name=payload.get("location_name"),
             location_lat=payload.get("location_lat"),
             location_lng=payload.get("location_lng"),
             max_participants=payload.get("max_participants"),
+            current_participants=1,
             organizer_id=payload["organizer_id"],
             level=payload.get("level"),
             sport_type_id=payload["sport_type_id"],
             description=payload.get("description"),
             status=payload.get("status", "open"),
-            created_at=datetime.utcnow(),
-            has_review=payload.get("has_review", False),
+            created_at=datetime.now(),
+            has_review=False,
+            target_identity=payload.get("target_identity", "不限"),
+            gender=payload.get("gender", "不限"),
+            age_range=payload.get("age_range", "不限"),
+            venue_fee=payload.get("venue_fee"),
+            registration_deadline=datetime.fromisoformat(payload["registration_deadline"]),
         )
         db.add(act)
         db.commit()
@@ -95,10 +102,22 @@ def get_activity_details():
             "start_time": activity.start_time.isoformat() if activity.start_time else None,
             "end_time": activity.end_time.isoformat() if activity.end_time else None,
             "location_name": activity.location_name,
-            "current_participants": activity.current_participants,  # 假設有這個欄位
+            "location_lat": activity.location_lat,
+            "location_lng": activity.location_lng,
             "max_participants": activity.max_participants,
-            "status": activity.status,  # 直接使用資料庫中的狀態
+            "current_participants": activity.current_participants,
+            "organizer_id": activity.organizer_id,
             "level": activity.level,
+            "sport_type_id": activity.sport_type_id,
+            "description": activity.description,
+            "status": activity.status,
+            "created_at": activity.created_at.isoformat() if activity.created_at else None,
+            "has_review": activity.has_review,
+            "target_identity": activity.target_identity,
+            "gender": activity.gender,
+            "age_range": activity.age_range,
+            "venue_fee": float(activity.venue_fee) if activity.venue_fee else None,
+            "registration_deadline": activity.registration_deadline.isoformat() if activity.registration_deadline else None,
         }), 200
     
 

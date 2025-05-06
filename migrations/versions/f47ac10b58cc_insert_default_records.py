@@ -128,10 +128,11 @@ def upgrade() -> None:
             status="open",
             created_at=now,
             has_review=False,
-            identity="學徒" if i % 2 == 0 else "教練", 
             target_identity="不限",
             gender="不限",
-            age_range="18-25"
+            age_range="18-25",
+            venue_fee=800.00,  
+            registration_deadline=activity_start - timedelta(days=1), 
         )
         activities.append(a)
     session.add_all(activities)
@@ -224,6 +225,18 @@ def upgrade() -> None:
                 status="joined",
             )
         )
+
+    for i in range(6, 11):
+        joins.append(
+            ActivityJoin(
+                join_id=i,
+                member_id=members[(i + 2) % 5].member_id,
+                activity_id=activities[(i - 6) % 5].activity_id,
+                join_time=now,
+                status="pending",
+            )
+        )
+        
     session.add_all(joins)
 
     act_revs = []

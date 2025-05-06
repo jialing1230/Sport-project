@@ -131,40 +131,11 @@
   <body>
     <div class="container">
       <div class="title-row">
-        <img src="logo.jpg" alt="Logo" class="logo-inline" />
+        <img src="/static/logo.jpg" alt="Logo" class="logo-inline" />
         <h1>發起活動</h1>
       </div>
       <form id="preferenceForm">
-        <!-- 身分選擇放最前面 -->
-        <div class="form-row">
-          <label class="form-label">今天想以什麼身分發起活動？</label>
-          <div class="radio-card-group">
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="identity"
-                value="教練"
-                required
-              />教練</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="identity"
-                value="學徒"
-                required
-              />學徒</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="identity"
-                value="不限"
-                required
-              />不限</label
-            >
-          </div>
-        </div>
+       
         <div class="form-row">
           <label class="form-label">活動名稱</label>
           <input
@@ -176,103 +147,8 @@
         </div>
         <div class="form-row">
           <label class="form-label">類型</label>
-          <div class="radio-card-group">
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="sport"
-                value="跑步"
-                required
-              />跑步</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="sport"
-                value="羽球"
-                required
-              />羽球</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="sport"
-                value="瑜珈"
-                required
-              />瑜珈</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="sport"
-                value="健身"
-                required
-              />健身</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="sport"
-                value="騎單車"
-                required
-              />騎單車</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="sport"
-                value="籃球"
-                required
-              />籃球</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="sport"
-                value="游泳"
-                required
-              />游泳</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="sport"
-                value="排球"
-                required
-              />排球</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="sport"
-                value="網球"
-                required
-              />網球</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="sport"
-                value="棒球"
-                required
-              />棒球</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="sport"
-                value="足球"
-                required
-              />足球</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="sport"
-                value="其他"
-                required
-              />其他</label
-            >
+          <div class="radio-card-group" id="sport-options">
+            <!-- 選項將由 JavaScript 動態生成 -->
           </div>
           <div class="form-row" id="other-sport-row">
             <input
@@ -307,6 +183,25 @@
             placeholder="請輸入正確人數"
             required
             min="1"
+          />
+        </div>
+        <div class="form-row">
+          <label class="form-label">場地費 (NTD)</label>
+          <input
+            type="number"
+            name="venue_fee"
+            placeholder="請輸入場地費用"
+            step="0.01"
+            min="0"
+            required
+          />
+        </div>
+        <div class="form-row">
+          <label class="form-label">報名截止日期</label>
+          <input
+            type="datetime-local"
+            name="registration_deadline"
+            required
           />
         </div>
         <div class="form-row">
@@ -450,96 +345,71 @@
         });
       });
 
-      document
-        .getElementById("preferenceForm")
-        .addEventListener("submit", function (e) {
-          e.preventDefault();
+      fetch('/api/preferences/options')
+        .then(response => response.json())
+        .then(data => {
+          const sportOptionsContainer = document.getElementById('sport-options');
+          data.sport_types.forEach(sport => {
+            const label = document.createElement('label');
+            label.className = 'radio-card';
+            label.innerHTML = `
+              <input type="radio" name="sport" value="${sport.sport_type_id}" required />
+              ${sport.name}
+            `;
+            sportOptionsContainer.appendChild(label);
+          });
+        })
+        .catch(error => console.error('Error fetching sport types:', error));
 
-          let selectedSport = document.querySelector(
-            'input[name="sport"]:checked'
-          )?.value;
-          if (selectedSport === "其他") {
-            selectedSport = otherSportInput.value.trim();
-            if (!selectedSport) return alert("請輸入其他類型！");
-          }
+      const urlParams = new URLSearchParams(window.location.search);
+      const memberId = urlParams.get("member_id");
 
-          const title = document.querySelector('input[name="title"]').value;
-          const startTime = document.querySelector(
-            'input[name="startTime"]'
-          ).value;
-          const endTime = document.querySelector('input[name="endTime"]').value;
-          const location = document.querySelector(
-            'input[name="location"]'
-          ).value;
-          const numPeople = document.querySelector(
-            'input[name="numPeople"]'
-          ).value;
-          const myIdentity = document.querySelector(
-            'input[name="identity"]:checked'
-          )?.value;
-          const gender = document.querySelector(
-            'input[name="gender"]:checked'
-          )?.value;
-          const level = document.querySelector(
-            'input[name="level"]:checked'
-          )?.value;
-          const description = document.querySelector(
-            'textarea[name="description"]'
-          ).value;
-          const ageRange = document.querySelector(
-            'input[name="ageRange"]:checked'
-          )?.value;
+      document.getElementById("preferenceForm").addEventListener("submit", function (e) {
+        e.preventDefault();
 
-          const startDate = new Date(startTime);
-          const endDate = new Date(endTime);
-          if (startDate >= endDate) return alert("結束時間必須晚於開始時間！");
+        if (!confirm("確定要發起活動嗎？")) {
+          return;
+        }
 
-          let targetIdentity = "不限";
-          if (myIdentity === "教練") targetIdentity = "學徒";
-          else if (myIdentity === "學徒") targetIdentity = "教練";
+        const formData = new FormData(this);
+        const data = {
+          title: formData.get("title"),
+          start_time: formData.get("startTime"),
+          end_time: formData.get("endTime"),
+          location_name: formData.get("location"),
+          location_lat: 25.033,
+          location_lng: 121.565,
+          max_participants: parseInt(formData.get("numPeople")),
+          venue_fee: parseFloat(formData.get("venue_fee")),
+          registration_deadline: formData.get("registration_deadline"),
+          organizer_id: memberId, // 使用網址中的 member_id
+          level: formData.get("level"),
+          sport_type_id: parseInt(formData.get("sport")),
+          description: formData.get("description"),
+          status: "open",
+          target_identity: "不限",
+          gender: formData.get("gender"),
+          age_range: formData.get("ageRange"),
+        };
 
-          const data = {
-            title,
-            start_time: startTime,
-            end_time: endTime,
-            location_name: location,
-            location_lat: 25.033,
-            location_lng: 121.565,
-            max_participants: parseInt(numPeople),
-            organizer_id: "test-123",
-            level,
-            sport_type_id: sportNameToId(selectedSport),
-            description,
-            status: "open",
-            identity: myIdentity,
-            target_identity: targetIdentity,
-            gender,
-            age_range: ageRange,
-          };
-
-          console.log("送出的資料：", data);
-          submitBtn.disabled = true;
-          submitBtn.textContent = "發起中...";
-
-          fetch("http://localhost:5002/api/activities", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
+        fetch("/api/activities", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        })
+          .then((res) => {
+            if (res.ok) {
+              alert("活動發起成功！");
+              window.location.href = `/activity?member_id=${memberId}`;
+            } else {
+              alert("活動發起失敗，請稍後再試！");
+            }
           })
-            .then((res) =>
-              res.ok
-                ? (window.location.href = "/home")
-                : alert("發起活動失敗！")
-            )
-            .catch((err) => {
-              console.error("錯誤:", err);
-              alert("發起活動時出錯！");
-            })
-            .finally(() => {
-              submitBtn.disabled = false;
-              submitBtn.textContent = "發起活動";
-            });
-        });
+          .catch((err) => {
+            console.error("錯誤:", err);
+            alert("發起活動時出錯！");
+          });
+      });
 
       function sportNameToId(sport) {
         const mapping = {

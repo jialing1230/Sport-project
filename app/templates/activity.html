@@ -23,6 +23,7 @@
         --beige-color: #fdf9ed;
         --bg-color: #f5f5f5;
         --tab-bg: #ffffff;
+        --word-color: black;
       }
 
       body {
@@ -178,6 +179,16 @@
         position: relative;
       }
 
+      .label {
+        color: var(--text-color);
+        font-weight: bold;
+      }
+
+      .value {
+        color: var(--word-color); /* 黑色 */
+        font-weight: normal;
+      }
+
       .activity-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
@@ -285,26 +296,28 @@
 
       .close {
         position: absolute;
-        top: -15px; /* 將按鈕移到卡片外 */
-        right: -30px; /* 將按鈕移到卡片外 */
-        font-size: 32px; /* 放大按鈕 */
+        top: -15px;
+        right: -30px;
+        font-size: 32px;
         cursor: pointer;
-        background-color: #fff; /* 添加背景色，讓按鈕更明顯 */
-        border: 2px solid var(--primary-color); /* 添加邊框 */
-        border-radius: 50%; /* 圓形按鈕 */
-        width: 40px; /* 設定寬度 */
-        height: 40px; /* 設定高度 */
+        background-color: #fff;
+        border: 2px solid var(--primary-color);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
         display: flex;
         justify-content: center;
         align-items: center;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 添加陰影 */
-        transition: transform 0.2s ease, background-color 0.2s ease; /* 添加過渡效果 */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        transition: transform 0.2s ease, background-color 0.2s ease;
+        z-index: 100;
       }
 
       .close:hover {
-        transform: scale(1.2); /* 滑鼠懸停時放大 */
-        background-color: var(--primary-color); /* 改變背景色 */
-        color: #fff; /* 改變文字顏色 */
+        transform: scale(1.2);
+        background-color: #ff6b6b;
+        border-color: #ff6b6b !important;
+        color: #fff;
       }
 
       .close-button {
@@ -482,8 +495,8 @@
       }
 
       .status-text {
-        font-weight: bold;
-        color: #2c4975; /* 深藍色，與主題一致 */
+        font-weight: normal;
+        color: black; /* 深藍色，與主題一致 */
         margin-right: 10px; /* 與按鈕保持間距 */
       }
 
@@ -613,7 +626,6 @@
     <div id="tabContents">
       <div class="tab-content" id="content-0">
         <div id="my-activities">載入中...</div>
-        
       </div>
       <div class="tab-content" id="content-1" style="display: none">
         尚未參加任何活動
@@ -640,22 +652,25 @@
         <div class="scrollable-content">
           <div class="modal-tab-content" id="modal-tab-0">
             <h2 id="modal-title">活動標題</h2>
-            <p>
-              <strong>類型：</strong><span id="modal-sport-name"></span>/<span
-                id="modal-level"
-              ></span>
+            <p><span class="label">類型：</span><span id="modal-sport-name" class="value"></span>/</span><span
+                id="modal-level" class="value"></span>
             </p>
             <p>
-              <strong>開始時間：</strong><span id="modal-start-time"></span>
+              <span class="label">開始時間：</span><span id="modal-start-time" class="value"></span>
             </p>
-            <p><strong>結束時間：</strong><span id="modal-end-time"></span></p>
-            <p><strong>地點：</strong><span id="modal-location"></span></p>
-            <p><strong>狀態：</strong><span id="modal-status"></span></p>
             <p>
-              <strong>參加人數：</strong
-              ><span id="modal-participants"></span>/<span
-                id="modal-max-participants"
-              ></span>
+              <span class="label">結束時間：</span><span id="modal-end-time" class="value"></span>
+            </p>
+            <p>
+              <span class="label">地點：</span><span id="modal-location"class="value"></span>
+            </p>
+            <p>
+              <span class="label">狀態：</span><span id="modal-status"class="value"></span>
+            </p>
+            <p>
+              <span class="label">參加人數：</span><span id="modal-participants"class="value"></span>/
+              <span class="label"></span><span
+                id="modal-max-participants" class="value"></span>
             </p>
             <progress
               id="progress"
@@ -702,7 +717,6 @@
     </div>
 
     <!-- 新增活動卡片樣式的按鈕 -->
-    
 
     <div class="bottom-bar">
       <button class="bottom-bar-button" onclick="goToActivity()">
@@ -1071,18 +1085,18 @@
             card.className = "activity-card";
             card.innerHTML = `
           <h3>${activity.title}</h3>
-          <p><strong>類型：</strong>${activity.sport_name}</p>
-          <p><strong>開始：</strong>${
+          <p><span class="label">類型：</span><span class="value">${activity.sport_name}</p>
+          <p><span class="label">開始：</span><span class="value">${
             activity.start_time
               ? new Date(activity.start_time).toLocaleString()
               : "未設定"
           }</p>
-          <p><strong>結束：</strong>${
+          <p><span class="label">結束：</span><span class="value">${
             activity.end_time
               ? new Date(activity.end_time).toLocaleString()
               : "未設定"
           }</p>
-          <p><strong>地點：</strong>${activity.location_name}</p>
+          <p><span class="label">地點：</span><span class="value">${activity.location_name}</p>
           
         `;
             card.addEventListener("click", () =>
@@ -1122,12 +1136,12 @@
           const cardContainer = document.createElement("div");
           cardContainer.className = "activity-card-container";
           const addActivityCard = document.createElement("div");
-    addActivityCard.className = "activity-card add-activity-card";
-    addActivityCard.onclick = goToCreate;
-    addActivityCard.innerHTML = `
+          addActivityCard.className = "activity-card add-activity-card";
+          addActivityCard.onclick = goToCreate;
+          addActivityCard.innerHTML = `
       <h3 style="text-align: center; font-size: 48px; color: var(--primary-color);">＋</h3>
     `;
-    cardContainer.appendChild(addActivityCard);
+          cardContainer.appendChild(addActivityCard);
 
           data.forEach((activity) => {
             const card = document.createElement("div");
@@ -1152,21 +1166,19 @@
             }
           </div>
           <h3>${activity.title}</h3>
-          <p><strong>類型：</strong>${activity.sport_name}</p>
-          <p><strong>開始：</strong>${
+          <p><span class="label">類型：</span><span class="value">${activity.sport_name}</p>
+          <p><span class="label">開始：</span><span class="value">${
             activity.start_time
               ? new Date(activity.start_time).toLocaleString()
               : "未設定"
           }</p>
-          <p><strong>結束：</strong>${
+          <p><span class="label">結束：</span><span class="value">${
             activity.end_time
               ? new Date(activity.end_time).toLocaleString()
               : "未設定"
           }</p>
-          <p><strong>地點：</strong>${activity.location_name}</p>
-          <p><strong>目前狀態：</strong>
-         ${
-           activity.status === "close"
+          <p><span class="label">地點：</span><span class="value">${activity.location_name}</p>
+          <p><span class="label">目前狀態：</span><span class="value">${activity.status === "close"
              ? `
           <span class="status-text">已結束</span>
           <button class="evaluate-button" onclick="openEvaluateModal(${activity.activity_id})">

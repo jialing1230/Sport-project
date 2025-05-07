@@ -613,6 +613,7 @@
     <div id="tabContents">
       <div class="tab-content" id="content-0">
         <div id="my-activities">載入中...</div>
+        
       </div>
       <div class="tab-content" id="content-1" style="display: none">
         尚未參加任何活動
@@ -700,8 +701,8 @@
       </div>
     </div>
 
-    <!-- FAB按鈕 -->
-    <button class="fab" id="fabButton" onclick="goToCreate()">＋</button>
+    <!-- 新增活動卡片樣式的按鈕 -->
+    
 
     <div class="bottom-bar">
       <button class="bottom-bar-button" onclick="goToActivity()">
@@ -730,7 +731,6 @@
         const tabs = document.querySelectorAll(".tab");
         const contents = document.querySelectorAll(".tab-content");
         const indicator = document.getElementById("indicator");
-        const fab = document.getElementById("fabButton");
 
         tabs.forEach((tab, i) => {
           tab.classList.toggle("active", i === index);
@@ -743,13 +743,6 @@
         const tabWidth = tabs[0].offsetWidth;
         indicator.style.width = tabWidth + "px";
         indicator.style.left = tabWidth * index + "px";
-
-        // FAB顯示與隱藏：只有發起活動時顯示
-        if (index === 0) {
-          fab.classList.remove("hidden");
-        } else {
-          fab.classList.add("hidden");
-        }
       }
 
       function goToCreate() {
@@ -1063,6 +1056,16 @@
           const cardContainer = document.createElement("div");
           cardContainer.className = "activity-card-container";
 
+          const addActivityCard = document.createElement("div");
+          addActivityCard.className = "activity-card add-activity-card";
+          addActivityCard.onclick = goToCreate;
+          addActivityCard.style.border = "2px dashed var(--primary-color)";
+          addActivityCard.style.backgroundColor = "transparent";
+          addActivityCard.innerHTML = `
+            <h3 style="text-align: center; font-size: 48px; color: var(--primary-color);">＋</h3>
+          `;
+          cardContainer.insertBefore(addActivityCard, cardContainer.firstChild);
+
           data.forEach((activity) => {
             const card = document.createElement("div");
             card.className = "activity-card";
@@ -1118,6 +1121,13 @@
 
           const cardContainer = document.createElement("div");
           cardContainer.className = "activity-card-container";
+          const addActivityCard = document.createElement("div");
+    addActivityCard.className = "activity-card add-activity-card";
+    addActivityCard.onclick = goToCreate;
+    addActivityCard.innerHTML = `
+      <h3 style="text-align: center; font-size: 48px; color: var(--primary-color);">＋</h3>
+    `;
+    cardContainer.appendChild(addActivityCard);
 
           data.forEach((activity) => {
             const card = document.createElement("div");
@@ -1271,4 +1281,3 @@
     </script>
   </body>
 </html>
-

@@ -148,44 +148,79 @@
         width: 100%;
         height: 100%;
       }
-
-      .bottom-bar {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
+      .bottom-nav {
         display: flex;
         justify-content: space-around;
+        align-items: center;
+        height: 60px;
         background-color: #fff;
-        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-        padding: 10px 0;
-        height: 40px;
+        border-top: 1px solid #ccc;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
       }
 
-      .bottom-bar-button {
-        background: none;
-        border: none;
-        padding: 5px 0;
-        cursor: pointer;
+      .bottom-item {
+        flex: 1;
+        height: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        text-decoration: none;
         transition: transform 0.2s ease;
+        z-index: 1;
+        border: none;         /* ✅ 移除邊框 */
+        outline: none;        /* ✅ 移除點擊時的外框 */
+        background-color: #ffffff;
       }
 
-      .bottom-bar-button:hover {
-        transform: scale(1.2);
+      .bottom-item svg {
+        fill: #2c4975;
+        transition: fill 0.3s ease, transform 0.3s ease;
+        width: 26px;
+        height: 28px;
+        position: relative;
       }
 
-      .bottom-bar-icon {
-        width: 24px;
-        height: 24px;
-        margin-bottom: 4px;
+      .bottom-item.active svg {
+        fill: #64bcd0;
+        transform: translateY(0px);
       }
 
-      .bottom-bar-label {
+      .item-label {
         font-size: 12px;
-        color: var(--deep-blue);
+        color: #2c4975;
+        height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition: all 0.3s ease;
+      }
+
+      .bottom-item.active .item-label {
+        height: 16px;
+        opacity: 1;
+        margin-top: 0px;
+        color: #64bcd0;
+      }
+
+      .ripple {
+        position: absolute;
+        border-radius: 50%;
+        background-color: rgba(129, 211, 225, 0.35);
+        transform: scale(0);
+        animation: ripple-animation 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      @keyframes ripple-animation {
+        to {
+          transform: scale(2.5);
+          opacity: 0;
+        }
       }
     </style>
   </head>
@@ -222,18 +257,18 @@
       <div class="map-area" id="map"></div>
     </div>
 
-    <div class="bottom-bar">
-      <button class="bottom-bar-button" onclick="goToActivity()">
-        <img src="/static/icons/clipboard.png" alt="活動" class="bottom-bar-icon" />
-        <div class="bottom-bar-label">活動</div>
+    <div class="bottom-nav">
+      <button class="bottom-item">
+        <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" fill="#000000" viewBox="0 0 256 256"><path d="M208,28H188V24a12,12,0,0,0-24,0v4H92V24a12,12,0,0,0-24,0v4H48A20,20,0,0,0,28,48V208a20,20,0,0,0,20,20H208a20,20,0,0,0,20-20V48A20,20,0,0,0,208,28ZM68,52a12,12,0,0,0,24,0h72a12,12,0,0,0,24,0h16V76H52V52ZM52,204V100H204V204Zm92-76a16,16,0,1,1-16-16A16,16,0,0,1,144,128Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,192,128ZM96,176a16,16,0,1,1-16-16A16,16,0,0,1,96,176Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,144,176Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,192,176Z"></path></svg>
+        <div class="item-label">活動</div>
       </button>
-      <button class="bottom-bar-button" onclick="goToPage()">
-        <img src="/static/icons/map.png" alt="地圖" class="bottom-bar-icon" />
-        <div class="bottom-bar-label">地圖</div>
+      <button class="bottom-item active">
+        <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" fill="#000000" viewBox="0 0 256 256"><path d="M108,80a20,20,0,1,1,20,20A20,20,0,0,1,108,80ZM60,80a68,68,0,0,1,136,0c0,62.25-59.51,97-62.05,98.42a12,12,0,0,1-11.9,0C119.51,177,60,142.25,60,80Zm24,0c0,38.2,30.71,64.2,44,73.64C141.21,144.15,172,118,172,80a44,44,0,0,0-88,0Zm124.57,65.6a12,12,0,1,0-9.14,22.19C213.56,173.61,220,180.27,220,184c0,4-7.13,11.07-22.77,17.08-18.3,7-42.89,10.92-69.23,10.92s-50.93-3.88-69.23-10.92C43.12,195.07,36,188,36,184c0-3.73,6.44-10.39,20.57-16.21a12,12,0,1,0-9.14-22.19C31.27,152.25,12,164.31,12,184c0,34.14,58.36,52,116,52,29.22,0,56.86-4.44,77.85-12.52C220.1,218,244,205.59,244,184,244,164.31,224.73,152.25,208.57,145.6Z"></path></svg>
+        <div class="item-label">地圖</div>
       </button>
-      <button class="bottom-bar-button" onclick="goToProfile()">
-        <img src="/static/icons/user.png" alt="個人" class="bottom-bar-icon" />
-        <div class="bottom-bar-label">個人</div>
+      <button class="bottom-item">
+        <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" fill="#000000" viewBox="0 0 256 256"><path d="M234.38,210a123.36,123.36,0,0,0-60.78-53.23,76,76,0,1,0-91.2,0A123.36,123.36,0,0,0,21.62,210a12,12,0,1,0,20.77,12c18.12-31.32,50.12-50,85.61-50s67.49,18.69,85.61,50a12,12,0,0,0,20.77-12ZM76,96a52,52,0,1,1,52,52A52.06,52.06,0,0,1,76,96Z"></path></svg>
+        <div class="item-label">個人</div>
       </button>
     </div>
 
@@ -281,5 +316,43 @@
         window.location.href = `/profile_view?member_id=${memberId}`;
       }
     </script>
+    <script>
+      document.querySelectorAll(".bottom-item").forEach((item) => {
+      item.addEventListener("click", function (e) {
+        e.preventDefault(); // ✅ 阻止立即跳頁
+
+        // 移除舊 ripple（確保只有一個）
+        const oldRipple = this.querySelector(".ripple");
+        if (oldRipple) oldRipple.remove();
+
+        // 建立新 ripple
+        const ripple = document.createElement("span");
+        ripple.classList.add("ripple");
+
+        const rect = this.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        ripple.style.width = ripple.style.height = `${size * 2}px`;
+        ripple.style.left = `${e.clientX - rect.left - size}px`;
+        ripple.style.top = `${e.clientY - rect.top - size}px`;
+
+        this.appendChild(ripple);
+
+        // 切換 active 樣式
+        document.querySelectorAll(".bottom-item").forEach((i) =>
+          i.classList.remove("active")
+        );
+        this.classList.add("active");
+
+        // ✅ 延遲導頁：依照順序呼叫對應函式
+        const index = [...document.querySelectorAll(".bottom-item")].indexOf(this);
+        setTimeout(() => {
+          if (index === 0) goToActivity();
+          else if (index === 1) goToPage();
+          else if (index === 2) goToProfile();
+        }, 300); // 動畫時間配合 CSS 中的 animation 時長
+      });
+    });
+
+    </script>    
   </body>
 </html>

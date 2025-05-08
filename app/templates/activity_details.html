@@ -37,14 +37,6 @@
         color: #2c4975;
       }
 
-      h2 {
-        text-align: center;
-        margin-top: 10px;
-        margin-bottom: 10px;
-        font-size: 24px;
-        color: #2c4975;
-      }
-
       .info-box {
         background: #fff;
         padding: 15px;
@@ -130,49 +122,39 @@
     <script>
       const urlParams = new URLSearchParams(window.location.search);
       const activityId = urlParams.get("id");
+      const memberId = urlParams.get("member_id");
 
       if (!activityId) {
-        document.querySelector(
-          ".container"
-        ).innerHTML = `<p style="color:red;">找不到活動 ID！</p>`;
+        document.querySelector(".container").innerHTML =
+          `<p style="color:red;">找不到活動 ID！</p>`;
         throw new Error("No activity ID found in URL");
       }
 
       fetch(`/api/activities/details?activity_id=${activityId}`)
         .then((response) => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
           return response.json();
         })
         .then((data) => {
-          if (data.error) {
-            throw new Error(data.error);
-          }
+          if (data.error) throw new Error(data.error);
+
           const isFull = data.current_participants >= data.max_participants;
+
           document.getElementById("activity-title").innerText = data.title;
           document.getElementById("activity-info").innerHTML = `
-          <p><strong>類型：</strong><span>${data.sport_name} / ${
-            data.level
-          }</span></p>
-          <p><strong>開始時間：</strong><span>${data.start_time}</span></p>
-          <p><strong>結束時間：</strong><span>${data.end_time}</span></p>
-          <p><strong>地點：</strong><span>${data.location_name}</span></p>
-          <p><strong>目前報名人數：</strong><span>${
-            data.current_participants
-          } / ${data.max_participants} 人</span></p>
-          ${
-            isFull
-              ? `<p style='color: red; font-weight: bold;'>報名人數已額滿囉！</p>`
-              : ""
-          }
-        `;
+            <p><strong>類型：</strong><span>${data.sport_name} / ${data.level}</span></p>
+            <p><strong>開始時間：</strong><span>${new Date(data.start_time).toLocaleString()}</span></p>
+            <p><strong>結束時間：</strong><span>${new Date(data.end_time).toLocaleString()}</span></p>
+            <p><strong>地點：</strong><span>${data.location_name}</span></p>
+            <p><strong>目前報名人數：</strong><span>${data.current_participants} / ${data.max_participants} 人</span></p>
+            ${isFull ? `<p style='color: red; font-weight: bold;'>報名人數已額滿囉！</p>` : ""}
+          `;
 
           if (data.description && data.description.trim() !== "") {
             document.getElementById("description").innerHTML = `
-            <h3>活動介紹</h3>
-            <p>${data.description}</p>
-          `;
+              <h3>活動介紹</h3>
+              <p>${data.description}</p>
+            `;
           } else {
             document.getElementById("description").style.display = "none";
           }
@@ -189,22 +171,57 @@
             viewOthersBtn.style.display = "none";
             buttonGroup.style.justifyContent = "center";
           }
+
+          // 🔁 查看其他活動
+          viewOthersBtn.onclick = () => {
+            const url = memberId
+              ? `/api/activities/overview?member_id=${memberId}`
+              : `/api/activities/overview`;
+            window.location.href = url;
+          };
+
+          // ✅ 我要參加功能：POST 加入活動
+          joinBtn.onclick = () => {
+            if (!memberId) {
+              alert("請先登入或提供 member_id 才能參加活動！");
+              return;
+            }
+
+            fetch("/api/activities/join", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                member_id: memberId,
+                activity_id: activityId,
+              }),
+            })
+              .then((res) => res.json())
+              .then((result) => {
+                if (result.error) {
+                  alert(`⚠️ ${result.error}`);
+                } else {
+                  alert("✅ 已送出參加申請！");
+                  location.reload();
+                }
+              })
+              .catch((err) => {
+                console.error("參加活動失敗", err);
+                alert("參加活動時發生錯誤，請稍後再試！");
+              });
+          };
         })
         .catch((error) => {
           console.error("載入活動資料失敗", error);
           document.querySelector(".container").innerHTML = `
-          <div style="text-align:center; color: red; font-weight: bold; font-size: 20px;">
-            無法載入活動資料，請稍後再試。
-          </div>
-        `;
+            <div style="text-align:center; color: red; font-weight: bold; font-size: 20px;">
+              無法載入活動資料，請稍後再試。
+            </div>`;
         });
 
-      // 額外呼叫參與者 API
+      // 👥 載入參與者
       fetch(`/api/activities/participants?activity_id=${activityId}`)
         .then((res) => {
-          if (!res.ok) {
-            throw new Error(`HTTP error! status: ${res.status}`);
-          }
+          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
           return res.json();
         })
         .then((data) => {
@@ -212,19 +229,20 @@
           const joined = data.joined_participants;
 
           let html = `
-          <h3>主辦人</h3>
-          <p style="margin: 6px 0; color: #000;">${organizer.name}</p>
-        `;
+            <h3>主辦人</h3>
+            <p style="margin: 6px 0; color: #000;">${organizer.name}</p>
+          `;
 
           if (joined.length > 0) {
             html += `
-            <h3>已參加</h3>
-            ${joined
-              .map(
-                (p) => `<p style="margin: 6px 0; color: #000;">${p.name}</p>`
-              )
-              .join("")}
-          `;
+              <h3>已參加</h3>
+              ${joined
+                .map(
+                  (p) =>
+                    `<p style="margin: 6px 0; color: #000;">${p.name}</p>`
+                )
+                .join("")}
+            `;
           } else {
             html += `<h3 style="color: gray;">目前還沒有參加人員喔！</h3>`;
           }
@@ -234,8 +252,8 @@
         .catch((err) => {
           console.error("載入參加者失敗", err);
           document.getElementById("participants").innerHTML = `
-          <p style="color: red; font-weight: bold;">無法載入參加者資訊</p>
-        `;
+            <p style="color: red; font-weight: bold;">無法載入參加者資訊</p>
+          `;
         });
     </script>
   </body>

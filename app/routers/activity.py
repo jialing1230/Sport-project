@@ -120,6 +120,10 @@ def get_activity_details():
             "registration_deadline": activity.registration_deadline.isoformat() if activity.registration_deadline else None,
         }), 200
     
+@activity_bp.route("/details_page", methods=["GET"])
+def activity_details_page():
+    return render_template("activity_details.html")
+
 
 @activity_bp.route("/joined", methods=["GET"])
 def list_joined_activities():
@@ -273,3 +277,39 @@ def update_participant_status():
 
     return jsonify({"message": "狀態更新成功"}), 200
 
+@activity_bp.route("/join", methods=["POST"])
+def join_activity():
+    data = request.get_json()
+    member_id = data.get("member_id")
+    activity_id = data.get("activity_id")
+
+    if not member_id or not activity_id:
+        return jsonify({"error": "缺少必要參數"}), 400
+
+    with get_db() as db:
+        # 檢查活動是否存在
+        activity = db.query(Activity).filter_by(activity_id=activity_id).first()
+        if not activity:
+            return jsonify({"error": "活動不存在"}), 404
+
+        if activity.current_participants >= activity.max_participants:
+            return jsonify({"error": "活動已額滿"}), 403
+
+        # 檢查是否已參加
+        existing = db.query(ActivityJoin).filter_by(
+            member_id=member_id, activity_id=activity_id
+        ).first()
+        if existing:
+            return jsonify({"error": "已參加或申請過此活動"}), 409
+
+        # 加入活動（預設先 pending）
+        join = ActivityJoin(
+            member_id=member_id,
+            activity_id=activity_id,
+            status="pending",
+            joined_at=datetime.now()
+        )
+        db.add(join)
+        db.commit()
+
+    return jsonify({"message": "申請參加成功，等待主辦人確認"}), 200

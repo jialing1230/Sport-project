@@ -135,7 +135,7 @@
         list.forEach((act) => {
           const card = document.createElement("div");
           card.className = "activity-card";
-          card.innerHTML = `<a href="/activity_detail.html?id=${
+          card.innerHTML = `<a href="/api/activities/details_page?id=${
             act.activity_id
           }${memberId ? `&member_id=${memberId}` : ""}" style="text-decoration: none; color: inherit;">
             <div class="activity-info"><span class="label">類型：</span><span class="value">${

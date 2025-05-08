@@ -146,6 +146,8 @@
             <p><strong>開始時間：</strong><span>${new Date(data.start_time).toLocaleString()}</span></p>
             <p><strong>結束時間：</strong><span>${new Date(data.end_time).toLocaleString()}</span></p>
             <p><strong>地點：</strong><span>${data.location_name}</span></p>
+            <p><strong>報名截止時間：</strong><span>${new Date(data.registration_deadline).toLocaleString()}</span></p>
+            <p><strong>報名費用：</strong><span>${!data.venue_fee || data.venue_fee === 0 ? "免費" : data.venue_fee + " 元"}</span></p>
             <p><strong>目前報名人數：</strong><span>${data.current_participants} / ${data.max_participants} 人</span></p>
             ${isFull ? `<p style='color: red; font-weight: bold;'>報名人數已額滿囉！</p>` : ""}
           `;
@@ -153,7 +155,7 @@
           if (data.description && data.description.trim() !== "") {
             document.getElementById("description").innerHTML = `
               <h3>活動介紹</h3>
-              <p>${data.description}</p>
+              <p><span>${data.description}</span></p>
             `;
           } else {
             document.getElementById("description").style.display = "none";
@@ -244,7 +246,7 @@
                 .join("")}
             `;
           } else {
-            html += `<h3 style="color: gray;">目前還沒有參加人員喔！</h3>`;
+            html += `<h3>已參加</h3><span style="color: gray;">目前還沒有參加人員喔！</span>`;
           }
 
           document.getElementById("participants").innerHTML = html;

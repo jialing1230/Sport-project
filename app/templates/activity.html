@@ -160,18 +160,26 @@
       }
 
       .activity-card-container {
-        display: flex;
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         gap: 20px;
         justify-content: center;
         padding: 20px;
+      }
+
+      /* 桌面尺寸固定三欄 */
+      @media (min-width: 1024px) {
+        .activity-card-container {
+          grid-template-columns: repeat(3, 1fr);
+        }
       }
 
       .activity-card {
         background-color: #fff;
         border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        width: 300px;
+        width: 100%;
+        max-width: 300px;
         padding: 20px;
         font-size: 16px;
         color: var(--text-color);
@@ -189,6 +197,13 @@
         font-weight: normal;
       }
 
+      .status-text {
+        font-weight: normal;
+        color: black; /* 深藍色，與主題一致 */
+        margin-right: 10px; /* 與按鈕保持間距 */
+      }
+
+
       .activity-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
@@ -197,7 +212,6 @@
       .activity-card h3 {
         font-size: 20px;
         color: var(--primary-color);
-        margin-bottom: 10px;
       }
 
       .activity-card p {
@@ -296,28 +310,28 @@
 
       .close {
         position: absolute;
-        top: -15px;
-        right: -30px;
-        font-size: 32px;
+        top: -15px; /* 將按鈕移到卡片外 */
+        right: -30px; /* 將按鈕移到卡片外 */
+        font-size: 32px; /* 放大按鈕 */
         cursor: pointer;
-        background-color: #fff;
-        border: 2px solid var(--primary-color);
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
+        background-color: #fff; /* 添加背景色，讓按鈕更明顯 */
+        border: 2px solid var(--primary-color); /* 添加邊框 */
+        border-radius: 50%; /* 圓形按鈕 */
+        width: 40px; /* 設定寬度 */
+        height: 40px; /* 設定高度 */
         display: flex;
         justify-content: center;
         align-items: center;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        transition: transform 0.2s ease, background-color 0.2s ease;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 添加陰影 */
+        transition: transform 0.2s ease, background-color 0.2s ease; /* 添加過渡效果 */
         z-index: 100;
       }
 
       .close:hover {
-        transform: scale(1.2);
-        background-color: #ff6b6b;
+        transform: scale(1.2); /* 滑鼠懸停時放大 */
+        background-color: #ff6b6b; /* 改變背景色 */
         border-color: #ff6b6b !important;
-        color: #fff;
+        color: #fff; /* 改變文字顏色 */
       }
 
       .close-button {
@@ -500,6 +514,7 @@
         margin-right: 10px; /* 與按鈕保持間距 */
       }
 
+
       .evaluate-button {
         display: inline-flex;
         align-items: center;
@@ -679,6 +694,7 @@
               style="width: 100%"
             ></progress>
           </div>
+
           <div class="modal-tab-content" id="modal-tab-1">
             <h3>參加者列表</h3>
             <div class="participants-container">
@@ -1062,23 +1078,33 @@
           const container = document.getElementById("my-activities");
           container.innerHTML = "";
 
-          if (data.length === 0) {
-            container.innerText = "尚未發起任何活動";
-            return;
-          }
-
           const cardContainer = document.createElement("div");
           cardContainer.className = "activity-card-container";
 
+          // 新增按鈕卡片
           const addActivityCard = document.createElement("div");
           addActivityCard.className = "activity-card add-activity-card";
           addActivityCard.onclick = goToCreate;
           addActivityCard.style.border = "2px dashed var(--primary-color)";
           addActivityCard.style.backgroundColor = "transparent";
+          addActivityCard.style.display = "flex";
+          addActivityCard.style.justifyContent = "center";
+          addActivityCard.style.alignItems = "center";
+          addActivityCard.style.height = "200px"; // 固定高度
+          addActivityCard.style.width = "300px"; // 固定寬度
           addActivityCard.innerHTML = `
             <h3 style="text-align: center; font-size: 48px; color: var(--primary-color);">＋</h3>
           `;
-          cardContainer.insertBefore(addActivityCard, cardContainer.firstChild);
+          cardContainer.appendChild(addActivityCard);
+
+          if (data.length === 0) {
+            container.innerText = "尚未發起任何活動";
+            container.appendChild(cardContainer); // 確保按鈕卡片仍然顯示
+            return;
+          }
+
+          // 按開始時間排序，新的在前，舊的在後
+          data.sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
 
           data.forEach((activity) => {
             const card = document.createElement("div");
@@ -1099,6 +1125,7 @@
           <p><span class="label">地點：</span><span class="value">${activity.location_name}</p>
           
         `;
+
             card.addEventListener("click", () =>
               openModal(activity.activity_id)
             );
@@ -1135,66 +1162,62 @@
 
           const cardContainer = document.createElement("div");
           cardContainer.className = "activity-card-container";
-          const addActivityCard = document.createElement("div");
-          addActivityCard.className = "activity-card add-activity-card";
-          addActivityCard.onclick = goToCreate;
-          addActivityCard.innerHTML = `
-      <h3 style="text-align: center; font-size: 48px; color: var(--primary-color);">＋</h3>
-    `;
-          cardContainer.appendChild(addActivityCard);
+          cardContainer.style.justifyContent = "flex-start"; // 卡片從左到右排列
 
           data.forEach((activity) => {
             const card = document.createElement("div");
             card.className = "activity-card";
             card.innerHTML = `
-          <div style="position: relative;">
-            ${
-              activity.status !== "close"
-                ? `
-            <button style="
-              position: absolute;
-              top: 10px;
-              right: 10px;
-              background: none;
-              border: none;
-              cursor: pointer;
-            " onclick="cancelParticipation(${activity.activity_id}); event.stopPropagation();">
-              <img src="/static/icons/cancel.png" alt="取消參加" style="width: 20px; height: 20px;">
-            </button>
-            `
-                : ""
-            }
-          </div>
-          <h3>${activity.title}</h3>
-          <p><span class="label">類型：</span><span class="value">${activity.sport_name}</p>
-          <p><span class="label">開始：</span><span class="value">${
-            activity.start_time
-              ? new Date(activity.start_time).toLocaleString()
-              : "未設定"
-          }</p>
-          <p><span class="label">結束：</span><span class="value">${
-            activity.end_time
-              ? new Date(activity.end_time).toLocaleString()
-              : "未設定"
-          }</p>
-          <p><span class="label">地點：</span><span class="value">${activity.location_name}</p>
-          <p><span class="label">目前狀態：</span><span class="value">${activity.status === "close"
-             ? `
-          <span class="status-text">已結束</span>
-          <button class="evaluate-button" onclick="openEvaluateModal(${activity.activity_id})">
-          <img src="/static/icons/message.png" alt="評價" class="evaluate-icon">
+        <div style="position: relative;">
+          ${
+            activity.status !== "close"
+              ? `
+          <button style="
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            cursor: pointer;
+          " onclick="cancelParticipation(${activity.activity_id}); event.stopPropagation();">
+            <img src="/static/icons/cancel.png" alt="取消參加" style="width: 20px; height: 20px;">
           </button>
-         `
-             : activity.status === "open"
-             ? `
-         <span class="status-text">開放參加</span>
           `
-             : `
-          <span class="status-text">正在進行</span>
-          `
-         }
-        </p>
-          `;
+              : ""
+          }
+        </div>
+        <h3>${activity.title}</h3>
+        <p><strong>類型：</strong>${activity.sport_name}</p>
+        <p><strong>開始：</strong>${
+          activity.start_time
+            ? new Date(activity.start_time).toLocaleString()
+            : "未設定"
+        }</p>
+        <p><strong>結束：</strong>${
+          activity.end_time
+            ? new Date(activity.end_time).toLocaleString()
+            : "未設定"
+        }</p>
+        <p><strong>地點：</strong>${activity.location_name}</p>
+        <p><strong>目前狀態：</strong>
+       ${
+         activity.status === "close"
+           ? `
+        <span class="status-text">已結束</span>
+        <button class="evaluate-button" onclick="openEvaluateModal(${activity.activity_id})">
+        <img src="/static/icons/message.png" alt="評價" class="evaluate-icon">
+        </button>
+       `
+           : activity.status === "open"
+           ? `
+       <span class="status-text">開放參加</span>
+        `
+           : `
+        <span class="status-text">正在進行</span>
+        `
+       }
+      </p>
+        `;
             card.addEventListener("click", () =>
               openModal(activity.activity_id)
             );
@@ -1293,3 +1316,4 @@
     </script>
   </body>
 </html>
+```

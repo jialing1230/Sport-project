@@ -32,7 +32,6 @@
         color: #2c4975;
         font-weight: 1000;
       }
-
       .value {
         color: #000;
       }
@@ -62,7 +61,6 @@
       .filters button:hover {
         background-color: #1f3657;
       }
-
       .activity-list {
         display: grid;
         grid-template-columns: repeat(1, 1fr);
@@ -70,7 +68,6 @@
         max-width: 500px;
         margin: 0 auto;
       }
-
       .activity-card {
         background: white;
         border: 1px solid #ddd;
@@ -121,6 +118,9 @@
     </div>
 
     <script>
+      const params = new URLSearchParams(window.location.search);
+      const memberId = params.get("member_id");
+
       let activities = [];
 
       function renderActivities(list) {
@@ -137,7 +137,7 @@
           card.className = "activity-card";
           card.innerHTML = `<a href="/activity_detail.html?id=${
             act.activity_id
-          }" style="text-decoration: none; color: inherit;">
+          }${memberId ? `&member_id=${memberId}` : ""}" style="text-decoration: none; color: inherit;">
             <div class="activity-info"><span class="label">類型：</span><span class="value">${
               act.sport_type || "－"
             }</span></div>
@@ -153,12 +153,8 @@
       }
 
       function filterActivities() {
-        const title = document
-          .getElementById("searchTitle")
-          .value.toLowerCase();
-        const location = document
-          .getElementById("searchLocation")
-          .value.toLowerCase();
+        const title = document.getElementById("searchTitle").value.toLowerCase();
+        const location = document.getElementById("searchLocation").value.toLowerCase();
         const type = document.getElementById("searchType").value.toLowerCase();
 
         const filtered = activities.filter(
@@ -174,21 +170,19 @@
       fetch("/api/activities")
         .then((res) => res.json())
         .then((data) => {
-          // 根據後端返回的格式修正資料轉換
           activities = data.map((a) => ({
             activity_id: a.activity_id,
-            title: a.title || "", // 新增 title 欄位處理
-            sport_type: a.sport_name || "", // 若你前端 fetch 沒有 sport_name，請後端補上
-            start_time: a.start_time || a.time, // 兼容舊欄位
+            title: a.title || "",
+            sport_type: a.sport_name || "",
+            start_time: a.start_time || a.time,
             location_name: a.location_name || a.location,
           }));
           renderActivities(activities);
         })
         .catch((err) => {
           console.error("載入錯誤", err);
-          document.getElementById(
-            "activityList"
-          ).innerHTML = `<div class="error-message">無法載入活動資料，請稍後再試。</div>`;
+          document.getElementById("activityList").innerHTML =
+            `<div class="error-message">無法載入活動資料，請稍後再試。</div>`;
         });
 
       document

@@ -210,7 +210,7 @@
       }
 
       .activity-card h3 {
-        font-size: 20px;
+        font-size: 24px;
         color: var(--primary-color);
       }
 
@@ -1187,19 +1187,19 @@
           }
         </div>
         <h3>${activity.title}</h3>
-        <p><strong>類型：</strong>${activity.sport_name}</p>
-        <p><strong>開始：</strong>${
+        <p><span class="label">類型：</span><span class="value">${activity.sport_name}</p>
+        <p><span class="label">開始：</span><span class="value">${
           activity.start_time
             ? new Date(activity.start_time).toLocaleString()
             : "未設定"
         }</p>
-        <p><strong>結束：</strong>${
+        <p><span class="label">結束：</span><span class="value">${
           activity.end_time
             ? new Date(activity.end_time).toLocaleString()
             : "未設定"
         }</p>
-        <p><strong>地點：</strong>${activity.location_name}</p>
-        <p><strong>目前狀態：</strong>
+        <p><span class="label">地點：</span><span class="value">${activity.location_name}</p>
+        <p><span class="label">目前狀態：</span><span class="value">
        ${
          activity.status === "close"
            ? `
@@ -1316,4 +1316,3 @@
     </script>
   </body>
 </html>
-```

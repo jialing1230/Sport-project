@@ -22,13 +22,11 @@
         background-color: #f5f5f5;
         color: #2c4975;
       }
-
       .container {
         padding: 20px;
         max-width: 900px;
         margin: 0 auto;
       }
-
       h1 {
         text-align: center;
         margin-top: 20px;
@@ -36,7 +34,6 @@
         font-size: 28px;
         color: #2c4975;
       }
-
       .info-box {
         background: #fff;
         padding: 15px;
@@ -45,20 +42,16 @@
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
         max-width: 400px;
       }
-
       .info-box p {
         margin: 5px 0;
       }
-
       .info-box p strong {
         color: #2c4975;
         font-weight: bold;
       }
-
       .info-box p span {
         color: #000;
       }
-
       .btn {
         display: block;
         width: 200px;
@@ -75,7 +68,6 @@
         cursor: pointer;
         transition: background-color 0.3s ease;
       }
-
       .button-group {
         display: flex;
         justify-content: center;
@@ -83,17 +75,14 @@
         margin-top: 20px;
         flex-wrap: wrap;
       }
-
       .btn:hover {
         background-color: #2c4975;
       }
-
       .disabled {
         background-color: #ccc;
         cursor: not-allowed;
         pointer-events: none;
       }
-
       @media screen and (max-width: 600px) {
         .container {
           padding: 10px;
@@ -104,15 +93,9 @@
   <body>
     <h1 id="activity-title">載入中...</h1>
     <div class="container">
-      <section id="activity-info" class="info-box">
-        <p style="text-align: center; color: gray">載入中...</p>
-      </section>
-      <section id="description" class="info-box">
-        <p style="text-align: center; color: gray">載入中...</p>
-      </section>
-      <section id="participants" class="info-box">
-        <p style="text-align: center; color: gray">載入中...</p>
-      </section>
+      <section id="activity-info" class="info-box"></section>
+      <section id="description" class="info-box"></section>
+      <section id="participants" class="info-box"></section>
       <div class="button-group" id="button-group">
         <button class="btn" id="view-others-btn">我想看看其他活動！</button>
         <button class="btn" id="join-btn">我要參加！</button>
@@ -131,15 +114,9 @@
       }
 
       fetch(`/api/activities/details?activity_id=${activityId}`)
-        .then((response) => {
-          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-          return response.json();
-        })
+        .then((res) => res.json())
         .then((data) => {
-          if (data.error) throw new Error(data.error);
-
           const isFull = data.current_participants >= data.max_participants;
-
           document.getElementById("activity-title").innerText = data.title;
           document.getElementById("activity-info").innerHTML = `
             <p><strong>類型：</strong><span>${data.sport_name} / ${data.level}</span></p>
@@ -147,116 +124,85 @@
             <p><strong>結束時間：</strong><span>${new Date(data.end_time).toLocaleString()}</span></p>
             <p><strong>地點：</strong><span>${data.location_name}</span></p>
             <p><strong>報名截止時間：</strong><span>${new Date(data.registration_deadline).toLocaleString()}</span></p>
-            <p><strong>報名費用：</strong><span>${!data.venue_fee || data.venue_fee === 0 ? "免費" : data.venue_fee + " 元"}</span></p>
+            <p><strong>報名費用：</strong><span>${data.venue_fee || 0} 元</span></p>
             <p><strong>目前報名人數：</strong><span>${data.current_participants} / ${data.max_participants} 人</span></p>
-            ${isFull ? `<p style='color: red; font-weight: bold;'>報名人數已額滿囉！</p>` : ""}
+            ${isFull ? `<p style='color:red;font-weight:bold;'>已額滿</p>` : ""}
           `;
 
-          if (data.description && data.description.trim() !== "") {
+          if (data.description) {
             document.getElementById("description").innerHTML = `
               <h3>活動介紹</h3>
-              <p><span>${data.description}</span></p>
-            `;
-          } else {
-            document.getElementById("description").style.display = "none";
+              <p>${data.description}</p>`;
           }
 
-          const joinBtn = document.getElementById("join-btn");
-          const viewOthersBtn = document.getElementById("view-others-btn");
-          const buttonGroup = document.getElementById("button-group");
-
-          if (isFull) {
-            joinBtn.disabled = true;
-            joinBtn.classList.add("disabled");
-            joinBtn.innerText = "已額滿";
-            joinBtn.style.width = "300px";
-            viewOthersBtn.style.display = "none";
-            buttonGroup.style.justifyContent = "center";
-          }
-
-          // 🔁 查看其他活動
-          viewOthersBtn.onclick = () => {
-            const url = memberId
-              ? `/api/activities/overview?member_id=${memberId}`
-              : `/api/activities/overview`;
-            window.location.href = url;
-          };
-
-          // ✅ 我要參加功能：POST 加入活動
-          joinBtn.onclick = () => {
+          document.getElementById("join-btn").onclick = () => {
             if (!memberId) {
               alert("請先登入或提供 member_id 才能參加活動！");
               return;
             }
-
             fetch("/api/activities/join", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                member_id: memberId,
-                activity_id: activityId,
-              }),
+              body: JSON.stringify({ member_id: memberId, activity_id: activityId }),
             })
               .then((res) => res.json())
               .then((result) => {
-                if (result.error) {
-                  alert(`⚠️ ${result.error}`);
-                } else {
-                  alert("✅ 已送出參加申請！");
-                  location.reload();
-                }
+                alert(result.error || result.message);
+                if (!result.error) location.reload();
               })
-              .catch((err) => {
-                console.error("參加活動失敗", err);
-                alert("參加活動時發生錯誤，請稍後再試！");
-              });
+              .catch((err) => alert("參加活動失敗，請稍後再試！"));
           };
-        })
-        .catch((error) => {
-          console.error("載入活動資料失敗", error);
-          document.querySelector(".container").innerHTML = `
-            <div style="text-align:center; color: red; font-weight: bold; font-size: 20px;">
-              無法載入活動資料，請稍後再試。
-            </div>`;
+
+          document.getElementById("view-others-btn").onclick = () => {
+            location.href = `/api/activities/overview?member_id=${memberId}`;
+          };
         });
 
-      // 👥 載入參與者
       fetch(`/api/activities/participants?activity_id=${activityId}`)
-        .then((res) => {
-          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-          return res.json();
-        })
+        .then((res) => res.json())
         .then((data) => {
           const organizer = data.organizer;
           const joined = data.joined_participants;
+          const pending = data.pending_participants;
 
-          let html = `
-            <h3>主辦人</h3>
-            <p style="margin: 6px 0; color: #000;">${organizer.name}</p>
-          `;
+          let html = `<h3>主辦人</h3><p>${organizer.name}</p>`;
 
-          if (joined.length > 0) {
-            html += `
-              <h3>已參加</h3>
-              ${joined
-                .map(
-                  (p) =>
-                    `<p style="margin: 6px 0; color: #000;">${p.name}</p>`
-                )
-                .join("")}
-            `;
-          } else {
-            html += `<h3>已參加</h3><span style="color: gray;">目前還沒有參加人員喔！</span>`;
+          html += `<h3>已參加</h3>`;
+          html += joined.length ? joined.map(p => `<p>${p.name}</p>`).join("") : `<p style="color:gray;">目前還沒有參加人員喔！</p>`;
+
+          if (memberId === String(organizer.member_id)) {
+            html += `<h3>等待審核</h3>`;
+            html += pending.map(p => `
+              <p>
+                ${p.name}
+                <button onclick="updateParticipantStatus('${p.member_id}', 'joined')">✔ 通過</button>
+                <button onclick="updateParticipantStatus('${p.member_id}', 'reject')">✘ 拒絕</button>
+              </p>`
+            ).join("");
           }
 
           document.getElementById("participants").innerHTML = html;
-        })
-        .catch((err) => {
-          console.error("載入參加者失敗", err);
-          document.getElementById("participants").innerHTML = `
-            <p style="color: red; font-weight: bold;">無法載入參加者資訊</p>
-          `;
         });
+
+      function updateParticipantStatus(targetMemberId, status) {
+        fetch("/api/activities/update_status", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            activity_id: activityId,
+            member_id: targetMemberId,
+            status: status,
+          }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            alert(data.message || data.error);
+            location.reload();
+          })
+          .catch((err) => {
+            alert("審核失敗，請稍後再試");
+          });
+      }
     </script>
   </body>
 </html>

@@ -206,6 +206,30 @@ def join_activity():
 
     return jsonify({"message": "申請參加成功，等待主辦人確認"}), 200
 
+@activity_bp.route("/cancel", methods=["POST"])
+def cancel_participation():
+    data = request.get_json()
+    member_id = data.get("member_id")
+    activity_id = data.get("activity_id")
+
+    if not member_id or not activity_id:
+        return jsonify({"error": "缺少必要參數"}), 400
+
+    with get_db() as db:
+        join = db.query(ActivityJoin).filter_by(member_id=member_id, activity_id=activity_id).first()
+        if not join:
+            return jsonify({"error": "找不到參加紀錄"}), 404
+
+        db.delete(join)
+
+        activity = db.query(Activity).filter_by(activity_id=activity_id).first()
+        if activity and join.status == "joined" and activity.current_participants > 0:
+            activity.current_participants -= 1
+
+        db.commit()
+
+    return jsonify({"message": "已取消參加活動"}), 200
+
 @activity_bp.route("/update_status", methods=["POST"])
 def update_participant_status():
     data = request.get_json()

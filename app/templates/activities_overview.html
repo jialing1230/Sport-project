@@ -23,10 +23,26 @@
         padding: 20px;
         margin: 0;
       }
+      .top-bar {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .back-btn {
+        background-color: #81d3e1;
+        border: none;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+        margin-right: auto;
+      }
       h1 {
         text-align: center;
         margin-bottom: 28px;
         font-size: 28px;
+        flex: 1;
       }
       .label {
         color: #2c4975;
@@ -104,7 +120,10 @@
     </style>
   </head>
   <body>
-    <h1>所有活動總覽</h1>
+    <div class="top-bar">
+      <button class="back-btn" id="backBtn">← 返回</button>
+      <h1>所有活動總覽</h1>
+    </div>
 
     <div class="filters">
       <input type="text" id="searchTitle" placeholder="搜尋活動名稱" />
@@ -121,6 +140,15 @@
       const params = new URLSearchParams(window.location.search);
       const memberId = params.get("member_id");
 
+      // ✅ 返回按鈕處理（帶上 member_id）
+      document.getElementById("backBtn").onclick = () => {
+        if (memberId) {
+          location.href = `/home?member_id=${memberId}`;
+        } else {
+          location.href = "/home";
+        }
+      };
+
       let activities = [];
 
       function renderActivities(list) {
@@ -135,18 +163,10 @@
         list.forEach((act) => {
           const card = document.createElement("div");
           card.className = "activity-card";
-          card.innerHTML = `<a href="/api/activities/details_page?id=${
-            act.activity_id
-          }${memberId ? `&member_id=${memberId}` : ""}" style="text-decoration: none; color: inherit;">
-            <div class="activity-info"><span class="label">類型：</span><span class="value">${
-              act.sport_type || "－"
-            }</span></div>
-            <div class="activity-info"><span class="label">開始：</span><span class="value">${new Date(
-              act.start_time
-            ).toLocaleString()}</span></div>
-            <div class="activity-info"><span class="label">地點：</span><span class="value">${
-              act.location_name
-            }</span></div>
+          card.innerHTML = `<a href="/api/activities/details_page?id=${act.activity_id}${memberId ? `&member_id=${memberId}` : ""}" style="text-decoration: none; color: inherit;">
+            <div class="activity-info"><span class="label">類型：</span><span class="value">${act.sport_type || "－"}</span></div>
+            <div class="activity-info"><span class="label">開始：</span><span class="value">${new Date(act.start_time).toLocaleString()}</span></div>
+            <div class="activity-info"><span class="label">地點：</span><span class="value">${act.location_name}</span></div>
           </a>`;
           container.appendChild(card);
         });
@@ -185,9 +205,7 @@
             `<div class="error-message">無法載入活動資料，請稍後再試。</div>`;
         });
 
-      document
-        .getElementById("searchBtn")
-        .addEventListener("click", filterActivities);
+      document.getElementById("searchBtn").addEventListener("click", filterActivities);
     </script>
   </body>
 </html>

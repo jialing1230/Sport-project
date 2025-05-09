@@ -80,6 +80,33 @@ def list_my_activities():
             })
     return jsonify(result), 200
 
+@activity_bp.route("/joined", methods=["GET"])
+def list_joined_activities():
+    member_id = request.args.get("member_id")
+    if not member_id:
+        return jsonify({"error": "缺少 member_id"}), 400
+
+    with get_db() as db:
+        joined_activities = (
+            db.query(Activity)
+            .join(ActivityJoin, Activity.activity_id == ActivityJoin.activity_id)
+            .filter(ActivityJoin.member_id == member_id, ActivityJoin.status == "joined")
+            .all()
+        )
+
+        result = []
+        for a in joined_activities:
+            result.append({
+                "activity_id": a.activity_id,
+                "title": a.title,
+                "start_time": a.start_time.isoformat() if a.start_time else None,
+                "end_time": a.end_time.isoformat() if a.end_time else None,
+                "location_name": a.location_name,
+                "sport_name": a.sport_type.name if a.sport_type else "未分類",
+                "status": a.status
+            })
+    return jsonify(result), 200
+
 @activity_bp.route("/details", methods=["GET"])
 def get_activity_details():
     activity_id = request.args.get("activity_id")

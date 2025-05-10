@@ -67,10 +67,11 @@
         border-radius: 6px;
         padding: 7px 16px;
         width: 90%;
-        max-width: 320px;
+        max-width: 240px;
         box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
         flex-grow: 1;
+        flex-shrink: 1; /* 防止放大撐出邊界 */
       }
 
       .search-icon {
@@ -97,7 +98,11 @@
         color: var(--deep-blue);
         opacity: 0.6;
       }
-
+      @media (min-width: 768px) {
+        .search-box {
+          max-width: 420px; /* ✅ 桌機版拉長 */
+        }
+      }
       .filter-icon {
         width: 24px;
         height: 24px;
@@ -121,6 +126,7 @@
         padding: 6px 12px;
         text-decoration: none;
         transition: all 0.3s ease;
+        white-space: nowrap; /* 不要自動換行 */
       }
 
       .overview-button:hover {
@@ -222,6 +228,25 @@
           opacity: 0;
         }
       }
+      .right-section {
+        display: flex;
+        align-items: center;
+        gap: 64px;
+        justify-content: flex-end;
+        flex: 1;
+        min-width: 0; /* 防止右側撐爆，尤其搜尋框有 max-width 時 */
+      }
+      @media (max-width: 767px) {
+        .right-section {
+          gap: 16px; /* 📱 手機板回到緊湊間距 */
+        }
+      }
+      @media (max-width: 767px) {
+      .header {
+        padding-right: 16px; /* ✅ 手機版右邊縮小 */
+        }
+      }
+
     </style>
   </head>
   <body>
@@ -229,6 +254,7 @@
       <div class="logo">
         <img src="static/logo.jpg" alt="Logo" />
       </div>
+     <div class="right-section">
       <div class="search-box">
         <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
           <path
@@ -251,8 +277,8 @@
         </svg>
       </div>
       <a class="overview-button" id="overview-link">活動總覽</a>
-    </div>
-
+      </div>
+     </div>
     <div class="main-content">
       <div class="map-area" id="map"></div>
     </div>

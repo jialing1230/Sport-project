@@ -41,9 +41,27 @@
       .title-row {
         display: flex;
         align-items: center;
+        justify-content: space-between;
+        margin-bottom: 30px;
+      }
+      .title-left,
+      .title-right {
+        width: 60px; /* 和 SVG 寬度差不多，保持對稱 */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .title-center {
+        display: flex;
+        align-items: center;
         justify-content: center;
         gap: 12px;
-        margin-bottom: 30px;
+        flex-grow: 1;
+      }
+      .back-button {
+        background: none;
+        border: none;
+        cursor: pointer;
       }
       .logo-inline {
         width: 50px;
@@ -126,13 +144,37 @@
         margin-top: 16px;
         display: none;
       }
+      .back-button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        margin-left: -8px; /* ← 控制往左 */
+      }
+      .arrow-icon {
+        fill: #2c4975;
+        transition: fill 0.2s ease;
+      }
+
+      .back-button:hover .arrow-icon {
+        fill: #81d3e1;
+      }
     </style>
   </head>
   <body>
     <div class="container">
       <div class="title-row">
-        <img src="/static/logo.png" alt="Logo" class="logo-inline" />
-        <h1>發起活動</h1>
+        <div class="title-left">
+          <button onclick="history.back()" class="back-button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" class="arrow-icon" viewBox="0 0 256 256">
+              <path d="M228,128a12,12,0,0,1-12,12H69l51.52,51.51a12,12,0,0,1-17,17l-72-72a12,12,0,0,1,0-17l72-72a12,12,0,0,1,17,17L69,116H216A12,12,0,0,1,228,128Z"/>
+            </svg>
+          </button>
+        </div>
+        <div class="title-center">
+          <img src="/static/logo.png" alt="Logo" class="logo-inline" />
+          <h1>發起活動</h1>
+        </div>
+        <div class="title-right"><!-- 預留空間用 --> </div>
       </div>
       <form id="preferenceForm">
        
@@ -211,14 +253,6 @@
               ><input
                 type="radio"
                 name="gender"
-                value="不限"
-                required
-              />不限</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="gender"
                 value="男性"
                 required
               />男性</label
@@ -230,6 +264,14 @@
                 value="女性"
                 required
               />女性</label
+            >
+            <label class="radio-card"
+              ><input
+                type="radio"
+                name="gender"
+                value="不限"
+                required
+              />不限</label
             >
           </div>
         </div>

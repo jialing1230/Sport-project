@@ -94,7 +94,7 @@
     <h1 id="activity-title">載入中...</h1>
     <div class="container">
       <section id="activity-info" class="info-box"></section>
-      <section id="description" class="info-box"></section>
+      <section id="description" class="info-box" style="display: none;"></section>
       <section id="participants" class="info-box"></section>
       <div class="button-group" id="button-group">
         <button class="btn" id="view-others-btn">我想看看其他活動！</button>
@@ -129,10 +129,14 @@
             ${isFull ? `<p style='color:red;font-weight:bold;'>已額滿</p>` : ""}
           `;
 
-          if (data.description) {
-            document.getElementById("description").innerHTML = `
+          const descSection = document.getElementById("description");
+          if (data.description && data.description.trim() !== "") {
+            descSection.innerHTML = `
               <h3>活動介紹</h3>
               <p>${data.description}</p>`;
+            descSection.style.display = "block";
+          } else {
+            descSection.style.display = "none";
           }
 
           document.getElementById("join-btn").onclick = () => {
@@ -168,7 +172,9 @@
           let html = `<h3>主辦人</h3><p>${organizer.name}</p>`;
 
           html += `<h3>已參加</h3>`;
-          html += joined.length ? joined.map(p => `<p>${p.name}</p>`).join("") : `<p style="color:gray;">目前還沒有參加人員喔！</p>`;
+          html += joined.length
+            ? joined.map(p => `<p>${p.name}</p>`).join("")
+            : `<p style="color:gray;">目前還沒有參加人員喔！</p>`;
 
           if (memberId === String(organizer.member_id)) {
             html += `<h3>等待審核</h3>`;

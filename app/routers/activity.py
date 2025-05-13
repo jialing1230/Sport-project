@@ -292,6 +292,10 @@ def join_activity():
         activity = db.query(Activity).filter_by(activity_id=activity_id).first()
         if not activity:
             return jsonify({"error": "活動不存在"}), 404
+        
+         # 檢查是否為活動的發起人
+        if activity.organizer_id == member_id:
+            return jsonify({"error": "主辦人無法申請參加自己的活動"}), 403
 
         if activity.current_participants >= activity.max_participants:
             return jsonify({"error": "活動已額滿"}), 403

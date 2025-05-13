@@ -1150,7 +1150,7 @@
           }
 
           // 按開始時間排序，新的在前，舊的在後
-          data.sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
+          data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
           data.forEach((activity) => {
             const card = document.createElement("div");

@@ -79,6 +79,7 @@ def list_my_activities():
                 "title": a.title,
                 "start_time": a.start_time.isoformat() if a.start_time else None,
                 "end_time": a.end_time.isoformat() if a.end_time else None,
+                "created_at": a.created_at.isoformat() if a.created_at else None,
                 "location_name": a.location_name,
                 "sport_name": a.sport_type.name if a.sport_type else "未分類",
             })

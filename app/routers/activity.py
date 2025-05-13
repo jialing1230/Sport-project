@@ -82,6 +82,8 @@ def list_my_activities():
                 "created_at": a.created_at.isoformat() if a.created_at else None,
                 "location_name": a.location_name,
                 "sport_name": a.sport_type.name if a.sport_type else "未分類",
+                "registration_deadline": a.registration_deadline.isoformat() if a.registration_deadline else None,
+                "status": a.status,
             })
     return jsonify(result), 200
 
@@ -149,6 +151,7 @@ def list_joined_activities():
                 "end_time": a.end_time.isoformat() if a.end_time else None,
                 "location_name": a.location_name,
                 "sport_name": a.sport_type.name if a.sport_type else "未分類",
+                "registration_deadline": a.registration_deadline.isoformat() if a.registration_deadline else None,
                 "status": a.status,  # 直接使用資料庫中的狀態
             })
     return jsonify(result), 200

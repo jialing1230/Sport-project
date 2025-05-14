@@ -409,11 +409,25 @@
       document.getElementById("preferenceForm").addEventListener("submit", function (e) {
         e.preventDefault();
 
+        const formData = new FormData(this);
+        const registrationDeadline = new Date(formData.get("registration_deadline"));
+        const startTime = new Date(formData.get("startTime"));
+        const endTime = new Date(formData.get("endTime"));
+
+        if (registrationDeadline >= startTime) {
+          alert("報名截止日期必須早於開始時間！");
+          return;
+        }
+
+        if (startTime >= endTime) {
+          alert("開始時間必須早於結束時間！");
+          return;
+        }
+
         if (!confirm("確定要發起活動嗎？")) {
           return;
         }
 
-        const formData = new FormData(this);
         const data = {
           title: formData.get("title"),
           start_time: formData.get("startTime"),

@@ -286,8 +286,12 @@ def join_activity():
         activity = db.query(Activity).filter_by(activity_id=activity_id).first()
         if not activity:
             return jsonify({"error": "活動不存在"}), 404
-        
-         # 檢查是否為活動的發起人
+
+        # 只有 open 狀態允許報名，其他狀態一律拒絕
+        if activity.status != "open":
+            return jsonify({"error": "報名已截止，無法申請參加"}), 403
+
+        # 檢查是否為活動的發起人
         if activity.organizer_id == member_id:
             return jsonify({"error": "主辦人無法申請參加自己的活動"}), 403
 

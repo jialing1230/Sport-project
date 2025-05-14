@@ -867,7 +867,10 @@
           document.getElementById("modal-max-participants").innerText =
             data.max_participants;
           document.getElementById("modal-status").innerText =
-            data.status === "open" ? "開放參加" : "關閉";
+            data.status === "deadline" ? "報名截止" :
+            data.status === "open" ? "開放報名" :
+            data.status === "ongoing" ? "進行中" :
+            "已結束";
           document.getElementById("modal-level").innerText =
             data.level || "未設定";
 
@@ -1087,7 +1090,10 @@
           document.getElementById("modal-max-participants").innerText =
             data.max_participants;
           document.getElementById("modal-status").innerText =
-            data.status === "open" ? "開放參加" : "關閉";
+            data.status === "deadline" ? "報名截止" :
+            data.status === "open" ? "開放報名" :
+            data.status === "ongoing" ? "進行中" :
+            "已結束";
           document.getElementById("modal-level").innerText =
             data.level || "未設定";
 
@@ -1156,22 +1162,18 @@
             const card = document.createElement("div");
             card.className = "activity-card";
             card.innerHTML = `
-          <h3>${activity.title}</h3>
-          <p><span class="label">類型：</span><span class="value">${activity.sport_name}</p>
-          <p><span class="label">開始：</span><span class="value">${
-            activity.start_time
-              ? new Date(activity.start_time).toLocaleString()
-              : "未設定"
-          }</p>
-          <p><span class="label">結束：</span><span class="value">${
-            activity.end_time
-              ? new Date(activity.end_time).toLocaleString()
-              : "未設定"
-          }</p>
-          <p><span class="label">地點：</span><span class="value">${activity.location_name}</p>
-          
-        `;
-
+  <h3>${activity.title}</h3>
+  <p><span class="label">類型：</span><span class="value">${activity.sport_name}</span></p>
+  <p><span class="label">開始：</span><span class="value">${activity.start_time ? new Date(activity.start_time).toLocaleString() : '未設定'}</span></p>
+  <p><span class="label">結束：</span><span class="value">${activity.end_time ? new Date(activity.end_time).toLocaleString() : '未設定'}</span></p>
+  <p><span class="label">地點：</span><span class="value">${activity.location_name}</span></p>
+  <p><span class="label">目前狀態：</span><span class="status-text">${
+    activity.status === 'close' ? '已結束' :
+    activity.status === 'deadline' ? '報名截止' :
+    activity.status === 'open' ? '開放報名' :
+    '進行中'
+  }</span></p>
+`;
             card.addEventListener("click", () =>
               openModal(activity.activity_id)
             );
@@ -1254,13 +1256,11 @@
         <img src="/static/icons/message.png" alt="評價" class="evaluate-icon">
         </button>
        `
+           : activity.status === "deadline"
+           ? `<span class="status-text">報名截止</span>`
            : activity.status === "open"
-           ? `
-       <span class="status-text">開放參加</span>
-        `
-           : `
-        <span class="status-text">正在進行</span>
-        `
+           ? `<span class="status-text">開放報名</span>`
+           : `<span class="status-text">進行中</span>`
        }
       </p>
         `;

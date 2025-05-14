@@ -257,9 +257,12 @@ def update_participant_status():
                 # 獲取活動資訊
                 activity = db.query(Activity).filter(Activity.activity_id == activity_id).first()
                 if activity:
+                    # 只有 open 或 deadline 狀態允許同意
+                    if activity.status not in ["open", "deadline"]:
+                        return jsonify({"error": "活動已開始，無法增加參加者"}), 403
                     # 如果人數已達上限，阻止執行
                     if activity.current_participants >= activity.max_participants:
-                        return jsonify({"error": "活動已額滿，無法將參加者狀態改為 joined"}), 403
+                        return jsonify({"error": "活動已額滿，無法增加參加者"}), 403
 
                     # 更新活動的 current_participants
                     activity.current_participants += 1
@@ -287,13 +290,14 @@ def join_activity():
         if not activity:
             return jsonify({"error": "活動不存在"}), 404
 
-        # 只有 open 狀態允許報名，其他狀態一律拒絕
-        if activity.status != "open":
-            return jsonify({"error": "報名已截止，無法申請參加"}), 403
-
-        # 檢查是否為活動的發起人
+         # 檢查是否為活動的發起人
         if activity.organizer_id == member_id:
             return jsonify({"error": "主辦人無法申請參加自己的活動"}), 403
+        
+        # 只有 open 或 deadline 狀態允許報名，其他狀態一律拒絕
+        if activity.status not in ["open", "deadline"]:
+            return jsonify({"error": "報名已截止，無法申請參加"}), 403
+
 
         if activity.current_participants >= activity.max_participants:
             return jsonify({"error": "活動已額滿"}), 403

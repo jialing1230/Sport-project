@@ -51,7 +51,7 @@ def activity_overview():
 @activity_bp.route("", methods=["GET"])
 def list_activities():
     with get_db() as db:
-        activities = db.query(Activity).all()
+        activities = db.query(Activity).filter(Activity.status != "close").all()
         result = []
         for a in activities:
             result.append({

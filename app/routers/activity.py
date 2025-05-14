@@ -254,24 +254,15 @@ def update_participant_status():
                 return jsonify({"error": f"參加者記錄不存在，activity_id: {activity_id}, member_id: {member_id}"}), 404
 
             if new_status == "joined" and participant.status == "pending":
-                # 更新活動的 current_participants
+                # 獲取活動資訊
                 activity = db.query(Activity).filter(Activity.activity_id == activity_id).first()
                 if activity:
+                    # 如果人數已達上限，阻止執行
+                    if activity.current_participants >= activity.max_participants:
+                        return jsonify({"error": "活動已額滿，無法將參加者狀態改為 joined"}), 403
+
+                    # 更新活動的 current_participants
                     activity.current_participants += 1
-
-                    # 如果人數達到上限，將活動狀態設為 close，並拒絕所有 pending 狀態的參加者
-                    if activity.current_participants == activity.max_participants:
-                        activity.status = "close"
-
-                        db.commit()
-
-                        pending_participants = db.query(ActivityJoin).filter(
-                            ActivityJoin.activity_id == activity.activity_id,
-                            ActivityJoin.status == "pending"
-                        ).all()
-
-                        for pending_participant in pending_participants:
-                            pending_participant.status = "reject"
 
             participant.status = new_status
             db.commit()

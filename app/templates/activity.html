@@ -164,6 +164,7 @@
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         gap: 20px;
         justify-content: center;
+        justify-items: center;     
         padding: 20px;
       }
 
@@ -1142,8 +1143,7 @@
           addActivityCard.style.display = "flex";
           addActivityCard.style.justifyContent = "center";
           addActivityCard.style.alignItems = "center";
-          addActivityCard.style.height = "200px"; // 固定高度
-          addActivityCard.style.width = "300px"; // 固定寬度
+         
           addActivityCard.innerHTML = `
             <h3 style="text-align: center; font-size: 48px; color: var(--primary-color);">＋</h3>
           `;

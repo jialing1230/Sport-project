@@ -351,7 +351,7 @@
             border-radius: 50%;
             width: 40px;
             height: 40px;
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: center;
             cursor: pointer;
@@ -390,11 +390,10 @@
         </div>
       </div>
       <div class="btn-group" id="view-btns">
-        <a href="/home?member_id={{ member_id }}">← 返回首頁</a>
         <a href="javascript:void(0);" id="edit-btn">編輯資料</a>
       </div>
       <div class="btn-group" id="edit-btns" style="display: none">
-        <a href="javascript:void(0);" id="save-btn">保存</a>
+        <a href="javascript:void(0);" id="save-btn">完成</a>
         <a href="javascript:void(0);" id="cancel-btn">取消</a>
       </div>
     </div>
@@ -410,22 +409,24 @@
         position: fixed;
         top: 0;
         left: 0;
+        padding-top: 20px; 
         width: 100%;
         height: 100%;
         background: rgba(0, 0, 0, 0.7);
         z-index: 1000;
-        align-items: center;
+        align-items: flex-start;
         justify-content: center;
       "
     >
       <div
         style="
           background: #fff;
-          padding: 20px;
+          padding: 15px;
           border-radius: 8px;
-          max-width: 90%;
-          max-height: 90%;
+          max-width: 80%;
+          max-height: 80%;
           text-align: center;
+          overflow: hidden;
         "
       >
         <img id="cropImage" style="max-width: 100%; max-height: 60vh" />
@@ -462,21 +463,52 @@
       </div>
     </div>
 
+    
+
     <div class="bottom-nav">
       <button class="bottom-item">
-        <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" fill="#000000" viewBox="0 0 256 256"><path d="M208,28H188V24a12,12,0,0,0-24,0v4H92V24a12,12,0,0,0-24,0v4H48A20,20,0,0,0,28,48V208a20,20,0,0,0,20,20H208a20,20,0,0,0,20-20V48A20,20,0,0,0,208,28ZM68,52a12,12,0,0,0,24,0h72a12,12,0,0,0,24,0h16V76H52V52ZM52,204V100H204V204Zm92-76a16,16,0,1,1-16-16A16,16,0,0,1,144,128Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,192,128ZM96,176a16,16,0,1,1-16-16A16,16,0,0,1,96,176Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,144,176Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,192,176Z"></path></svg>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="96"
+          height="96"
+          fill="#000000"
+          viewBox="0 0 256 256"
+        >
+          <path
+            d="M208,28H188V24a12,12,0,0,0-24,0v4H92V24a12,12,0,0,0-24,0v4H48A20,20,0,0,0,28,48V208a20,20,0,0,0,20,20H208a20,20,0,0,0,20-20V48A20,20,0,0,0,208,28ZM68,52a12,12,0,0,0,24,0h72a12,12,0,0,0,24,0h16V76H52V52ZM52,204V100H204V204Zm92-76a16,16,0,1,1-16-16A16,16,0,0,1,144,128Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,192,128ZM96,176a16,16,0,1,1-16-16A16,16,0,0,1,96,176Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,144,176Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,192,176Z"
+          ></path>
+        </svg>
         <div class="item-label">活動</div>
       </button>
       <button class="bottom-item">
-        <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" fill="#000000" viewBox="0 0 256 256"><path d="M108,80a20,20,0,1,1,20,20A20,20,0,0,1,108,80ZM60,80a68,68,0,0,1,136,0c0,62.25-59.51,97-62.05,98.42a12,12,0,0,1-11.9,0C119.51,177,60,142.25,60,80Zm24,0c0,38.2,30.71,64.2,44,73.64C141.21,144.15,172,118,172,80a44,44,0,0,0-88,0Zm124.57,65.6a12,12,0,1,0-9.14,22.19C213.56,173.61,220,180.27,220,184c0,4-7.13,11.07-22.77,17.08-18.3,7-42.89,10.92-69.23,10.92s-50.93-3.88-69.23-10.92C43.12,195.07,36,188,36,184c0-3.73,6.44-10.39,20.57-16.21a12,12,0,1,0-9.14-22.19C31.27,152.25,12,164.31,12,184c0,34.14,58.36,52,116,52,29.22,0,56.86-4.44,77.85-12.52C220.1,218,244,205.59,244,184,244,164.31,224.73,152.25,208.57,145.6Z"></path></svg>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="96"
+          height="96"
+          fill="#000000"
+          viewBox="0 0 256 256"
+        >
+          <path
+            d="M108,80a20,20,0,1,1,20,20A20,20,0,0,1,108,80ZM60,80a68,68,0,0,1,136,0c0,62.25-59.51,97-62.05,98.42a12,12,0,0,1-11.9,0C119.51,177,60,142.25,60,80Zm24,0c0,38.2,30.71,64.2,44,73.64C141.21,144.15,172,118,172,80a44,44,0,0,0-88,0Zm124.57,65.6a12,12,0,1,0-9.14,22.19C213.56,173.61,220,180.27,220,184c0,4-7.13,11.07-22.77,17.08-18.3,7-42.89,10.92-69.23,10.92s-50.93-3.88-69.23-10.92C43.12,195.07,36,188,36,184c0-3.73,6.44-10.39,20.57-16.21a12,12,0,1,0-9.14-22.19C31.27,152.25,12,164.31,12,184c0,34.14,58.36,52,116,52,29.22,0,56.86-4.44,77.85-12.52C220.1,218,244,205.59,244,184,244,164.31,224.73,152.25,208.57,145.6Z"
+          ></path>
+        </svg>
         <div class="item-label">地圖</div>
       </button>
       <button class="bottom-item active">
-        <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" fill="#000000" viewBox="0 0 256 256"><path d="M234.38,210a123.36,123.36,0,0,0-60.78-53.23,76,76,0,1,0-91.2,0A123.36,123.36,0,0,0,21.62,210a12,12,0,1,0,20.77,12c18.12-31.32,50.12-50,85.61-50s67.49,18.69,85.61,50a12,12,0,0,0,20.77-12ZM76,96a52,52,0,1,1,52,52A52.06,52.06,0,0,1,76,96Z"></path></svg>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="96"
+          height="96"
+          fill="#000000"
+          viewBox="0 0 256 256"
+        >
+          <path
+            d="M234.38,210a123.36,123.36,0,0,0-60.78-53.23,76,76,0,1,0-91.2,0A123.36,123.36,0,0,0,21.62,210a12,12,0,1,0,20.77,12c18.12-31.32,50.12-50,85.61-50s67.49,18.69,85.61,50a12,12,0,0,0,20.77-12ZM76,96a52,52,0,1,1,52,52A52.06,52.06,0,0,1,76,96Z"
+          ></path>
+        </svg>
         <div class="item-label">個人</div>
       </button>
     </div>
-    
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script>
@@ -999,6 +1031,12 @@
         document.getElementById("view-btns").style.display = "none";
         document.getElementById("edit-btns").style.display = "";
 
+        // 顯示更換頭像按鈕
+        const changeAvatarBtn = document.getElementById("changeAvatarBtn");
+        if (changeAvatarBtn) {
+          changeAvatarBtn.style.display = "flex";
+        }
+
         fetch("/api/preferences/options")
           .then((r) => r.json())
           .then((options) => {
@@ -1248,41 +1286,42 @@
     </script>
     <script>
       document.querySelectorAll(".bottom-item").forEach((item) => {
-      item.addEventListener("click", function (e) {
-        e.preventDefault(); // ✅ 阻止立即跳頁
+        item.addEventListener("click", function (e) {
+          e.preventDefault(); // ✅ 阻止立即跳頁
 
-        // 移除舊 ripple（確保只有一個）
-        const oldRipple = this.querySelector(".ripple");
-        if (oldRipple) oldRipple.remove();
+          // 移除舊 ripple（確保只有一個）
+          const oldRipple = this.querySelector(".ripple");
+          if (oldRipple) oldRipple.remove();
 
-        // 建立新 ripple
-        const ripple = document.createElement("span");
-        ripple.classList.add("ripple");
+          // 建立新 ripple
+          const ripple = document.createElement("span");
+          ripple.classList.add("ripple");
 
-        const rect = this.getBoundingClientRect();
-        const size = Math.max(rect.width, rect.height);
-        ripple.style.width = ripple.style.height = `${size * 2}px`;
-        ripple.style.left = `${e.clientX - rect.left - size}px`;
-        ripple.style.top = `${e.clientY - rect.top - size}px`;
+          const rect = this.getBoundingClientRect();
+          const size = Math.max(rect.width, rect.height);
+          ripple.style.width = ripple.style.height = `${size * 2}px`;
+          ripple.style.left = `${e.clientX - rect.left - size}px`;
+          ripple.style.top = `${e.clientY - rect.top - size}px`;
 
-        this.appendChild(ripple);
+          this.appendChild(ripple);
 
-        // 切換 active 樣式
-        document.querySelectorAll(".bottom-item").forEach((i) =>
-          i.classList.remove("active")
-        );
-        this.classList.add("active");
+          // 切換 active 樣式
+          document
+            .querySelectorAll(".bottom-item")
+            .forEach((i) => i.classList.remove("active"));
+          this.classList.add("active");
 
-        // ✅ 延遲導頁：依照順序呼叫對應函式
-        const index = [...document.querySelectorAll(".bottom-item")].indexOf(this);
-        setTimeout(() => {
-          if (index === 0) goToActivity();
-          else if (index === 1) goToPage();
-          else if (index === 2) goToProfile();
-        }, 300); // 動畫時間配合 CSS 中的 animation 時長
+          // ✅ 延遲導頁：依照順序呼叫對應函式
+          const index = [...document.querySelectorAll(".bottom-item")].indexOf(
+            this
+          );
+          setTimeout(() => {
+            if (index === 0) goToActivity();
+            else if (index === 1) goToPage();
+            else if (index === 2) goToProfile();
+          }, 300); // 動畫時間配合 CSS 中的 animation 時長
+        });
       });
-    });
-
-    </script>    
+    </script>
   </body>
 </html>

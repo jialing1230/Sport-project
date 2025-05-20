@@ -14,7 +14,7 @@
     </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>首頁｜運動夥伴平台</title>
+    <title>體育相關新聞</title>
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
@@ -134,13 +134,50 @@
           font-size: 13px;
         }
       }
+
+      .back-button {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 8px;
+      }
+
+      .back-button svg:hover {
+        transform: scale(1.1);
+      }
     </style>
   </head>
   <body>
-
+    <button onclick="goToHome()" class="back-button">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="32"
+        height="32"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#1B3A6E"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+    </button>
     <section class="map-section">
       <h3><i class="fas fa-map-marked-alt"></i> 附近熱門運動場地</h3>
-      <div id="map" style="width: 100%; height: 400px; border-radius: 10px; margin-top: 20px;"></div>
+
+      <div
+        id="map"
+        style="
+          width: 100%;
+          height: 400px;
+          border-radius: 10px;
+          margin-top: 20px;
+        "
+      ></div>
     </section>
     <section class="news-section">
       <h3><i class="fas fa-newspaper"></i> 體育相關新聞</h3>
@@ -153,6 +190,13 @@
     </section>
 
     <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      const memberId = urlParams.get("member_id");
+
+      function goToHome() {
+        window.location.href = `/home?member_id=${memberId}`;
+      }
+
       fetch("/api/yahoo-sports-news")
         .then((res) => res.json())
         .then((data) => {
@@ -179,37 +223,39 @@
 
     <script>
       function initMap() {
-  // 設定地圖的中心位置為台北市中心
-  const map = new google.maps.Map(document.getElementById("map"), {
-    zoom: 12,
-    center: { lat: 25.038, lng: 121.5645 },
-  });
+        // 設定地圖的中心位置為台北市中心
+        const map = new google.maps.Map(document.getElementById("map"), {
+          zoom: 12,
+          center: { lat: 25.038, lng: 121.5645 },
+        });
 
-  // 台北市各運動中心位置與名稱（固定寫死）
-  const centers = [
-    { name: "台北市中山運動中心", lat: 25.0623, lng: 121.5263 },
-    { name: "台北市中正運動中心", lat: 25.0338, lng: 121.5199 },
-    { name: "台北市信義運動中心", lat: 25.0307, lng: 121.5624 },
-    { name: "台北市松山運動中心", lat: 25.0515, lng: 121.5611 },
-    { name: "台北市大安運動中心", lat: 25.0268, lng: 121.5438 },
-    { name: "台北市萬華運動中心", lat: 25.0334, lng: 121.4981 },
-    { name: "台北市內湖運動中心", lat: 25.0833, lng: 121.5809 },
-    { name: "台北市士林運動中心", lat: 25.0913, lng: 121.5247 },
-    { name: "台北市北投運動中心", lat: 25.1326, lng: 121.4978 },
-  ];
+        // 台北市各運動中心位置與名稱（固定寫死）
+        const centers = [
+          { name: "台北市中山運動中心", lat: 25.0623, lng: 121.5263 },
+          { name: "台北市中正運動中心", lat: 25.0338, lng: 121.5199 },
+          { name: "台北市信義運動中心", lat: 25.0307, lng: 121.5624 },
+          { name: "台北市松山運動中心", lat: 25.0515, lng: 121.5611 },
+          { name: "台北市大安運動中心", lat: 25.0268, lng: 121.5438 },
+          { name: "台北市萬華運動中心", lat: 25.0334, lng: 121.4981 },
+          { name: "台北市內湖運動中心", lat: 25.0833, lng: 121.5809 },
+          { name: "台北市士林運動中心", lat: 25.0913, lng: 121.5247 },
+          { name: "台北市北投運動中心", lat: 25.1326, lng: 121.4978 },
+        ];
 
-  // 逐一建立標記 Marker 並加到地圖上
-  centers.forEach((center) => {
-    new google.maps.Marker({
-      position: { lat: center.lat, lng: center.lng },
-      map: map,
-      title: center.name,
-    });
-  });
-}
+        // 逐一建立標記 Marker 並加到地圖上
+        centers.forEach((center) => {
+          new google.maps.Marker({
+            position: { lat: center.lat, lng: center.lng },
+            map: map,
+            title: center.name,
+          });
+        });
+      }
     </script>
-    <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap">
-  </script>
+    <script
+      async
+      defer
+      src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap"
+    ></script>
   </body>
 </html>

@@ -165,8 +165,16 @@
       <div class="title-row">
         <div class="title-left">
           <button onclick="history.back()" class="back-button">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" class="arrow-icon" viewBox="0 0 256 256">
-              <path d="M228,128a12,12,0,0,1-12,12H69l51.52,51.51a12,12,0,0,1-17,17l-72-72a12,12,0,0,1,0-17l72-72a12,12,0,0,1,17,17L69,116H216A12,12,0,0,1,228,128Z"/>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="28"
+              height="28"
+              class="arrow-icon"
+              viewBox="0 0 256 256"
+            >
+              <path
+                d="M228,128a12,12,0,0,1-12,12H69l51.52,51.51a12,12,0,0,1-17,17l-72-72a12,12,0,0,1,0-17l72-72a12,12,0,0,1,17,17L69,116H216A12,12,0,0,1,228,128Z"
+              />
             </svg>
           </button>
         </div>
@@ -174,10 +182,9 @@
           <img src="/static/logo.png" alt="Logo" class="logo-inline" />
           <h1>發起活動</h1>
         </div>
-        <div class="title-right"><!-- 預留空間用 --> </div>
+        <div class="title-right"><!-- 預留空間用 --></div>
       </div>
       <form id="preferenceForm">
-       
         <div class="form-row">
           <label class="form-label">活動名稱</label>
           <input
@@ -240,11 +247,7 @@
         </div>
         <div class="form-row">
           <label class="form-label">報名截止日期</label>
-          <input
-            type="datetime-local"
-            name="registration_deadline"
-            required
-          />
+          <input type="datetime-local" name="registration_deadline" required />
         </div>
         <div class="form-row">
           <label class="form-label">性別</label>
@@ -387,13 +390,14 @@
         });
       });
 
-      fetch('/api/preferences/options')
-        .then(response => response.json())
-        .then(data => {
-          const sportOptionsContainer = document.getElementById('sport-options');
-          data.sport_types.forEach(sport => {
-            const label = document.createElement('label');
-            label.className = 'radio-card';
+      fetch("/api/preferences/options")
+        .then((response) => response.json())
+        .then((data) => {
+          const sportOptionsContainer =
+            document.getElementById("sport-options");
+          data.sport_types.forEach((sport) => {
+            const label = document.createElement("label");
+            label.className = "radio-card";
             label.innerHTML = `
               <input type="radio" name="sport" value="${sport.sport_type_id}" required />
               ${sport.name}
@@ -401,57 +405,91 @@
             sportOptionsContainer.appendChild(label);
           });
         })
-        .catch(error => console.error('Error fetching sport types:', error));
+        .catch((error) => console.error("Error fetching sport types:", error));
 
       const urlParams = new URLSearchParams(window.location.search);
       const memberId = urlParams.get("member_id");
 
-      document.getElementById("preferenceForm").addEventListener("submit", function (e) {
-        e.preventDefault();
+      document
+        .getElementById("preferenceForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
 
-        if (!confirm("確定要發起活動嗎？")) {
-          return;
-        }
+          const formData = new FormData(this);
+          const now = new Date();
+          const registrationDeadline = new Date(
+            formData.get("registration_deadline")
+          );
+          const startTime = new Date(formData.get("startTime"));
+          const endTime = new Date(formData.get("endTime"));
 
-        const formData = new FormData(this);
-        const data = {
-          title: formData.get("title"),
-          start_time: formData.get("startTime"),
-          end_time: formData.get("endTime"),
-          location_name: formData.get("location"),
-          location_lat: 25.033,
-          location_lng: 121.565,
-          max_participants: parseInt(formData.get("numPeople")),
-          venue_fee: parseFloat(formData.get("venue_fee")),
-          registration_deadline: formData.get("registration_deadline"),
-          organizer_id: memberId, // 使用網址中的 member_id
-          level: formData.get("level"),
-          sport_type_id: parseInt(formData.get("sport")),
-          description: formData.get("description"),
-          status: "open",
-          target_identity: "不限",
-          gender: formData.get("gender"),
-          age_range: formData.get("ageRange"),
-        };
+          if (registrationDeadline <= now) {
+            alert("報名截止日期必須在現在時間之後！");
+            return;
+          }
 
-        fetch("/api/activities", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        })
-          .then((res) => {
-            if (res.ok) {
-              alert("活動發起成功！");
-              window.location.href = `/activity?member_id=${memberId}`;
-            } else {
-              alert("活動發起失敗，請稍後再試！");
-            }
+          if (startTime <= now) {
+            alert("開始時間必須在現在時間之後！");
+            return;
+          }
+
+          if (endTime <= now) {
+            alert("結束時間必須在現在時間之後！");
+            return;
+          }
+
+          if (registrationDeadline >= startTime) {
+            alert("報名截止日期必須早於開始時間！");
+            return;
+          }
+
+          if (startTime >= endTime) {
+            alert("開始時間必須早於結束時間！");
+            return;
+          }
+
+          if (!confirm("確定要發起活動嗎？")) {
+            return;
+          }
+
+          const data = {
+            title: formData.get("title"),
+            start_time: formData.get("startTime"),
+            end_time: formData.get("endTime"),
+            location_name: formData.get("location"),
+            location_lat: 25.033,
+            location_lng: 121.565,
+            max_participants: parseInt(formData.get("numPeople")),
+            venue_fee: parseFloat(formData.get("venue_fee")),
+            registration_deadline: formData.get("registration_deadline"),
+            organizer_id: memberId, // 使用網址中的 member_id
+            level: formData.get("level"),
+            sport_type_id: parseInt(formData.get("sport")),
+            description: formData.get("description"),
+            status: "open",
+            target_identity: "不限",
+            gender: formData.get("gender"),
+            age_range: formData.get("ageRange"),
+          };
+
+          fetch("/api/activities", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
           })
-          .catch((err) => {
-            console.error("錯誤:", err);
-            alert("發起活動時出錯！");
-          });
-      });
+            .then((res) => {
+              if (res.ok) {
+                alert("活動發起成功！");
+                window.location.href = `/activity?member_id=${memberId}`;
+              } else {
+                alert("活動發起失敗，請稍後再試！");
+              }
+            })
+            .catch((err) => {
+              console.error("錯誤:", err);
+              alert("發起活動時出錯！");
+            });
+        });
 
       function sportNameToId(sport) {
         const mapping = {

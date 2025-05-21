@@ -13,26 +13,25 @@ def update_activity_status():
         now = datetime.now()
         activities = db.query(Activity).all()
         for activity in activities:
-            # 如果活動已經是 close，則跳過更新
-            if activity.status == "close":
-                continue
-
-            if activity.end_time and activity.end_time < now:
+            # 按 open -> deadline -> ongoing -> close 順序更新狀態
+            if activity.registration_deadline and now < activity.registration_deadline:
+                activity.status = "open"
+            elif activity.registration_deadline and now >= activity.registration_deadline and (not activity.start_time or now < activity.start_time):
+                activity.status = "deadline"
+            elif activity.start_time and now >= activity.start_time and (not activity.end_time or now < activity.end_time):
+                activity.status = "ongoing"
+            elif activity.end_time and now >= activity.end_time:
                 activity.status = "close"
-
-                # 更新 activity_join 表中此 activity_id 的 pending 狀態為 reject
+                # 更新 pending 為 reject
                 pending_participants = db.query(ActivityJoin).filter(
                     ActivityJoin.activity_id == activity.activity_id,
                     ActivityJoin.status == "pending"
                 ).all()
-
                 for participant in pending_participants:
                     participant.status = "reject"
-
-            elif activity.start_time and activity.start_time > now:
-                activity.status = "open"
             else:
-                activity.status = "ongoing"
+                activity.status = "unknown"
+
         db.commit()
 
 def start_scheduler():

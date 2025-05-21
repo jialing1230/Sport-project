@@ -219,6 +219,7 @@
               name="password"
               class="form-input"
               placeholder="至少 8 字元，含大小寫字母與數字"
+              autocomplete="new-password"
               required
             />
           </div>
@@ -229,6 +230,7 @@
               id="confirmPassword"
               name="confirmPassword"
               class="form-input"
+              autocomplete="new-password"
               required
             />
           </div>
@@ -255,6 +257,32 @@
     </div>
 
     <script>
+      // 安全 UUID v4 產生器：使用 crypto.getRandomValues
+      function generateUUID() {
+        const cryptoObj = window.crypto || window.msCrypto;
+        const buffer = new Uint8Array(16);
+        cryptoObj.getRandomValues(buffer);
+
+        buffer[6] = (buffer[6] & 0x0f) | 0x40; // 設定 version 4
+        buffer[8] = (buffer[8] & 0x3f) | 0x80; // 設定 variant
+
+        const hex = Array.from(buffer).map((b) =>
+          b.toString(16).padStart(2, "0")
+        );
+
+        return (
+          hex.slice(0, 4).join("") +
+          "-" +
+          hex.slice(4, 6).join("") +
+          "-" +
+          hex.slice(6, 8).join("") +
+          "-" +
+          hex.slice(8, 10).join("") +
+          "-" +
+          hex.slice(10, 16).join("")
+        );
+      }
+
       let isCaptchaVerified = false;
       const emailInput = document.getElementById("account");
 
@@ -320,8 +348,7 @@
         }
 
         const email = emailInput.value;
-        // 改用原生 API 生成 UUID
-        const memberId = crypto.randomUUID();
+        const memberId = generateUUID();
 
         fetch("/api/members", {
           method: "POST",

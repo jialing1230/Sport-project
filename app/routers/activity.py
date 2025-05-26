@@ -309,7 +309,8 @@ def join_activity():
         join = ActivityJoin(
             member_id=member_id,
             activity_id=activity_id,
-            status="pending"
+            status="pending",
+            join_time=datetime.now()
         )
         db.add(join)
         db.commit()

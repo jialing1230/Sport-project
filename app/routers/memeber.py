@@ -345,6 +345,15 @@ def check_name():
     with get_db() as db:
         existing_member = db.query(Member).filter_by(name=name).first()
         return jsonify({"available": existing_member is None}), 200
+    
+@member_bp.route("/check-email", methods=["GET"])
+def check_email():
+    email = request.args.get("email", "").strip()
+    if not email:
+        return jsonify({"error": "缺少電子郵件"}), 400
 
+    with get_db() as db:
+        existing_member = db.query(Member).filter_by(email=email).first()
+        return jsonify({"available": existing_member is None}), 200
 
 

@@ -336,5 +336,15 @@ def update_avatar(member_id):
     file.save(save_path)
     return jsonify({"message": "頭像更新成功"}), 200
 
+@member_bp.route("/check-name", methods=["GET"])
+def check_name():
+    name = request.args.get("name", "").strip()
+    if not name:
+        return jsonify({"error": "缺少名稱"}), 400
+
+    with get_db() as db:
+        existing_member = db.query(Member).filter_by(name=name).first()
+        return jsonify({"available": existing_member is None}), 200
+
 
 

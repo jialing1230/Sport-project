@@ -217,7 +217,8 @@
         .form-label {
           font-size: 15px;
         }
-        .form-input, .form-select {
+        .form-input,
+        .form-select {
           font-size: 15px;
         }
         .btn-primary {
@@ -290,7 +291,9 @@
             </div>
           </div>
           <div class="form-row">
-            <label class="form-label">身高體重<span class="required-star">*</span></label>
+            <label class="form-label"
+              >身高體重<span class="required-star">*</span></label
+            >
             <div style="display: flex; gap: 10px">
               <input
                 type="number"
@@ -847,6 +850,21 @@
             !weight
           ) {
             alert("請將所有欄位填寫完整");
+            return;
+          }
+
+          // 檢查名稱是否已存在
+          try {
+            const checkRes = await fetch(
+              `/api/members/check-name?name=${encodeURIComponent(name)}`
+            );
+            const checkData = await checkRes.json();
+            if (!checkData.available) {
+              alert("名稱已被使用，請選擇其他名稱");
+              return;
+            }
+          } catch (err) {
+            alert("檢查名稱時發生錯誤，請稍後再試");
             return;
           }
 

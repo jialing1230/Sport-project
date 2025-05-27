@@ -293,18 +293,34 @@
           return;
         }
 
-        fetch("/api/auth/verify-email", {
-          method: "POST",
-          body: JSON.stringify({ email }),
-          headers: { "Content-Type": "application/json" },
-        }).then((res) => {
-          if (res.ok) {
-            document.getElementById("captcha-container").classList.add("show");
-            alert("驗證碼已發送至您的信箱！");
-          } else {
-            alert("發送驗證碼失敗！");
-          }
-        });
+        // 檢查 email 是否已存在
+        fetch(`/api/members/check-email?email=${encodeURIComponent(email)}`)
+          .then((res) => res.json())
+          .then((data) => {
+            if (!data.available) {
+              alert("此電子郵件已被註冊，請使用其他電子郵件！");
+              return;
+            }
+
+            // 如果 email 可用，發送驗證碼
+            fetch("/api/auth/verify-email", {
+              method: "POST",
+              body: JSON.stringify({ email }),
+              headers: { "Content-Type": "application/json" },
+            }).then((res) => {
+              if (res.ok) {
+                document
+                  .getElementById("captcha-container")
+                  .classList.add("show");
+                alert("驗證碼已發送至您的信箱！");
+              } else {
+                alert("發送驗證碼失敗！");
+              }
+            });
+          })
+          .catch(() => {
+            alert("檢查電子郵件時發生錯誤，請稍後再試！");
+          });
       }
 
       function verifyCaptcha() {

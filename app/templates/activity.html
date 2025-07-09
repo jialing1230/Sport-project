@@ -681,6 +681,99 @@
       #tabContents {
         padding-bottom: 80px; /* ✅ 預留導覽列高度空間 */
       }
+      #activityTypeModal {
+        display: none;
+        position: fixed;
+        z-index: 1200;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.4);
+        justify-content: center;
+        align-items: flex-end; /* 改為底部對齊 */
+        transition: background-color 0.3s ease;
+      }
+
+      #activityTypeModal.show {
+        display: flex;
+      }
+
+      .activity-type-box {
+        background-color: #fff;
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+        padding: 24px 16px;
+        width: 100%;
+        max-width: 420px;
+        text-align: center;
+        position: relative;
+        box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.2);
+
+        transform: translateY(100%);
+        animation: slideUp 0.3s ease-out forwards;
+      }
+
+      @keyframes slideUp {
+        to {
+          transform: translateY(0%);
+        }
+      }
+
+      .activity-type-title {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 24px;
+        font-size: 18px;
+        font-weight: bold;
+        color: var(--text-color);
+      }
+
+      .activity-type-title svg {
+        margin-left: 6px;
+        width: 18px;
+        height: 18px;
+        stroke: var(--primary-color);
+        stroke-width: 2;
+      }
+
+      .activity-type-options {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+      }
+
+      .activity-type-btn {
+        border: none;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        padding: 16px;
+        width: 120px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transition: transform 0.2s ease;
+        cursor: pointer;
+      }
+
+      .activity-type-btn:hover {
+        transform: scale(1.05);
+      }
+
+      .activity-type-btn svg {
+        width: 36px;
+        height: 36px;
+        stroke: var(--text-color);
+        margin-bottom: 8px;
+      }
+
+      .activity-type-btn div {
+        color: var(--text-color);
+        font-weight: bold;
+      }
+
     </style>
   </head>
 
@@ -804,7 +897,38 @@
         <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" fill="#000000" viewBox="0 0 256 256"><path d="M234.38,210a123.36,123.36,0,0,0-60.78-53.23,76,76,0,1,0-91.2,0A123.36,123.36,0,0,0,21.62,210a12,12,0,1,0,20.77,12c18.12-31.32,50.12-50,85.61-50s67.49,18.69,85.61,50a12,12,0,0,0,20.77-12ZM76,96a52,52,0,1,1,52,52A52.06,52.06,0,0,1,76,96Z"></path></svg>
         <div class="item-label">個人</div>
       </button>
+      <!-- 活動類型選擇彈窗 -->
+    <div id="activityTypeModal" class="activity-type-modal">
+      <div class="activity-type-box">
+        <div class="activity-type-title">
+          選擇活動類型
+          <!-- 問號 SVG -->
+         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#4aa3b5" viewBox="0 0 256 256" style="position: relative; top: 3px;">
+          <path d="M144,180a16,16,0,1,1-16-16A16,16,0,0,1,144,180Zm92-52A108,108,0,1,1,128,20,108.12,108.12,0,0,1,236,128Zm-24,0a84,84,0,1,0-84,84A84.09,84.09,0,0,0,212,128ZM128,64c-24.26,0-44,17.94-44,40v4a12,12,0,0,0,24,0v-4c0-8.82,9-16,20-16s20,7.18,20,16-9,16-20,16a12,12,0,0,0-12,12v8a12,12,0,0,0,23.73,2.56C158.31,137.88,172,122.37,172,104,172,81.94,152.26,64,128,64Z"/>
+        </svg>
+        </div>
+
+        <div class="activity-type-options">
+          <!-- 一般活動 -->
+          <button class="activity-type-btn" onclick="goToCreateWithType('general')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="#2c4975" viewBox="0 0 256 256">
+              <path d="M253.88,108.11l-25.53-51a20,20,0,0,0-26.83-9L178.34,59.7,131.7,44.58a12.14,12.14,0,0,0-7.4,0L77.66,59.7,54.48,48.11a20,20,0,0,0-26.83,9L2.12,108.11a20,20,0,0,0,9,26.83l26.67,13.34,51.18,37.41A12.15,12.15,0,0,0,93,187.62l62,16a12.27,12.27,0,0,0,3,.38,12,12,0,0,0,8.48-3.52l52.62-52.62,25.83-12.92a20,20,0,0,0,8.95-26.83Zm-58.12,29.15-27.52-26a12,12,0,0,0-16.76.26c-9.66,9.74-25.06,16.81-40.81,9.55l38.19-37h22.72l25.81,51.63ZM47.32,71.37,60.59,78l-22,43.9-13.27-6.63Zm107,107.3L101.23,165l-42-30.66L85.17,82.5,128,68.61l1.69.55L90,107.68l-.13.12a20,20,0,0,0,3.4,31c20.95,13.39,46,12.07,66.33-2.73l19.2,18.15Zm63-56.77-22-43.9,13.27-6.63,21.95,43.9ZM118.55,219a12,12,0,0,1-14.62,8.62l-26.6-6.87a12,12,0,0,1-4.08-1.93L48.92,201a12,12,0,0,1,14.16-19.37l22.47,16.42,24.38,6.29A12,12,0,0,1,118.55,219Z"/>
+            </svg>
+
+            <div>一般活動</div>
+          </button>
+
+          <!-- 訓練課程 -->
+          <button class="activity-type-btn" onclick="goToCreateWithType('course')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="#2c4975" viewBox="0 0 256 256">
+              <path d="M172,164a12,12,0,0,1-12,12H96a12,12,0,0,1,0-24h64A12,12,0,0,1,172,164Zm-12-52H96a12,12,0,0,0,0,24h64a12,12,0,0,0,0-24Zm60-64V216a20,20,0,0,1-20,20H56a20,20,0,0,1-20-20V48A20,20,0,0,1,56,28H90.53a51.88,51.88,0,0,1,74.94,0H200A20,20,0,0,1,220,48ZM100.29,60h55.42a28,28,0,0,0-55.42,0ZM196,52H178.59A52.13,52.13,0,0,1,180,64v8a12,12,0,0,1-12,12H88A12,12,0,0,1,76,72V64a52.13,52.13,0,0,1,1.41-12H60V212H196Z"/>
+            </svg>
+            <div>訓練課程</div>
+          </button>
+        </div>
+      </div>
     </div>
+
 
     <script>
       const urlParams = new URLSearchParams(window.location.search);
@@ -1143,7 +1267,7 @@
           // 新增按鈕卡片
           const addActivityCard = document.createElement("div");
           addActivityCard.className = "activity-card add-activity-card";
-          addActivityCard.onclick = goToCreate;
+          addActivityCard.onclick = openActivityTypeModal;
           addActivityCard.style.border = "2px dashed var(--primary-color)";
           addActivityCard.style.backgroundColor = "transparent";
           addActivityCard.style.display = "flex";
@@ -1402,6 +1526,30 @@
         }, 300); // 動畫時間配合 CSS 中的 animation 時長
       });
     });
+      function openActivityTypeModal() {
+      console.log("彈窗觸發了");
+      document.getElementById("activityTypeModal").classList.add("show");
+    }
+
+    function closeActivityTypeModal() {
+      document.getElementById("activityTypeModal").classList.remove("show");
+    }
+
+    function goToCreateWithType(type) {
+      if (!memberId) {
+        alert("無效的會員資訊！");
+        return;
+      }
+      window.location.href = `/create_activity?member_id=${memberId}&type=${type}`;
+    }
+
+    // 點擊彈窗外部區域時關閉彈窗
+    document.getElementById("activityTypeModal").addEventListener("click", function (event) {
+    const box = this.querySelector(".activity-type-box");
+    if (!box.contains(event.target)) {
+      this.classList.remove("show");
+    }
+  });
 
     </script>    
   </body>

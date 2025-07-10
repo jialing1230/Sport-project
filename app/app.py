@@ -86,6 +86,13 @@ def create_app():
     @app.route("/activity.details", endpoint="activity.details_html")
     def view_activity_page():
         return render_template("activity.details.html")
+    
+    @app.route("/create_class")
+    def create_class_page():
+        member_id = request.args.get("member_id")
+        if not member_id:
+            return redirect(url_for("login_html"))
+        return render_template("create_class.html", member_id=member_id)
 
     start_scheduler()  # 啟動排程
     return app

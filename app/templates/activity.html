@@ -1540,8 +1540,15 @@
         alert("無效的會員資訊！");
         return;
       }
-      window.location.href = `/create_activity?member_id=${memberId}&type=${type}`;
+
+      if (type === 'general') {
+        window.location.href = `/create_activity?member_id=${memberId}`;
+      } else if (type === 'course') {
+        window.location.href = `/create_class?member_id=${memberId}`;
+      }
     }
+
+
 
     // 點擊彈窗外部區域時關閉彈窗
     document.getElementById("activityTypeModal").addEventListener("click", function (event) {

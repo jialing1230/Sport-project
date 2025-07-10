@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>會員中心</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Noto Sans TC', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #f4f4f4;
+      color: #1e2a39;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding-bottom: 80px;
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+
+    .profile {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 32px;
+      margin-bottom: 24px;
+      position: relative;
+      max-width: 90%;            /* ✅ 控制距離左右邊距 */
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .profile-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .username {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1B3A6E;
+    }
+
+    .streak {
+      font-size: 14px;
+      color: #81d3e1;
+      margin-top: 4px;
+      font-weight: bold;
+    }
+
+    .avatar-wrapper {
+      aspect-ratio: 1 / 1;           /* ✅ 保持正方形比例 */
+      max-height: 80px;             /* ✅ 根據需要調整最大高度 */
+      border-radius: 50%;        /* ✅ 修改：確保是圓形 */
+      overflow: hidden;
+      border: 3px solid #1B3A6E;
+    }
+
+    .avatar-wrapper img {
+      width: 100%;               /* ✅ 修改：填滿容器 */
+      height: 100%;              /* ✅ 修改：填滿容器 */
+      object-fit: cover;         /* ✅ 新增：裁切圖片維持比例 */
+    }
+
+    #changeAvatarBtn {
+      position: absolute;
+      bottom: -5px;
+      right: 0;
+      background: #81d3e1;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    #changeAvatarBtn img {
+      width: 24px;
+      height: 24px;
+    }
+
+    .quick-actions {
+      display: flex;
+      justify-content: space-around;
+      margin: 24px 0;
+    }
+
+    .action {
+      display: flex;
+      flex-direction: column; /* 垂直排列 */
+      align-items: center;     /* 水平置中 */
+      justify-content: center;
+      background-color: #f5f6f7;
+      padding: 16px;
+      border-radius: 12px;
+      width: 30%;
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;       /* 文字粗體 */
+      color: #1B3A6E;
+      border: none;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .action:hover {
+      background-color: #e0e3e7;
+      transition: background-color 0.2s ease;
+    }
+
+    .divider-line {
+      width: 100%;
+      height: 1px;
+      background-color: #ccc;
+      margin: 16px 0;         /* 上下間距 */  
+    }
+
+    .section {
+      margin-top: 20px;
+      color:#2c4975
+    }
+
+    .section-title {
+      font-weight: bold;
+      font-size: 16px;
+      margin-bottom: 12px;
+      padding-left: 8px;
+    }
+
+    .item {
+      cursor: pointer;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid #eee;
+      font-size: 15px;
+    }
+
+    .item:hover {
+      background-color: #f0f5f9; /* ✅ hover 視覺提示 */
+    }
+
+    .item-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bottom-nav {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      height: 60px;
+      background-color: #fff;
+      border-top: 1px solid #ccc;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      overflow: hidden;
+      z-index: 1000;
+      box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .bottom-item {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+      transition: transform 0.2s ease;
+      z-index: 1;
+      border: none; /* ✅ 移除邊框 */
+      outline: none; /* ✅ 移除點擊時的外框 */
+      background-color: #ffffff;
+    }
+
+    .bottom-item svg {
+      fill: #2c4975;
+      transition: fill 0.9s ease, transform 0.9s ease;
+      width: 26px;
+      height: 28px;
+      position: relative;
+    }
+
+    .bottom-item.active svg {
+      fill: #64bcd0;
+      transform: translateY(0px);
+    }
+
+    .item-label {
+      font-size: 12px;
+      color: #2c4975;
+      height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    .bottom-item.active .item-label {
+      height: 16px;
+      opacity: 1;
+      margin-top: 0px;
+      color: #64bcd0;
+    }
+
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background-color: rgba(129, 211, 225, 0.35);
+      transform: scale(0);
+      animation: ripple-animation 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+      z-index: 0;
+     }
+
+    @keyframes ripple-animation {
+      to {
+        transform: scale(2.5);
+        opacity: 0;
+      }
+    }
+      
+    .right-section {
+      display: flex;
+      align-items: center;
+      gap: 64px;
+      justify-content: flex-end;
+      flex: 1;
+      min-width: 0; /* 防止右側撐爆，尤其搜尋框有 max-width 時 */
+    }
+
+    @media (max-width: 480px) {
+      .profile {
+      flex-direction: column-reverse;
+      align-items: center;
+      text-align: center;
+      }
+
+      .avatar-wrapper {
+        margin-bottom: 12px;
+      }
+
+      .quick-actions {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .action {
+        width: 100%;
+      }
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-content {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      width: 80%;
+      max-width: 300px;
+      text-align: center;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .modal-content h3 {
+      color: #1B3A6E;
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+
+    .modal-content p {
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .modal-buttons {
+      display: flex;
+      justify-content: space-around;
+    }
+
+    .modal-buttons button {
+      padding: 8px 16px;
+      font-size: 14px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .modal-buttons button:hover {
+      opacity: 0.85;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      transform: translateY(-1px);
+      transition: all 0.2s ease;
+    }
+
+    #cancelLogout {
+      background-color: #fff;
+      border: 2px solid #f8a9b3;
+      color: #f8a9b3;
+    }
+
+    #confirmLogout {
+      background-color: #f8a9b3;
+      border: none;
+      color: white;
+    }
+
+    #cancelDelete {
+      background-color: #fff;
+      border: 2px solid #f8a9b3;
+      color: #f8a9b3;
+    }
+
+    #confirmDelete {
+      background-color: #f8a9b3;
+      border: none;
+      color: white;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="profile">
+      <div class="profile-info">
+        <h2 id="name" class="username">會員姓名</h2>
+        <div class="streak">已連續運動 4 天！</div>
+      </div>
+      <div class="avatar-wrapper">
+        <img
+          id="avatarImage"
+          src="{{ url_for('static', filename='avatars/' + member_id + '.png') }}"
+          alt="會員頭像"
+          onerror="this.src='{{ url_for('static', filename='avatars/default.jpg') }}';"
+        />
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <button class="action" id="favoritesBtn">
+      <svg 
+        xmlns="http://www.w3.org/2000/svg" 
+        width="24"
+        height="24"
+        fill="none" 
+        stroke="#1B3A6E"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        viewBox="0 0 24 24"
+        style="margin-bottom: 4px;"
+      >
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67
+             l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06
+             L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+      </svg>
+      我的收藏
+      </button>
+
+      <button class="action" id="reviewsBtn">
+      <svg 
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        fill="none"
+        stroke="#1B3A6E"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        style="margin-bottom: 4px;"
+      >
+      <path d="M12 2l2.9 6h6l-4.9 4.2L17.8 20 12 16.6 6.2 20l1.8-7.8L3 8h6z"/>
+      </svg>
+      評價記錄
+      </button>
+
+      <button class="action" id="analysisBtn">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        fill="none"
+        stroke="#1B3A6E"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        style="margin-bottom: 4px;"
+      >
+      <path d="M4 18V4m5 14V10m5 8V6m5 12v-4"/>
+      </svg>
+      運動分析
+      </button>
+    </div>
+    <div class="divider-line"></div>
+
+    <div class="section">
+      <div class="section-title">個人檔案</div>
+      
+      <div class="item" id="editProfileBtn">
+        <span class="item-left">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            fill="none"
+            stroke="#1B3A6E"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            style="margin-right: 2px;">
+          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4 -4 1.79-4 4 1.79 4 4 4zM4 20v-1c0-2.21 3.58-4 8-4s8 1.79 8 4v1" />
+          </svg>
+          <span class="item-text">編輯個人資料</span>
+        </span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          fill="none"
+          stroke="#2c4975"
+          stroke-width="2"
+          viewBox="0 0 24 24">
+        <path d="M9 6l6 6-6 6"/>
+        </svg>
+      </div>
+
+      <div class="item" id="editPreferenceBtn">
+        <span class="item-left">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            fill="none"
+            stroke="#1B3A6E"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            viewBox="0 0 24 24"
+            style="margin-right: 2px;">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M10 3a20 20 0 0 1 5 18"/>
+            <path d="M4 17 C 8 13, 16 13, 20 17"/>
+            <path d="M4 7 C 12 12, 16 12, 20 7"/>
+          </svg>
+          <span class="item-text">編輯運動偏好</span>
+        </span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          fill="none"
+          stroke="#2c4975"
+          stroke-width="2"
+          viewBox="0 0 24 24">
+        <path d="M9 6l6 6-6 6"/>
+        </svg>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">帳戶與安全</div>
+
+      <div class="item" id="changePasswordBtn">
+        <span class="item-left">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            fill="none"
+            stroke="#1B3A6E"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            style="margin-right: 2px;">
+          <rect x="5" y="11" width="14" height="10" rx="2" ry="2" />
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
+          <span class="item-text">更改密碼</span>
+        </span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          fill="none"
+          stroke="#2c4975"
+          stroke-width="2"
+          viewBox="0 0 24 24">
+        <path d="M9 6l6 6-6 6"/>
+        </svg>
+      </div>
+
+      <div class="item" id="loginMethodBtn">
+        <span class="item-left">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            fill="none"
+            stroke="#1B3A6E"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            style="margin-right: 2px;">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M8 12l3 3l5-5" />
+          </svg>
+          <span class="item-text">登入方式管理</span>
+        </span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          fill="none"
+          stroke="#2c4975"
+          stroke-width="2"
+          viewBox="0 0 24 24">
+        <path d="M9 6l6 6-6 6"/>
+        </svg>
+      </div>
+
+      <div class="item" id="blacklistBtn">
+        <span class="item-left">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            fill="none"
+            stroke="#1B3A6E"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            style="margin-right: 2px;">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M9 9l6 6" />
+          <path d="M15 9l-6 6" />
+          </svg>
+          <span class="item-text">黑名單管理</span>
+        </span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          fill="none"
+          stroke="#2c4975"
+          stroke-width="2"
+          viewBox="0 0 24 24">
+        <path d="M9 6l6 6-6 6"/>
+        </svg>
+      </div>
+
+      <div class="item" id="deleteAccountBtn">
+        <span class="item-left">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            fill="none"
+            stroke="#1B3A6E"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            style="margin-right: 2px;">
+          <path d="M3 6h18" />
+          <path d="M8 5v-1.5a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1V5" />
+          <path d="M19 6l-1 14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1L5 6" />
+          <path d="M10 11v6" />
+          <path d="M14 11v6" />
+          </svg>
+          <span class="item-text">刪除帳號</span>
+        </span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          fill="none"
+          stroke="#2c4975"
+          stroke-width="2"
+          viewBox="0 0 24 24">
+        <path d="M9 6l6 6-6 6"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">其他</div>
+      
+      <div class="item" id="logoutBtn">
+        <span class="item-left">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            fill="none"
+            stroke="#1B3A6E"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            style="margin-right: 2px;">
+          <path d="M17 3h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-2" />
+          <path d="M6 12h10" />
+          <path d="M9 9l-3 3 3 3" />
+          </svg>
+          <span class="item-text">登出帳號</span>
+        </span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          fill="none"
+          stroke="#2c4975"
+          stroke-width="2"
+          viewBox="0 0 24 24">
+        <path d="M9 6l6 6-6 6"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="bottom-nav">
+      <button class="bottom-item">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="96"
+          height="96"
+          fill="#000000"
+          viewBox="0 0 256 256"
+        >
+          <path
+            d="M208,28H188V24a12,12,0,0,0-24,0v4H92V24a12,12,0,0,0-24,0v4H48A20,20,0,0,0,28,48V208a20,20,0,0,0,20,20H208a20,20,0,0,0,20-20V48A20,20,0,0,0,208,28ZM68,52a12,12,0,0,0,24,0h72a12,12,0,0,0,24,0h16V76H52V52ZM52,204V100H204V204Zm92-76a16,16,0,1,1-16-16A16,16,0,0,1,144,128Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,192,128ZM96,176a16,16,0,1,1-16-16A16,16,0,0,1,96,176Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,144,176Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,192,176Z"
+          ></path>
+        </svg>
+        <div class="item-label">活動</div>
+      </button>
+      <button class="bottom-item active">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="96"
+          height="96"
+          fill="#000000"
+          viewBox="0 0 256 256"
+        >
+          <path
+            d="M108,80a20,20,0,1,1,20,20A20,20,0,0,1,108,80ZM60,80a68,68,0,0,1,136,0c0,62.25-59.51,97-62.05,98.42a12,12,0,0,1-11.9,0C119.51,177,60,142.25,60,80Zm24,0c0,38.2,30.71,64.2,44,73.64C141.21,144.15,172,118,172,80a44,44,0,0,0-88,0Zm124.57,65.6a12,12,0,1,0-9.14,22.19C213.56,173.61,220,180.27,220,184c0,4-7.13,11.07-22.77,17.08-18.3,7-42.89,10.92-69.23,10.92s-50.93-3.88-69.23-10.92C43.12,195.07,36,188,36,184c0-3.73,6.44-10.39,20.57-16.21a12,12,0,1,0-9.14-22.19C31.27,152.25,12,164.31,12,184c0,34.14,58.36,52,116,52,29.22,0,56.86-4.44,77.85-12.52C220.1,218,244,205.59,244,184,244,164.31,224.73,152.25,208.57,145.6Z"
+          ></path>
+        </svg>
+        <div class="item-label">地圖</div>
+      </button>
+      <button class="bottom-item">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="96"
+          height="96"
+          fill="#000000"
+          viewBox="0 0 256 256"
+        >
+          <path
+            d="M234.38,210a123.36,123.36,0,0,0-60.78-53.23,76,76,0,1,0-91.2,0A123.36,123.36,0,0,0,21.62,210a12,12,0,1,0,20.77,12c18.12-31.32,50.12-50,85.61-50s67.49,18.69,85.61,50a12,12,0,0,0,20.77-12ZM76,96a52,52,0,1,1,52,52A52.06,52.06,0,0,1,76,96Z"
+          ></path>
+        </svg>
+        <div class="item-label">個人</div>
+      </button>
+    </div>
+
+    <div id="logoutModal" class="modal">
+      <div class="modal-content">
+        <h3>登出帳號</h3>
+        <p>您確定要登出嗎？</p>
+        <div class="modal-buttons">
+          <button id="cancelLogout">取消</button>
+          <button id="confirmLogout">確認登出</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="deleteModal" class="modal">
+      <div class="modal-content">
+        <h3>刪除帳號</h3>
+        <p>您確定要刪除嗎？</p>
+        <div class="modal-buttons">
+          <button id="cancelDelete">取消</button>
+          <button id="confirmDelete">確定刪除</button>
+        </div>
+      </div>
+    </div>
+  
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const memberId = urlParams.get("member_id");
+
+    async function fetchData() {
+        const res = await fetch(`/api/members/${memberId}`);
+        const data = await res.json();
+        originalData = JSON.parse(JSON.stringify(data));
+        const nameElement = document.getElementById("name");
+        if (nameElement) nameElement.textContent = data.name || "未填寫";
+    }
+
+    document.getElementById("favoritesBtn").addEventListener("click", function () {
+      if (memberId) {
+        window.location.href = `/favorites?member_id=${memberId}`;
+      } else {
+        window.location.href = "/favorites";
+      }
+    });
+
+    document.getElementById("reviewsBtn").addEventListener("click", function () {
+      if (memberId) {
+        window.location.href = `/reviews?member_id=${memberId}`;
+      } else {
+        window.location.href = "/reviews";
+      }
+    });
+
+    document.getElementById("analysisBtn").addEventListener("click", function () {
+      if (memberId) {
+        window.location.href = `/analysis?member_id=${memberId}`;
+      } else {
+        window.location.href = "/analysis";
+      }
+    });
+
+    document.getElementById("editProfileBtn").addEventListener("click", function () {
+      if (memberId) {
+        window.location.href = `/edit_profile?member_id=${memberId}`;
+      } else {
+        window.location.href = "/edit_profile";
+      }
+    });
+
+    document.getElementById("editPreferenceBtn").addEventListener("click", function () {
+      if (memberId) {
+        window.location.href = `/edit_preference?member_id=${memberId}`;
+      } else {
+        window.location.href = "/edit_preference";
+      }
+    });
+
+    document.getElementById("changePasswordBtn").addEventListener("click", function () {
+      if (memberId) {
+        window.location.href = `/change_password?member_id=${memberId}`;
+      } else {
+        window.location.href = "/change_password";
+      }
+    });
+
+    document.getElementById("loginMethodBtn").addEventListener("click", function () {
+      if (memberId) {
+        window.location.href = `/login_methods?member_id=${memberId}`;
+      } else {
+        window.location.href = "/login_methods";
+      }
+    });
+
+    document.getElementById("blacklistBtn").addEventListener("click", function () {
+      if (memberId) {
+        window.location.href = `/blacklist?member_id=${memberId}`;
+      } else {
+        window.location.href = "/blacklist";
+      }
+    });
+
+    document.getElementById("deleteAccountBtn").addEventListener("click", function () {
+      // 這邊建議觸發彈跳視窗而不是直接跳轉
+      document.getElementById("deleteModal").style.display = "block";
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", function () {
+      // 同樣彈窗
+      document.getElementById("logoutModal").style.display = "block";
+    });
+    document.getElementById("cancelLogout").addEventListener("click", function () {
+      document.getElementById("logoutModal").style.display = "none";
+    });
+
+    document.getElementById("logoutModal").addEventListener("click", function (e) {
+      if (e.target === this) {
+        this.style.display = "none";
+      }
+    });
+
+    // 開啟刪除帳號視窗
+    document.getElementById("deleteAccountBtn").addEventListener("click", function () {
+      document.getElementById("deleteModal").style.display = "block";
+    });
+
+    // 點擊背景關閉 delete 視窗
+    document.getElementById("deleteModal").addEventListener("click", function (e) {
+      if (e.target === this) {
+        this.style.display = "none";
+      }
+    });
+
+    // 點擊取消關閉 delete 視窗
+    document.getElementById("cancelDelete").addEventListener("click", function () {
+      document.getElementById("deleteModal").style.display = "none";
+    });
+
+    document.getElementById("confirmDelete").addEventListener("click", function () {
+      // 若你有後端 API 要刪除帳號，可以在這裡加上 fetch
+      // 這裡直接跳轉註冊畫面
+      window.location.href = "/register";
+    });
+
+      const overviewBtn = document.getElementById("overview-link");
+      if (overviewBtn) {
+        overviewBtn.href = memberId
+          ? `/api/activities/overview?member_id=${memberId}`
+          : `/api/activities/overview`;
+      }
+
+      function goToActivity() {
+        window.location.href = `/activity?member_id=${memberId}`;
+      }
+
+      function goToPage() {
+        window.location.href = `/home?member_id=${memberId}`;
+      }
+
+      function goToProfile() {
+        window.location.href = `/profile_view?member_id=${memberId}`;
+      }
+
+      function goToNews() {
+        window.location.href = `/news?member_id=${memberId}`;
+      }
+    
+      document.querySelectorAll(".bottom-item").forEach((item) => {
+        item.addEventListener("click", function (e) {
+          e.preventDefault(); // ✅ 阻止立即跳頁
+
+          // 移除舊 ripple（確保只有一個）
+          const oldRipple = this.querySelector(".ripple");
+          if (oldRipple) oldRipple.remove();
+
+          // 建立新 ripple
+          const ripple = document.createElement("span");
+          ripple.classList.add("ripple");
+
+          const rect = this.getBoundingClientRect();
+          const size = Math.max(rect.width, rect.height);
+          ripple.style.width = ripple.style.height = `${size * 2}px`;
+          ripple.style.left = `${e.clientX - rect.left - size}px`;
+          ripple.style.top = `${e.clientY - rect.top - size}px`;
+
+          this.appendChild(ripple);
+
+          // 切換 active 樣式
+          document
+            .querySelectorAll(".bottom-item")
+            .forEach((i) => i.classList.remove("active"));
+          this.classList.add("active");
+
+          // ✅ 延遲導頁：依照順序呼叫對應函式
+          const index = [...document.querySelectorAll(".bottom-item")].indexOf(
+            this
+          );
+          setTimeout(() => {
+            if (index === 0) goToActivity();
+            else if (index === 1) goToPage();
+            else if (index === 2) goToProfile();
+          }, 300); // 動畫時間配合 CSS 中的 animation 時長
+        });
+      });
+    </script>
+  </body>
+</html>

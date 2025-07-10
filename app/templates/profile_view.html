@@ -19,17 +19,27 @@
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         background: var(--bg-color);
         margin: 0;
-        padding: 40px 20px;
+        padding: 0px 20px;
         
       }
       .profile-card {
-        background: #fff;
-        border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        padding: 15px;
-        margin: 10px auto;
-        max-width: 360px;
         text-align: left;
+      }
+
+      .profile-card.main {
+        background: #ffffff;
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        min-height: 100vh;
+        box-shadow: none;
+        border-radius: 0;
+      }
+
+      .section-block {
+        margin-bottom: 24px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #81d3e1;
       }
 
       .avatar-wrapper {
@@ -311,7 +321,7 @@
       }
       .logout-container {
         position: absolute;
-        top: 20px;
+        top: 150px;
         right: 20px;
       }
 
@@ -329,10 +339,70 @@
       .logout-button:hover {
         background-color: #ff4c4c;
       }
+      .page-header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background-color: #ffffff;
+        display: flex;
+        align-items: center;
+        padding: 10px 16PX;
+        border-bottom: 1px solid #eee;
+        margin: 0 -20px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+      }
+
+      .arrow-icon {
+        fill: #2c4975;
+        transition: fill 0.2s ease;
+        cursor: pointer;
+        flex-shrink: 0;
+        margin-left: 10px;
+      }
+
+      .arrow-icon:hover {
+        fill: #64bcd0;
+      }
+
+      .header-center {
+        display: flex;
+        align-items: center;
+        margin: 0 auto;
+        gap: 8px;
+        
+      }
+
+      .header-logo {
+        width: 45px;
+        height: 45px;
+        margin-top: 10px;
+      }
+
+      .header-title {
+        font-size: 16px;
+        font-weight: bold;
+        color: #2c4975;
+      }
+
+
+
     </style>
   </head>
   <body>
-    <div class="profile-card">
+    <header class="page-header">
+      <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 256 256">
+        <path
+          d="M228,128a12,12,0,0,1-12,12H69l51.52,51.51a12,12,0,0,1-17,17l-72-72a12,12,0,0,1,0-17l72-72a12,12,0,0,1,17,17L69,116H216A12,12,0,0,1,228,128Z"
+        />
+      </svg>
+
+      <div class="header-center">
+        <img src="/static/logo.png" class="header-logo" alt="logo">
+        <span class="header-title">編輯個人資料</span>
+      </div>
+    </header>
+
+    <div class="profile-card main">
       <div class="avatar-wrapper" style="position: relative">
         <img
           id="avatarImage"
@@ -367,7 +437,7 @@
       </div>
       <div class="profile-info">
         <h2 id="name">會員姓名</h2>
-        <div class="profile-card">
+        <div class="section-block">
           <h3>基本資料</h3>
           <p><strong>Email：</strong><span id="email"></span></p>
           <p><strong>性別：</strong><span id="gender"></span></p>
@@ -375,13 +445,13 @@
           <p><strong>地區：</strong><span id="location"></span></p>
         </div>
 
-        <div class="profile-card">
+        <div class="section-block">
           <h3>身體資訊</h3>
           <p><strong>身高：</strong><span id="height"></span> cm</p>
           <p><strong>體重：</strong><span id="weight"></span> kg</p>
         </div>
 
-        <div class="profile-card">
+        <div class="section-block">
           <h3>運動偏好</h3>
           <p><strong>喜好運動：</strong><span id="sports"></span></p>
           <p><strong>偏好性別：</strong><span id="match-gender"></span></p>

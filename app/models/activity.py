@@ -7,6 +7,7 @@ from sqlalchemy import (
     ForeignKey,
     Text,
     Boolean,
+    Time,
 )
 from sqlalchemy.orm import relationship
 from app.database import Base
@@ -35,8 +36,18 @@ class Activity(Base):
     gender = Column(String(10))
     age_range = Column(String(20))
     venue_fee = Column(DECIMAL(10, 2))  
-    registration_deadline = Column(DateTime)  
+    registration_deadline = Column(DateTime)
 
+    # 🆕 新增的課程相關欄位
+    is_course = Column(Boolean, default=False)                # 是否為課程
+    course_type = Column(String(10))                          # single 或 multi
+    first_time = Column(DateTime, nullable=True)              # 多堂課第一次上課
+    every_start_time = Column(Time, nullable=True)            # 每堂課開始
+    every_end_time = Column(Time, nullable=True)              # 每堂課結束
+    weekdays = Column(String(20), nullable=True)              # 每週上課日：一,三,五
+    multi_count = Column(Integer, nullable=True)              # 總堂數
+
+    # 關聯
     organizer = relationship("Member", back_populates="activities")
     sport_type = relationship("SportType", back_populates="activities")
     joins = relationship("ActivityJoin", back_populates="activity")

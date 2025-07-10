@@ -36,7 +36,7 @@ def create_class():
         db.refresh(cls)
     return jsonify({"class_id": cls.class_id}), 201
 
-# 課程列表（僅列出開放中的課程）
+# 查詢所有課程
 @class_bp.route("", methods=["GET"])
 def list_classes():
     with get_db() as db:
@@ -88,3 +88,7 @@ def get_class_details():
             "created_at": cls.created_at.isoformat() if cls.created_at else None
         }), 200
 
+# （可選）課程詳情頁面
+@class_bp.route("/details_page", methods=["GET"])
+def class_details_page():
+    return render_template("class_details.html")

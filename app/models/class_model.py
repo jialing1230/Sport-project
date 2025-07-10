@@ -1,13 +1,11 @@
 from sqlalchemy import Column, Integer, String, DateTime, Text, Numeric
-from sqlalchemy.ext.declarative import declarative_base
+from app.database import Base
 from datetime import datetime
 
-Base = declarative_base()
-
 class Class(Base):
-    __tablename__ = 'classes'
+    __tablename__ = "classes"
 
-    class_id = Column(Integer, primary_key=True, index=True)
+    class_id = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(String(100), nullable=False)
     start_time = Column(DateTime, nullable=False)
     end_time = Column(DateTime, nullable=False)
@@ -21,8 +19,12 @@ class Class(Base):
     level = Column(String(10), nullable=False)
     sport_type_id = Column(Integer, nullable=False)
     description = Column(Text)
-    status = Column(String(10), default="open", nullable=False)
+    status = Column(String(10), nullable=False, default="open")
     target_identity = Column(String(20), default="不限")
     gender = Column(String(10), nullable=False)
     age_range = Column(String(10), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+    # 關聯 sport_type（選擇性，如果你在其他地方有定義 back_populates）
+    # from app.models.sport_type import SportType
+    # sport_type = relationship("SportType", back_populates="classes")

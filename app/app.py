@@ -97,8 +97,12 @@ def create_app():
             return redirect(url_for("login_html"))
         return render_template("create_class.html", member_id=member_id)
 
+    @app.route("/member_view")
+    def member_view():
+        member_id = request.args.get("member_id")
+        return render_template("member.html", member_id=member_id)
+
     start_scheduler()  # 啟動排程
     return app
-
 
 

@@ -43,7 +43,7 @@ def create_activity():
         db.refresh(act)
     return jsonify({"activity_id": act.activity_id}), 201
 
-@activity_bp.route("", methods=["POST"])
+@activity_bp.route("/class", methods=["POST"])
 def create_class():
     payload = request.get_json()
     with get_db() as db:
@@ -58,15 +58,15 @@ def create_class():
             max_participants=payload.get("max_participants"),
             current_participants=1,
             organizer_id=payload["organizer_id"],
-            level=payload.get("level"),
+            level=payload.get("level", None),
             sport_type_id=payload["sport_type_id"],
             description=payload.get("description"),
             status=payload.get("status", "open"),
             created_at=datetime.now(),
             has_review=False,
             target_identity=payload.get("target_identity", "不限"),
-            gender=payload.get("gender", "不限"),
-            age_range=payload.get("age_range", "不限"),
+            gender=payload.get("gender", None),
+            age_range=payload.get("age_range", None),
             venue_fee=payload.get("venue_fee"),
             registration_deadline=datetime.fromisoformat(payload["registration_deadline"]),
         )

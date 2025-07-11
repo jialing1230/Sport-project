@@ -316,6 +316,16 @@
       <input type="datetime-local" name="endTime" required />
     </div>
     <div class="form-row">
+          <label class="form-label">人數</label>
+          <input
+            type="number"
+            name="numPeople"
+            placeholder="請輸入正確人數"
+            required
+            min="1"
+          />
+        </div>
+    <div class="form-row">
       <label class="form-label">費用NTD（每位學員）</label>
       <input type="number" name="venue_fee" placeholder="請輸入每位學員費用" step="0.01" min="0" required />
     </div>
@@ -538,7 +548,7 @@
           }
           }
 
-          if (!confirm("確定要發起活動嗎？")) {
+          if (!confirm("確定要發起課程嗎？")) {
             return;
           }
 
@@ -564,22 +574,22 @@
             status: "open",
           };
 
-          fetch("/api/activities", {
+          fetch("/api/activities/class", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data),
           })
             .then((res) => {
               if (res.ok) {
-                alert("活動發起成功！");
+                alert("課程發起成功！");
                 window.location.href = `/activity?member_id=${memberId}`;
               } else {
-                alert("活動發起失敗，請稍後再試！");
+                alert("課程發起失敗，請稍後再試！");
               }
             })
             .catch((err) => {
               console.error("錯誤:", err);
-              alert("發起活動時出錯！");
+              alert("發起課程時出錯！");
             });
         });
 

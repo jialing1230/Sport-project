@@ -45,3 +45,4 @@ class Activity(Base):
     sport_type = relationship("SportType", back_populates="activities")
     joins = relationship("ActivityJoin", back_populates="activity")
     reviews = relationship("ActivityReview", back_populates="activity")
+    course_schedules = relationship("CourseSchedule", back_populates="activity")

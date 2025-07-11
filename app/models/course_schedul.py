@@ -8,10 +8,10 @@ class CourseSchedule(Base):
     __tablename__ = "course_schedule"
 
     course_schedule_id = Column(Integer, primary_key=True, autoincrement=True)
-    activity_id = Column(Integer, ForeignKey("activity.activity_id"), nullable=False)
+    activity_id = Column(Integer, ForeignKey("activities.activity_id"))
     session_number = Column(Integer, nullable=False)
     weekday = Column(String(10), nullable=False)
     start_time = Column(DateTime)
     end_time = Column(DateTime)
 
-    activity = relationship("Activity", back_populates="Activity")
+    activity = relationship("Activity", back_populates="course_schedules")

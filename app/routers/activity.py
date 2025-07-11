@@ -4,6 +4,8 @@ from app.database import get_db
 from app.models.activity import Activity
 from app.models.sport_type import SportType
 from app.models.activity_join import ActivityJoin 
+from app.models.course_schedul import CourseSchedule
+
 
 
 
@@ -39,6 +41,52 @@ def create_activity():
         db.add(act)
         db.commit()
         db.refresh(act)
+    return jsonify({"activity_id": act.activity_id}), 201
+
+@activity_bp.route("", methods=["POST"])
+def create_class():
+    payload = request.get_json()
+    with get_db() as db:
+        act = Activity(
+            title=payload["title"],
+            type="class",
+            start_time=datetime.fromisoformat(payload["start_time"]),
+            end_time=datetime.fromisoformat(payload["end_time"]),
+            location_name=payload.get("location_name"),
+            location_lat=payload.get("location_lat"),
+            location_lng=payload.get("location_lng"),
+            max_participants=payload.get("max_participants"),
+            current_participants=1,
+            organizer_id=payload["organizer_id"],
+            level=payload.get("level"),
+            sport_type_id=payload["sport_type_id"],
+            description=payload.get("description"),
+            status=payload.get("status", "open"),
+            created_at=datetime.now(),
+            has_review=False,
+            target_identity=payload.get("target_identity", "不限"),
+            gender=payload.get("gender", "不限"),
+            age_range=payload.get("age_range", "不限"),
+            venue_fee=payload.get("venue_fee"),
+            registration_deadline=datetime.fromisoformat(payload["registration_deadline"]),
+        )
+        db.add(act)
+        db.commit()
+        db.refresh(act)
+
+        # 判斷是否為多堂課程
+        if payload.get("sessions"):
+            for session in payload["sessions"]:
+                course_schedule = CourseSchedule(
+                    activity_id=act.activity_id,
+                    session_number=session["session_number"],
+                    weekday=session["weekday"],
+                    start_time=datetime.fromisoformat(session["start_time"]),
+                    end_time=datetime.fromisoformat(session["end_time"]),
+                )
+                db.add(course_schedule)
+            db.commit()
+
     return jsonify({"activity_id": act.activity_id}), 201
 
 @activity_bp.route("/overview", methods=["GET"])

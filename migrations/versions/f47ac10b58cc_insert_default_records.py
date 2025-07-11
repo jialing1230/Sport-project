@@ -114,6 +114,7 @@ def upgrade() -> None:
         a = Activity(
             activity_id=i,
             title=f"Activity{i}",
+            type="activity",
             start_time=activity_start,
             end_time=activity_end, 
             location_name=name,

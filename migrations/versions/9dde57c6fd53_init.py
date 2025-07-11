@@ -54,6 +54,7 @@ def upgrade() -> None:
     'activities',
     sa.Column('activity_id', sa.Integer(), nullable=False),
     sa.Column('title', sa.String(length=255), nullable=True),
+    sa.Column('type', sa.String(length=50), nullable=True),
     sa.Column('start_time', sa.DateTime(), nullable=True),
     sa.Column('end_time', sa.DateTime(), nullable=True),
     sa.Column('location_name', sa.String(length=255), nullable=True),
@@ -176,6 +177,17 @@ def upgrade() -> None:
     
     # 設定唯一約束
     op.create_index('ix_preference_time_preference_id_time_id', 'preference_time', ['preference_id', 'time_id'], unique=True)
+
+    op.create_table(
+    'course_schedule',
+    sa.Column('course_schedule_id', sa.Integer(), primary_key=True, autoincrement=True),
+    sa.Column('activity_id', sa.Integer(), nullable=False),
+    sa.Column('session_number', sa.Integer(), nullable=False),
+    sa.Column('weekday', sa.String(length=10), nullable=False),
+    sa.Column('start_time', sa.DateTime(), nullable=True),
+    sa.Column('end_time', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['activity_id'], ['activities.activity_id']),
+)
     # ### end Alembic commands ###
 
 
@@ -204,5 +216,7 @@ def downgrade() -> None:
     op.drop_table('time_option')
     op.drop_index('ix_preference_time_preference_id_time_id', table_name='preference_time')
     op.drop_table('preference_time')
+    op.drop_index('ix_course_schedule_activity_id', table_name='course_schedule')
+    op.drop_table('course_schedule')
 
     # ### end Alembic commands ###

@@ -120,6 +120,7 @@
           document.getElementById("activity-title").innerText = data.title;
           document.getElementById("activity-info").innerHTML = `
             <p><strong>類型：</strong><span>${data.sport_name} / ${data.level}</span></p>
+            <p><strong>活動類型：</strong><span>${data.type}</span></p>
             <p><strong>開始時間：</strong><span>${new Date(data.start_time).toLocaleString()}</span></p>
             <p><strong>結束時間：</strong><span>${new Date(data.end_time).toLocaleString()}</span></p>
             <p><strong>地點：</strong><span>${data.location_name}</span></p>

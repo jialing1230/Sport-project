@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify ,render_template
-from datetime import datetime
+from datetime import datetime ,timedelta
 from app.database import get_db
 from app.models.activity import Activity
 from app.models.sport_type import SportType
@@ -74,21 +74,109 @@ def create_class():
         db.add(act)
         db.commit()
         db.refresh(act)
-
-        # 判斷是否為多堂課程
-        if payload.get("sessions"):
-            for session in payload["sessions"]:
-                course_schedule = CourseSchedule(
-                    activity_id=act.activity_id,
-                    session_number=session["session_number"],
-                    weekday=session["weekday"],
-                    start_time=datetime.fromisoformat(session["start_time"]),
-                    end_time=datetime.fromisoformat(session["end_time"]),
-                )
-                db.add(course_schedule)
-            db.commit()
-
+      
     return jsonify({"activity_id": act.activity_id}), 201
+
+@activity_bp.route("/multiclass", methods=["POST"])
+def create_multiclass():
+    try:
+        payload = request.get_json()
+
+        # 檢查必要欄位是否存在
+        required_fields = ["first_time", "weekdays", "multi_count", "every_starttime", "every_endtime", "title", "organizer_id", "registration_deadline"]
+        for field in required_fields:
+            if field not in payload:
+                return jsonify({"error": f"缺少必要欄位: {field}"}), 400
+
+        # 定義中文數字到整數的映射
+        chinese_to_int = {
+            "一": 1,
+            "二": 2,
+            "三": 3,
+            "四": 4,
+            "五": 5,
+            "六": 6,
+            "日": 7,
+        }
+
+        # 解析前端資料
+        try:
+            start_date = datetime.fromisoformat(payload["first_time"])  # 活動開始時間
+            weekdays = [chinese_to_int[day] for day in payload["weekdays"]]  # 星期幾，轉換中文數字為整數
+            multi_count = int(payload["multi_count"])  # 課程總堂數
+            start_time = datetime.strptime(payload["every_starttime"], "%H:%M").time()  # 每堂課的開始時間
+            end_time = datetime.strptime(payload["every_endtime"], "%H:%M").time()  # 每堂課的結束時間
+            registration_deadline = datetime.fromisoformat(payload["registration_deadline"])
+        except KeyError as e:
+            return jsonify({"error": f"無效的星期值: {str(e)}"}), 400
+        except ValueError as e:
+            return jsonify({"error": f"資料格式錯誤: {str(e)}"}), 400
+
+        # 計算每堂課的日期
+        class_dates = []  # 用來存儲每次上課的日期
+        current_date = start_date
+
+        # 根據 weekdays 計算每堂課的日期
+        while len(class_dates) < multi_count:
+            # 檢查當前日期是否符合需要的上課星期
+            if current_date.weekday() + 1 in weekdays:  # weekday() 返回 0-6，星期一是 0
+                class_dates.append(current_date)
+            current_date += timedelta(days=1)  # 增加一天，檢查下個日期
+
+        # 計算活動結束時間，使用最後一堂課的時間
+        activity_end_time = datetime.combine(class_dates[-1], end_time)  # 用最後一堂課的時間作為活動結束時間
+
+        # 創建活動並添加至 session 中
+        with get_db() as db:
+            try:
+                act = Activity(
+                    title=payload["title"],
+                    type="muti_class",
+                    sport_type_id=payload["sport_type_id"],
+                    start_time=start_date,
+                    end_time=activity_end_time,
+                    location_name=payload.get("location_name"),
+                    location_lat=payload.get("location_lat"),
+                    location_lng=payload.get("location_lng"),
+                    max_participants=payload.get("max_participants"),
+                    current_participants=0,
+                    organizer_id=payload["organizer_id"],
+                    description=payload.get("description"),
+                    status=payload.get("status", "open"),
+                    created_at=datetime.now(),
+                    venue_fee=payload.get("venue_fee"),
+                    registration_deadline=registration_deadline,
+                )
+                db.add(act)
+                db.flush()  # 強制刷新，確保 activity_id 被生成並寫入資料庫
+
+                # 根據 multi_count 和 weekdays 生成課程安排 (CourseSchedule)
+                for idx, session_date in enumerate(class_dates):
+                    # 確保 start_time 和 end_time 轉換為 datetime 型別
+                    start_datetime = datetime.combine(session_date.date(), start_time)
+                    end_datetime = datetime.combine(session_date.date(), end_time)
+
+                    course_schedule = CourseSchedule(
+                        activity_id=act.activity_id,  # 正確關聯活動
+                        session_number=idx + 1,
+                        weekday=session_date.strftime("%A"),
+                        start_time=start_datetime,
+                        end_time=end_datetime,
+                        start_date=session_date.date()
+                    )
+                    db.add(course_schedule)  # 將課程安排加入 session 中
+
+                db.commit()
+                db.refresh(act)  # 一次性提交所有操作
+
+            except Exception as e:
+                db.rollback()  # 如果有錯誤發生，回滾所有操作
+                return jsonify({"error": f"資料創建失敗: {str(e)}"}), 500
+
+        return jsonify({"activity_id": act.activity_id}), 201
+
+    except Exception as e:
+        return jsonify({"error": f"伺服器錯誤: {str(e)}"}), 500
 
 @activity_bp.route("/overview", methods=["GET"])
 def activity_overview():
@@ -150,6 +238,7 @@ def get_activity_details():
         return jsonify({
             "activity_id": activity.activity_id,
             "title": activity.title,
+            "type": activity.type,
             "sport_name": activity.sport_type.name if activity.sport_type else "未分類",
             "start_time": activity.start_time.isoformat() if activity.start_time else None,
             "end_time": activity.end_time.isoformat() if activity.end_time else None,

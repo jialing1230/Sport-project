@@ -9,6 +9,7 @@ from .exercise_record import ExerciseRecord
 from .preference_sport import PreferenceSport
 from .time_option import TimeOption
 from .preference_time import PreferenceTime
+from .course_schedul import CourseSchedule
 
 __all__ = [
     "PreferenceSport",
@@ -22,4 +23,5 @@ __all__ = [
     "ExerciseRecord",
     "TimeOption",
     "PreferenceTime",
+    "CourseSchedule",
 ]

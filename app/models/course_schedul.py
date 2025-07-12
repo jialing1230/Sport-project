@@ -11,6 +11,7 @@ class CourseSchedule(Base):
     activity_id = Column(Integer, ForeignKey("activities.activity_id"))
     session_number = Column(Integer, nullable=False)
     weekday = Column(String(10), nullable=False)
+    start_date = Column(DateTime, nullable=False) 
     start_time = Column(DateTime)
     end_time = Column(DateTime)
 

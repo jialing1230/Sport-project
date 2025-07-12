@@ -184,6 +184,7 @@ def upgrade() -> None:
     sa.Column('activity_id', sa.Integer(), nullable=False),
     sa.Column('session_number', sa.Integer(), nullable=False),
     sa.Column('weekday', sa.String(length=10), nullable=False),
+    sa.Column('start_date', sa.DateTime(), nullable=False),
     sa.Column('start_time', sa.DateTime(), nullable=True),
     sa.Column('end_time', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['activity_id'], ['activities.activity_id']),

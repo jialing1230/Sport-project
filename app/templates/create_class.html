@@ -395,7 +395,7 @@
           <label class="form-label">人數</label>
           <input
             type="number"
-            name="numPeople"
+            name="multi_numPeople"
             placeholder="請輸入正確人數"
             required
             min="1"
@@ -630,11 +630,13 @@
 
           const data = {
             title: formData.get("title"),
+            sport_type_id: parseInt(formData.get("sport")),
             first_time: formData.get("firstTime"),
             every_starttime: formData.get("every_startTime"),
             every_endtime: formData.get("every_endTime"),
             weekdays: formData.getAll("weekdays"),
             multi_count: parseInt(formData.get("multi_count")),
+            max_participants: parseInt(formData.get("multi_numPeople")),
             location_name: formData.get("location"),
             location_lat: 25.033,
             location_lng: 121.565,

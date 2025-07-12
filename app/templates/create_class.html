@@ -403,15 +403,15 @@
         </div>
     <div class="form-row">
       <label class="form-label">費用NTD（每位學員）</label>
-      <input type="number" name="venue_fee" placeholder="請輸入每位學員費用" step="0.01" min="0" required />
+      <input type="number" name="multi_venue_fee" placeholder="請輸入每位學員費用" step="0.01" min="0" required />
     </div>
     <div class="form-row">
       <label class="form-label">報名截止日期</label>
-      <input type="datetime-local" name="registration_deadline" required />
+      <input type="datetime-local" name="multi_registration_deadline" required />
     </div>
     <div class="form-row">
       <label class="form-label">補充說明</label>
-      <textarea name="description" placeholder="EX：地標描述、裝備建議、注意事項..."></textarea>
+      <textarea name="multi_description" placeholder="EX：地標描述、裝備建議、注意事項..."></textarea>
     </div>
      <button type="submit" class="btn-primary" id="multi-submit-btn">發起多堂課程</button>
   </div>
@@ -595,7 +595,7 @@
           const formData = new FormData(document.getElementById("classForm"));
 
           const now = new Date();
-          const registrationDeadline = new Date(formData.get("registration_deadline"));
+          const registrationDeadline = new Date(formData.get("multi_registration_deadline"));
           const firstTime = new Date(formData.get("firstTime"));
           const everyStartTime = new Date(formData.get("every_startTime"));
           const everyEndTime = new Date(formData.get("every_endTime"));
@@ -638,14 +638,14 @@
             location_name: formData.get("location"),
             location_lat: 25.033,
             location_lng: 121.565,
-            venue_fee: parseFloat(formData.get("venue_fee")),
-            registration_deadline: formData.get("registration_deadline"),
+            venue_fee: parseFloat(formData.get("multi_venue_fee")),
+            registration_deadline: formData.get("multi_registration_deadline"),
             organizer_id: memberId, // 使用網址中的 member_id
-            description: formData.get("description"),
+            description: formData.get("multi_description"),
             status: "open",
           };
 
-          fetch("/api/activities/class", {
+          fetch("/api/activities/multiclass", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data),

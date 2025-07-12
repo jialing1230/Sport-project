@@ -235,7 +235,7 @@ def get_activity_details():
         if not activity:
             return jsonify({"error": "活動不存在"}), 404
 
-        return jsonify({
+        response = {
             "activity_id": activity.activity_id,
             "title": activity.title,
             "type": activity.type,
@@ -259,7 +259,23 @@ def get_activity_details():
             "age_range": activity.age_range,
             "venue_fee": float(activity.venue_fee) if activity.venue_fee else None,
             "registration_deadline": activity.registration_deadline.isoformat() if activity.registration_deadline else None,
-        }), 200
+        }
+
+        # 如果 type 是 "muti_class"，額外查詢 course_schedul
+        if activity.type == "muti_class":
+            course_schedules = db.query(CourseSchedule).filter(CourseSchedule.activity_id == activity_id).all()
+            response["course_schedules"] = [
+                {
+                    "session_number": cs.session_number,
+                    "weekday": cs.weekday,
+                    "start_time": cs.start_time.isoformat() if cs.start_time else None,
+                    "end_time": cs.end_time.isoformat() if cs.end_time else None,
+                    "start_date": cs.start_date.isoformat() if cs.start_date else None,
+                }
+                for cs in course_schedules
+            ]
+
+        return jsonify(response), 200
     
 @activity_bp.route("/details_page", methods=["GET"])
 def activity_details_page():

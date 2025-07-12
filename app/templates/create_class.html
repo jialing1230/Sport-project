@@ -337,6 +337,7 @@
       <label class="form-label">補充說明</label>
       <textarea name="description" placeholder="EX：地標描述、裝備建議、注意事項..."></textarea>
     </div>
+     <button type="submit" class="btn-primary" id="single-submit-btn">發起單堂課程</button>
   </div>
 
   <!-- ✅ 多堂課程表單 -->
@@ -391,6 +392,16 @@
       <input type="number" name="multi_count" />
     </div>
     <div class="form-row">
+          <label class="form-label">人數</label>
+          <input
+            type="number"
+            name="numPeople"
+            placeholder="請輸入正確人數"
+            required
+            min="1"
+          />
+        </div>
+    <div class="form-row">
       <label class="form-label">費用NTD（每位學員）</label>
       <input type="number" name="venue_fee" placeholder="請輸入每位學員費用" step="0.01" min="0" required />
     </div>
@@ -402,10 +413,10 @@
       <label class="form-label">補充說明</label>
       <textarea name="description" placeholder="EX：地標描述、裝備建議、注意事項..."></textarea>
     </div>
+     <button type="submit" class="btn-primary" id="multi-submit-btn">發起多堂課程</button>
   </div>
 
-  <!-- ✅ 發送按鈕放在最下方 -->
-  <button type="submit" class="btn-primary" id="submitBtn">發起課程</button>
+  
 </form>
 
         
@@ -429,17 +440,23 @@
             const multi = document.getElementById("multi-course-form");
             const btnSingle = document.getElementById("btn-single");
             const btnMulti = document.getElementById("btn-multi");
+            const singleSubmitBtn = document.getElementById("single-submit-btn");
+            const multiSubmitBtn = document.getElementById("multi-submit-btn");
 
             if (type === "single") {
                 single.style.display = "block";
                 multi.style.display = "none";
                 btnSingle.classList.add("active");
                 btnMulti.classList.remove("active");
+                singleSubmitBtn.style.display = "block";
+                multiSubmitBtn.style.display = "none";
             } else {
                 single.style.display = "none";
                 multi.style.display = "block";
                 btnSingle.classList.remove("active");
                 btnMulti.classList.add("active");
+                singleSubmitBtn.style.display = "none";
+                multiSubmitBtn.style.display = "block";
             }
         }
 
@@ -486,25 +503,18 @@
       const memberId = urlParams.get("member_id");
 
       document
-        .getElementById("classForm")
-        .addEventListener("submit", function (e) {
+        .getElementById("single-submit-btn")
+        .addEventListener("click", function (e) {
           e.preventDefault();
+          const formData = new FormData(document.getElementById("classForm"));
 
-          const formData = new FormData(this);
           const now = new Date();
           const registrationDeadline = new Date(formData.get("registration_deadline"));
           const startTime = new Date(formData.get("startTime"));
           const endTime = new Date(formData.get("endTime"));
-          const firstTime = new Date(formData.get("firstTime"));
-          const everyStartTime = new Date(formData.get("every_startTime"));
-          const everyEndTime = new Date(formData.get("every_endTime"));
 
-          if (everyStartTime && everyEndTime) {
-            if (everyStartTime >= everyEndTime) {
-              alert("每堂課開始時間必須在結束時間之前！");
-              return;
-            }
-          }
+
+          
 
           if (registrationDeadline <= now) {
             alert("報名截止日期必須在現在時間之後！");
@@ -531,22 +541,7 @@
             return;
           }
 
-          if (!isNaN(firstTime.getTime())) {  // 確認有填值
-            if (firstTime <= now) {
-              alert("第一次上課時間必須在現在時間之後！");
-            return;
-            }
-
-          if (registrationDeadline >= firstTime) {
-            alert("報名截止日期必須早於第一次上課時間！");
-          return;
-          }
-
-          if (firstTime >= endTime) {
-            alert("第一次上課時間必須早於結束時間！");
-          return;
-          }
-          }
+          
 
           if (!confirm("確定要發起課程嗎？")) {
             return;
@@ -590,6 +585,82 @@
             .catch((err) => {
               console.error("錯誤:", err);
               alert("發起課程時出錯！");
+            });
+        });
+
+      document
+        .getElementById("multi-submit-btn")
+        .addEventListener("click", function (e) {
+          e.preventDefault();
+          const formData = new FormData(document.getElementById("classForm"));
+
+          const now = new Date();
+          const registrationDeadline = new Date(formData.get("registration_deadline"));
+          const firstTime = new Date(formData.get("firstTime"));
+          const everyStartTime = new Date(formData.get("every_startTime"));
+          const everyEndTime = new Date(formData.get("every_endTime"));
+
+          if (everyStartTime && everyEndTime) {
+            if (everyStartTime >= everyEndTime) {
+              alert("每堂課開始時間必須在結束時間之前！");
+              return;
+            }
+          }
+
+          if (registrationDeadline <= now) {
+            alert("報名截止日期必須在現在時間之後！");
+            return;
+          }
+
+          if (!isNaN(firstTime.getTime())) {
+            if (firstTime <= now) {
+              alert("第一次上課時間必須在現在時間之後！");
+              return;
+            }
+
+            if (registrationDeadline >= firstTime) {
+              alert("報名截止日期必須早於第一次上課時間！");
+              return;
+            }
+          }
+
+          if (!confirm("確定要發起多堂課程嗎？")) {
+            return;
+          }
+
+          const data = {
+            title: formData.get("title"),
+            first_time: formData.get("firstTime"),
+            every_starttime: formData.get("every_startTime"),
+            every_endtime: formData.get("every_endTime"),
+            weekdays: formData.getAll("weekdays"),
+            multi_count: parseInt(formData.get("multi_count")),
+            location_name: formData.get("location"),
+            location_lat: 25.033,
+            location_lng: 121.565,
+            venue_fee: parseFloat(formData.get("venue_fee")),
+            registration_deadline: formData.get("registration_deadline"),
+            organizer_id: memberId, // 使用網址中的 member_id
+            description: formData.get("description"),
+            status: "open",
+          };
+
+          fetch("/api/activities/class", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          })
+            .then((res) => {
+              if (res.ok) {
+                alert("多堂課程發起成功！");
+                window.location.href = `/activity?member_id=${memberId}`;
+              } else {
+                alert("多堂課程發起失敗，請稍後再試！");
+              }
+            })
+            .catch((err) => {
+              console.error("錯誤:", err);
+              alert("發起多堂課程時出錯！");
             });
         });
 

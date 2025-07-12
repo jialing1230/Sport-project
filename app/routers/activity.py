@@ -18,6 +18,7 @@ def create_activity():
     with get_db() as db:
         act = Activity(
             title=payload["title"],
+            type="activity",
             start_time=datetime.fromisoformat(payload["start_time"]),
             end_time=datetime.fromisoformat(payload["end_time"]),
             location_name=payload.get("location_name"),
@@ -56,7 +57,7 @@ def create_class():
             location_lat=payload.get("location_lat"),
             location_lng=payload.get("location_lng"),
             max_participants=payload.get("max_participants"),
-            current_participants=1,
+            current_participants=0,
             organizer_id=payload["organizer_id"],
             level=payload.get("level", None),
             sport_type_id=payload["sport_type_id"],

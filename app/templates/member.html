@@ -703,7 +703,7 @@
         <p>您確定要登出嗎？</p>
         <div class="modal-buttons">
           <button id="cancelLogout">取　　消</button>
-          <button id="confirmLogout">確認登出</button>
+          <button id="confirmLogout" onclick="logout()">確認登出</button>
         </div>
       </div>
     </div>
@@ -719,6 +719,8 @@
       </div>
   </div>
   <script>
+        const urlParams = new URLSearchParams(window.location.search);
+    const memberId = urlParams.get("member_id");
 
     document.getElementById("favoritesBtn").addEventListener("click", function () {
       if (memberId) {
@@ -746,9 +748,9 @@
 
     document.getElementById("editProfileBtn").addEventListener("click", function () {
       if (memberId) {
-        window.location.href = `/edit_profile?member_id=${memberId}`;
+        window.location.href = `/profile_view?member_id=${memberId}`;
       } else {
-        window.location.href = "/edit_profile";
+        window.location.href = "/profile_view";
       }
     });
 
@@ -847,6 +849,10 @@
 
       function goToNews() {
         window.location.href = `/news?member_id=${memberId}`;
+      }
+
+      function logout() {
+          window.location.href = "/login"; // 替換為你的登出 API 路徑
       }
     
       document.querySelectorAll(".bottom-item").forEach((item) => {

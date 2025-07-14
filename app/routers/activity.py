@@ -475,3 +475,45 @@ def join_activity():
 
     return jsonify({"message": "申請參加成功，等待主辦人確認"}), 200
 
+@activity_bp.route("/past_class", methods=["GET"])
+def get_past_class():
+    member_id = request.args.get("member_id")
+    if not member_id:
+        return jsonify({"error": "缺少 member_id"}), 400
+
+    with get_db() as db:
+        activities = db.query(Activity).filter(Activity.type.in_(["class", "muti_class"]), Activity.organizer_id == member_id).all()
+        unique_activities = {}
+
+        for act in activities:
+            key = (act.title, act.sport_type_id, act.location_name)
+            if key not in unique_activities:
+                unique_activities[key] = {
+                    "title": act.title,
+                    "sport_type_id": act.sport_type_id,
+                    "location_name": act.location_name,
+                }
+
+        return jsonify(list(unique_activities.values())), 200
+    
+@activity_bp.route("/past_activity", methods=["GET"])
+def get_past_activities():
+    member_id = request.args.get("member_id")
+    if not member_id:
+        return jsonify({"error": "缺少 member_id"}), 400
+
+    with get_db() as db:
+        activities = db.query(Activity).filter(Activity.type.in_(["activity"]), Activity.organizer_id == member_id).all()
+        unique_activities = {}
+
+        for act in activities:
+            key = (act.title, act.sport_type_id, act.location_name)
+            if key not in unique_activities:
+                unique_activities[key] = {
+                    "title": act.title,
+                    "sport_type_id": act.sport_type_id,
+                    "location_name": act.location_name,
+                }
+
+        return jsonify(list(unique_activities.values())), 200
+

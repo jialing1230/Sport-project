@@ -563,27 +563,47 @@
         };
         return mapping[sport] || 0;
       }
-	  const pastTitles = [
-		  "羽球新手體驗班",
-		  "健身一起衝一波",
-		  "假日瑜珈放鬆時光"
-		]; // 可改為從後端 API 載入
+	  function togglePastTitles() {
+    const list = document.getElementById("pastTitles");
+    list.style.display = list.style.display === "none" ? "block" : "none";
 
-		function togglePastTitles() {
-		  const list = document.getElementById("pastTitles");
-		  list.style.display = list.style.display === "none" ? "block" : "none";
-		  if (list.innerHTML.trim() === "") {
-			pastTitles.forEach(title => {
-			  const li = document.createElement("li");
-			  li.textContent = title;
-			  li.onclick = () => {
-				document.getElementById("titleInput").value = title;
-				list.style.display = "none";
-			  };
-			  list.appendChild(li);
-			});
-		  }
-		}
+    if (list.innerHTML.trim() === "") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const memberId = urlParams.get("member_id");
+
+      if (!memberId) {
+        console.error("無法取得 member_id");
+        return;
+      }
+
+      fetch(`/api/activities/past_activity?member_id=${memberId}`)
+        .then((response) => response.json())
+        .then((data) => {
+          const uniqueTitles = new Set();
+          data.forEach((activity) => {
+            if (!uniqueTitles.has(activity.title)) {
+              uniqueTitles.add(activity.title);
+              const li = document.createElement("li");
+              li.textContent = `${activity.title} - ${activity.location_name}`;
+              li.style.cursor = "pointer";
+              li.addEventListener("click", () => {
+                document.querySelector('input[name="title"]').value = activity.title;
+                document.querySelector('input[name="location"]').value = activity.location_name;
+                const sportOptions = document.querySelectorAll('input[name="sport"]');
+                sportOptions.forEach((option) => {
+                  if (option.value == activity.sport_type_id) {
+                    option.checked = true;
+                  }
+                });
+                list.style.display = "none";
+              });
+              list.appendChild(li);
+            }
+          });
+        })
+        .catch((error) => console.error("Error fetching past activities:", error));
+    }
+  }
 
     </script>
   </body>

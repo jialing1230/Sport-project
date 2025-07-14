@@ -530,7 +530,7 @@
             <label class="radio-card"
               ><input
                 type="radio"
-                name="gender"
+                name="multi_gender"
                 value="男性"
                 required
               />男性</label
@@ -538,7 +538,7 @@
             <label class="radio-card"
               ><input
                 type="radio"
-                name="gender"
+                name="multi_gender"
                 value="女性"
                 required
               />女性</label
@@ -546,7 +546,7 @@
             <label class="radio-card"
               ><input
                 type="radio"
-                name="gender"
+                name="multi_gender"
                 value="不限"
                 required
               />不限</label
@@ -559,7 +559,7 @@
             <label class="radio-card"
               ><input
                 type="radio"
-                name="ageRange"
+                name="multi_ageRange"
                 value="18-25"
                 required
               />18–25　</label
@@ -567,7 +567,7 @@
             <label class="radio-card"
               ><input
                 type="radio"
-                name="ageRange"
+                name="multi_ageRange"
                 value="26-35"
                 required
               />26–35　</label
@@ -575,7 +575,7 @@
             <label class="radio-card"
               ><input
                 type="radio"
-                name="ageRange"
+                name="multi_ageRange"
                 value="36-45"
                 required
               />36–45　</label
@@ -583,19 +583,19 @@
             <label class="radio-card"
               ><input
                 type="radio"
-                name="ageRange"
+                name="multi_ageRange"
                 value="46-64"
                 required
               />46–64　</label
             >
             <label class="radio-card"
-              ><input type="radio" name="ageRange" value="65+" required />65
+              ><input type="radio" name="multi_ageRange" value="65+" required />65
               以上</label
             >
             <label class="radio-card"
               ><input
                 type="radio"
-                name="ageRange"
+                name="multi_ageRange"
                 value="不限"
                 required
               />不限</label
@@ -607,7 +607,7 @@
 				<label class="radio-card"
 				  ><input
 					type="radio"
-					name="level"
+					name="multi_level"
 					value="初學"
 					required
 				  />初學</label
@@ -615,7 +615,7 @@
 				<label class="radio-card"
 				  ><input
 					type="radio"
-					name="level"
+					name="multi_level"
 					value="中階"
 					required
 				  />中階</label
@@ -623,7 +623,7 @@
 				<label class="radio-card"
 				  ><input
 					type="radio"
-					name="level"
+					name="multi_level"
 					value="進階"
 					required
 				  />進階</label
@@ -631,7 +631,7 @@
 				<label class="radio-card"
 				  ><input
 					type="radio"
-					name="level"
+					name="multi_level"
 					value="不限"
 					required
 				  />不限</label
@@ -793,6 +793,8 @@
             registration_deadline: formData.get("registration_deadline"),
             organizer_id: memberId, // 使用網址中的 member_id
             level: formData.get("level"),
+            gender: formData.get("gender"),
+            age_range: formData.get("ageRange"),
             sport_type_id: parseInt(formData.get("sport")),
             description: formData.get("description"),
             status: "open",
@@ -866,6 +868,9 @@
             weekdays: formData.getAll("weekdays"),
             multi_count: parseInt(formData.get("multi_count")),
             max_participants: parseInt(formData.get("multi_numPeople")),
+            gender: formData.get("multi_gender"),
+            age_range: formData.get("multi_ageRange"),
+            level: formData.get("multi_level"),
             location_name: formData.get("location"),
             location_lat: 25.033,
             location_lng: 121.565,

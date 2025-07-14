@@ -64,7 +64,7 @@ def create_class():
             description=payload.get("description"),
             status=payload.get("status", "open"),
             created_at=datetime.now(),
-            has_review=False,
+            has_review=0,
             target_identity=payload.get("target_identity", "不限"),
             gender=payload.get("gender", None),
             age_range=payload.get("age_range", None),
@@ -133,6 +133,9 @@ def create_multiclass():
                     title=payload["title"],
                     type="muti_class",
                     sport_type_id=payload["sport_type_id"],
+                    level=payload.get("level"),
+                    gender=payload.get("gender"),
+                    age_range=payload.get("age_range"),
                     start_time=start_date,
                     end_time=activity_end_time,
                     location_name=payload.get("location_name"),
@@ -140,6 +143,8 @@ def create_multiclass():
                     location_lng=payload.get("location_lng"),
                     max_participants=payload.get("max_participants"),
                     current_participants=0,
+                    has_review=0,
+                    target_identity=payload.get("target_identity", "不限"),
                     organizer_id=payload["organizer_id"],
                     description=payload.get("description"),
                     status=payload.get("status", "open"),
@@ -469,4 +474,46 @@ def join_activity():
         db.commit()
 
     return jsonify({"message": "申請參加成功，等待主辦人確認"}), 200
+
+@activity_bp.route("/past_class", methods=["GET"])
+def get_past_class():
+    member_id = request.args.get("member_id")
+    if not member_id:
+        return jsonify({"error": "缺少 member_id"}), 400
+
+    with get_db() as db:
+        activities = db.query(Activity).filter(Activity.type.in_(["class", "muti_class"]), Activity.organizer_id == member_id).all()
+        unique_activities = {}
+
+        for act in activities:
+            key = (act.title, act.sport_type_id, act.location_name)
+            if key not in unique_activities:
+                unique_activities[key] = {
+                    "title": act.title,
+                    "sport_type_id": act.sport_type_id,
+                    "location_name": act.location_name,
+                }
+
+        return jsonify(list(unique_activities.values())), 200
+    
+@activity_bp.route("/past_activity", methods=["GET"])
+def get_past_activities():
+    member_id = request.args.get("member_id")
+    if not member_id:
+        return jsonify({"error": "缺少 member_id"}), 400
+
+    with get_db() as db:
+        activities = db.query(Activity).filter(Activity.type.in_(["activity"]), Activity.organizer_id == member_id).all()
+        unique_activities = {}
+
+        for act in activities:
+            key = (act.title, act.sport_type_id, act.location_name)
+            if key not in unique_activities:
+                unique_activities[key] = {
+                    "title": act.title,
+                    "sport_type_id": act.sport_type_id,
+                    "location_name": act.location_name,
+                }
+
+        return jsonify(list(unique_activities.values())), 200
 

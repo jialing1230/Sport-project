@@ -390,7 +390,7 @@
   </head>
   <body>
     <header class="page-header">
-      <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 256 256">
+      <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 256 256" onclick="redirectToMemberView()">
         <path
           d="M228,128a12,12,0,0,1-12,12H69l51.52,51.51a12,12,0,0,1-17,17l-72-72a12,12,0,0,1,0-17l72-72a12,12,0,0,1,17,17L69,116H216A12,12,0,0,1,228,128Z"
         />
@@ -1353,6 +1353,16 @@
       function logout() {
         if (confirm("確定要登出嗎？")) {
           window.location.href = "/login"; // 替換為你的登出 API 路徑
+        }
+      }
+
+      function redirectToMemberView() {
+        const params = new URLSearchParams(window.location.search);
+        const memberId = params.get("member_id");
+        if (memberId) {
+          window.location.href = `/member_view?member_id=${memberId}`;
+        } else {
+          console.error("無法取得 member_id");
         }
       }
     </script>

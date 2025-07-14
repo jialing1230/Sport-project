@@ -158,6 +158,56 @@
       .back-button:hover .arrow-icon {
         fill: #81d3e1;
       }
+	  .text-button {
+		  background: none;
+		  border: none;
+		  color: #81d3e1;
+		  font-size: 14px;
+		  cursor: pointer;
+		  font-weight: bold;
+		}
+
+		.text-button:hover {
+		  color: #81d3e1;
+		}
+
+		.dropdown-list {
+		  position: absolute;
+		  top: 100%;
+		  left: 0;
+		  z-index: 10;
+		  margin-top: 4px;
+		  width: 100%;
+		  padding: 8px;
+		  background-color: #f9f9f9;
+		  border: 1px solid #ccc;
+		  border-radius: 4px;
+		  list-style-type: none;
+		  max-height: 200px;
+		  overflow-y: auto;
+		  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+		}
+		.label-button-row {
+		  display: flex;
+		  justify-content: space-between;
+		  align-items: center;
+		  margin-bottom: 6px;
+		}
+		.dropdown-list li {
+		  padding: 6px 10px;
+		  cursor: pointer;
+		}
+
+		.dropdown-list li:hover {
+		  background-color: #eaf3fa;
+		}
+		.form-label-inline {
+		  font-weight: bold;
+		  color: #2c4975;
+		  font-size: 16px;
+		}
+
+
     </style>
   </head>
   <body>
@@ -185,15 +235,21 @@
         <div class="title-right"><!-- 預留空間用 --></div>
       </div>
       <form id="preferenceForm">
-        <div class="form-row">
-          <label class="form-label">活動名稱</label>
-          <input
-            type="text"
-            name="title"
-            placeholder="公開顯示，請簡明清楚"
-            required
-          />
-        </div>
+		 <div class="form-row" style="position: relative;">
+		  <div class="label-button-row">
+			<label class="form-label-inline">活動名稱</label>
+			<button type="button" class="text-button" onclick="togglePastTitles()">曾發起的活動</button>
+		  </div>
+		  <input
+			id="titleInput"
+			type="text"
+			name="title"
+			placeholder="公開顯示，請簡明清楚"
+			required
+		  />
+		  <ul id="pastTitles" class="dropdown-list" style="display: none;"></ul>
+		</div>
+
         <div class="form-row">
           <label class="form-label">類型</label>
           <div class="radio-card-group" id="sport-options">
@@ -507,6 +563,28 @@
         };
         return mapping[sport] || 0;
       }
+	  const pastTitles = [
+		  "羽球新手體驗班",
+		  "健身一起衝一波",
+		  "假日瑜珈放鬆時光"
+		]; // 可改為從後端 API 載入
+
+		function togglePastTitles() {
+		  const list = document.getElementById("pastTitles");
+		  list.style.display = list.style.display === "none" ? "block" : "none";
+		  if (list.innerHTML.trim() === "") {
+			pastTitles.forEach(title => {
+			  const li = document.createElement("li");
+			  li.textContent = title;
+			  li.onclick = () => {
+				document.getElementById("titleInput").value = title;
+				list.style.display = "none";
+			  };
+			  list.appendChild(li);
+			});
+		  }
+		}
+
     </script>
   </body>
 </html>

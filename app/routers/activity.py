@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify ,render_template
-from datetime import datetime ,timedelta
+from datetime import datetime 
 from app.database import get_db
 from app.models.activity import Activity
 from app.models.sport_type import SportType
@@ -88,23 +88,9 @@ def create_multiclass():
             if field not in payload:
                 return jsonify({"error": f"缺少必要欄位: {field}"}), 400
 
-        # 定義中文數字到整數的映射
-        chinese_to_int = {
-            "一": 1,
-            "二": 2,
-            "三": 3,
-            "四": 4,
-            "五": 5,
-            "六": 6,
-            "日": 7,
-        }
-
         # 解析前端資料
         try:
             start_date = datetime.fromisoformat(payload["first_time"])  # 活動開始時間
-            weekdays = [chinese_to_int[day] for day in payload["weekdays"]]  # 星期幾，轉換中文數字為整數
-            multi_count = int(payload["multi_count"])  # 課程總堂數
-            start_time = datetime.strptime(payload["every_starttime"], "%H:%M").time()  # 每堂課的開始時間
             end_time = datetime.strptime(payload["every_endtime"], "%H:%M").time()  # 每堂課的結束時間
             registration_deadline = datetime.fromisoformat(payload["registration_deadline"])
         except KeyError as e:
@@ -112,16 +98,16 @@ def create_multiclass():
         except ValueError as e:
             return jsonify({"error": f"資料格式錯誤: {str(e)}"}), 400
 
-        # 計算每堂課的日期
-        class_dates = []  # 用來存儲每次上課的日期
-        current_date = start_date
+        # 提取 scheduleList 的日期部分
+        schedule_list = payload.get("scheduleList", [])
+        if not schedule_list:
+            return jsonify({"error": "缺少 scheduleList"}), 400
 
-        # 根據 weekdays 計算每堂課的日期
-        while len(class_dates) < multi_count:
-            # 檢查當前日期是否符合需要的上課星期
-            if current_date.weekday() + 1 in weekdays:  # weekday() 返回 0-6，星期一是 0
-                class_dates.append(current_date)
-            current_date += timedelta(days=1)  # 增加一天，檢查下個日期
+        class_dates = []  # 用來存儲每次上課的日期
+        for schedule in schedule_list:
+            date_str = schedule.split(" ")[0]  # 提取日期部分
+            class_date = datetime.fromisoformat(date_str)
+            class_dates.append(class_date)
 
         # 計算活動結束時間，使用最後一堂課的時間
         activity_end_time = datetime.combine(class_dates[-1], end_time)  # 用最後一堂課的時間作為活動結束時間

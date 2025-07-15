@@ -94,20 +94,33 @@
         padding: 10px 20px;
         background-color: #f9f9f9;
         border: 1px solid #ccc;
-        border-radius: 6px;
+        border-radius: 8px;
         cursor: pointer;
-        transition: 0.2s;
+        transition: all 0.2s ease;
         text-align: center;
+		font-size: 15px;
+	    user-select: none;
+	    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
       }
       .radio-card input {
         display: none;
       }
+	  .radio-card:hover {
+	   background-color: #eaf3fa;
+	   color: #2c4975;
+	  }
       .radio-card:has(input:checked) {
-        background-color: #eaf3fa;
-        border-color: #2c4975;
-        color: #2c4975;
+        background-color: #81d3e1;
+        color: white;
+		font-weight: bold;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
       }
+	  .radio-card:active {
+	   transform: scale(0.96);
+	  }
+	  .radio-card:has(input:checked) span {
+		  color: white; /* 專門讓包住文字的 span 變白色 */
+		}
       .btn-primary {
         padding: 10px 20px;
         font-size: 16px;
@@ -158,6 +171,13 @@
       .back-button:hover .arrow-icon {
         fill: #81d3e1;
       }
+	  
+	  .course-type {
+	   display: flex;
+	   gap: 18px; /* 控制按鈕之間的間距 */
+	   flex-wrap: wrap; /* 如果螢幕太小會自動換行 */
+	   margin-top: 8px;
+	  }
 
       .course-type button.active {
         background-color: #81d3e1;
@@ -246,6 +266,46 @@
         .dropdown-list li:hover {
         background-color: #eaf3fa;
         }
+		.half-row {
+		  display: flex;
+		  gap: 16px;
+		  align-items: center;
+		}
+
+		.half-input,
+		.half-button {
+		  flex: 1;
+		}
+
+		.half-button {
+		  padding: 10px;
+		  font-size: 14px;
+		}
+		.btn-generate {
+		  padding: 10px 15px;
+		  font-size: 16px;
+		  background-color: #81d3e1;   /* 藍綠色背景 */
+		  color: white;                /* 白字 */
+		  border: 1px solid #ccc;   /* 深一點的藍綠邊框 */
+		  border-radius: 6px;
+		  cursor: pointer;
+		  transition: all 0.2s ease;
+		  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+		  font-weight: bold;
+		  white-space: nowrap;
+		  max-width: 160px; /* ✅ 限制最大寬度 */
+		  flex-shrink: 0;   /* ✅ 不會被壓扁 */
+		}
+
+		.btn-generate:hover {
+		  background-color: #2c4975;   /* 深藍 hover 色 */
+		  border-color: #2c4975;
+		}
+
+		.btn-generate:active {
+		  transform: scale(0.96);
+		}
+
 
     </style>
   </head>
@@ -336,118 +396,75 @@
 	<div class="form-row">
           <label class="form-label">性別</label>
           <div class="radio-card-group">
+            <label class="radio-card">
+			  <input type="radio" name="gender" value="男性" required />
+			  <span>男性</span>
+			</label>
             <label class="radio-card"
               ><input
-                type="radio"
-                name="gender"
-                value="男性"
-                required
-              />男性</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="gender"
-                value="女性"
-                required
-              />女性</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="gender"
-                value="不限"
-                required
-              />不限</label
-            >
-          </div>
-        </div>
-        <div class="form-row">
-          <label class="form-label">年齡區間</label>
-          <div class="radio-card-group">
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="ageRange"
-                value="18-25"
-                required
-              />18–25　</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="ageRange"
-                value="26-35"
-                required
-              />26–35　</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="ageRange"
-                value="36-45"
-                required
-              />36–45　</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="ageRange"
-                value="46-64"
-                required
-              />46–64　</label
-            >
-            <label class="radio-card"
-              ><input type="radio" name="ageRange" value="65+" required />65
-              以上</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="ageRange"
-                value="不限"
-                required
-              />不限</label
-            >
-          </div>
-        </div>
-        <div class="form-row">
-          <label class="form-label">等級</label>
-          <div class="radio-card-group">
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="level"
-                value="初學"
-                required
-              />初學</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="level"
-                value="中階"
-                required
-              />中階</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="level"
-                value="進階"
-                required
-              />進階</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="level"
-                value="不限"
-                required
-              />不限</label
-            >
-          </div>
-		</div>  
+                type="radio" name="gender" value="女性" required />
+			  <span>女性</span>
+			</label>
+           <label class="radio-card">
+			  <input type="radio" name="gender" value="不限" required />
+			  <span>不限</span>
+			</label>
+		  </div>
+		</div>
+
+		<div class="form-row">
+		  <label class="form-label">年齡區間</label>
+		  <div class="radio-card-group">
+			<label class="radio-card">
+			  <input type="radio" name="ageRange" value="18-25" required />
+			  <span>18–25</span>
+			</label>
+			<label class="radio-card">
+			  <input type="radio" name="ageRange" value="26-35" required />
+			  <span>26–35</span>
+			</label>
+			<label class="radio-card">
+			  <input type="radio" name="ageRange" value="36-45" required />
+			  <span>36–45</span>
+			</label>
+			<label class="radio-card">
+			  <input type="radio" name="ageRange" value="46-64" required />
+			  <span>46–64</span>
+			</label>
+			<label class="radio-card">
+			  <input type="radio" name="ageRange" value="65+" required />
+			  <span>65以上</span>
+			</label>
+			<label class="radio-card">
+			  <input type="radio" name="ageRange" value="不限" required />
+			  <span>不限</span>
+			</label>
+		  </div>
+		</div>
+
+		<div class="form-row">
+		  <label class="form-label">等級</label>
+		  <div class="radio-card-group">
+			<label class="radio-card">
+			  <input type="radio" name="level" value="初學" required />
+			  <span>初學</span>
+			</label>
+			<label class="radio-card">
+			  <input type="radio" name="level" value="中階" required />
+			  <span>中階</span>
+			</label>
+			<label class="radio-card">
+			  <input type="radio" name="level" value="進階" required />
+			  <span>進階</span>
+			</label>
+			<label class="radio-card">
+			  <input type="radio" name="level" value="不限" required />
+			  <span>不限</span>
+			</label>
+		  </div>
+		</div>
+
+
     <div class="form-row">
       <label class="form-label">補充說明</label>
       <textarea name="description" placeholder="EX：地標描述、裝備建議、注意事項..."></textarea>
@@ -503,9 +520,17 @@
       <input type="time" name="every_endTime" required />
     </div>
     <div class="form-row">
-      <label class="form-label">總堂數</label>
-      <input type="number" name="multi_count" />
-    </div>
+	  <label class="form-label">總堂數與產生時間表</label>
+	  <div class="half-row">
+		<input type="number" name="multi_count" class="half-input" />
+		<button type="button" class="btn-generate half-button" onclick="generateSchedule()">產生時間表</button>
+	  </div>
+	</div>
+	<div class="form-row">
+	  <label class="form-label">預覽課程時間表</label>
+	  <ul id="schedule-preview" class="dropdown-list"></ul>
+	</div>
+
     <div class="form-row">
           <label class="form-label">人數</label>
           <input
@@ -524,120 +549,76 @@
       <label class="form-label">報名截止日期</label>
       <input type="datetime-local" name="multi_registration_deadline" required />
     </div>
+		<div class="form-row">
+	  <label class="form-label">性別</label>
+	  <div class="radio-card-group">
+		<label class="radio-card">
+		  <input type="radio" name="gender" value="男性" required />
+		  <span>男性</span>
+		</label>
+		<label class="radio-card">
+		  <input type="radio" name="gender" value="女性" required />
+		  <span>女性</span>
+		</label>
+		<label class="radio-card">
+		  <input type="radio" name="gender" value="不限" required />
+		  <span>不限</span>
+		</label>
+	  </div>
+	</div>
+
 	<div class="form-row">
-          <label class="form-label">性別</label>
-          <div class="radio-card-group">
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="multi_gender"
-                value="男性"
-                required
-              />男性</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="multi_gender"
-                value="女性"
-                required
-              />女性</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="multi_gender"
-                value="不限"
-                required
-              />不限</label
-            >
-          </div>
-        </div>
-        <div class="form-row">
-          <label class="form-label">年齡區間</label>
-          <div class="radio-card-group">
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="multi_ageRange"
-                value="18-25"
-                required
-              />18–25　</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="multi_ageRange"
-                value="26-35"
-                required
-              />26–35　</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="multi_ageRange"
-                value="36-45"
-                required
-              />36–45　</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="multi_ageRange"
-                value="46-64"
-                required
-              />46–64　</label
-            >
-            <label class="radio-card"
-              ><input type="radio" name="multi_ageRange" value="65+" required />65
-              以上</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="multi_ageRange"
-                value="不限"
-                required
-              />不限</label
-            >
-          </div>
-          <div class="form-row">
-			  <label class="form-label">等級</label>
-			  <div class="radio-card-group">
-				<label class="radio-card"
-				  ><input
-					type="radio"
-					name="multi_level"
-					value="初學"
-					required
-				  />初學</label
-				>
-				<label class="radio-card"
-				  ><input
-					type="radio"
-					name="multi_level"
-					value="中階"
-					required
-				  />中階</label
-				>
-				<label class="radio-card"
-				  ><input
-					type="radio"
-					name="multi_level"
-					value="進階"
-					required
-				  />進階</label
-				>
-				<label class="radio-card"
-				  ><input
-					type="radio"
-					name="multi_level"
-					value="不限"
-					required
-				  />不限</label
-				>
-			  </div>
-			</div>  
+	  <label class="form-label">年齡區間</label>
+	  <div class="radio-card-group">
+		<label class="radio-card">
+		  <input type="radio" name="ageRange" value="18-25" required />
+		  <span>18–25</span>
+		</label>
+		<label class="radio-card">
+		  <input type="radio" name="ageRange" value="26-35" required />
+		  <span>26–35</span>
+		</label>
+		<label class="radio-card">
+		  <input type="radio" name="ageRange" value="36-45" required />
+		  <span>36–45</span>
+		</label>
+		<label class="radio-card">
+		  <input type="radio" name="ageRange" value="46-64" required />
+		  <span>46–64</span>
+		</label>
+		<label class="radio-card">
+		  <input type="radio" name="ageRange" value="65+" required />
+		  <span>65以上</span>
+		</label>
+		<label class="radio-card">
+		  <input type="radio" name="ageRange" value="不限" required />
+		  <span>不限</span>
+		</label>
+	  </div>
+	</div>
+
+	<div class="form-row">
+	  <label class="form-label">等級</label>
+	  <div class="radio-card-group">
+		<label class="radio-card">
+		  <input type="radio" name="level" value="初學" required />
+		  <span>初學</span>
+		</label>
+		<label class="radio-card">
+		  <input type="radio" name="level" value="中階" required />
+		  <span>中階</span>
+		</label>
+		<label class="radio-card">
+		  <input type="radio" name="level" value="進階" required />
+		  <span>進階</span>
+		</label>
+		<label class="radio-card">
+		  <input type="radio" name="level" value="不限" required />
+		  <span>不限</span>
+		</label>
+	  </div>
+	</div>
+
     <div class="form-row">
       <label class="form-label">補充說明</label>
       <textarea name="multi_description" placeholder="EX：地標描述、裝備建議、注意事項..."></textarea>
@@ -651,6 +632,7 @@
         
         
     <script>
+	  let scheduleList = []; // 存目前課表的陣列
       const sportRadios = document.querySelectorAll('input[name="sport"]');
       const otherSportRow = document.getElementById("other-sport-row");
       const otherSportInput = document.getElementById("other-sport-input");
@@ -689,46 +671,27 @@
             }
         }
 
+            const pastTitles = [
+            "羽球新手體驗班",
+            "健身一起衝一波",
+            "假日瑜珈放鬆時光"
+            ]; // 實際應改從 API 載入
+
         function togglePastTitles() {
             const list = document.getElementById("pastTitles");
             list.style.display = list.style.display === "none" ? "block" : "none";
             if (list.innerHTML.trim() === "") {
-              const urlParams = new URLSearchParams(window.location.search);
-              const memberId = urlParams.get("member_id");
-
-              if (!memberId) {
-                console.error("無法取得 member_id");
-                return;
-              }
-
-              fetch(`/api/activities/past_class?member_id=${memberId}`)
-                .then((response) => response.json())
-                .then((data) => {
-                  const uniqueTitles = new Set();
-                  data.forEach((activity) => {
-                    if (!uniqueTitles.has(activity.title)) {
-                      uniqueTitles.add(activity.title);
-                      const li = document.createElement("li");
-                      li.textContent = `${activity.title} - ${activity.location_name}`;
-                      li.style.cursor = "pointer";
-                      li.addEventListener("click", () => {
-                        document.querySelector('input[name="title"]').value = activity.title;
-                        document.querySelector('input[name="location"]').value = activity.location_name;
-                        const sportOptions = document.querySelectorAll('input[name="sport"]');
-                        sportOptions.forEach((option) => {
-                          if (option.value == activity.sport_type_id) {
-                            option.checked = true;
-                          }
-                        });
+                pastTitles.forEach(title => {
+                    const li = document.createElement("li");
+                    li.textContent = title;
+                    li.onclick = () => {
+                        document.getElementById("titleInput").value = title;
                         list.style.display = "none";
-                      });
-                      list.appendChild(li);
-                    }
-                  });
-                })
-                .catch((error) => console.error("Error fetching past classes:", error));
+                    };
+                    list.appendChild(li);
+                });
             }
-          }
+        }
 
       fetch("/api/preferences/options")
         .then((response) => response.json())
@@ -812,8 +775,6 @@
             registration_deadline: formData.get("registration_deadline"),
             organizer_id: memberId, // 使用網址中的 member_id
             level: formData.get("level"),
-            gender: formData.get("gender"),
-            age_range: formData.get("ageRange"),
             sport_type_id: parseInt(formData.get("sport")),
             description: formData.get("description"),
             status: "open",
@@ -887,9 +848,6 @@
             weekdays: formData.getAll("weekdays"),
             multi_count: parseInt(formData.get("multi_count")),
             max_participants: parseInt(formData.get("multi_numPeople")),
-            gender: formData.get("multi_gender"),
-            age_range: formData.get("multi_ageRange"),
-            level: formData.get("multi_level"),
             location_name: formData.get("location"),
             location_lat: 25.033,
             location_lng: 121.565,
@@ -934,7 +892,76 @@
           足球: 11,
         };
         return mapping[sport] || 0;
-      }
+			  }
+			 function generateSchedule() {
+		  const firstTimeInput = document.querySelector('input[name="firstTime"]');
+		  const weekdayInputs = document.querySelectorAll('input[name="weekdays"]:checked');
+		  const startTimeInput = document.querySelector('input[name="every_startTime"]');
+		  const endTimeInput = document.querySelector('input[name="every_endTime"]');
+		  const countInput = document.querySelector('input[name="multi_count"]');
+		  const previewList = document.getElementById("schedule-preview");
+
+		  previewList.innerHTML = "";
+		  scheduleList = []; // 清空舊資料
+
+		  const firstDate = new Date(firstTimeInput.value);
+		  if (isNaN(firstDate)) {
+			alert("請先輸入第一次上課時間");
+			return;
+		  }
+
+		  const weekdays = Array.from(weekdayInputs).map(input => input.value);
+		  if (weekdays.length === 0) {
+			alert("請選擇每週上課日");
+			return;
+		  }
+
+		  const startTime = startTimeInput.value;
+		  const endTime = endTimeInput.value;
+		  const totalCount = parseInt(countInput.value);
+		  if (!startTime || !endTime || isNaN(totalCount) || totalCount <= 0) {
+			alert("請完整輸入時間與堂數");
+			return;
+		  }
+
+		  const weekdayMap = { "日": 0, "一": 1, "二": 2, "三": 3, "四": 4, "五": 5, "六": 6 };
+		  const targetWeekdays = weekdays.map(w => weekdayMap[w]);
+
+		  let date = new Date(firstDate);
+		  while (scheduleList.length < totalCount) {
+			if (targetWeekdays.includes(date.getDay())) {
+			  const dateStr = date.toISOString().split("T")[0];
+			  scheduleList.push(`${dateStr} ${startTime} ~ ${endTime}`);
+			}
+			date.setDate(date.getDate() + 1);
+		  }
+
+		  renderScheduleList();
+		}
+		function renderScheduleList() {
+		  const previewList = document.getElementById("schedule-preview");
+		  previewList.innerHTML = "";
+
+		  scheduleList.forEach((line, index) => {
+			const li = document.createElement("li");
+			li.innerHTML = `第 ${index + 1} 堂：${line} 
+			  <button type="button" onclick="deleteSchedule(${index})" 
+				style="margin-left: 8px; color: red; border: none; background: none; cursor: pointer;">✖</button>`;
+			previewList.appendChild(li);
+		  });
+
+		  // ✅ 自動更新總堂數欄位
+		  const countInput = document.querySelector('input[name="multi_count"]');
+		  countInput.value = scheduleList.length;
+		}
+
+		function deleteSchedule(index) {
+		  if (!confirm(`你確定要刪除第 ${index + 1} 堂課嗎？`)) return;
+		  scheduleList.splice(index, 1); // 刪掉該堂課
+		  renderScheduleList(); // 重新渲染清單
+		}
+
+
     </script>
   </body>
 </html>

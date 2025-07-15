@@ -90,24 +90,37 @@
         gap: 15px;
         flex-wrap: wrap;
       }
-      .radio-card {
+     .radio-card {
         padding: 10px 20px;
         background-color: #f9f9f9;
         border: 1px solid #ccc;
-        border-radius: 6px;
+        border-radius: 8px;
         cursor: pointer;
-        transition: 0.2s;
+        transition: all 0.2s ease;
         text-align: center;
+		font-size: 15px;
+	    user-select: none;
+	    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
       }
       .radio-card input {
         display: none;
       }
+	  .radio-card:hover {
+	   background-color: #eaf3fa;
+	   color: #2c4975;
+	  }
       .radio-card:has(input:checked) {
-        background-color: #eaf3fa;
-        border-color: #2c4975;
-        color: #2c4975;
+        background-color: #81d3e1;
+        color: white;
+		font-weight: bold;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
       }
+	  .radio-card:active {
+	   transform: scale(0.96);
+	  }
+	  .radio-card:has(input:checked) span {
+		  color: white; /* 專門讓包住文字的 span 變白色 */
+		}
       .btn-primary {
         padding: 10px 20px;
         font-size: 16px;
@@ -308,118 +321,73 @@
         <div class="form-row">
           <label class="form-label">性別</label>
           <div class="radio-card-group">
+            <label class="radio-card">
+			  <input type="radio" name="gender" value="男性" required />
+			  <span>男性</span>
+			</label>
             <label class="radio-card"
               ><input
-                type="radio"
-                name="gender"
-                value="男性"
-                required
-              />男性</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="gender"
-                value="女性"
-                required
-              />女性</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="gender"
-                value="不限"
-                required
-              />不限</label
-            >
-          </div>
-        </div>
-        <div class="form-row">
-          <label class="form-label">年齡區間</label>
-          <div class="radio-card-group">
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="ageRange"
-                value="18-25"
-                required
-              />18–25　</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="ageRange"
-                value="26-35"
-                required
-              />26–35　</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="ageRange"
-                value="36-45"
-                required
-              />36–45　</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="ageRange"
-                value="46-64"
-                required
-              />46–64　</label
-            >
-            <label class="radio-card"
-              ><input type="radio" name="ageRange" value="65+" required />65
-              以上</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="ageRange"
-                value="不限"
-                required
-              />不限</label
-            >
-          </div>
-        </div>
-        <div class="form-row">
-          <label class="form-label">等級</label>
-          <div class="radio-card-group">
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="level"
-                value="初學"
-                required
-              />初學</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="level"
-                value="中階"
-                required
-              />中階</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="level"
-                value="進階"
-                required
-              />進階</label
-            >
-            <label class="radio-card"
-              ><input
-                type="radio"
-                name="level"
-                value="不限"
-                required
-              />不限</label
-            >
-          </div>
-        </div>
+                type="radio" name="gender" value="女性" required />
+			  <span>女性</span>
+			</label>
+           <label class="radio-card">
+			  <input type="radio" name="gender" value="不限" required />
+			  <span>不限</span>
+			</label>
+		  </div>
+		</div>
+
+		<div class="form-row">
+		  <label class="form-label">年齡區間</label>
+		  <div class="radio-card-group">
+			<label class="radio-card">
+			  <input type="radio" name="ageRange" value="18-25" required />
+			  <span>18–25</span>
+			</label>
+			<label class="radio-card">
+			  <input type="radio" name="ageRange" value="26-35" required />
+			  <span>26–35</span>
+			</label>
+			<label class="radio-card">
+			  <input type="radio" name="ageRange" value="36-45" required />
+			  <span>36–45</span>
+			</label>
+			<label class="radio-card">
+			  <input type="radio" name="ageRange" value="46-64" required />
+			  <span>46–64</span>
+			</label>
+			<label class="radio-card">
+			  <input type="radio" name="ageRange" value="65+" required />
+			  <span>65以上</span>
+			</label>
+			<label class="radio-card">
+			  <input type="radio" name="ageRange" value="不限" required />
+			  <span>不限</span>
+			</label>
+		  </div>
+		</div>
+
+		<div class="form-row">
+		  <label class="form-label">等級</label>
+		  <div class="radio-card-group">
+			<label class="radio-card">
+			  <input type="radio" name="level" value="初學" required />
+			  <span>初學</span>
+			</label>
+			<label class="radio-card">
+			  <input type="radio" name="level" value="中階" required />
+			  <span>中階</span>
+			</label>
+			<label class="radio-card">
+			  <input type="radio" name="level" value="進階" required />
+			  <span>進階</span>
+			</label>
+			<label class="radio-card">
+			  <input type="radio" name="level" value="不限" required />
+			  <span>不限</span>
+			</label>
+		  </div>
+		</div>
         <div class="form-row">
           <label class="form-label">補充說明</label>
           <textarea
@@ -563,47 +531,27 @@
         };
         return mapping[sport] || 0;
       }
-	  function togglePastTitles() {
-    const list = document.getElementById("pastTitles");
-    list.style.display = list.style.display === "none" ? "block" : "none";
+	  const pastTitles = [
+		  "羽球新手體驗班",
+		  "健身一起衝一波",
+		  "假日瑜珈放鬆時光"
+		]; // 可改為從後端 API 載入
 
-    if (list.innerHTML.trim() === "") {
-      const urlParams = new URLSearchParams(window.location.search);
-      const memberId = urlParams.get("member_id");
-
-      if (!memberId) {
-        console.error("無法取得 member_id");
-        return;
-      }
-
-      fetch(`/api/activities/past_activity?member_id=${memberId}`)
-        .then((response) => response.json())
-        .then((data) => {
-          const uniqueTitles = new Set();
-          data.forEach((activity) => {
-            if (!uniqueTitles.has(activity.title)) {
-              uniqueTitles.add(activity.title);
-              const li = document.createElement("li");
-              li.textContent = `${activity.title} - ${activity.location_name}`;
-              li.style.cursor = "pointer";
-              li.addEventListener("click", () => {
-                document.querySelector('input[name="title"]').value = activity.title;
-                document.querySelector('input[name="location"]').value = activity.location_name;
-                const sportOptions = document.querySelectorAll('input[name="sport"]');
-                sportOptions.forEach((option) => {
-                  if (option.value == activity.sport_type_id) {
-                    option.checked = true;
-                  }
-                });
-                list.style.display = "none";
-              });
-              list.appendChild(li);
-            }
-          });
-        })
-        .catch((error) => console.error("Error fetching past activities:", error));
-    }
-  }
+		function togglePastTitles() {
+		  const list = document.getElementById("pastTitles");
+		  list.style.display = list.style.display === "none" ? "block" : "none";
+		  if (list.innerHTML.trim() === "") {
+			pastTitles.forEach(title => {
+			  const li = document.createElement("li");
+			  li.textContent = title;
+			  li.onclick = () => {
+				document.getElementById("titleInput").value = title;
+				list.style.display = "none";
+			  };
+			  list.appendChild(li);
+			});
+		  }
+		}
 
     </script>
   </body>

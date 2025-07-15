@@ -150,29 +150,54 @@ def create_multiclass():
                     status=payload.get("status", "open"),
                     created_at=datetime.now(),
                     venue_fee=payload.get("venue_fee"),
-                    registration_deadline=registration_deadline,
+                    registration_deadline=registration_deadline,              
                 )
                 db.add(act)
                 db.flush()  # 強制刷新，確保 activity_id 被生成並寫入資料庫
 
-                # 根據 multi_count 和 weekdays 生成課程安排 (CourseSchedule)
-                for idx, session_date in enumerate(class_dates):
-                    # 確保 start_time 和 end_time 轉換為 datetime 型別
-                    start_datetime = datetime.combine(session_date.date(), start_time)
-                    end_datetime = datetime.combine(session_date.date(), end_time)
+                # 根據前端回傳的清單生成課程安排 (CourseSchedule)
+                schedule_list = payload.get("scheduleList", [])
+                if not schedule_list:
+                    return jsonify({"error": "缺少 scheduleList"}), 400
 
-                    course_schedule = CourseSchedule(
-                        activity_id=act.activity_id,  # 正確關聯活動
-                        session_number=idx + 1,
-                        weekday=session_date.strftime("%A"),
-                        start_time=start_datetime,
-                        end_time=end_datetime,
-                        start_date=session_date.date()
-                    )
-                    db.add(course_schedule)  # 將課程安排加入 session 中
+                try:
+                    for idx, schedule in enumerate(schedule_list):
+                        # 檢查 schedule 格式是否正確
+                        if " ~ " not in schedule:
+                            return jsonify({"error": f"無效的時間範圍格式: {schedule}"}), 400
 
-                db.commit()
-                db.refresh(act)  # 一次性提交所有操作
+                        try:
+                            # 補充日期部分，使用 class_dates 中的日期
+                            start_datetime_str, end_datetime_str = schedule.split(" ~ ")
+                            start_datetime_str = f"{class_dates[idx].date()}T{start_datetime_str.split(' ')[-1]}"  # 使用對應的日期
+                            end_datetime_str = f"{class_dates[idx].date()}T{end_datetime_str}"  # 使用對應的日期
+
+                            # 確保 start_datetime_str 和 end_datetime_str 是字串
+                            if not isinstance(start_datetime_str, str) or not isinstance(end_datetime_str, str):
+                                raise ValueError("時間範圍的格式必須是字串")
+
+                            # 解析 schedule 的開始和結束時間
+                            start_datetime = datetime.fromisoformat(start_datetime_str)
+                            end_datetime = datetime.fromisoformat(end_datetime_str)
+                        except ValueError as e:
+                            return jsonify({"error": f"無效的時間格式: {str(e)}"}), 400
+
+                        course_schedule = CourseSchedule(
+                            activity_id=act.activity_id,  # 正確關聯活動
+                            session_number=idx + 1,
+                            weekday=start_datetime.strftime("%A"),
+                            start_time=start_datetime,
+                            end_time=end_datetime,
+                            start_date=start_datetime.date()
+                        )
+                        db.add(course_schedule)  # 將課程安排加入 session 中
+
+                    db.commit()
+                    db.refresh(act)  # 一次性提交所有操作
+
+                except Exception as e:
+                    db.rollback()  # 如果有錯誤發生，回滾所有操作
+                    return jsonify({"error": f"資料創建失敗: {str(e)}"}), 500
 
             except Exception as e:
                 db.rollback()  # 如果有錯誤發生，回滾所有操作

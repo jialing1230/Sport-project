@@ -88,6 +88,7 @@
         }
       }
 
+      /* 讓 header sticky */
       .header {
         display: flex;
         align-items: center;
@@ -97,7 +98,9 @@
         flex-wrap: wrap;
         gap: 16px;
         box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
-        z-index: 2;
+        z-index: 1000;
+        position: sticky;
+        top: 0;
       }
 
       .left-section {
@@ -345,7 +348,6 @@
         height: 48px;
         border-radius: 50%;
         overflow: hidden;
-        background: #eaf7fb;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -465,7 +467,7 @@
       const hasDeadline = signupDeadline > now;
 
       // 報名狀態（假設 API 有回傳 participant.joined_ids 陣列，裡面有 memberId 代表已報名）
-      const isJoined = participant.joined_ids && participant.joined_ids.includes(Number((memberId)));
+      const isJoined = participant.joined_participants.some(p => String(p.member_id) === String(memberId));
 
       const joinBtn = document.getElementById("join-btn");
       if (isJoined) {
@@ -661,17 +663,19 @@
           // 主辦人頭貼
           html += `
   <div class="avatar-box">
-    <img src="${organizer.avatar_url || '/static/default-avatar.png'}"
+    <img src="/static/avatars/${organizer.member_id}.png"
       alt="${organizer.name}"
-      title="${organizer.name}">
+      title="${organizer.name}"
+      onerror="this.onerror=null;this.src='/static/avatars/default.jpg'">
   </div>
 `;
           // 參加者頭貼
           html += joined.map(p => `
   <div class="avatar-box">
-    <img src="${p.avatar_url || '/static/default-avatar.png'}"
+    <img src="/static/avatars/${p.member_id}.png"
       alt="${p.name}"
-      title="${p.name}">
+      title="${p.name}"
+      onerror="this.onerror=null;this.src='/static/avatars/default.jpg'">
   </div>
 `).join("");
           html += `</div>`;

@@ -34,6 +34,12 @@
         font-size: 28px;
         color: #2c4975;
       }
+
+      .info-box h3 {
+        margin-top: 10px;    /* 距離卡片頂部縮小 */
+        margin-bottom: 8px;  /* 與內容間距 */
+        color: #81d3e1;
+      }
       .info-box {
         background: #fff;
         padding: 15px;
@@ -50,7 +56,7 @@
         font-weight: bold;
       }
       .info-box p span {
-        color: #000;
+        color: #2c4975;
       }
       .btn {
         display: block;
@@ -68,13 +74,6 @@
         cursor: pointer;
         transition: background-color 0.3s ease;
       }
-      .button-group {
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-        margin-top: 20px;
-        flex-wrap: wrap;
-      }
       .btn:hover {
         background-color: #2c4975;
       }
@@ -88,21 +87,363 @@
           padding: 10px;
         }
       }
+
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 30px;
+        background-color: #fff;
+        flex-wrap: wrap;
+        gap: 16px;
+        box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
+        z-index: 2;
+      }
+
+      .left-section {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        padding: 10px;
+      }
+
+      .left-section svg {
+        width: 24px;
+        height: 24px;
+        fill: var(--deep-blue);
+        cursor: pointer;
+        transition: fill 0.3s ease;
+      }
+
+      .right-section {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+      }
+
+      .right-section svg {
+        cursor: pointer;           /* 鼠標懸停時顯示手型 */
+        transition: fill 0.3s ease; /* 鼠標懸停時的過渡效果 */
+      }
+
+      .title-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .title-text {
+        font-size: 30px;
+        font-weight: bold;
+        margin: 0;
+        color: #2c4975;
+      }
+
+      .status-badge {
+        font-size: 20px;
+        padding: 4px 10px;
+        border-radius: 10px;
+        font-weight: bold;
+        white-space: nowrap;
+        color: white;
+      }
+
+      .badge-open {
+        background-color: #f8a9b3; /* 粉紅 */
+      }
+
+      .badge-full {
+        background-color: #81d3e1; /* 淡藍 */
+      }
+
+      .section-divider {
+        width: 100%;
+        height: 1.5px;
+        background-color: #81d3e1; /* 淺藍色 */
+        margin: 10px 0 15px 0;     /* 上下留點空隙 */
+        border-radius: 1px;
+      }
+
+      .location-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+
+      .location-icon {
+        margin-right: 12px; /* 統一左右間距 */
+        display: inline-block;
+        vertical-align: middle;
+      }
+
+      .location-text {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .activity-type-label {
+        padding: 3px 8px;
+        font-size: 14px;
+        font-weight: bold;
+        border-radius: 4px;
+        vertical-align: middle; /* 垂直居中對齊 */
+      }
+
+      .activity-type-label.training-course {
+        background-color: #2c4975; /* 訓練課程的背景色 */
+        color: white; /* 訓練課程的文字顏色 */
+      }
+
+      .activity-type-label.general-activity {
+        background-color: #81d3e1; /* 一般活動的背景色 */
+        color: #2c4975; /* 一般活動的文字顏色 */
+      }
+
+      .location-row span {
+        margin-right: 8px; /* 費用與活動類型之間的間距 */
+      }
+
+      .bottom-center {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 100px;
+        font-weight: bold;
+        color: #2c4975;
+        font-size: 15px;
+        line-height: 1.3;
+      }
+      .bottom-text {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        margin-right: 16px;
+      }
+      
+      #join-btn {
+        margin-right: 15px; /* 按鈕往右邊移一點 */
+      }
+
+      #signup-deadline {
+        font-size: 15px;
+        margin-top: 2px;
+        color: #2c4975;
+      }
+
+      .bottom-nav {
+        position: fixed;
+        bottom: 0px;
+        left: 0;
+        width: 100%;
+        background: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 72px;
+        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+        z-index: 99;
+      }
+
+      .bottom-nav-inner {
+        max-width: 900px;
+        margin: 0 auto;
+        width: 100%;
+        height: 100%;
+        padding: 0 30px; /* 左右與 header 一致 */
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+      }
+      .bottom-nav .nav-item {
+        color: #2c4975;
+        font-size: 16px;
+        text-decoration: none;
+        padding: 8px 0;
+        flex: 1;
+        text-align: center;
+        transition: color 0.2s;
+      }
+      .bottom-nav .nav-item:hover {
+        color: #81d3e1;
+        background: #eaf7fb;
+      }
+      .bottom-nav .btn {
+        white-space: nowrap;   /* 不換行 */
+        width: auto;           /* 自動寬度 */
+        margin-left: auto;    
+        margin-right: 36px;    
+        padding: 10px 16px;
+        font-size: 16px;
+        font-weight: bold;
+        background-color: #81d3e1;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-bottom: 24px;
+        margin-top: 24px;
+      }
+
+      @media (min-width: 768px) {
+        .search-box {
+          max-width: 420px; /* ✅ 桌機版拉長 */
+        }
+      }
+      .filter-icon {
+        width: 24px;
+        height: 24px;
+        margin-left: 12px;
+        color: var(--deep-blue);
+        cursor: pointer;
+        transition: color 0.3s ease;
+      }
+
+      .filter-icon:hover {
+        color: var(--light-blue);
+      }
+
+      .overview-button {
+        font-size: 14px;
+        font-weight: bold;
+        color: var(--deep-blue);
+        background-color: #fff;
+        border: 2px solid var(--deep-blue);
+        border-radius: 6px;
+        padding: 6px 12px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        white-space: nowrap; /* 不要自動換行 */
+      }
+
+      .overview-button:hover {
+        background-color: var(--light-blue);
+        color: white;
+        border-color: var(--light-blue);
+      }
+
+      .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .map-area {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+      }
+
+      .avatar-box {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        overflow: hidden;
+        background: #eaf7fb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .avatar-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        display: block;
+      }
     </style>
   </head>
   <body>
-    <h1 id="activity-title">載入中...</h1>
+    <div class="header">
+      <div class="left-section">
+          <svg
+          id="back-button" 
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          width="24"
+          height="24">
+            <path d="M15 19l-7-7 7-7"
+                  stroke= #81d3e1
+                  stroke-width="2"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"></path>
+            <path d="M8 12h14"
+                  stroke="#81d3e1"
+                  stroke-width="2"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"></path>
+          </svg>
+      </div>
+      <div class="right-section">
+        <svg 
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 48 48"
+          width="30"
+          height="30">
+            <path d="M24 30 V14"
+                  stroke="#1B3A6E"
+                  stroke-width="3"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"></path>
+            <path d="M16 22 L24 14 L32 22"
+                  stroke="#1B3A6E"
+                  stroke-width="3"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"></path>
+            <path d="M10 30 V36 A4 4 0 0 0 14 40 H34 A4 4 0 0 0 38 36 V30"
+                  stroke="#1B3A6E"
+                  stroke-width="3"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"></path>
+        </svg>
+        <svg 
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          width="24"
+          height="24">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                  stroke= "#f8a9b3"
+                  stroke-width="2"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"></path>
+        </svg>
+      </div>
+    </div>
+
     <div class="container">
       <section id="activity-info" class="info-box"></section>
       <section id="description" class="info-box" style="display: none;"></section>
       <section id="participants" class="info-box"></section>
-      <div class="button-group" id="button-group">
-        <button class="btn" id="view-others-btn">我想看看其他活動！</button>
-        <button class="btn" id="join-btn">我要參加！</button>
+      <div style="height: 40px;"></div>
+    </div>
+
+    <div class="bottom-nav">
+      <div class="bottom-center">
+        <div class="bottom-text">
+          <div id="participant-status">人數：</div>
+          <div id="signup-deadline">報名截止：</div>
+        </div>
+        <button class="btn" id="join-btn">我要報名</button>
       </div>
     </div>
 
     <script>
+      document.getElementById("back-button").onclick = () => {
+        location.href = `/api/activities/overview?member_id=${memberId}`;
+      };
+
       const urlParams = new URLSearchParams(window.location.search);
       const activityId = urlParams.get("id");
       const memberId = urlParams.get("member_id");
@@ -113,28 +454,177 @@
         throw new Error("No activity ID found in URL");
       }
 
-      fetch(`/api/activities/details?activity_id=${activityId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          const isFull = data.current_participants >= data.max_participants;
-          document.getElementById("activity-title").innerText = data.title;
-          document.getElementById("activity-info").innerHTML = `
-            <p><strong>類型：</strong><span>${data.sport_name} / ${data.level}</span></p>
-            <p><strong>活動類型：</strong><span>${data.type}</span></p>
-            <p><strong>開始時間：</strong><span>${new Date(data.start_time).toLocaleString()}</span></p>
-            <p><strong>結束時間：</strong><span>${new Date(data.end_time).toLocaleString()}</span></p>
-            <p><strong>地點：</strong><span>${data.location_name}</span></p>
-            <p><strong>報名截止時間：</strong><span>${new Date(data.registration_deadline).toLocaleString()}</span></p>
-            <p><strong>報名費用：</strong><span>${!data.venue_fee || data.venue_fee === 0 ? "免費" : data.venue_fee + " 元"}</span></p>
-            <p><strong>目前報名人數：</strong><span>${data.current_participants} / ${data.max_participants} 人</span></p>
-            ${isFull ? `<p style='color:red;font-weight:bold;'>已額滿</p>` : ""}
+      Promise.all([
+      fetch(`/api/activities/details?activity_id=${activityId}`).then(res => res.json()),
+      fetch(`/api/activities/participants?activity_id=${activityId}`).then(res => res.json())
+    ])
+    .then(([detail, participant]) => {
+      const isFull = detail.current_participants >= detail.max_participants;
+      const now = new Date();
+      const signupDeadline = new Date(detail.registration_deadline);
+      const hasDeadline = signupDeadline > now;
+
+      // 報名狀態（假設 API 有回傳 participant.joined_ids 陣列，裡面有 memberId 代表已報名）
+      const isJoined = participant.joined_ids && participant.joined_ids.includes(Number((memberId)));
+
+      const joinBtn = document.getElementById("join-btn");
+      if (isJoined) {
+        joinBtn.textContent = "已報名";
+        joinBtn.classList.add("disabled");
+        joinBtn.style.backgroundColor = "#ccc";
+        joinBtn.disabled = true;
+      } else if (isFull && hasDeadline) {
+        joinBtn.textContent = "加入候補";
+        joinBtn.classList.remove("disabled");
+        joinBtn.style.backgroundColor = "#81d3e1";
+        joinBtn.disabled = false;
+      } else if (!isFull && hasDeadline) {
+        joinBtn.textContent = "我要報名";
+        joinBtn.classList.remove("disabled");
+        joinBtn.style.backgroundColor = "#81d3e1";
+        joinBtn.disabled = false;
+      } else {
+        // 報名截止或其他狀況
+        joinBtn.textContent = "報名截止";
+        joinBtn.classList.add("disabled");
+        joinBtn.style.backgroundColor = "#ccc";
+        joinBtn.disabled = true;
+      }
+
+      const statusText = isFull ? "額滿候補" : "開放報名";
+      const statusClass = isFull ? "badge-full" : "badge-open";
+      const organizerName = participant.organizer.name;
+          
+        document.getElementById("activity-info").innerHTML = `
+          <div class="title-row">
+            <h2 class="title-text">${detail.title}</h2>
+            <span class="status-badge ${statusClass}">${statusText}</span>
+          </div>
+          <span>${detail.sport_name}｜${detail.level}運動者推薦｜由${organizerName}發起</span>
+          <div class="section-divider"></div>
+          <div class="location-row">
+            <svg class="location-icon" 
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  width="26"
+                  height="26"
+                  style="vertical-align: middle; margin-right: 6px;">
+            <path d="M12 1.5C6.5 1.5 3 6 3 10c0 6.5 9 13 9 13s9-6.5 9-13c0-4-3.5-8.5-9-8.5z"
+                  stroke="#2c4975"
+                  stroke-width="2"
+                  fill="none"/>
+            <circle cx="12" cy="10" r="2.5" stroke="#2c4975" stroke-width="2" fill="none"/>
+            </svg>
+            <span>${detail.location_name}</span>
+          </div>
+          
+          <div class="location-row">
+            <svg class="location-icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  width="26"
+                  height="26"
+                  style="vertical-align: middle; margin-right: 6px;">
+              <path d="M12 12 V5"
+                    stroke="#2c4975"
+                    stroke-width="2"
+                    fill="none"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"/>
+              <path d="M12 12 L16 15"
+                    stroke="#2c4975"
+                    stroke-width="2"
+                    fill="none"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"/>
+              <circle cx="12" cy="12" r="9" stroke="#2c4975" stroke-width="2" fill="none"></circle>
+            </svg>
+            <span class="location-text">${formatDateRange(detail.start_time, detail.end_time)}</span>
+          </div>  
+          
+          <div class="location-row">
+            <!-- 圓圈裡面的錢圖示 -->
+            <svg xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+                style="vertical-align: middle; margin-right: 6px;">
+                <circle cx="12" cy="12" r="10" stroke="#2c4975" stroke-width="2" fill="none"/>
+                <text x="12" y="16" font-size="12" font-weight="bold" text-anchor="middle" fill="#2c4975" font-family="Arial">$</text>
+            <span style="vertical-align: middle; line-height: 1.2;">
+              ${!detail.venue_fee || detail.venue_fee === 0 ? "免費 |" : detail.venue_fee + " 元 |"} 
+            </span>
+            <span class="activity-type-label" id="activity-type">
+            </span>
+          </div>
           `;
 
+          const participantText = `人數：${detail.current_participants} / ${detail.max_participants} 人`;
+          document.getElementById("participant-status").textContent = participantText;
+
+          const pad = (n) => String(n).padStart(2, "0");
+          const days = ["日", "一", "二", "三", "四", "五", "六"];
+          const month = signupDeadline.getMonth() + 1;
+          const day = signupDeadline.getDate();
+          const week = days[signupDeadline.getDay()];
+          const hour = pad(signupDeadline.getHours());
+          const minute = pad(signupDeadline.getMinutes());
+          const deadlineText = `報名截止：${month}/${day}（${week}）${hour}:${minute}`;
+
+          document.getElementById("signup-deadline").textContent = deadlineText;
+          
+          const activityType = detail.activity_type;  // 根據API返回的活動類型設定
+
+          // 根據活動類型來顯示對應的文字和樣式
+          requestAnimationFrame(() => {
+            const activityTypeLabel = document.getElementById("activity-type");
+            if (activityTypeLabel) {
+              if (activityType === "一般活動") {
+                activityTypeLabel.innerHTML = "一般活動";
+                activityTypeLabel.classList.remove("training-course");
+                activityTypeLabel.classList.add("general-activity");
+              } else if (activityType === "訓練課程") {
+                activityTypeLabel.innerHTML = "訓練課程";
+                activityTypeLabel.classList.remove("general-activity");
+                activityTypeLabel.classList.add("training-course");
+              }
+            }
+          }, 0);
+
+          function formatDateRange(start, end) {
+            const startDate = new Date(start);
+            const endDate = new Date(end);
+
+            const pad = (n) => String(n).padStart(2, "0");
+            const getDayLabel = (d) => {
+              const days = ["日", "一", "二", "三", "四", "五", "六"];
+              return days[d.getDay()];
+            };
+
+            const sMonth = startDate.getMonth() + 1;
+            const sDay = startDate.getDate();
+            const sWeek = getDayLabel(startDate);
+            const sTime = `${pad(startDate.getHours())}:${pad(startDate.getMinutes())}`;
+
+            const eMonth = endDate.getMonth() + 1;
+            const eDay = endDate.getDate();
+            const eWeek = getDayLabel(endDate);
+            const eTime = `${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`;
+
+            if (sMonth === eMonth && sDay === eDay) {
+              // ✅ 同一天，只顯示一次日期
+              return `${sMonth}/${sDay}（${sWeek}）${sTime} ~ ${eTime}`;
+            } else {
+              // ⏭️ 不同天，兩個日期都顯示
+              return `${sMonth}/${sDay}（${sWeek}）${sTime} ~ ${eMonth}/${eDay} ${eTime}`;
+            }
+          }
+
           const descSection = document.getElementById("description");
-          if (data.description && data.description.trim() !== "") {
+          if (detail.description && detail.description.trim() !== "") {
             descSection.innerHTML = `
               <h3>活動介紹</h3>
-              <p><span>${data.description}</span></p>`;
+              <p><span>${detail.description}</span></p>`;
             descSection.style.display = "block";
           } else {
             descSection.style.display = "none";
@@ -158,24 +648,33 @@
               .catch((err) => alert("參加活動失敗，請稍後再試！"));
           };
 
-          document.getElementById("view-others-btn").onclick = () => {
-            location.href = `/api/activities/overview?member_id=${memberId}`;
-          };
-        });
+    });
 
       fetch(`/api/activities/participants?activity_id=${activityId}`)
         .then((res) => res.json())
         .then((data) => {
           const organizer = data.organizer;
           const joined = data.joined_participants;
-          const pending = data.pending_participants;
 
-          let html = `<h3>主辦人</h3><p><span>${organizer.name}</span></p>`;
-
-          html += `<h3>已參加</h3>`;
-          html += joined.length
-            ? joined.map(p => `<p><span>${p.name}</span></p>`).join("")
-            : `<p style="color:gray;">目前還沒有參加人員喔！</p>`;
+          let html = `<h3>參與人員</h3>`;
+          html += `<div style="display: flex; flex-wrap: wrap; gap: 12px;">`;
+          // 主辦人頭貼
+          html += `
+  <div class="avatar-box">
+    <img src="${organizer.avatar_url || '/static/default-avatar.png'}"
+      alt="${organizer.name}"
+      title="${organizer.name}">
+  </div>
+`;
+          // 參加者頭貼
+          html += joined.map(p => `
+  <div class="avatar-box">
+    <img src="${p.avatar_url || '/static/default-avatar.png'}"
+      alt="${p.name}"
+      title="${p.name}">
+  </div>
+`).join("");
+          html += `</div>`;
 
           document.getElementById("participants").innerHTML = html;
         });

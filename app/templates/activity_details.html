@@ -192,21 +192,34 @@
         font-size: 14px;
         font-weight: bold;
         border-radius: 4px;
-        vertical-align: middle; /* 垂直居中對齊 */
+        vertical-align: baseline; /* 垂直居中對齊 */
       }
 
       .activity-type-label.training-course {
         background-color: #2c4975; /* 訓練課程的背景色 */
         color: white; /* 訓練課程的文字顏色 */
+        font-size: inherit;
+        padding-top: 4px;
+        padding-bottom: 4px;
+        padding-left: 10px;
+        padding-right: 10px;
       }
 
       .activity-type-label.general-activity {
-        background-color: #81d3e1; /* 一般活動的背景色 */
-        color: #2c4975; /* 一般活動的文字顏色 */
+        color: inherit;
+        background: none;
+        font-size: inherit;
+        font-weight: inherit;
+        padding: 0;
+        border-radius: 0;
       }
 
       .location-row span {
         margin-right: 8px; /* 費用與活動類型之間的間距 */
+        vertical-align: baseline;
+      }
+      .activity-type-label {
+        vertical-align: baseline;
       }
 
       .bottom-center {
@@ -553,10 +566,14 @@
                 style="vertical-align: middle; margin-right: 6px;">
                 <circle cx="12" cy="12" r="10" stroke="#2c4975" stroke-width="2" fill="none"/>
                 <text x="12" y="16" font-size="12" font-weight="bold" text-anchor="middle" fill="#2c4975" font-family="Arial">$</text>
-            <span style="vertical-align: middle; line-height: 1.2;">
-              ${!detail.venue_fee || detail.venue_fee === 0 ? "免費 |" : detail.venue_fee + " 元 |"} 
-            </span>
-            <span class="activity-type-label" id="activity-type">
+            <span style="vertical-align: baseline; line-height: 1.2;">
+              ${!detail.venue_fee || detail.venue_fee === 0 
+                ? `免費` 
+                : `${detail.venue_fee} 元`}
+              <span style="margin: 0 4px; vertical-align: baseline;">|</span>
+              <span class="activity-type-label" id="activity-type">
+                ${detail.activity_type === '一般活動' ? '一般活動' : detail.activity_type === '訓練課程' ? '訓練課程' : detail.type === 'class' || detail.type === 'muti_class' ? '訓練課程' : detail.type === 'activity' ? '一般活動' : '活動'}
+              </span>
             </span>
           </div>
           `;
@@ -581,14 +598,15 @@
           requestAnimationFrame(() => {
             const activityTypeLabel = document.getElementById("activity-type");
             if (activityTypeLabel) {
-              if (activityType === "一般活動") {
-                activityTypeLabel.innerHTML = "一般活動";
+              const typeText = activityTypeLabel.textContent.trim();
+              if (typeText === "一般活動") {
                 activityTypeLabel.classList.remove("training-course");
                 activityTypeLabel.classList.add("general-activity");
-              } else if (activityType === "訓練課程") {
-                activityTypeLabel.innerHTML = "訓練課程";
+              } else if (typeText === "訓練課程") {
                 activityTypeLabel.classList.remove("general-activity");
                 activityTypeLabel.classList.add("training-course");
+              } else {
+                activityTypeLabel.classList.remove("general-activity", "training-course");
               }
             }
           }, 0);

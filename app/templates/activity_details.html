@@ -15,6 +15,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>活動詳細頁</title>
+    <script
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjPPoRxjshMgepTKlniZst9G4fgpqQkQk&libraries=places&callback=initMap"
+  async
+  defer
+></script>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -438,6 +443,10 @@
           <div id="signup-deadline">報名截止：</div>
         </div>
         <button class="btn" id="join-btn">我要報名</button>
+      <section class="info-box" style="height: 400px;" id="map"></section>
+      <div class="button-group" id="button-group">
+        <button class="btn" id="view-others-btn">我想看看其他活動！</button>
+        <button class="btn" id="join-btn">我要參加！</button>
       </div>
     </div>
 
@@ -560,6 +569,33 @@
             </span>
           </div>
           `;
+          // 顯示 Google 地圖並加上標記
+if (data.location_lat && data.location_lng) {
+  console.log("經緯度：", data.location_lat, data.location_lng);
+  window.initMap = async () => {
+  const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
+
+  const map = new google.maps.Map(document.getElementById("map"), {
+  center: {
+    lat: parseFloat(data.location_lat),
+    lng: parseFloat(data.location_lng)
+  },
+  zoom: 16
+});
+
+  const marker = new AdvancedMarkerElement({
+    map,
+    position: {
+  lat: parseFloat(data.location_lat),
+  lng: parseFloat(data.location_lng)
+},
+    title: data.title,
+  });
+};
+
+  // 呼叫初始化函式
+  window.initMap();
+}
 
           const participantText = `人數：${detail.current_participants} / ${detail.max_participants} 人`;
           document.getElementById("participant-status").textContent = participantText;

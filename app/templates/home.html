@@ -246,6 +246,36 @@
           padding-right: 16px; /* ✅ 手機版右邊縮小 */
         }
       }
+      .map-info-card {
+  font-family: "Arial", sans-serif;
+  padding: 12px 16px;
+  color: #1b3a6e;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  background-color: #ffffff;
+  max-width: 320px;
+  line-height: 1.6;
+}
+
+.map-info-card .title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #40bcd0;
+  margin-top: 0;
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+.map-info-card .label {
+  font-weight: bold;
+  color: #1b3a6e;
+}
+
+.map-info-card .value {
+  color: #000000;
+  display: inline;
+  font-weight: normal;
+}
     </style>
   </head>
   <body>
@@ -408,11 +438,43 @@
           center: center,
         });
 
-        new google.maps.Marker({
-          position: center,
-          map: map,
-          title: "台北 101",
-        });
+        
+        fetch("/api/map/active-markers")
+  .then((response) => response.json())
+  .then((data) => {
+    data.forEach((activity) => {
+      const marker = new google.maps.Marker({
+        position: {
+          lat: parseFloat(activity.location_lat),
+          lng: parseFloat(activity.location_lng),
+        },
+        map: map,
+        title: activity.title,
+      });
+
+      const content = `
+  <div class="map-info-card">
+    <div class="title">${activity.title}</div>
+    <div><span class="label">類型：</span><span class="value">${activity.sport_type}</span></div>
+    <div><span class="label">開始：</span><span class="value">${new Date(activity.start_time).toLocaleString("zh-TW")}</span></div>
+    <div><span class="label">結束：</span><span class="value">${new Date(activity.end_time).toLocaleString("zh-TW")}</span></div>
+    <div><span class="label">地點：</span><span class="value">${activity.location_name}</span></div>
+    <div><span class="label">目前狀態：</span><span class="value">${activity.status === "open" ? "開放報名" : activity.status}</span></div>
+    <div><span class="label">人數：</span><span class="value">${activity.current_participants}/${activity.max_participants}</span></div>
+  </div>
+`;
+      const infoWindow = new google.maps.InfoWindow({
+        content: content,
+      });
+
+      marker.addListener("click", () => {
+        infoWindow.open(map, marker);
+      });
+    });
+  })
+  .catch((error) => {
+    console.error("載入活動標記失敗", error);
+  });
       }
     </script>
     <script

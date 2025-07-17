@@ -217,13 +217,26 @@
         </div>
         <div class="form-row">
           <label class="form-label">地點</label>
-          <input
-            type="text"
-            name="location"
-            placeholder="請輸入完整地址"
-            required
-          />
+          <div style="display: flex; gap: 10px;">
+            <input
+              type="text"
+              id="place-input"
+              name="location"
+              placeholder="請輸入完整地址"
+              required
+              style="flex: 1;"
+            />
+
+          </div>
+          <!-- 隱藏欄位來儲存經緯度 -->
+          <input type="hidden" id="location-lat" name="location_lat" />
+          <input type="hidden" id="location-lng" name="location_lng" />
         </div>
+        <div class="form-row">
+          <label class="form-label">地圖預覽</label>
+          <div id="map" style="width: 100%; height: 300px; border: 1px solid #ccc; border-radius: 4px;"></div>
+        </div>
+        
         <div class="form-row">
           <label class="form-label">人數（包含自己）</label>
           <input
@@ -377,6 +390,7 @@
       </form>
     </div>
     <script>
+
       const sportRadios = document.querySelectorAll('input[name="sport"]');
       const otherSportRow = document.getElementById("other-sport-row");
       const otherSportInput = document.getElementById("other-sport-input");
@@ -410,86 +424,92 @@
       const urlParams = new URLSearchParams(window.location.search);
       const memberId = urlParams.get("member_id");
 
-      document
-        .getElementById("preferenceForm")
-        .addEventListener("submit", function (e) {
-          e.preventDefault();
+      document.getElementById("preferenceForm").addEventListener("submit", function (e) {
+  e.preventDefault();
 
-          const formData = new FormData(this);
-          const now = new Date();
-          const registrationDeadline = new Date(
-            formData.get("registration_deadline")
-          );
-          const startTime = new Date(formData.get("startTime"));
-          const endTime = new Date(formData.get("endTime"));
+  const formData = new FormData(this);
+  const now = new Date();
+  const registrationDeadline = new Date(formData.get("registration_deadline"));
+  const startTime = new Date(formData.get("startTime"));
+  const endTime = new Date(formData.get("endTime"));
 
-          if (registrationDeadline <= now) {
-            alert("報名截止日期必須在現在時間之後！");
-            return;
-          }
+  if (registrationDeadline <= now) {
+    alert("報名截止日期必須在現在時間之後！");
+    return;
+  }
 
-          if (startTime <= now) {
-            alert("開始時間必須在現在時間之後！");
-            return;
-          }
+  if (startTime <= now) {
+    alert("開始時間必須在現在時間之後！");
+    return;
+  }
 
-          if (endTime <= now) {
-            alert("結束時間必須在現在時間之後！");
-            return;
-          }
+  if (endTime <= now) {
+    alert("結束時間必須在現在時間之後！");
+    return;
+  }
 
-          if (registrationDeadline >= startTime) {
-            alert("報名截止日期必須早於開始時間！");
-            return;
-          }
+  if (registrationDeadline >= startTime) {
+    alert("報名截止日期必須早於開始時間！");
+    return;
+  }
 
-          if (startTime >= endTime) {
-            alert("開始時間必須早於結束時間！");
-            return;
-          }
+  if (startTime >= endTime) {
+    alert("開始時間必須早於結束時間！");
+    return;
+  }
 
-          if (!confirm("確定要發起活動嗎？")) {
-            return;
-          }
+  if (!confirm("確定要發起活動嗎？")) {
+    return;
+  }
 
-          const data = {
-            title: formData.get("title"),
-            start_time: formData.get("startTime"),
-            end_time: formData.get("endTime"),
-            location_name: formData.get("location"),
-            location_lat: 25.033,
-            location_lng: 121.565,
-            max_participants: parseInt(formData.get("numPeople")),
-            venue_fee: parseFloat(formData.get("venue_fee")),
-            registration_deadline: formData.get("registration_deadline"),
-            organizer_id: memberId, // 使用網址中的 member_id
-            level: formData.get("level"),
-            sport_type_id: parseInt(formData.get("sport")),
-            description: formData.get("description"),
-            status: "open",
-            target_identity: "不限",
-            gender: formData.get("gender"),
-            age_range: formData.get("ageRange"),
-          };
+  const locationName = formData.get("location");
+const locationLat = document.getElementById("location-lat").value;
+const locationLng = document.getElementById("location-lng").value;
 
-          fetch("/api/activities", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-          })
-            .then((res) => {
-              if (res.ok) {
-                alert("活動發起成功！");
-                window.location.href = `/activity?member_id=${memberId}`;
-              } else {
-                alert("活動發起失敗，請稍後再試！");
-              }
-            })
-            .catch((err) => {
-              console.error("錯誤:", err);
-              alert("發起活動時出錯！");
-            });
-        });
+if (!locationLat || !locationLng) {
+  alert("請選擇 Google 建議的地址選項，才能標記地圖與發起活動！");
+  return;
+}
+
+const data = {
+  title: formData.get("title"),
+  start_time: formData.get("startTime"),
+  end_time: formData.get("endTime"),
+  location_name: locationName,
+  location_lat: locationLat,
+  location_lng: locationLng,
+  max_participants: parseInt(formData.get("numPeople")),
+  venue_fee: parseFloat(formData.get("venue_fee")),
+  registration_deadline: formData.get("registration_deadline"),
+  organizer_id: memberId,
+  level: formData.get("level"),
+  sport_type_id: parseInt(formData.get("sport")),
+  description: formData.get("description"),
+  status: "open",
+  target_identity: "不限",
+  gender: formData.get("gender"),
+  age_range: formData.get("ageRange"),
+};
+
+fetch("/api/activities", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(data),
+})
+  .then((res) => {
+    if (res.ok) {
+      alert("活動發起成功！");
+      window.location.href = `/activity?member_id=${memberId}`;
+    } else {
+      alert("活動發起失敗，請稍後再試！");
+    }
+  })
+  .catch((err) => {
+    console.error("錯誤:", err);
+    alert("發起活動時出錯！");
+  });
+
+}); // 👈 最外層 addEventListener 的結尾
 
       function sportNameToId(sport) {
         const mapping = {
@@ -507,6 +527,67 @@
         };
         return mapping[sport] || 0;
       }
+      // 👇 插入這段 autocomplete + 地圖邏輯
+      
+  let map, marker, autocomplete;
+
+  function initAutocomplete() {
+    console.log("✅ initAutocomplete 已執行！");
+
+    // 初始化地圖
+    map = new google.maps.Map(document.getElementById("map"), {
+      center: { lat: 25.0330, lng: 121.5654 }, // 台北預設
+      zoom: 15,
+    });
+
+    // 綁定自動完成輸入欄位
+    const input = document.getElementById("place-input");
+    autocomplete = new google.maps.places.Autocomplete(input, {
+      types: ["geocode"],
+      componentRestrictions: { country: "tw" },
+    });
+
+    // 當使用者選取建議地址時
+    autocomplete.addListener("place_changed", () => {
+      const place = autocomplete.getPlace();
+      console.log("📍 使用者選擇地點：", place);
+
+      if (!place.geometry || !place.geometry.location) {
+        alert("找不到此地址的地理位置，請重新輸入！");
+        return;
+      }
+
+      const location = place.geometry.location;
+      const lat = location.lat();
+      const lng = location.lng();
+
+      // 移動地圖中心
+      map.setCenter(location);
+
+      // 顯示新標記
+      if (marker) marker.setMap(null);
+      marker = new google.maps.Marker({
+        map: map,
+        position: location,
+        title: place.name || input.value,
+      });
+
+      // 寫入隱藏欄位，送後端
+      document.getElementById("location-lat").value = lat;
+      document.getElementById("location-lng").value = lng;
+
+      // 確認輸出
+      console.log("✅ 緯度 lat:", lat);
+      console.log("✅ 經度 lng:", lng);
+    });
+  }
+</script>
+
+
     </script>
-  </body>
+<script
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjPPoRxjshMgepTKlniZst9G4fgpqQkQk&libraries=places&callback=initAutocomplete"
+defer
+></script>
+</body>
 </html>

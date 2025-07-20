@@ -5,6 +5,7 @@ from app.models.activity import Activity
 from app.models.sport_type import SportType
 from app.models.activity_join import ActivityJoin 
 from app.models.course_schedul import CourseSchedule
+from app.models.member import Member
 
 
 
@@ -224,7 +225,7 @@ def list_my_activities():
         return jsonify({"error": "缺少 member_id"}), 400
 
     with get_db() as db:
-        activities = db.query(Activity).filter(Activity.organizer_id == member_id).join(SportType).all()
+        activities = db.query(Activity).filter(Activity.organizer_id == member_id).join(SportType).join(Member, Member.member_id == Activity.organizer_id).all()
         result = []
         for a in activities:
             result.append({
@@ -237,6 +238,12 @@ def list_my_activities():
                 "sport_name": a.sport_type.name if a.sport_type else "未分類",
                 "registration_deadline": a.registration_deadline.isoformat() if a.registration_deadline else None,
                 "status": a.status,
+                "level": a.level,
+                "venue_fee": float(a.venue_fee) if a.venue_fee else None,
+                "type": a.type,
+                "organizer": {
+                    "name": a.organizer.name if a.organizer else "未知"
+                }
             })
     return jsonify(result), 200
 

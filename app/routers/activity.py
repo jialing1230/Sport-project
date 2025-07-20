@@ -208,13 +208,50 @@ def list_activities():
         activities = db.query(Activity).filter(Activity.status != "close").all()
         result = []
         for a in activities:
+            if hasattr(a, 'type') and (a.type == 'class' or a.type == 'muti_class'):
+                activity_type = '訓練課程'
+            else:
+                activity_type = '一般活動'
+            course_schedules = []
+            if hasattr(a, 'type') and a.type == 'muti_class':
+                schedules = db.query(CourseSchedule).filter(CourseSchedule.activity_id == a.activity_id).all()
+                course_schedules = [
+                    {
+                        "session_number": cs.session_number,
+                        "weekday": cs.weekday,
+                        "start_time": cs.start_time.isoformat() if cs.start_time else None,
+                        "end_time": cs.end_time.isoformat() if cs.end_time else None,
+                        "start_date": cs.start_date.isoformat() if cs.start_date else None,
+                    }
+                    for cs in schedules
+                ]
+            elif hasattr(a, 'type') and a.type == 'class':
+                # 單堂課程，直接用活動本身的時間
+                course_schedules = [
+                    {
+                        "session_number": 1,
+                        "weekday": a.start_time.strftime("%A") if a.start_time else None,
+                        "start_time": a.start_time.isoformat() if a.start_time else None,
+                        "end_time": a.end_time.isoformat() if a.end_time else None,
+                        "start_date": a.start_time.date().isoformat() if a.start_time else None,
+                    }
+                ]
             result.append({
                 "activity_id": a.activity_id,
                 "title": a.title,
+                "type": a.type if hasattr(a, 'type') else None,
                 "start_time": a.start_time.isoformat() if a.start_time else None,
                 "end_time": a.end_time.isoformat() if a.end_time else None,
                 "location_name": a.location_name,
                 "sport_name": a.sport_type.name if a.sport_type else "未分類",
+                "level": a.level,
+                "organizer_name": a.organizer.name if a.organizer else "",
+                "venue_fee": float(a.venue_fee) if a.venue_fee else 0,
+                "activity_type": activity_type,
+                "course_schedules": course_schedules,
+                "registration_deadline": a.registration_deadline.isoformat() if a.registration_deadline else None,
+                "current_participants": a.current_participants,
+                "max_participants": a.max_participants,
             })
     return jsonify(result), 200
 

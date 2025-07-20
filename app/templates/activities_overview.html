@@ -20,8 +20,54 @@
         font-family: Arial, sans-serif;
         background-color: #f5f5f5;
         color: #2c4975;
-        padding: 20px;
+        padding: 0;
         margin: 0;
+      }
+      .navbar {
+        width: 100%;
+        background: #fff;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .navbar-inner {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        box-sizing: border-box;
+        min-height: 72px;
+      }
+      .navbar-logo {
+        display: flex;
+        align-items: center;
+      }
+      .navbar-title {
+        font-size: 22px;
+        font-weight: bold;
+        color: #2c4975;
+        letter-spacing: 1px;
+      }
+      .navbar-icons {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+      }
+      .navbar-icons svg {
+        width: 24px;
+        height: 24px;
+        margin-left: 12px;
+        cursor: pointer;
+        fill: #2c4975;
+        transition: fill 0.2s;
+        vertical-align: middle;
+      }
+      .navbar-icons svg:hover {
+        fill: #81d3e1;
       }
       .top-bar {
         display: flex;
@@ -79,16 +125,17 @@
       }
       .activity-list {
         display: grid;
-        grid-template-columns: repeat(1, 1fr);
-        gap: 20px;
-        max-width: 500px;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        max-width: 1100px;
         margin: 0 auto;
+        margin-top: 18px;
       }
       .activity-card {
         background: white;
         border: 1px solid #ddd;
         border-radius: 10px;
-        padding: 20px;
+        padding: 15px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
       }
       .activity-card:hover {
@@ -117,23 +164,90 @@
         text-align: center;
         font-weight: bold;
       }
+      .main-content {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 40px;
+      }
+      .activity-type-label {
+        display: inline-block;
+        border-radius: 8px;
+        padding: 2px 10px;
+        font-size: 14px;
+        font-weight: bold;
+        border: 1.5px solid #2c4975;
+        color: #2c4975;
+        background: #fff;
+        vertical-align: middle;
+        margin-left: 2px;
+      }
+      .activity-type-label.training-course {
+        background: #2c4975;
+        color: #fff;
+        border: 1.5px solid #2c4975;
+      }
+      .activity-title-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: stretch;
+      }
+      .activity-title {
+        font-size: 22px;
+        font-weight: bold;
+        margin: 0;
+        line-height: 1.2;
+        flex: 1 1 0;
+      }
+      .status-badge {
+        font-size: 16px;
+        padding: 2px 32px;
+        border-radius: 10px;
+        font-weight: bold;
+        color: white;
+        background: #f8a9b3;
+        margin-left: 10px;
+        line-height: 1.2;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: auto;
+        min-width: 0;
+        flex: none;
+      }
     </style>
   </head>
   <body>
-    <div class="top-bar">
-      <button class="back-btn" id="backBtn">← 返回</button>
-      <h1>所有活動總覽</h1>
-    </div>
+    <nav class="navbar">
+      <div class="navbar-inner">
+        <div class="navbar-logo">
+          <img src="/static/logo.png" alt="logo" style="height:48px;margin-right:10px;" />
+          <span class="navbar-title">SportMatch</span>
+        </div>
+        <div class="navbar-icons">
+          <!-- 搜尋 SVG -->
+          <svg viewBox="0 0 24 24" width="24" height="24"><circle cx="10" cy="10" r="7" stroke="#2c4975" stroke-width="2" fill="none"/><line x1="15.95" y1="15.95" x2="21" y2="21" stroke="#2c4975" stroke-width="2" stroke-linecap="round"/></svg>
+          <!-- 地圖展開 SVG（新版） -->
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2.5 20V5.5C2.5 5.22 2.72 5 3 5l5.5 2.75L15 3l6 3c.28 0 .5.22.5.5v15c0 .28-.22.5-.5.5l-6-3-6.5 3.5-5.5-2.75c-.28 0-.5-.22-.5-.5Z" stroke="#2C4975" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <path d="M8.5 7.75V21.5" stroke="#2C4975" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <path d="M15 3V19" stroke="#2C4975" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+          <svg viewBox="0 0 24 24" width="24" height="24">
+            <line x1="3" y1="6" x2="21" y2="6" stroke="#2c4975" stroke-width="2" stroke-linecap="round"/>
+            <line x1="3" y1="12" x2="21" y2="12" stroke="#2c4975" stroke-width="2" stroke-linecap="round"/>
+            <line x1="3" y1="18" x2="21" y2="18" stroke="#2c4975" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+    </nav>
+    <div class="main-content">
+      <div class="top-bar">
+        <button class="back-btn" id="backBtn">← 返回</button>
+      </div>
 
-    <div class="filters">
-      <input type="text" id="searchTitle" placeholder="搜尋活動名稱" />
-      <input type="text" id="searchLocation" placeholder="搜尋地點" />
-      <input type="text" id="searchType" placeholder="搜尋活動類型" />
-      <button id="searchBtn">搜尋</button>
-    </div>
-
-    <div class="activity-list" id="activityList">
-      <p>載入中...</p>
+      <div class="activity-list" id="activityList">
+        <p>載入中...</p>
+      </div>
     </div>
 
     <script>
@@ -161,12 +275,82 @@
         }
 
         list.forEach((act) => {
+          // 報名截止判斷
+          const now = new Date();
+          const deadline = act.registration_deadline ? new Date(act.registration_deadline) : null;
+          if (deadline && now > deadline) {
+            // 報名截止，整個卡片不顯示
+            return;
+          }
+          // 狀態判斷
+          let statusText = '';
+          if (deadline && now <= deadline) {
+            if (act.current_participants !== undefined && act.max_participants !== undefined && act.current_participants >= act.max_participants) {
+              statusText = '額滿候補';
+            } else {
+              statusText = '開放報名';
+            }
+          }
+          const days = ['日','一','二','三','四','五','六'];
+          function pad(n) { return String(n).padStart(2, '0'); }
+          let timeStr = '';
+          if (act.type === 'class' || act.type === 'muti_class') {
+            // 訓練課程
+            let showSchedule = null;
+            if (Array.isArray(act.course_schedules) && act.course_schedules.length > 0) {
+              // 找到最近未來的課程
+              const now = new Date();
+              showSchedule = act.course_schedules.find(cs => new Date(cs.start_time) > now);
+              if (!showSchedule) {
+                // 如果都過了，顯示第一堂
+                showSchedule = act.course_schedules[0];
+              }
+              const start = new Date(showSchedule.start_time);
+              const end = new Date(showSchedule.end_time);
+              if (start.getFullYear() === end.getFullYear() && start.getMonth() === end.getMonth() && start.getDate() === end.getDate()) {
+                timeStr = `${pad(start.getMonth()+1)}/${pad(start.getDate())}（${days[start.getDay()]}）${pad(start.getHours())}:${pad(start.getMinutes())} - ${pad(end.getHours())}:${pad(end.getMinutes())}`;
+              } else {
+                timeStr = `${pad(start.getMonth()+1)}/${pad(start.getDate())}（${days[start.getDay()]}）${pad(start.getHours())}:${pad(start.getMinutes())} - ${pad(end.getMonth()+1)}/${pad(end.getDate())}（${days[end.getDay()]}）${pad(end.getHours())}:${pad(end.getMinutes())}`;
+              }
+            } else {
+              timeStr = '尚無課程安排';
+            }
+          } else {
+            // 一般活動
+            const start = new Date(act.start_time);
+            const end = new Date(act.end_time);
+            if (start.getFullYear() === end.getFullYear() && start.getMonth() === end.getMonth() && start.getDate() === end.getDate()) {
+              timeStr = `${pad(start.getMonth()+1)}/${pad(start.getDate())}（${days[start.getDay()]}）${pad(start.getHours())}:${pad(start.getMinutes())} - ${pad(end.getHours())}:${pad(end.getMinutes())}`;
+            } else {
+              timeStr = `${pad(start.getMonth()+1)}/${pad(start.getDate())}（${days[start.getDay()]}）${pad(start.getHours())}:${pad(start.getMinutes())} - ${pad(end.getMonth()+1)}/${pad(end.getDate())}（${days[end.getDay()]}）${pad(end.getHours())}:${pad(end.getMinutes())}`;
+            }
+          }
           const card = document.createElement("div");
           card.className = "activity-card";
-          card.innerHTML = `<a href="/api/activities/details_page?id=${act.activity_id}${memberId ? `&member_id=${memberId}` : ""}" style="text-decoration: none; color: inherit;">
-            <div class="activity-info"><span class="label">類型：</span><span class="value">${act.sport_type || "－"}</span></div>
-            <div class="activity-info"><span class="label">開始：</span><span class="value">${new Date(act.start_time).toLocaleString()}</span></div>
-            <div class="activity-info"><span class="label">地點：</span><span class="value">${act.location_name}</span></div>
+          card.innerHTML = `<a href="/api/activities/details_page?id=${act.activity_id}${memberId ? `&member_id=${memberId}` : ""}" style="text-decoration: none; color: inherit; display: block;">
+            <div class="activity-title-row" style="display: flex; justify-content: space-between; align-items: center;">
+              <div class="activity-title">${act.title || "未命名活動"}</div>
+              ${statusText ? `<span class="status-badge" style="font-size: 14px; padding: 2px 10px; border-radius: 10px; font-weight: bold; color: white; background: ${statusText === '開放報名' ? '#f8a9b3' : '#81d3e1'}; margin-left: 10px;">${statusText}</span>` : ''}
+            </div>
+            <div class="activity-info" style="color: #2c4975 !important;">
+              <span class="value" style="color: #2c4975 !important;">${act.sport_type||"－"}</span> <span>|</span> <span class="value" style="color: #2c4975 !important;">${act.level ? act.level + '運動者推薦' : '－'}</span> <span>|</span> <span class="value" style="color: #2c4975 !important;">${act.organizer_name ? '由 ' + act.organizer_name + ' 發起' : '－'}</span>
+            </div>
+            <div style="width: 100%; height: 1.5px; background: #81d3e1; border-radius: 1px; margin: 10px 0 15px 0;"></div>
+            <div class="activity-info" style="display: flex; align-items: center;">
+              <svg class="location-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="26" height="26" style="vertical-align: middle;"><path d="M12 1.5C6.5 1.5 3 6 3 10c0 6.5 9 13 9 13s9-6.5 9-13c0-4-3.5-8.5-9-8.5z" stroke="#2c4975" stroke-width="2" fill="none"/><circle cx="12" cy="10" r="2.5" stroke="#2c4975" stroke-width="2" fill="none"/></svg>
+              <span class="value" style="color: #2c4975;">　${act.location_name}</span>
+            </div>
+            <div class="activity-info" style="color: #2c4975; display: flex; align-items: center;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" style="vertical-align: middle;"><circle cx="12" cy="12" r="10" stroke="#2c4975" stroke-width="2" fill="none"/><path d="M12 7v5l3 3" stroke="#2c4975" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="value" style="color: #2c4975;">　${timeStr}</span>
+            </div>
+            <div class="activity-info" style="color: #2c4975; display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; align-items: center;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" style="vertical-align: middle;"><circle cx="12" cy="12" r="10" stroke="#2c4975" stroke-width="2" fill="none"/><text x="12" y="16" font-size="12" font-weight="bold" text-anchor="middle" fill="#2c4975" font-family="Arial">$</text></svg>
+                <span class="value" style="color: #2c4975;">　${act.venue_fee && act.venue_fee !== 0 ? act.venue_fee + ' 元' : '免費'}｜${act.type === 'class' || act.type === 'muti_class' ? `<span class='activity-type-label training-course'>${act.activity_type}</span>` : `<span style='color: #2c4975;'>${act.activity_type}</span>`}</span>
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="vertical-align: middle;"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="#f8a9b3" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
           </a>`;
           container.appendChild(card);
         });
@@ -194,8 +378,18 @@
             activity_id: a.activity_id,
             title: a.title || "",
             sport_type: a.sport_name || "",
+            level: a.level || "",
+            organizer_name: a.organizer_name || "",
             start_time: a.start_time || a.time,
+            end_time: a.end_time || a.time,
             location_name: a.location_name || a.location,
+            type: a.type, // 新增 type 屬性
+            course_schedules: a.course_schedules || [], // 新增 course_schedules 屬性
+            venue_fee: a.venue_fee || 0, // 新增 venue_fee 屬性
+            activity_type: a.activity_type || "一般活動", // 新增 activity_type 屬性
+            registration_deadline: a.registration_deadline, // 新增 registration_deadline 屬性
+            current_participants: a.current_participants, // 新增 current_participants 屬性
+            max_participants: a.max_participants, // 新增 max_participants 屬性
           }));
           renderActivities(activities);
         })

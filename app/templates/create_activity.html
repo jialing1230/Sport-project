@@ -577,12 +577,26 @@ fetch("/api/activities", {
               li.addEventListener("click", () => {
                 document.querySelector('input[name="title"]').value = activity.title;
                 document.querySelector('input[name="location"]').value = activity.location_name;
+                document.getElementById("location-lat").value = activity.location_lat;
+                document.getElementById("location-lng").value = activity.location_lng;
+
                 const sportOptions = document.querySelectorAll('input[name="sport"]');
                 sportOptions.forEach((option) => {
                   if (option.value == activity.sport_type_id) {
                     option.checked = true;
                   }
                 });
+
+                // 更新地圖中心和標記
+                const location = { lat: parseFloat(activity.location_lat), lng: parseFloat(activity.location_lng) };
+                map.setCenter(location);
+                if (marker) marker.setMap(null);
+                marker = new google.maps.Marker({
+                  map: map,
+                  position: location,
+                  title: activity.location_name,
+                });
+
                 list.style.display = "none";
               });
               list.appendChild(li);

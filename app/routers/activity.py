@@ -517,6 +517,8 @@ def get_past_class():
                     "title": act.title,
                     "sport_type_id": act.sport_type_id,
                     "location_name": act.location_name,
+                    "location_lat": act.location_lat,
+                    "location_lng": act.location_lng,
                 }
 
         return jsonify(list(unique_activities.values())), 200
@@ -538,6 +540,8 @@ def get_past_activities():
                     "title": act.title,
                     "sport_type_id": act.sport_type_id,
                     "location_name": act.location_name,
+                    "location_lat": act.location_lat,
+                    "location_lng": act.location_lng,
                 }
 
         return jsonify(list(unique_activities.values())), 200

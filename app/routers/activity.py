@@ -316,6 +316,7 @@ def list_joined_activities():
         joined_activities = (
             db.query(Activity)
             .join(ActivityJoin, Activity.activity_id == ActivityJoin.activity_id)
+            .join(Member, Member.member_id == Activity.organizer_id)
             .filter(ActivityJoin.member_id == member_id, ActivityJoin.status == "joined")
             .all()
         )
@@ -329,7 +330,13 @@ def list_joined_activities():
                 "location_name": a.location_name,
                 "sport_name": a.sport_type.name if a.sport_type else "未分類",
                 "registration_deadline": a.registration_deadline.isoformat() if a.registration_deadline else None,
-                "status": a.status,  # 直接使用資料庫中的狀態
+                "status": a.status,
+                "level": a.level,
+                "venue_fee": float(a.venue_fee) if a.venue_fee else None,
+                "type": a.type,
+                "organizer": {
+                    "name": a.organizer.name if a.organizer else "未知"
+                }
             })
     return jsonify(result), 200
 

@@ -50,16 +50,25 @@
       }
 
       .logo {
+        display: flex;
+        align-items: center;       /* ✅ 垂直置中 */
+        gap: 8px;                  /* ✅ Logo 和名稱間距 */
         flex-shrink: 0;
         padding-right: 16px;
+        padding-top: 2px;
       }
-
       .logo img {
-        height: 40px;
+        height: 42px;
         display: block;
         object-fit: contain;
+        margin-bottom: -2px; /* ✅ 把 logo 稍微往上拉 */
       }
-
+      .brand-name {
+        font-size: 20px;
+        color: var(--deep-blue); /* 或你想自訂的顏色 */
+        white-space: nowrap;     /* ✅ 不換行 */
+        margin-bottom: 2px;
+      }
       .search-box {
         display: flex;
         align-items: center;
@@ -72,6 +81,7 @@
         transition: all 0.3s ease;
         flex-grow: 1;
         flex-shrink: 1; /* 防止放大撐出邊界 */
+        margin:0 auto;  /* ✅ 加這一行 */
       }
 
       .search-icon {
@@ -137,6 +147,7 @@
       .overview-button svg {
         fill: #1b3a6e;
         transition: fill 0.2s ease; /* ✅ 只做顏色漸變，不放大 */
+        margin-top: 1px;
       }
 
       .overview-button svg:hover {
@@ -147,6 +158,8 @@
       .menu-button svg {
         fill: #1b3a6e;
         transition: fill 0.2s ease;
+        vertical-align: middle;
+        margin-top: 0px;
       }
 
       .menu-button svg:hover {
@@ -250,8 +263,7 @@
       .right-section {
         display: flex;
         align-items: center;
-        gap: 64px;
-        justify-content: flex-end;
+        justify-content: space-between;
         flex: 1;
         min-width: 0; /* 防止右側撐爆，尤其搜尋框有 max-width 時 */
       }
@@ -295,14 +307,91 @@
         display: inline;
         font-weight: normal;
       }
+      .container {
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 4px; /* ✅ 保留左右內距，避免緊貼邊 */
+        box-sizing: border-box;
+      }
+      .header .container {
+        display: flex;             
+        align-items: center;       
+        justify-content: space-between;
+        flex-wrap: wrap;           
+        gap: 16px;
+      }
+      .icon-wrapper {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 8px; /* ✅ 控制間距 */
+      }
+      /* 📱 手機搜尋按鈕：預設隱藏，手機版顯示 */
+      .mobile-search-button {
+        display: none;
+        background: none;
+        border: none;
+        cursor: pointer;
+      }
+
+      @media (max-width: 767px) {
+        .search-box {
+          display: none !important; /* 手機版隱藏完整搜尋欄 */
+        }
+        
+      @media (min-width: 768px) {
+        .search-box {
+          margin: 0 auto;
+        }
+      }
+          .mobile-search-button {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 0;
+          margin: 0;
+          height: 40px; /* ✅ 跟其他 header 元素對齊高度 */
+        }
+
+        .mobile-search-button .search-icon {
+          width: 22px;
+          height: 22px;
+          vertical-align: middle;
+          margin-top: 1px; /* ✅ 視覺微調下壓 */
+        }
+      }
+
     </style>
   </head>
   <body>
     <div class="header">
+      <div class="container">
       <div class="logo">
         <img src="static/logo.png" alt="Logo" />
+        <span class="brand-name">SportMatch</span>
       </div>
       <div class="right-section">
+        <!-- 📱 手機版用搜尋 icon -->
+        <button class="mobile-search-button" onclick="handleMobileSearch()">
+          <div class="icon-wrapper">
+          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path
+              d="M15.8 15.8L21 21M18 10.5C18 14.64 14.64 18 10.5 18C6.36 18 3 14.64 3 10.5C3 6.36 6.36 3 10.5 3C14.64 3 18 6.36 18 10.5Z"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          </div>
+        </button>
         <div class="search-box">
           <svg
             class="search-icon"
@@ -319,75 +408,23 @@
             />
           </svg>
           <input type="text" placeholder="搜尋地點或活動名稱" />
-          <svg
-            class="filter-icon"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <line
-              x1="4"
-              y1="7"
-              x2="12"
-              y2="7"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-            />
-            <line
-              x1="4"
-              y1="17"
-              x2="6"
-              y2="17"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-            />
-            <line
-              x1="18"
-              y1="7"
-              x2="20"
-              y2="7"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-            />
-            <line
-              x1="13"
-              y1="17"
-              x2="20"
-              y2="17"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-            />
-            <circle
-              cx="15"
-              cy="7"
-              r="3"
-              stroke="currentColor"
-              stroke-width="2"
-              fill="none"
-            />
-            <circle
-              cx="9"
-              cy="17"
-              r="3"
-              stroke="currentColor"
-              stroke-width="2"
-              fill="none"
-            />
-          </svg>
+          
         </div>
        <a href="/overview" class="overview-button" id="overview-link" style="display: inline-block;">
+         <div class="icon-wrapper">
         <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="#1b3a6e" viewBox="0 0 256 256"><path d="M208,136H48a16,16,0,0,0-16,16v40a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V152A16,16,0,0,0,208,136Zm0,56H48V152H208v40Zm0-144H48A16,16,0,0,0,32,64v40a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V64A16,16,0,0,0,208,48Zm0,56H48V64H208v40Z"></path></svg>
-       </a>
+       </div>
+      </a>
 
         <button
           onclick="goToNews()" class="menu-button"
           style="background: none; border: none; cursor: pointer"
         >
+         <div class="icon-wrapper">
         <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="#1b3a6e" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128ZM40,72H216a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16ZM216,184H40a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16Z"></path></svg>
-        </button>
+        </div>
+      </button>
+      </div>
       </div>
     </div>
     <div class="main-content">

@@ -104,6 +104,8 @@
         gap: 8px;
         flex-wrap: wrap;
         margin: 0 24px;
+        flex: 1;
+        justify-content: center;
       }
       .navbar-inner .filters input,
       .navbar-inner .filters select {
@@ -111,6 +113,10 @@
         border: 1px solid #ccc;
         border-radius: 6px;
         font-size: 14px;
+        color: #2c4975;
+        font-weight: bold;
+        flex: 0 1 auto;
+        text-align: center;
       }
       .navbar-inner .filters button {
         padding: 6px 14px;
@@ -124,14 +130,7 @@
       .navbar-inner .filters button:hover {
         background-color: #1f3657;
       }
-      @media (max-width: 900px) {
-        .navbar-inner .filters {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 6px;
-          margin: 8px 0;
-        }
-      }
+
       .activity-list {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -140,6 +139,34 @@
         margin: 0 auto;
         margin-top: 18px;
       }
+
+      @media (max-width: 900px) {
+        .navbar-inner {
+          flex-wrap: wrap;
+        }
+        .navbar-logo {
+          order: 1;
+          margin-right: auto;
+        }
+        .navbar-icons {
+          order: 2;
+        }
+        .navbar-inner .filters {
+          order: 3;
+          flex: 1 1 100%;
+          margin: 8px 0 0;
+        }
+        .activity-list {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 600px) {
+        .activity-list {
+          grid-template-columns: 1fr;
+        }
+      }
+
       .activity-card {
         background: white;
         border: 1px solid #ddd;
@@ -233,7 +260,7 @@
           <span class="navbar-title">SportMatch</span>
         </div>
         <!-- 篩選欄位放這裡 -->
-        <form class="filters" id="navbarFilters" style="margin: 0 24px; flex: 1; justify-content: center;">
+        <form class="filters" id="navbarFilters">
           <select id="searchCity" style="min-width: 120px;">
             <option value="">所有縣市</option>
             <option value="台北市">台北市</option>
@@ -290,7 +317,12 @@
             <option value="男">男</option>
             <option value="女">女</option>
           </select>
-          <button type="button" id="searchBtn">搜尋</button>
+          <select id="searchLevel" style="min-width: 100px;">
+            <option value="">等級</option>
+            <option value="初學">初學</option>
+            <option value="中階">中階</option>
+            <option value="高階">高階</option>
+          </select>
         </form>
         <div class="navbar-icons">
           <!-- 搜尋 SVG -->
@@ -431,6 +463,7 @@
         const type = document.getElementById("searchType").value.toLowerCase();
         const timeOption = document.getElementById("searchTimeOption").value;
         const gender = document.getElementById("searchGender").value;
+        const level = document.getElementById("searchLevel").value;
 
         const filtered = activities.filter(
           (act) =>
@@ -460,6 +493,10 @@
               if (gender === '') return true;
               if (act.gender === undefined || act.gender === '' || act.gender === '不限') return true;
               return act.gender === gender;
+            })()
+            && (function() {
+              if (level === '') return true;
+              return act.level === level;
             })()
         );
 
@@ -495,7 +532,13 @@
             `<div class="error-message">無法載入活動資料，請稍後再試。</div>`;
         });
 
-      document.getElementById("searchBtn").addEventListener("click", filterActivities);
+      // document.getElementById("searchBtn").addEventListener("click", filterActivities);
+      document.getElementById("searchCity").addEventListener("change", filterActivities);
+      document.getElementById("searchActivityType").addEventListener("change", filterActivities);
+      document.getElementById("searchType").addEventListener("change", filterActivities);
+      document.getElementById("searchTimeOption").addEventListener("change", filterActivities);
+      document.getElementById("searchGender").addEventListener("change", filterActivities);
+      document.getElementById("searchLevel").addEventListener("change", filterActivities);
     </script>
   </body>
 </html>

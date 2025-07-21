@@ -970,18 +970,37 @@
     <!-- 新增活動卡片樣式的按鈕 -->
 
     <div class="bottom-nav">
-      <button class="bottom-item active">
-        <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" fill="#000000" viewBox="0 0 256 256"><path d="M208,28H188V24a12,12,0,0,0-24,0v4H92V24a12,12,0,0,0-24,0v4H48A20,20,0,0,0,28,48V208a20,20,0,0,0,20,20H208a20,20,0,0,0,20-20V48A20,20,0,0,0,208,28ZM68,52a12,12,0,0,0,24,0h72a12,12,0,0,0,24,0h16V76H52V52ZM52,204V100H204V204Zm92-76a16,16,0,1,1-16-16A16,16,0,0,1,144,128Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,192,128ZM96,176a16,16,0,1,1-16-16A16,16,0,0,1,96,176Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,144,176Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,192,176Z"></path></svg>
-        <div class="item-label">活動</div>
-      </button>
+      <!-- 地圖 -->
       <button class="bottom-item">
-        <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" fill="#000000" viewBox="0 0 256 256"><path d="M108,80a20,20,0,1,1,20,20A20,20,0,0,1,108,80ZM60,80a68,68,0,0,1,136,0c0,62.25-59.51,97-62.05,98.42a12,12,0,0,1-11.9,0C119.51,177,60,142.25,60,80Zm24,0c0,38.2,30.71,64.2,44,73.64C141.21,144.15,172,118,172,80a44,44,0,0,0-88,0Zm124.57,65.6a12,12,0,1,0-9.14,22.19C213.56,173.61,220,180.27,220,184c0,4-7.13,11.07-22.77,17.08-18.3,7-42.89,10.92-69.23,10.92s-50.93-3.88-69.23-10.92C43.12,195.07,36,188,36,184c0-3.73,6.44-10.39,20.57-16.21a12,12,0,1,0-9.14-22.19C31.27,152.25,12,164.31,12,184c0,34.14,58.36,52,116,52,29.22,0,56.86-4.44,77.85-12.52C220.1,218,244,205.59,244,184,244,164.31,224.73,152.25,208.57,145.6Z"></path></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" fill="#000000" viewBox="0 0 256 256">
+            <path d="M108,80a20,20,0,1,1,20,20A20,20,0,0,1,108,80ZM60,80a68,68,0,0,1,136,0c0,62.25-59.51,97-62.05,98.42a12,12,0,0,1-11.9,0C119.51,177,60,142.25,60,80Zm24,0c0,38.2,30.71,64.2,44,73.64C141.21,144.15,172,118,172,80a44,44,0,0,0-88,0Zm124.57,65.6a12,12,0,1,0-9.14,22.19C213.56,173.61,220,180.27,220,184c0,4-7.13,11.07-22.77,17.08-18.3,7-42.89,10.92-69.23,10.92s-50.93-3.88-69.23-10.92C43.12,195.07,36,188,36,184c0-3.73,6.44-10.39,20.57-16.21a12,12,0,1,0-9.14-22.19C31.27,152.25,12,164.31,12,184c0,34.14,58.36,52,116,52,29.22,0,56.86-4.44,77.85-12.52C220.1,218,244,205.59,244,184,244,164.31,224.73,152.25,208.57,145.6Z"></path>
+        </svg>
         <div class="item-label">地圖</div>
       </button>
+
+      <!-- 活動 -->
+      <button class="bottom-item active">
+        <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" fill="#000000" viewBox="0 0 256 256">
+            <path d="M208,28H188V24a12,12,0,0,0-24,0v4H92V24a12,12,0,0,0-24,0v4H48A20,20,0,0,0,28,48V208a20,20,0,0,0,20,20H208a20,20,0,0,0,20-20V48A20,20,0,0,0,208,28ZM68,52a12,12,0,0,0,24,0h72a12,12,0,0,0,24,0h16V76H52V52ZM52,204V100H204V204Zm92-76a16,16,0,1,1-16-16A16,16,0,0,1,144,128Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,192,128ZM96,176a16,16,0,1,1-16-16A16,16,0,0,1,96,176Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,144,176Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,192,176Z"></path>
+        </svg>
+        <div class="item-label">活動</div>
+      </button>
+
+      <!-- 通知 -->
+      <button class="bottom-item" id="notification-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" fill="#000000" viewBox="0 0 256 256"><path d="M225.29,165.93C216.61,151,212,129.57,212,104a84,84,0,0,0-168,0c0,25.58-4.59,47-13.27,61.93A20.08,20.08,0,0,0,30.66,186,19.77,19.77,0,0,0,48,196H84.18a44,44,0,0,0,87.64,0H208a19.77,19.77,0,0,0,17.31-10A20.08,20.08,0,0,0,225.29,165.93ZM128,212a20,20,0,0,1-19.6-16h39.2A20,20,0,0,1,128,212ZM54.66,172C63.51,154,68,131.14,68,104a60,60,0,0,1,120,0c0,27.13,4.48,50,13.33,68Z"></path></svg>
+        <div class="item-label">通知</div>
+      </button>
+
+      <!-- 個人 -->
       <button class="bottom-item">
-        <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" fill="#000000" viewBox="0 0 256 256"><path d="M234.38,210a123.36,123.36,0,0,0-60.78-53.23,76,76,0,1,0-91.2,0A123.36,123.36,0,0,0,21.62,210a12,12,0,1,0,20.77,12c18.12-31.32,50.12-50,85.61-50s67.49,18.69,85.61,50a12,12,0,0,0,20.77-12ZM76,96a52,52,0,1,1,52,52A52.06,52.06,0,0,1,76,96Z"></path></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" fill="#000000" viewBox="0 0 256 256">
+            <path d="M234.38,210a123.36,123.36,0,0,0-60.78-53.23,76,76,0,1,0-91.2,0A123.36,123.36,0,0,0,21.62,210a12,12,0,1,0,20.77,12c18.12-31.32,50.12-50,85.61-50s67.49,18.69,85.61,50a12,12,0,0,0,20.77-12ZM76,96a52,52,0,1,1,52,52A52.06,52.06,0,0,1,76,96Z"></path>
+        </svg>
         <div class="item-label">個人</div>
       </button>
+    </div>
+
       <!-- 活動類型選擇彈窗 -->
     <div id="activityTypeModal" class="activity-type-modal">
       <div class="activity-type-box">
@@ -1394,7 +1413,7 @@
               </div>
 
               <p class="custom-card-info">
-                ${activity.sport_name} ｜ ${activity.level ? activity.level : '等級'} ｜ 由 ${activity.organizer.name || '未知'} 發起
+                ${activity.sport_name} ｜ ${activity.level || '等級'} ｜ 由 誰 發起
               </p>
 
               <p class="custom-card-icon-line"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256"><path d="M128,64a40,40,0,1,0,40,40A40,40,0,0,0,128,64Zm0,64a24,24,0,1,1,24-24A24,24,0,0,1,128,128Zm0-112a88.1,88.1,0,0,0-88,88c0,31.4,14.51,64.68,42,96.25a254.19,254.19,0,0,0,41.45,38.3,8,8,0,0,0,9.18,0A254.19,254.19,0,0,0,174,200.25c27.45-31.57,42-64.85,42-96.25A88.1,88.1,0,0,0,128,16Zm0,206c-16.53-13-72-60.75-72-118a72,72,0,0,1,144,0C200,161.23,144.53,209,128,222Z"></path></svg> ${activity.location_name}</p>
@@ -1412,9 +1431,7 @@
               </p>
 
               <p class="custom-card-icon-line">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm40-68a28,28,0,0,1-28,28h-4v8a8,8,0,0,1-16,0v-8H104a8,8,0,0,1,0-16h36a12,12,0,0,0,0-24H116a28,28,0,0,1,0-56h4V72a8,8,0,0,1,16,0v8h16a8,8,0,0,1,0,16H116a12,12,0,0,0,0,24h24A28,28,0,0,1,168,148Z"></path></svg> ${activity.venue_fee} ｜ <span class="custom-card-tag">${
-                  activity.type === 'class' || activity.type === 'muti_class' ? '訓練課程' : '一般活動'
-                }</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm40-68a28,28,0,0,1-28,28h-4v8a8,8,0,0,1-16,0v-8H104a8,8,0,0,1,0-16h36a12,12,0,0,0,0-24H116a28,28,0,0,1,0-56h4V72a8,8,0,0,1,16,0v8h16a8,8,0,0,1,0,16H116a12,12,0,0,0,0,24h24A28,28,0,0,1,168,148Z"></path></svg> 費用 ｜ <span class="custom-card-tag">活動類型</span>
                 <span class="favorite-icon">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#fda7a8" viewBox="0 0 256 256">
                     <path d="M178,36c-20.09,0-37.92,7.93-50,21.56C115.92,43.93,98.09,36,78,36a66.08,66.08,0,0,0-66,66c0,72.34,105.81,130.14,110.31,132.57a12,12,0,0,0,11.38,0C138.19,232.14,244,174.34,244,102A66.08,66.08,0,0,0,178,36Zm-5.49,142.36A328.69,328.69,0,0,1,128,210.16a328.69,328.69,0,0,1-44.51-31.8C61.82,159.77,36,131.42,36,102A42,42,0,0,1,78,60c17.8,0,32.7,9.4,38.89,24.54a12,12,0,0,0,22.22,0C145.3,69.4,160.2,60,178,60a42,42,0,0,1,42,42C220,131.42,194.18,159.77,172.51,178.36Z"/>
@@ -1483,52 +1500,36 @@
               : ""
           }
         </div>
-         <div class="custom-card-header">
-            <h3 class="custom-card-title">${activity.title}</h3>
-            <span class="status-badge ${
-              activity.status === 'open' ? 'status-open' :
-              activity.status === 'deadline' ? 'status-deadline' :
-              'status-close'
-            }">
-              ${
-                activity.status === 'close' ? '已結束' :
-                activity.status === 'deadline' ? '報名截止' :
-                activity.status === 'open' ? '開放報名' :
-                '進行中'
-              }
-            </span>
-          </div>
-          <p class="custom-card-info">
-            ${activity.sport_name} ｜ ${activity.level ? activity.level : '等級'} ｜ 由 ${activity.organizer.name || '未知'} 發起
-          </p>
-
-          <p class="custom-card-icon-line"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256"><path d="M128,64a40,40,0,1,0,40,40A40,40,0,0,0,128,64Zm0,64a24,24,0,1,1,24-24A24,24,0,0,1,128,128Zm0-112a88.1,88.1,0,0,0-88,88c0,31.4,14.51,64.68,42,96.25a254.19,254.19,0,0,0,41.45,38.3,8,8,0,0,0,9.18,0A254.19,254.19,0,0,0,174,200.25c27.45-31.57,42-64.85,42-96.25A88.1,88.1,0,0,0,128,16Zm0,206c-16.53-13-72-60.75-72-118a72,72,0,0,1,144,0C200,161.23,144.53,209,128,222Z"></path></svg> ${activity.location_name}</p>
-
-          <p class="custom-card-icon-line">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"></path></svg> ${
-              activity.start_time
-                ? new Date(activity.start_time).toLocaleString("zh-TW", { month: "numeric", day: "numeric", weekday: "short", hour: "2-digit", minute: "2-digit", hour12: false })
-                : '未設定'
-            } - ${
-              activity.end_time
-                ? new Date(activity.end_time).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit", hour12: false })
-                : '未設定'
-            }
-          </p>
-
-           <p class="custom-card-icon-line">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm40-68a28,28,0,0,1-28,28h-4v8a8,8,0,0,1-16,0v-8H104a8,8,0,0,1,0-16h36a12,12,0,0,0,0-24H116a28,28,0,0,1,0-56h4V72a8,8,0,0,1,16,0v8h16a8,8,0,0,1,0,16H116a12,12,0,0,0,0,24h24A28,28,0,0,1,168,148Z"></path></svg> ${activity.venue_fee} ｜ <span class="custom-card-tag">${
-              activity.type === 'class' || activity.type === 'muti_class' ? '訓練課程' : '一般活動'
-            }</span>
-            <span class="favorite-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#fda7a8" viewBox="0 0 256 256">
-                <path d="M178,36c-20.09,0-37.92,7.93-50,21.56C115.92,43.93,98.09,36,78,36a66.08,66.08,0,0,0-66,66c0,72.34,105.81,130.14,110.31,132.57a12,12,0,0,0,11.38,0C138.19,232.14,244,174.34,244,102A66.08,66.08,0,0,0,178,36Zm-5.49,142.36A328.69,328.69,0,0,1,128,210.16a328.69,328.69,0,0,1-44.51-31.8C61.82,159.77,36,131.42,36,102A42,42,0,0,1,78,60c17.8,0,32.7,9.4,38.89,24.54a12,12,0,0,0,22.22,0C145.3,69.4,160.2,60,178,60a42,42,0,0,1,42,42C220,131.42,194.18,159.77,172.51,178.36Z"/>
-              </svg>
-            </span>
-          </p>
+        <h3>${activity.title}</h3>
+        <p><span class="label">類型：</span><span class="value">${activity.sport_name}</p>
+        <p><span class="label">開始：</span><span class="value">${
+          activity.start_time
+            ? new Date(activity.start_time).toLocaleString()
+            : "未設定"
+        }</p>
+        <p><span class="label">結束：</span><span class="value">${
+          activity.end_time
+            ? new Date(activity.end_time).toLocaleString()
+            : "未設定"
+        }</p>
+        <p><span class="label">地點：</span><span class="value">${activity.location_name}</p>
+        <p><span class="label">目前狀態：</span><span class="value">
+       ${
+         activity.status === "close"
+           ? `
+        <span class="status-text">已結束</span>
+        <button class="evaluate-button" onclick="openEvaluateModal(${activity.activity_id})">
+        <img src="/static/icons/message.png" alt="評價" class="evaluate-icon">
+        </button>
+       `
+           : activity.status === "deadline"
+           ? `<span class="status-text">報名截止</span>`
+           : activity.status === "open"
+           ? `<span class="status-text">開放報名</span>`
+           : `<span class="status-text">進行中</span>`
+       }
+      </p>
         `;
-      
-        
             card.addEventListener("click", () =>
               openModal(activity.activity_id)
             );
@@ -1544,6 +1545,50 @@
       }
 
       let currentActivityId = null;
+
+      function openEvaluateModal(activityId) {
+        currentActivityId = activityId; // 儲存當前活動 ID
+        document.getElementById("evaluateModal").style.display = "flex";
+      }
+
+      function closeEvaluateModal() {
+        document.getElementById("evaluateModal").style.display = "none";
+        document.getElementById("evaluation-text").value = ""; // 清空評價內容
+      }
+
+      async function submitEvaluation() {
+        const evaluationText = document
+          .getElementById("evaluation-text")
+          .value.trim();
+        if (!evaluationText) {
+          alert("請輸入評價內容！");
+          return;
+        }
+
+        try {
+          const res = await fetch(`/api/activities/evaluate`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              activity_id: currentActivityId,
+              member_id: memberId,
+              evaluation: evaluationText,
+            }),
+          });
+
+          if (res.ok) {
+            alert("評價提交成功！");
+            closeEvaluateModal();
+          } else {
+            alert("提交評價失敗，請稍後再試！");
+          }
+        } catch (error) {
+          console.error("提交評價時發生錯誤：", error);
+          alert("提交評價失敗，請稍後再試！");
+        }
+      }
 
       async function cancelParticipation(activityId) {
         const confirmCancel = confirm("確定要取消參加此活動嗎？");
@@ -1611,10 +1656,11 @@
         // ✅ 延遲導頁：依照順序呼叫對應函式
         const index = [...document.querySelectorAll(".bottom-item")].indexOf(this);
         setTimeout(() => {
-          if (index === 0) goToActivity();
-          else if (index === 1) goToPage();
-          else if (index === 2) goToProfile();
-        }, 300); // 動畫時間配合 CSS 中的 animation 時長
+          if (index === 0) goToPage();        // 地圖
+          else if (index === 1) goToActivity(); // 活動
+          else if (index === 2) return;       // 通知，暫時不導頁
+          else if (index === 3) goToProfile(); // 個人
+        }, 300);
       });
     });
       function openActivityTypeModal() {

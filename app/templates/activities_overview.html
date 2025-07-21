@@ -97,31 +97,40 @@
       .value {
         color: #000;
       }
-      .filters {
+      /* 導覽列篩選欄位樣式 */
+      .navbar-inner .filters {
         display: flex;
+        align-items: center;
+        gap: 8px;
         flex-wrap: wrap;
-        gap: 12px;
-        justify-content: center;
-        margin-bottom: 20px;
+        margin: 0 24px;
       }
-      .filters input,
-      .filters select {
-        padding: 8px;
+      .navbar-inner .filters input,
+      .navbar-inner .filters select {
+        padding: 6px 8px;
         border: 1px solid #ccc;
         border-radius: 6px;
         font-size: 14px;
       }
-      .filters button {
-        padding: 8px 16px;
+      .navbar-inner .filters button {
+        padding: 6px 14px;
         background-color: #81d3e1;
         color: white;
         border: none;
         border-radius: 6px;
-        font-size: 16px;
+        font-size: 15px;
         cursor: pointer;
       }
-      .filters button:hover {
+      .navbar-inner .filters button:hover {
         background-color: #1f3657;
+      }
+      @media (max-width: 900px) {
+        .navbar-inner .filters {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 6px;
+          margin: 8px 0;
+        }
       }
       .activity-list {
         display: grid;
@@ -223,6 +232,66 @@
           <img src="/static/logo.png" alt="logo" style="height:48px;margin-right:10px;" />
           <span class="navbar-title">SportMatch</span>
         </div>
+        <!-- 篩選欄位放這裡 -->
+        <form class="filters" id="navbarFilters" style="margin: 0 24px; flex: 1; justify-content: center;">
+          <select id="searchCity" style="min-width: 120px;">
+            <option value="">所有縣市</option>
+            <option value="台北市">台北市</option>
+            <option value="新北市">新北市</option>
+            <option value="基隆市">基隆市</option>
+            <option value="桃園市">桃園市</option>
+            <option value="新竹市">新竹市</option>
+            <option value="新竹縣">新竹縣</option>
+            <option value="苗栗縣">苗栗縣</option>
+            <option value="台中市">台中市</option>
+            <option value="彰化縣">彰化縣</option>
+            <option value="南投縣">南投縣</option>
+            <option value="雲林縣">雲林縣</option>
+            <option value="嘉義市">嘉義市</option>
+            <option value="嘉義縣">嘉義縣</option>
+            <option value="台南市">台南市</option>
+            <option value="高雄市">高雄市</option>
+            <option value="屏東縣">屏東縣</option>
+            <option value="宜蘭縣">宜蘭縣</option>
+            <option value="花蓮縣">花蓮縣</option>
+            <option value="台東縣">台東縣</option>
+            <option value="澎湖縣">澎湖縣</option>
+            <option value="金門縣">金門縣</option>
+            <option value="連江縣">連江縣</option>
+          </select>
+          <select id="searchActivityType" style="min-width: 110px;">
+            <option value="">活動類型</option>
+            <option value="一般活動">一般活動</option>
+            <option value="訓練課程">訓練課程</option>
+          </select>
+          <select id="searchType" style="min-width: 100px;">
+            <option value="">運動類型</option>
+            <option value="籃球">籃球</option>
+            <option value="羽球">羽球</option>
+            <option value="網球">網球</option>
+            <option value="桌球">桌球</option>
+            <option value="排球">排球</option>
+            <option value="游泳">游泳</option>
+            <option value="健身">健身</option>
+            <option value="瑜珈">瑜珈</option>
+            <option value="跑步">跑步</option>
+            <option value="騎腳踏車">騎腳踏車</option>
+            <option value="足球">足球</option>
+            <option value="拳擊">拳擊</option>
+          </select>
+          <select id="searchTimeOption" style="min-width: 100px;">
+            <option value="">時段</option>
+            <option value="morning">早上</option>
+            <option value="afternoon">下午</option>
+            <option value="evening">晚上</option>
+          </select>
+          <select id="searchGender" style="min-width: 100px;">
+            <option value="">性別</option>
+            <option value="男">男</option>
+            <option value="女">女</option>
+          </select>
+          <button type="button" id="searchBtn">搜尋</button>
+        </form>
         <div class="navbar-icons">
           <!-- 搜尋 SVG -->
           <svg viewBox="0 0 24 24" width="24" height="24"><circle cx="10" cy="10" r="7" stroke="#2c4975" stroke-width="2" fill="none"/><line x1="15.95" y1="15.95" x2="21" y2="21" stroke="#2c4975" stroke-width="2" stroke-linecap="round"/></svg>
@@ -357,15 +426,41 @@
       }
 
       function filterActivities() {
-        const title = document.getElementById("searchTitle").value.toLowerCase();
-        const location = document.getElementById("searchLocation").value.toLowerCase();
+        const city = document.getElementById("searchCity").value;
+        const activityType = document.getElementById("searchActivityType").value;
         const type = document.getElementById("searchType").value.toLowerCase();
+        const timeOption = document.getElementById("searchTimeOption").value;
+        const gender = document.getElementById("searchGender").value;
 
         const filtered = activities.filter(
           (act) =>
-            (act.title || "").toLowerCase().includes(title) &&
-            (act.location_name || "").toLowerCase().includes(location) &&
+            (city === "" || (act.location_name && act.location_name.toLowerCase().includes(city.toLowerCase()))) &&
+            (activityType === "" || (act.activity_type && act.activity_type === activityType)) &&
             (act.sport_type || "").toLowerCase().includes(type)
+            && (function() {
+              if (!timeOption) return true;
+              // 取得活動的開始時間
+              let startTimeStr = act.start_time;
+              if ((act.type === 'class' || act.type === 'muti_class') && Array.isArray(act.course_schedules) && act.course_schedules.length > 0) {
+                // 找到最近未來的課程
+                const now = new Date();
+                let showSchedule = act.course_schedules.find(cs => new Date(cs.start_time) > now);
+                if (!showSchedule) showSchedule = act.course_schedules[0];
+                startTimeStr = showSchedule.start_time;
+              }
+              if (!startTimeStr) return true;
+              const start = new Date(startTimeStr);
+              const hour = start.getHours();
+              if (timeOption === 'morning') return hour >= 6 && hour < 12;
+              if (timeOption === 'afternoon') return hour >= 12 && hour < 18;
+              if (timeOption === 'evening') return hour >= 18 && hour < 24;
+              return true;
+            })()
+            && (function() {
+              if (gender === '') return true;
+              if (act.gender === undefined || act.gender === '' || act.gender === '不限') return true;
+              return act.gender === gender;
+            })()
         );
 
         renderActivities(filtered);
@@ -390,6 +485,7 @@
             registration_deadline: a.registration_deadline, // 新增 registration_deadline 屬性
             current_participants: a.current_participants, // 新增 current_participants 屬性
             max_participants: a.max_participants, // 新增 max_participants 屬性
+            gender: a.gender || "不限", // 新增 gender 屬性
           }));
           renderActivities(activities);
         })

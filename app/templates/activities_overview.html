@@ -98,14 +98,21 @@
         color: #000;
       }
       /* 導覽列篩選欄位樣式 */
+      .filter-bar-outer {
+        width: 100%;
+        overflow-x: unset;
+      }
+      .filter-bar-inner {
+        width: 100%;
+      }
       .navbar-inner .filters {
         display: flex;
-        align-items: center;
-        gap: 8px;
         flex-wrap: wrap;
-        margin: 0 24px;
-        flex: 1;
+        min-width: 0;
+        gap: 8px;
+        align-items: center;
         justify-content: center;
+        width: 100%;
       }
       .navbar-inner .filters input,
       .navbar-inner .filters select {
@@ -151,7 +158,7 @@
         .navbar-icons {
           order: 2;
         }
-        .navbar-inner .filters {
+        .filter-bar-outer {
           order: 3;
           flex: 1 1 100%;
           margin: 8px 0 0;
@@ -162,6 +169,13 @@
       }
 
       @media (max-width: 600px) {
+        .filter-bar-outer {
+          overflow-x: auto;
+        }
+        .navbar-inner .filters {
+          flex-wrap: nowrap;
+          min-width: max-content;
+        }
         .activity-list {
           grid-template-columns: 1fr;
         }
@@ -204,6 +218,7 @@
         max-width: 1400px;
         margin: 0 auto;
         padding: 20px 40px;
+        margin-bottom: 80px;
       }
       .activity-type-label {
         display: inline-block;
@@ -250,6 +265,93 @@
         min-width: 0;
         flex: none;
       }
+      .time-dash {
+        display: inline-block;
+        position: relative;
+        top: -1px;
+        font-size: 1.1em;
+        line-height: 1;
+      }
+
+      .bottom-nav {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        height: 60px;
+        background-color: #fff;
+        border-top: 1px solid #ccc;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        overflow: hidden;
+        box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
+        z-index: 101;
+      }
+
+      .bottom-item {
+        flex: 1;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        text-decoration: none;
+        transition: transform 0.2s ease;
+        z-index: 1;
+        border: none;
+        outline: none;
+        background-color: #ffffff;
+        cursor: pointer;
+      }
+
+      .bottom-item svg {
+        fill: #2c4975;
+        transition: fill 0.3s ease, transform 0.3s ease;
+        width: 26px;
+        height: 28px;
+        position: relative;
+      }
+
+      .bottom-item.active svg {
+        fill: #64bcd0;
+        transform: translateY(0px);
+      }
+
+      .item-label {
+        font-size: 12px;
+        color: #2c4975;
+        height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition: all 0.3s ease;
+      }
+
+      .bottom-item.active .item-label {
+        height: 16px;
+        opacity: 1;
+        margin-top: 0px;
+        color: #64bcd0;
+      }
+
+      .ripple {
+        position: absolute;
+        border-radius: 50%;
+        background-color: rgba(129, 211, 225, 0.35);
+        transform: scale(0);
+        animation: ripple-animation 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      @keyframes ripple-animation {
+        to {
+          transform: scale(2.5);
+          opacity: 0;
+        }
+      }
     </style>
   </head>
   <body>
@@ -260,70 +362,74 @@
           <span class="navbar-title">SportMatch</span>
         </div>
         <!-- 篩選欄位放這裡 -->
-        <form class="filters" id="navbarFilters">
-          <select id="searchCity" style="min-width: 120px;">
-            <option value="">所有縣市</option>
-            <option value="台北市">台北市</option>
-            <option value="新北市">新北市</option>
-            <option value="基隆市">基隆市</option>
-            <option value="桃園市">桃園市</option>
-            <option value="新竹市">新竹市</option>
-            <option value="新竹縣">新竹縣</option>
-            <option value="苗栗縣">苗栗縣</option>
-            <option value="台中市">台中市</option>
-            <option value="彰化縣">彰化縣</option>
-            <option value="南投縣">南投縣</option>
-            <option value="雲林縣">雲林縣</option>
-            <option value="嘉義市">嘉義市</option>
-            <option value="嘉義縣">嘉義縣</option>
-            <option value="台南市">台南市</option>
-            <option value="高雄市">高雄市</option>
-            <option value="屏東縣">屏東縣</option>
-            <option value="宜蘭縣">宜蘭縣</option>
-            <option value="花蓮縣">花蓮縣</option>
-            <option value="台東縣">台東縣</option>
-            <option value="澎湖縣">澎湖縣</option>
-            <option value="金門縣">金門縣</option>
-            <option value="連江縣">連江縣</option>
-          </select>
-          <select id="searchActivityType" style="min-width: 110px;">
-            <option value="">活動類型</option>
-            <option value="一般活動">一般活動</option>
-            <option value="訓練課程">訓練課程</option>
-          </select>
-          <select id="searchType" style="min-width: 100px;">
-            <option value="">運動類型</option>
-            <option value="籃球">籃球</option>
-            <option value="羽球">羽球</option>
-            <option value="網球">網球</option>
-            <option value="桌球">桌球</option>
-            <option value="排球">排球</option>
-            <option value="游泳">游泳</option>
-            <option value="健身">健身</option>
-            <option value="瑜珈">瑜珈</option>
-            <option value="跑步">跑步</option>
-            <option value="騎腳踏車">騎腳踏車</option>
-            <option value="足球">足球</option>
-            <option value="拳擊">拳擊</option>
-          </select>
-          <select id="searchTimeOption" style="min-width: 100px;">
-            <option value="">時段</option>
-            <option value="morning">早上</option>
-            <option value="afternoon">下午</option>
-            <option value="evening">晚上</option>
-          </select>
-          <select id="searchGender" style="min-width: 100px;">
-            <option value="">性別</option>
-            <option value="男">男</option>
-            <option value="女">女</option>
-          </select>
-          <select id="searchLevel" style="min-width: 100px;">
-            <option value="">等級</option>
-            <option value="初學">初學</option>
-            <option value="中階">中階</option>
-            <option value="高階">高階</option>
-          </select>
-        </form>
+        <div class="filter-bar-outer">
+          <div class="filter-bar-inner">
+            <form class="filters" id="navbarFilters">
+              <select id="searchCity" style="min-width: 120px;">
+                <option value="">所有縣市</option>
+                <option value="台北市">台北市</option>
+                <option value="新北市">新北市</option>
+                <option value="基隆市">基隆市</option>
+                <option value="桃園市">桃園市</option>
+                <option value="新竹市">新竹市</option>
+                <option value="新竹縣">新竹縣</option>
+                <option value="苗栗縣">苗栗縣</option>
+                <option value="台中市">台中市</option>
+                <option value="彰化縣">彰化縣</option>
+                <option value="南投縣">南投縣</option>
+                <option value="雲林縣">雲林縣</option>
+                <option value="嘉義市">嘉義市</option>
+                <option value="嘉義縣">嘉義縣</option>
+                <option value="台南市">台南市</option>
+                <option value="高雄市">高雄市</option>
+                <option value="屏東縣">屏東縣</option>
+                <option value="宜蘭縣">宜蘭縣</option>
+                <option value="花蓮縣">花蓮縣</option>
+                <option value="台東縣">台東縣</option>
+                <option value="澎湖縣">澎湖縣</option>
+                <option value="金門縣">金門縣</option>
+                <option value="連江縣">連江縣</option>
+              </select>
+              <select id="searchActivityType" style="min-width: 110px;">
+                <option value="">活動類型</option>
+                <option value="一般活動">一般活動</option>
+                <option value="訓練課程">訓練課程</option>
+              </select>
+              <select id="searchType" style="min-width: 100px;">
+                <option value="">運動類型</option>
+                <option value="籃球">籃球</option>
+                <option value="羽球">羽球</option>
+                <option value="網球">網球</option>
+                <option value="桌球">桌球</option>
+                <option value="排球">排球</option>
+                <option value="游泳">游泳</option>
+                <option value="健身">健身</option>
+                <option value="瑜珈">瑜珈</option>
+                <option value="跑步">跑步</option>
+                <option value="騎腳踏車">騎腳踏車</option>
+                <option value="足球">足球</option>
+                <option value="拳擊">拳擊</option>
+              </select>
+              <select id="searchTimeOption" style="min-width: 100px;">
+                <option value="">時段</option>
+                <option value="morning">早上</option>
+                <option value="afternoon">下午</option>
+                <option value="evening">晚上</option>
+              </select>
+              <select id="searchGender" style="min-width: 100px;">
+                <option value="">性別</option>
+                <option value="男">男</option>
+                <option value="女">女</option>
+              </select>
+              <select id="searchLevel" style="min-width: 100px;">
+                <option value="">等級</option>
+                <option value="初學">初學</option>
+                <option value="中階">中階</option>
+                <option value="高階">高階</option>
+              </select>
+            </form>
+          </div>
+        </div>
         <div class="navbar-icons">
           <!-- 搜尋 SVG -->
           <svg viewBox="0 0 24 24" width="24" height="24"><circle cx="10" cy="10" r="7" stroke="#2c4975" stroke-width="2" fill="none"/><line x1="15.95" y1="15.95" x2="21" y2="21" stroke="#2c4975" stroke-width="2" stroke-linecap="round"/></svg>
@@ -345,6 +451,38 @@
       <div class="activity-list" id="activityList">
         <p>載入中...</p>
       </div>
+    </div>
+
+    <div class="bottom-nav">
+      <!-- 地圖 -->
+      <button class="bottom-item">
+        <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" fill="#000000" viewBox="0 0 256 256">
+          <path d="M108,80a20,20,0,1,1,20,20A20,20,0,0,1,108,80ZM60,80a68,68,0,0,1,136,0c0,62.25-59.51,97-62.05,98.42a12,12,0,0,1-11.9,0C119.51,177,60,142.25,60,80Zm24,0c0,38.2,30.71,64.2,44,73.64C141.21,144.15,172,118,172,80a44,44,0,0,0-88,0Zm124.57,65.6a12,12,0,1,0-9.14,22.19C213.56,173.61,220,180.27,220,184c0,4-7.13,11.07-22.77,17.08-18.3,7-42.89,10.92-69.23,10.92s-50.93-3.88-69.23-10.92C43.12,195.07,36,188,36,184c0-3.73,6.44-10.39,20.57-16.21a12,12,0,1,0-9.14-22.19C31.27,152.25,12,164.31,12,184c0,34.14,58.36,52,116,52,29.22,0,56.86-4.44,77.85-12.52C220.1,218,244,205.59,244,184,244,164.31,224.73,152.25,208.57,145.6Z"></path>
+        </svg>
+        <div class="item-label">地圖</div>
+      </button>
+
+      <!-- 活動 -->
+      <button class="bottom-item active">
+        <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" fill="#000000" viewBox="0 0 256 256">
+          <path d="M208,28H188V24a12,12,0,0,0-24,0v4H92V24a12,12,0,0,0-24,0v4H48A20,20,0,0,0,28,48V208a20,20,0,0,0,20,20H208a20,20,0,0,0,20-20V48A20,20,0,0,0,208,28ZM68,52a12,12,0,0,0,24,0h72a12,12,0,0,0,24,0h16V76H52V52ZM52,204V100H204V204Zm92-76a16,16,0,1,1-16-16A16,16,0,0,1,144,128Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,192,128ZM96,176a16,16,0,1,1-16-16A16,16,0,0,1,96,176Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,144,176Zm48,0a16,16,0,1,1-16-16A16,16,0,0,1,192,176Z"></path>
+        </svg>
+        <div class="item-label">活動</div>
+      </button>
+
+      <!-- ✅ 通知（新增） -->
+      <button class="bottom-item">
+        <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" fill="#000000" viewBox="0 0 256 256"><path d="M225.29,165.93C216.61,151,212,129.57,212,104a84,84,0,0,0-168,0c0,25.58-4.59,47-13.27,61.93A20.08,20.08,0,0,0,30.66,186,19.77,19.77,0,0,0,48,196H84.18a44,44,0,0,0,87.64,0H208a19.77,19.77,0,0,0,17.31-10A20.08,20.08,0,0,0,225.29,165.93ZM128,212a20,20,0,0,1-19.6-16h39.2A20,20,0,0,1,128,212ZM54.66,172C63.51,154,68,131.14,68,104a60,60,0,0,1,120,0c0,27.13,4.48,50,13.33,68Z"></path></svg>
+        <div class="item-label">通知</div>
+      </button>
+
+      <!-- 個人 -->
+      <button class="bottom-item">
+        <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" fill="#000000" viewBox="0 0 256 256">
+          <path d="M234.38,210a123.36,123.36,0,0,0-60.78-53.23,76,76,0,1,0-91.2,0A123.36,123.36,0,0,0,21.62,210a12,12,0,1,0,20.77,12c18.12-31.32,50.12-50,85.61-50s67.49,18.69,85.61,50a12,12,0,0,0,20.77-12ZM76,96a52,52,0,1,1,52,52A52.06,52.06,0,0,1,76,96Z"></path>
+        </svg>
+        <div class="item-label">個人</div>
+      </button>
     </div>
 
     <script>
@@ -405,9 +543,9 @@
               const start = new Date(showSchedule.start_time);
               const end = new Date(showSchedule.end_time);
               if (start.getFullYear() === end.getFullYear() && start.getMonth() === end.getMonth() && start.getDate() === end.getDate()) {
-                timeStr = `${pad(start.getMonth()+1)}/${pad(start.getDate())}（${days[start.getDay()]}）${pad(start.getHours())}:${pad(start.getMinutes())} - ${pad(end.getHours())}:${pad(end.getMinutes())}`;
+                timeStr = `${pad(start.getMonth()+1)}/${pad(start.getDate())}（${days[start.getDay()]}）${pad(start.getHours())}:${pad(start.getMinutes())} <span class='time-dash'>-</span> ${pad(end.getHours())}:${pad(end.getMinutes())}`;
               } else {
-                timeStr = `${pad(start.getMonth()+1)}/${pad(start.getDate())}（${days[start.getDay()]}）${pad(start.getHours())}:${pad(start.getMinutes())} - ${pad(end.getMonth()+1)}/${pad(end.getDate())}（${days[end.getDay()]}）${pad(end.getHours())}:${pad(end.getMinutes())}`;
+                timeStr = `${pad(start.getMonth()+1)}/${pad(start.getDate())}（${days[start.getDay()]}）${pad(start.getHours())}:${pad(start.getMinutes())} <span class='time-dash'>-</span> ${pad(end.getMonth()+1)}/${pad(end.getDate())}（${days[end.getDay()]}）${pad(end.getHours())}:${pad(end.getMinutes())}`;
               }
             } else {
               timeStr = '尚無課程安排';
@@ -417,14 +555,14 @@
             const start = new Date(act.start_time);
             const end = new Date(act.end_time);
             if (start.getFullYear() === end.getFullYear() && start.getMonth() === end.getMonth() && start.getDate() === end.getDate()) {
-              timeStr = `${pad(start.getMonth()+1)}/${pad(start.getDate())}（${days[start.getDay()]}）${pad(start.getHours())}:${pad(start.getMinutes())} - ${pad(end.getHours())}:${pad(end.getMinutes())}`;
+              timeStr = `${pad(start.getMonth()+1)}/${pad(start.getDate())}（${days[start.getDay()]}）${pad(start.getHours())}:${pad(start.getMinutes())} <span class='time-dash'>-</span> ${pad(end.getHours())}:${pad(end.getMinutes())}`;
             } else {
-              timeStr = `${pad(start.getMonth()+1)}/${pad(start.getDate())}（${days[start.getDay()]}）${pad(start.getHours())}:${pad(start.getMinutes())} - ${pad(end.getMonth()+1)}/${pad(end.getDate())}（${days[end.getDay()]}）${pad(end.getHours())}:${pad(end.getMinutes())}`;
+              timeStr = `${pad(start.getMonth()+1)}/${pad(start.getDate())}（${days[start.getDay()]}）${pad(start.getHours())}:${pad(start.getMinutes())} <span class='time-dash'>-</span> ${pad(end.getMonth()+1)}/${pad(end.getDate())}（${days[end.getDay()]}）${pad(end.getHours())}:${pad(end.getMinutes())}`;
             }
           }
           const card = document.createElement("div");
           card.className = "activity-card";
-          card.innerHTML = `<a href="/api/activities/details_page?id=${act.activity_id}${memberId ? `&member_id=${memberId}` : ""}" style="text-decoration: none; color: inherit; display: block;">
+          card.innerHTML = `<a href="/api/activities/details_page?id=${act.activity_id}${memberId ? `&member_id=${memberId}` : ""}" style="text-decoration: none; color: inherit; display: block; position: relative;">
             <div class="activity-title-row" style="display: flex; justify-content: space-between; align-items: center;">
               <div class="activity-title">${act.title || "未命名活動"}</div>
               ${statusText ? `<span class="status-badge" style="font-size: 14px; padding: 2px 10px; border-radius: 10px; font-weight: bold; color: white; background: ${statusText === '開放報名' ? '#f8a9b3' : '#81d3e1'}; margin-left: 10px;">${statusText}</span>` : ''}
@@ -446,10 +584,31 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" style="vertical-align: middle;"><circle cx="12" cy="12" r="10" stroke="#2c4975" stroke-width="2" fill="none"/><text x="12" y="16" font-size="12" font-weight="bold" text-anchor="middle" fill="#2c4975" font-family="Arial">$</text></svg>
                 <span class="value" style="color: #2c4975;">　${act.venue_fee && act.venue_fee !== 0 ? act.venue_fee + ' 元' : '免費'}｜${act.type === 'class' || act.type === 'muti_class' ? `<span class='activity-type-label training-course'>${act.activity_type}</span>` : `<span style='color: #2c4975;'>${act.activity_type}</span>`}</span>
               </div>
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="vertical-align: middle;"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="#f8a9b3" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="heart-icon" style="display:inline-block; cursor:pointer; vertical-align:middle;">
+                <svg class="heart-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="vertical-align: middle;">
+                  <path class="heart-path" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="#f8a9b3" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
             </div>
           </a>`;
           container.appendChild(card);
+        });
+
+        // 加入愛心點擊切換事件
+        document.querySelectorAll('.heart-icon').forEach(function(heart) {
+          heart.addEventListener('click', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            const svg = this.querySelector('.heart-svg');
+            const path = svg.querySelector('.heart-path');
+            if (path.getAttribute('fill') === 'none' || !path.getAttribute('fill')) {
+              path.setAttribute('fill', '#f8a9b3');
+              path.setAttribute('stroke', '#f8a9b3');
+            } else {
+              path.setAttribute('fill', 'none');
+              path.setAttribute('stroke', '#f8a9b3');
+            }
+          });
         });
       }
 
@@ -535,6 +694,65 @@
       document.getElementById("searchTimeOption").addEventListener("change", filterActivities);
       document.getElementById("searchGender").addEventListener("change", filterActivities);
       document.getElementById("searchLevel").addEventListener("change", filterActivities);
+
+      function goToActivity() {
+        if (memberId) {
+          window.location.href = `/api/activities/overview?member_id=${memberId}`;
+        } else {
+          window.location.href = '/api/activities/overview';
+        }
+      }
+
+      function goToPage() {
+        if (memberId) {
+          window.location.href = `/home?member_id=${memberId}`;
+        } else {
+          window.location.href = '/home';
+        }
+      }
+
+      function goToProfile() {
+        if (memberId) {
+          window.location.href = `/member_view?member_id=${memberId}`;
+        } else {
+          window.location.href = '/member_view';
+        }
+      }
+
+      document.querySelectorAll(".bottom-item").forEach((item) => {
+        item.addEventListener("click", function (e) {
+          e.preventDefault();
+
+          const oldRipple = this.querySelector(".ripple");
+          if (oldRipple) oldRipple.remove();
+
+          const ripple = document.createElement("span");
+          ripple.classList.add("ripple");
+
+          const rect = this.getBoundingClientRect();
+          const size = Math.max(rect.width, rect.height);
+          ripple.style.width = ripple.style.height = `${size * 2}px`;
+          ripple.style.left = `${e.clientX - rect.left - size}px`;
+          ripple.style.top = `${e.clientY - rect.top - size}px`;
+
+          this.appendChild(ripple);
+
+          document
+            .querySelectorAll(".bottom-item")
+            .forEach((i) => i.classList.remove("active"));
+          this.classList.add("active");
+
+          const index = [...document.querySelectorAll(".bottom-item")].indexOf(
+            this
+          );
+          setTimeout(() => {
+            if (index === 0) goToPage();
+            else if (index === 1) goToActivity();
+            else if (index === 2) return; 
+            else if (index === 3) goToProfile();
+          }, 300);
+        });
+      });
     </script>
   </body>
 </html>

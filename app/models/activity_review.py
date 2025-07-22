@@ -9,7 +9,6 @@ class ActivityReview(Base):
     activity_id = Column(Integer, ForeignKey("activities.activity_id"))
     reviewer_id = Column(String(36), ForeignKey("members.member_id"))
     rating = Column(Integer)
-    comment = Column(Text)
     created_time = Column(DateTime)
 
     activity = relationship("Activity", back_populates="reviews")

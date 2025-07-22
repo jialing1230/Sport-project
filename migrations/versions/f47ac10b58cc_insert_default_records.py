@@ -13,6 +13,7 @@ from typing import Sequence, Union
 
 from alembic import op
 from sqlalchemy.orm import Session
+from sqlalchemy.sql import text
 
 from app.models import (
     Member,
@@ -209,6 +210,117 @@ def upgrade() -> None:
         )
         
     session.add_all(joins)
+
+    review_templates = [
+        {
+            "type": "1",
+            "text": "活動開始時間混亂",
+        },
+        {
+            "type": "1",
+            "text": "主辦人臨時取消或遲到",
+        },
+        {
+            "type": "1",
+            "text": "現場混亂缺乏引導",
+        },
+        {
+            "type": "1",
+            "text": "活動與描述內容落差很大",
+        },
+        {
+            "type": "1",
+            "text": "缺乏安全與風險控管",
+        },
+        {
+            "type": "2",
+            "text": "活動內容不夠有趣",
+        },
+        {
+            "type": "2",
+            "text": "主辦人態度不友善",
+        },
+        {
+            "type": "2",
+            "text": "活動後沒有回饋或改進",
+        },
+        {
+            "type": "2",
+            "text": "缺乏活動後的社群互動",
+        },
+        {
+            "type": "2",
+            "text": "活動時間安排不合理",
+        },
+        {
+            "type": "3",
+            "text": "活動如預期進行",
+        },
+        {
+            "type": "3",
+            "text": "主辦人態度親切",
+        },
+        {
+            "type": "3",
+            "text": "地點方便但設施普通",
+        },
+        {
+            "type": "3",
+            "text": "活動氣氛普通無特別亮點",
+        },
+        {
+            "type": "3",
+            "text": "可以再參加但期望更好",
+        },
+        {
+            "type": "4",
+            "text": "活動流程安排得當",
+        },
+        {
+            "type": "4",
+            "text": "主辦人有經驗有熱情",
+        },
+        {
+            "type": "4",
+            "text": "現場氣氛熱絡",
+        },
+        {
+            "type": "4",
+            "text": "溝通順暢、資訊清楚",
+        },
+        {
+            "type": "4",
+            "text": "整體體驗良好會再參加",
+        },
+        {
+            "type": "5",
+            "text": "活動精彩超出預期",
+        },
+        {
+            "type": "5",
+            "text": "主辦人超級用心",
+        },
+        {
+            "type": "5",
+            "text": "時間掌握精準、效率高",
+        },
+        {
+            "type": "5",
+            "text": "氛圍佳、參加者配合度高",
+        },
+        {
+            "type": "5",
+            "text": "完美活動，強烈推薦！",
+        }
+    ]
+
+    session.execute(
+        text("""
+        INSERT INTO review_templates (type, text)
+        VALUES (:type, :text)
+        """),
+        review_templates,
+    )
 
     session.commit()
 

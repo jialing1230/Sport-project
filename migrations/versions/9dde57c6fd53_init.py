@@ -112,6 +112,9 @@ def upgrade() -> None:
     sa.Column('rating', sa.Integer(), nullable=True),
     sa.Column('comment', sa.Text(), nullable=True),
     sa.Column('created_time', sa.DateTime(), nullable=True),
+    sa.Column('activity_id', sa.Integer(), sa.ForeignKey('activities.activity_id'), nullable=True),
+    sa.Column('template_ids', sa.JSON, nullable=True),
+
     sa.ForeignKeyConstraint(['reviewer_id'], ['members.member_id'], ),
     sa.ForeignKeyConstraint(['target_member_id'], ['members.member_id'], ),
     sa.PrimaryKeyConstraint('review_id')
@@ -133,7 +136,9 @@ def upgrade() -> None:
     sa.Column('activity_id', sa.Integer(), nullable=True),
     sa.Column('reviewer_id', sa.String(length=36), nullable=True),
     sa.Column('rating', sa.Integer(), nullable=True),
+    sa.Column('template_ids', sa.JSON, nullable=True),
     sa.Column('created_time', sa.DateTime(), nullable=True),
+    
     sa.ForeignKeyConstraint(['activity_id'], ['activities.activity_id'], ),
     sa.ForeignKeyConstraint(['reviewer_id'], ['members.member_id'], ),
     sa.PrimaryKeyConstraint('review_id')

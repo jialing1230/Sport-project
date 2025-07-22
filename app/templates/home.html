@@ -396,11 +396,19 @@
       
         /* 篩選列容器 */
         .filter-bar {
-          background-color: #fff;
-          box-shadow: none;
-          padding: 4px 0;
-          position: relative;
-          z-index: 1;
+            background-color: #fff;
+            box-shadow: none;
+            padding-bottom: 10px;  /* ✅ 統一下方留白 */
+            padding-top: 0;
+            padding-left: 24;
+            padding-right: 24;
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+             gap: 12px;
         }
 
         /* 篩選按鈕列排版 */
@@ -411,6 +419,13 @@
           gap: 8px;
           padding: 0 8px;
           -webkit-overflow-scrolling: touch;
+          overflow-x: auto; /* 保留水平捲動功能 */
+          scrollbar-width: none; /* Firefox */
+          -ms-overflow-style: none; /* IE 10+ */
+          justify-content: flex-end;
+          max-width: 1200px;              /* 限制最寬範圍 */
+          margin: 0 auto;                 /* 置中 + 結合 justify-content: flex-end 會偏右但不貼邊 */
+          padding-right: 450px;            /* 稍微退一點不要貼太邊 */
         }
 
         /* 單一篩選按鈕樣式 */
@@ -421,12 +436,14 @@
           border: 1px solid #1b3a6e;
           border-radius: 10px;
           font-size: 14px;
-          font-weight: 600; /* 或 600, 看你要多粗 */
-
+          font-weight: 500; /* 或 600, 看你要多粗 */
           white-space: nowrap;
           cursor: pointer;
           flex-shrink: 0;
           transition: all 0.2s ease;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
         }
 
         .filter-btn:hover {
@@ -439,22 +456,34 @@
           color: var(--light-blue);
           border-color: var(--light-blue);
         }
-
-        /* 小螢幕下滑動區塊不破版 */
-        @media (max-width: 767px) {
-          .filter-buttons {
-            padding-bottom: 4px;
-          }
+        .filter-btn .arrow {
+          display: inline-block;
+          width: 0;
+          height: 0;
+          border-left: 5px solid transparent;
+          border-right: 5px solid transparent;
+          border-top: 5px solid var(--deep-blue); /* 箭頭顏色 */
+          transition: transform 0.2s ease;
         }
 
-        /* ✅ 包含 header + filter-bar 的整塊白底區域 */
-        .top-panel {
+
+       .top-panel {
           background-color: #ffffff;
-          box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12); /* 地圖上的陰影 */
+          box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12);
+          margin-bottom: 6px; /* ✅ 或改用 padding-bottom 取代內部 filter-bar */
           z-index: 10;
           position: relative;
         }
-
+        .filter-buttons::-webkit-scrollbar {
+          display: none; /* Chrome、Safari */
+        }
+        /* 桌機版才套用靠右，手機維持滿版滾動 */
+        @media (max-width: 768px) {
+          .filter-buttons {
+            justify-content: flex-start;
+            padding: 0 16px;
+          }
+        }
 
     </style>
   </head>
@@ -524,12 +553,30 @@
 
     <div class="filter-bar">
       <div class="container filter-buttons">
-        <button class="filter-btn" data-type="county">所有縣市 ⌄</button>
-        <button class="filter-btn" data-type="activity">活動類型 ⌄</button>
-        <button class="filter-btn" data-type="sport">運動類型 ⌄</button>
-        <button class="filter-btn" data-type="time">時段 ⌄</button>
-        <button class="filter-btn" data-type="gender">性別 ⌄</button>
-        <button class="filter-btn" data-type="level">等級 ⌄</button>
+        <button class="filter-btn" data-type="county">
+            <span class="label">所有縣市</span>
+            <span class="arrow"></span>
+        </button>
+        <button class="filter-btn" data-type="activity">
+            <span class="label">活動類型</span>
+            <span class="arrow"></span>
+        </button>
+        <button class="filter-btn" data-type="sport">
+            <span class="label">運動類型</span>
+            <span class="arrow"></span>
+        </button>
+        <button class="filter-btn" data-type="time">
+            <span class="label">時段</span>
+            <span class="arrow"></span>
+        </button>
+        <button class="filter-btn" data-type="gender">
+            <span class="label">性別</span>
+            <span class="arrow"></span>
+        </button>
+        <button class="filter-btn" data-type="level">
+            <span class="label">等級</span>
+            <span class="arrow"></span>
+        </button>
       </div>
     </div>
     </div>

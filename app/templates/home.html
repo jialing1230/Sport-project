@@ -45,7 +45,6 @@
         background-color: #fff;
         flex-wrap: wrap;
         gap: 16px;
-        box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
         z-index: 2;
       }
 
@@ -83,12 +82,20 @@
         flex-shrink: 1; /* 防止放大撐出邊界 */
         margin:0 auto;  /* ✅ 加這一行 */
       }
-
+      .search-box:hover .search-icon {
+        stroke: var(--light-blue);
+        color: var(--light-blue);
+      }
+      /* ✅ 手機搜尋按鈕圖示變色 */
+      .mobile-search-button:hover .search-icon {
+        stroke: var(--light-blue);
+        color: var(--light-blue);
+      }
       .search-icon {
         width: 20px;
         height: 20px;
         color: var(--deep-blue);
-        flex-shrink: 0;
+        stroke: currentColor;
         transition: all 0.3s ease;
       }
 
@@ -113,19 +120,6 @@
           max-width: 420px; /* ✅ 桌機版拉長 */
         }
       }
-      .filter-icon {
-        width: 24px;
-        height: 24px;
-        margin-left: 12px;
-        color: var(--deep-blue);
-        cursor: pointer;
-        transition: color 0.3s ease;
-      }
-
-      .filter-icon:hover {
-        color: var(--light-blue);
-      }
-
       .overview-button {
         font-size: 14px;
         font-weight: bold;
@@ -263,13 +257,15 @@
       .right-section {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        flex: 1;
-        min-width: 0; /* 防止右側撐爆，尤其搜尋框有 max-width 時 */
+        gap: 8px; /* 圖示間距更緊湊 */
+        margin-left: auto;  /* 👈 把整個區塊推到最右 */
+        padding-right: 8px; /* 👈 收進一點 */
+        min-width: 0;
       }
       @media (max-width: 767px) {
         .right-section {
-          gap: 16px; /* 📱 手機板回到緊湊間距 */
+          gap: 8px;
+          padding-right: 4px;
         }
       }
       @media (max-width: 767px) {
@@ -315,10 +311,10 @@
         box-sizing: border-box;
       }
       .header .container {
-        display: flex;             
-        align-items: center;       
-        justify-content: space-between;
-        flex-wrap: wrap;           
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;  /* 👈 改為靠左對齊 */
+        flex-wrap: wrap;
         gap: 16px;
       }
       .icon-wrapper {
@@ -329,6 +325,10 @@
         justify-content: center;
         margin-left: 8px; /* ✅ 控制間距 */
       }
+      .icon-wrapper:hover svg {
+        fill: var(--light-blue);
+      }
+
       /* 📱 手機搜尋按鈕：預設隱藏，手機版顯示 */
       .mobile-search-button {
         display: none;
@@ -366,10 +366,100 @@
           margin-top: 1px; /* ✅ 視覺微調下壓 */
         }
       }
+        /* 先預設圖示顯示、文字隱藏（手機版） */
+        .nav-icon {
+          display: inline;
+        }
+
+        .nav-label {
+          display: none;
+          margin-left: 6px;
+          font-size: 14px;
+          color: #1b3a6e;
+          white-space: nowrap; 
+          transition: color 0.3s ease;
+        }
+        .nav-label:hover {
+          color: var(--light-blue);
+        }
+        /* 桌機版：隱藏圖示、顯示文字 */
+        @media (min-width: 768px) {
+          .nav-icon {
+            display: none;
+          }
+          .nav-label {
+            display: inline;
+            font-weight: bold;
+          }
+        }
+
+      
+        /* 篩選列容器 */
+        .filter-bar {
+          background-color: #fff;
+          box-shadow: none;
+          padding: 4px 0;
+          position: relative;
+          z-index: 1;
+        }
+
+        /* 篩選按鈕列排版 */
+        .filter-buttons {
+          display: flex;
+          flex-wrap: nowrap;
+          overflow-x: auto;
+          gap: 8px;
+          padding: 0 8px;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        /* 單一篩選按鈕樣式 */
+        .filter-btn {
+          padding: 1px 10px;
+          background-color: #ffffff;
+          color: var(--deep-blue);
+          border: 1px solid #1b3a6e;
+          border-radius: 10px;
+          font-size: 14px;
+          font-weight: 600; /* 或 600, 看你要多粗 */
+
+          white-space: nowrap;
+          cursor: pointer;
+          flex-shrink: 0;
+          transition: all 0.2s ease;
+        }
+
+        .filter-btn:hover {
+          background-color: #f0f8fa;
+          border-color: var(--light-blue);
+        }
+
+        /* 已選擇的狀態樣式 */
+        .filter-btn.selected {
+          color: var(--light-blue);
+          border-color: var(--light-blue);
+        }
+
+        /* 小螢幕下滑動區塊不破版 */
+        @media (max-width: 767px) {
+          .filter-buttons {
+            padding-bottom: 4px;
+          }
+        }
+
+        /* ✅ 包含 header + filter-bar 的整塊白底區域 */
+        .top-panel {
+          background-color: #ffffff;
+          box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12); /* 地圖上的陰影 */
+          z-index: 10;
+          position: relative;
+        }
+
 
     </style>
   </head>
   <body>
+    <div class="top-panel">
     <div class="header">
       <div class="container">
       <div class="logo">
@@ -410,23 +500,40 @@
           <input type="text" placeholder="搜尋地點或活動名稱" />
           
         </div>
-       <a href="/overview" class="overview-button" id="overview-link" style="display: inline-block;">
-         <div class="icon-wrapper">
-        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="#1b3a6e" viewBox="0 0 256 256"><path d="M208,136H48a16,16,0,0,0-16,16v40a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V152A16,16,0,0,0,208,136Zm0,56H48V152H208v40Zm0-144H48A16,16,0,0,0,32,64v40a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V64A16,16,0,0,0,208,48Zm0,56H48V64H208v40Z"></path></svg>
-       </div>
+      <a href="/overview" class="overview-button only-label" id="overview-link" style="display: inline-flex; align-items: center;">
+        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="#1b3a6e" viewBox="0 0 256 256">
+          <path d="M208,136H48a16,16,0,0,0-16,16v40a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V152A16,16,0,0,0,208,136Zm0,56H48V152H208v40Zm0-144H48A16,16,0,0,0,32,64v40a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V64A16,16,0,0,0,208,48Zm0,56H48V64H208v40Z"></path>
+        </svg>
+        <span class="nav-label">切換清單</span>
       </a>
 
-        <button
-          onclick="goToNews()" class="menu-button"
-          style="background: none; border: none; cursor: pointer"
-        >
-         <div class="icon-wrapper">
-        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="#1b3a6e" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128ZM40,72H216a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16ZM216,184H40a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16Z"></path></svg>
-        </div>
-      </button>
+
+        <button onclick="goToNews()" class="menu-button only-label" style="background: none; border: none; cursor: pointer; display: inline-flex; align-items: center;">
+          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="#1b3a6e" viewBox="0 0 256 256">
+            <path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128ZM40,72H216a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16ZM216,184H40a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16Z"></path>
+          </svg>
+          <span class="nav-label">選單</span>
+        </button>
+
+     
+
       </div>
       </div>
     </div>
+
+
+    <div class="filter-bar">
+      <div class="container filter-buttons">
+        <button class="filter-btn" data-type="county">所有縣市 ⌄</button>
+        <button class="filter-btn" data-type="activity">活動類型 ⌄</button>
+        <button class="filter-btn" data-type="sport">運動類型 ⌄</button>
+        <button class="filter-btn" data-type="time">時段 ⌄</button>
+        <button class="filter-btn" data-type="gender">性別 ⌄</button>
+        <button class="filter-btn" data-type="level">等級 ⌄</button>
+      </div>
+    </div>
+    </div>
+
     <div class="main-content">
       <div class="map-area" id="map"></div>
     </div>

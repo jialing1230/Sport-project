@@ -139,23 +139,6 @@ def upgrade() -> None:
     session.add_all(activities)
     session.flush()
 
-    records = []
-    for i in range(1, 6):
-        rec = ExerciseRecord(
-            record_id=i,
-            member_id=members[i % 5].member_id,
-            sport_type_id=sport_types[i % 5].sport_type_id,
-            location=f"Gym{i}",
-            location_lat=25.1 + i * 0.01,
-            location_lng=121.6 + i * 0.01,
-            duration_hours=1.0 + i * 0.1,
-            record_date=now.date(),
-            intensity_level="high" if i % 2 else "low",
-            notes=f"Notes {i}",
-        )
-        records.append(rec)
-    session.add_all(records)
-
     prefs = []
     for i in range(1, 6):
         pref = SportPreference(
@@ -201,19 +184,6 @@ def upgrade() -> None:
             )
     session.add_all(pref_times)
 
-    reviews = []
-    for i in range(1, 6):
-        reviews.append(
-            UserReview(
-                review_id=i,
-                reviewer_id=members[i % 5].member_id,
-                target_member_id=members[i - 1].member_id,
-                rating=(i % 5) + 1,
-                comment=f"Review {i}",
-                created_time=now,
-            )
-        )
-    session.add_all(reviews)
 
     joins = []
     for i in range(1, 6):
@@ -239,20 +209,6 @@ def upgrade() -> None:
         )
         
     session.add_all(joins)
-
-    act_revs = []
-    for i in range(1, 6):
-        act_revs.append(
-            ActivityReview(
-                review_id=i,
-                activity_id=activities[i - 1].activity_id,
-                reviewer_id=members[(i + 2) % 5].member_id,
-                rating=(i % 5) + 1,
-                comment=f"ActivityReview {i}",
-                created_time=now,
-            )
-        )
-    session.add_all(act_revs)
 
     session.commit()
 

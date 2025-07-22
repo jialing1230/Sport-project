@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, ForeignKey, Text, DateTime,String
+from sqlalchemy import Column, Integer, ForeignKey, DateTime,String
 from sqlalchemy.orm import relationship
 from app.database import Base
+from sqlalchemy.dialects.mysql import JSON
 
 
 class ActivityReview(Base):
@@ -9,8 +10,8 @@ class ActivityReview(Base):
     activity_id = Column(Integer, ForeignKey("activities.activity_id"))
     reviewer_id = Column(String(36), ForeignKey("members.member_id"))
     rating = Column(Integer)
-    comment = Column(Text)
     created_time = Column(DateTime)
+    template_ids = Column(JSON, nullable=True)
 
     activity = relationship("Activity", back_populates="reviews")
     reviewer = relationship("Member", back_populates="activity_reviews")

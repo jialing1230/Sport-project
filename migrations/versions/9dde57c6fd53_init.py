@@ -112,6 +112,9 @@ def upgrade() -> None:
     sa.Column('rating', sa.Integer(), nullable=True),
     sa.Column('comment', sa.Text(), nullable=True),
     sa.Column('created_time', sa.DateTime(), nullable=True),
+    sa.Column('activity_id', sa.Integer(), sa.ForeignKey('activities.activity_id'), nullable=True),
+    sa.Column('template_ids', sa.JSON, nullable=True),
+
     sa.ForeignKeyConstraint(['reviewer_id'], ['members.member_id'], ),
     sa.ForeignKeyConstraint(['target_member_id'], ['members.member_id'], ),
     sa.PrimaryKeyConstraint('review_id')
@@ -133,8 +136,9 @@ def upgrade() -> None:
     sa.Column('activity_id', sa.Integer(), nullable=True),
     sa.Column('reviewer_id', sa.String(length=36), nullable=True),
     sa.Column('rating', sa.Integer(), nullable=True),
-    sa.Column('comment', sa.Text(), nullable=True),
+    sa.Column('template_ids', sa.JSON, nullable=True),
     sa.Column('created_time', sa.DateTime(), nullable=True),
+    
     sa.ForeignKeyConstraint(['activity_id'], ['activities.activity_id'], ),
     sa.ForeignKeyConstraint(['reviewer_id'], ['members.member_id'], ),
     sa.PrimaryKeyConstraint('review_id')
@@ -189,6 +193,12 @@ def upgrade() -> None:
     sa.Column('end_time', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['activity_id'], ['activities.activity_id']),
 )
+    op.create_table(
+        'review_templates',
+        sa.Column('template_id', sa.Integer(), primary_key=True, autoincrement=True),
+        sa.Column('type', sa.String(length=50), nullable=False),
+        sa.Column('text', sa.String(length=255), nullable=False),
+    )
     # ### end Alembic commands ###
 
 
@@ -219,5 +229,6 @@ def downgrade() -> None:
     op.drop_table('preference_time')
     op.drop_index('ix_course_schedule_activity_id', table_name='course_schedule')
     op.drop_table('course_schedule')
+    op.drop_table('review_templates')
 
     # ### end Alembic commands ###

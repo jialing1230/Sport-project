@@ -10,6 +10,7 @@ from .preference_sport import PreferenceSport
 from .time_option import TimeOption
 from .preference_time import PreferenceTime
 from .course_schedul import CourseSchedule
+from .review_template import ReviewTemplate
 
 __all__ = [
     "PreferenceSport",
@@ -24,4 +25,5 @@ __all__ = [
     "TimeOption",
     "PreferenceTime",
     "CourseSchedule",
+    "ReviewTemplate",
 ]

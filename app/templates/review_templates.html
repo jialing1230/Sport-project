@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <link rel="manifest" href="/static/manifest.json" />
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          .register("/static/service-worker.js")
+          .then(() => console.log("Service Worker Registered"))
+          .catch((error) =>
+            console.error("Service Worker Registration Failed:", error)
+          );
+      }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>評價紀錄</title>
+     <style>
+        * {
+        box-sizing: border-box;
+        font-family: 'Noto Sans TC', sans-serif;
+        margin: 0;
+        padding: 0;
+        }
+
+        body {
+            background-color: #f4f4f4;
+            color: #2c4975;
+        }
+
+        .header {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 10px 30px;
+            background-color: #fff;
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            height: 70px;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-right: 12px;
+        }
+
+
+        .tab-switch {
+            display: flex;
+            justify-content: center;
+            background-color: #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+            color: #2c4975;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            border-bottom: 3px solid #81d3e1;
+            color: #81d3e1;
+            background-color: #f9fcfe;
+        }
+
+        .arrow-icon {
+            fill: #2c4975;
+            transition: fill 0.2s ease;
+        }
+
+        .back-button:hover .arrow-icon {
+            fill: #81d3e1;
+        }
+
+        .left-section {
+            position: relative;
+            z-index: 2;
+        }
+
+        .left-section svg {
+            width: 24px;
+            height: 24px;
+            fill: #81d3e1;
+            cursor: pointer;
+            transition: fill 0.3s ease;
+        }
+
+        .navbar-title {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            font-size: 20px;
+            color: #2c4975;
+        }
+
+        .navbar-title img {
+            height: 28px;
+            margin-right: 10px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 16px;
+        }
+
+        .review-card {
+            position: relative;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            padding: 16px;
+            margin-bottom: 16px;
+            overflow: hidden; /* 保證線不會超出卡片 */
+        }
+
+        .review-card::before {
+            content: "";
+            position: absolute;
+            top: 16px;
+            bottom: 16px;
+            left: 40%;
+            width: 1.5px;
+            background-color: #81d3e1; /* 淺藍色 */
+            transform: translateX(0);
+            z-index: 0; /* 放在背景，不會擋到文字 */
+        }
+
+        .review-card .right-label {
+            position: absolute;
+            top: 16px;
+            left: calc(40% + 16px); /* 線右邊留 10px 間距 */
+            font-size: 16px;
+            font-weight: bold;
+            color: #2c4975;
+        }
+
+        .badge-group {
+            margin-top: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            font-size: 13px;
+            color: #2c4975;               /* 深藍色文字 */
+            border: 1px solid #ccc;       /* 淺灰色外框 */
+            border-radius: 6px;
+            background-color: #fff;       /* 背景白 */
+        }
+
+        .review-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .review-stars {
+            display: flex;
+            align-items: flex-end;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+        .review-stars .score {
+            font-size: 30px;
+            font-weight: bold;
+            color: #2c4975;
+            line-height: 1;
+        }
+        
+        .review-stars .count {
+            font-size: 12px;
+            color: #2c4975;
+            line-height: 1;
+            padding-bottom: 2px;
+        }
+        .review-attendance {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #2c4975;
+            margin-top: 4px;
+            line-height: 2;
+        }
+        .review-date {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #2c4975;
+            margin-top: 4px;
+            line-height: 2;
+        }
+
+        .rating-text {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            line-height: 1;
+        }
+
+        .rating-text .score {
+            font-size: 20px; /* 跟星星高度相近 */
+            color: #f9a825;
+            font-weight: bold;
+        }
+
+        .rating-text .count {
+            font-size: 12px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+
+        @media (max-width: 480px) {
+        .navbar-title {
+            font-size: 18px;
+        }
+        .review-card {
+            padding: 12px;
+        }
+        }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+        <div class="left-section">
+            <svg
+            id="back-button"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            width="24"
+            height="24"
+            >
+            <path
+                d="M15 19l-7-7 7-7"
+                stroke="#81d3e1"
+                stroke-width="2"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+            ></path>
+            <path
+                d="M8 12h14"
+                stroke="#81d3e1"
+                stroke-width="2"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+            ></path>
+            </svg>
+        </div>
+        <div class="navbar-title">
+            <img src="/static/logo.png" alt="Logo" />
+            評價紀錄
+        </div>
+    </div>
+    <div class="tab-switch">
+        <button id="tab-participant" class="tab-btn active">參加人</button>
+        <button id="tab-organizer" class="tab-btn">發起人</button>
+    </div>
+
+    <!-- 主要內容 -->
+    <div class="container">
+        <div id="participant-section">
+            <div class="review-card">
+                <div class="right-label">常見評價
+                <div class="badge-group">
+                    <span class="badge">態度良好</span>
+                    <span class="badge">準時出席</span>
+                    <span class="badge">配合度很高高高高高</span>
+                    <span class="badge">準時出席</span>
+                    <span class="badge">配合度很高高</span>
+                </div>
+                </div>
+                <div class="review-title">參與概況</div>
+                <div class="review-stars">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="#f9a825" stroke="#f9a825" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;">
+                        <path d="M12 2L15 9H22L17 14L19 21L12 17L5 21L7 14L2 9H9L12 2Z"/>
+                    </svg>
+                    <span class="score" style="vertical-align: middle;">4.7</span>
+                    <span class="count" style="vertical-align: middle;">/ 20則評論</span>
+                </div>
+                <div class="review-attendance">
+                    <div style="width: 0.5px;"></div>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        fill="none"
+                        stroke="#2c4975"
+                        stroke-width="2"
+                        viewBox="0 0 24 24"
+                        style="margin-right: 2px;">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M8 12l3 3l5-5" />
+                    </svg>
+                    <span style="margin-left: 4px;">出 席 率：92%</span>
+                </div>
+                <div class="review-date">
+                    <div style="width: 0.5px;"></div>
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        width="20" height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#2c4975"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        style="vertical-align: middle; margin-right: 6px;">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    最近參與：2025/07/20
+                </div>
+            </div>
+        </div>
+
+        <div id="organizer-section">
+            <div class="review-card">
+                <div class="right-label">常見評價
+                <div class="badge-group">
+                    <span class="badge">態度良好</span>
+                    <span class="badge">準時出席</span>
+                    <span class="badge">配合度很高高高高高</span>
+                    <span class="badge">準時出席</span>
+                    <span class="badge">配合度很高高</span>
+                </div>
+                </div>
+                <div class="review-title">參與概況</div>
+                <div class="review-stars">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="#f9a825" stroke="#f9a825" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;">
+                        <path d="M12 2L15 9H22L17 14L19 21L12 17L5 21L7 14L2 9H9L12 2Z"/>
+                    </svg>
+                    <span class="score" style="vertical-align: middle;">4.7</span>
+                    <span class="count" style="vertical-align: middle;">/ 20則評論</span>
+                </div>
+                <div class="review-attendance">
+                    <div style="width: 0.5px;"></div>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        fill="none"
+                        stroke="#2c4975"
+                        stroke-width="2"
+                        viewBox="0 0 24 24"
+                        style="margin-right: 2px;">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M8 12l3 3l5-5" />
+                    </svg>
+                    <span style="margin-left: 4px;">出 席 率：92%</span>
+                </div>
+                <div class="review-date">
+                    <div style="width: 0.5px;"></div>
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        width="20" height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#2c4975"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        style="vertical-align: middle; margin-right: 6px;">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    最近參與：2025/07/20
+                </div>
+            </div>
+        </div>      
+    </div>
+
+    <script>
+        document.getElementById("back-button").onclick = () => {
+            history.back(); // 或改為 location.href = 'member.html';
+        };
+        const tabParticipant = document.getElementById("tab-participant");
+        const tabOrganizer = document.getElementById("tab-organizer");
+        const sectionParticipant = document.getElementById("participant-section");
+        const sectionOrganizer = document.getElementById("organizer-section");
+
+        tabParticipant.onclick = () => {
+            tabParticipant.classList.add("active");
+            tabOrganizer.classList.remove("active");
+            sectionParticipant.style.display = "block";
+            sectionOrganizer.style.display = "none";
+        };
+
+        tabOrganizer.onclick = () => {
+            tabOrganizer.classList.add("active");
+            tabParticipant.classList.remove("active");
+            sectionParticipant.style.display = "none";
+            sectionOrganizer.style.display = "block";
+        };
+    </script>
+  </body>
+</html>

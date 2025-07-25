@@ -720,9 +720,9 @@
 
     document.getElementById("reviewsBtn").addEventListener("click", function () {
       if (memberId) {
-        window.location.href = `/reviews?member_id=${memberId}`;
+        window.location.href = `/review_templates?member_id=${memberId}`;
       } else {
-        window.location.href = "/reviews";
+        window.location.href = "/review_templates";
       }
     });
 

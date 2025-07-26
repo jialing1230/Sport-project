@@ -111,6 +111,11 @@ def create_app():
     def favorites_page():
         member_id = request.args.get("member_id")
         return render_template("favorites.html", member_id=member_id)
+    
+    @app.route("/analysis")
+    def analysis_page():
+        member_id = request.args.get("member_id")
+        return render_template("analysis.html", member_id=member_id)
 
     start_scheduler()  # 啟動排程
     return app

@@ -601,12 +601,50 @@
             e.preventDefault();
             const svg = this.querySelector('.heart-svg');
             const path = svg.querySelector('.heart-path');
+            const activityId = this.closest('.activity-card').querySelector('a').href.split('id=')[1].split('&')[0];
+
             if (path.getAttribute('fill') === 'none' || !path.getAttribute('fill')) {
-              path.setAttribute('fill', '#f8a9b3');
-              path.setAttribute('stroke', '#f8a9b3');
+              // 填滿心形，發送新增請求
+              fetch(`/api/activities/favorite`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  member_id: memberId,
+                  activity_id: activityId,
+                }),
+              })
+                .then((response) => {
+                  if (response.ok) {
+                    path.setAttribute('fill', '#f8a9b3');
+                    path.setAttribute('stroke', '#f8a9b3');
+                  } else {
+                    alert('加入收藏失敗');
+                  }
+                })
+                .catch(() => alert('加入收藏失敗'));
             } else {
-              path.setAttribute('fill', 'none');
-              path.setAttribute('stroke', '#f8a9b3');
+              // 清空心形，發送刪除請求
+              fetch(`/api/activities/favorite`, {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  member_id: memberId,
+                  activity_id: activityId,
+                }),
+              })
+                .then((response) => {
+                  if (response.ok) {
+                    path.setAttribute('fill', 'none');
+                    path.setAttribute('stroke', '#f8a9b3');
+                  } else {
+                    alert('移除收藏失敗');
+                  }
+                })
+                .catch(() => alert('移除收藏失敗'));
             }
           });
         });

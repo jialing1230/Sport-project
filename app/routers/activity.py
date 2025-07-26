@@ -372,7 +372,7 @@ def list_joined_activities():
                 "venue_fee": float(a.venue_fee) if a.venue_fee else None,
                 "type": a.type,
                 "organizer": {
-                    "name": a.organizer.name if a.organizer else "未知"
+                "name": a.organizer.name if a.organizer else "未知"
                 }
             })
     return jsonify(result), 200
@@ -530,7 +530,8 @@ def join_activity():
         join = ActivityJoin(
             member_id=member_id,
             activity_id=activity_id,
-            status="pending"
+            status="pending",
+            is_checked_in=False
         )
         db.add(join)
         db.commit()

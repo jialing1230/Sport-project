@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, ForeignKey, DateTime, String
+from sqlalchemy import Column, Integer, ForeignKey, DateTime, String, Boolean
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -10,6 +10,7 @@ class ActivityJoin(Base):
     activity_id = Column(Integer, ForeignKey("activities.activity_id"))
     join_time = Column(DateTime)
     status = Column(String(50))
+    is_checked_in = Column(Boolean, nullable=True)
 
     member = relationship("Member", back_populates="activity_joins")
     activity = relationship("Activity", back_populates="joins")

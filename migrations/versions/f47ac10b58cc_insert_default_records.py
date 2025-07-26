@@ -233,6 +233,7 @@ def upgrade() -> None:
                 activity_id=activities[i - 1].activity_id,
                 join_time=now,
                 status="joined",
+                is_checked_in=False,
             )
         )
 
@@ -244,6 +245,7 @@ def upgrade() -> None:
                 activity_id=activities[(i - 6) % 5].activity_id,
                 join_time=now,
                 status="pending",
+                is_checked_in=False,
             )
         )
         
@@ -402,6 +404,7 @@ def upgrade() -> None:
                 activity_id=past_activity.activity_id,
                 join_time=now - timedelta(days=1),
                 status="joined",
+                is_checked_in=True,
             )
         )
         next_join_id += 1

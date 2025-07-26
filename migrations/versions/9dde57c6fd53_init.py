@@ -110,7 +110,6 @@ def upgrade() -> None:
     sa.Column('reviewer_id', sa.String(length=36), nullable=True),
     sa.Column('target_member_id', sa.String(length=36), nullable=True),
     sa.Column('rating', sa.Integer(), nullable=True),
-    sa.Column('comment', sa.Text(), nullable=True),
     sa.Column('created_time', sa.DateTime(), nullable=True),
     sa.Column('activity_id', sa.Integer(), sa.ForeignKey('activities.activity_id'), nullable=True),
     sa.Column('template_ids', sa.JSON, nullable=True),
@@ -199,6 +198,17 @@ def upgrade() -> None:
         sa.Column('type', sa.String(length=50), nullable=False),
         sa.Column('text', sa.String(length=255), nullable=False),
     )
+    op.create_table(
+        'activity_favorite',
+        sa.Column('id', sa.Integer(), primary_key=True, autoincrement=True),
+        sa.Column('member_id', sa.String(length=36), nullable=True),
+        sa.Column('activity_id', sa.Integer(), nullable=False),
+        sa.Column('created_at', sa.DateTime(), nullable=False, default=sa.func.now()),
+        sa.ForeignKeyConstraint(['member_id'], ['members.member_id']),
+        sa.ForeignKeyConstraint(['activity_id'], ['activities.activity_id']),
+        sa.UniqueConstraint('member_id', 'activity_id', name='uq_member_activity')
+    )
+    op.create_index('ix_activity_favorite_id', 'activity_favorite', ['id'], unique=False)
     # ### end Alembic commands ###
 
 
@@ -230,5 +240,6 @@ def downgrade() -> None:
     op.drop_index('ix_course_schedule_activity_id', table_name='course_schedule')
     op.drop_table('course_schedule')
     op.drop_table('review_templates')
-
+    op.drop_index('ix_activity_favorite_id', table_name='activity_favorite')
+    op.drop_table('activity_favorite')
     # ### end Alembic commands ###

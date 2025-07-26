@@ -26,4 +26,5 @@ __all__ = [
     "PreferenceTime",
     "CourseSchedule",
     "ReviewTemplate",
+    "ActivityFavorite"
 ]

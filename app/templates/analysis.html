@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <link rel="manifest" href="/static/manifest.json" />
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          .register("/static/service-worker.js")
+          .then(() => console.log("Service Worker Registered"))
+          .catch((error) =>
+            console.error("Service Worker Registration Failed:", error)
+          );
+      }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>運動分析</title>
+     <style>
+        * {
+        box-sizing: border-box;
+        font-family: 'Noto Sans TC', sans-serif;
+        margin: 0;
+        padding: 0;
+        }
+
+        .header {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 10px 30px;
+            background-color: #fff;
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            height: 70px;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-right: 12px;
+        }
+
+        .arrow-icon {
+            fill: #2c4975;
+            transition: fill 0.2s ease;
+        }
+
+        .back-button:hover .arrow-icon {
+            fill: #81d3e1;
+        }
+
+        .left-section {
+            position: relative;
+            z-index: 2;
+        }
+
+        .left-section svg {
+            width: 24px;
+            height: 24px;
+            fill: #81d3e1;
+            cursor: pointer;
+            transition: fill 0.3s ease;
+        }
+
+        .navbar-title {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            font-size: 20px;
+            color: #2c4975;
+        }
+
+        .navbar-title img {
+            height: 28px;
+            margin-right: 10px;
+        }
+
+        @media (max-width: 480px) {
+            .navbar-title {
+                font-size: 18px;
+            }
+        }
+
+        .summary {
+            display: flex;
+            justify-content: space-around;
+            background-color: #f8a9b3;
+            padding: 16px;
+            border-radius: 12px;
+            margin: 20px 40px;
+        }
+
+        .summary-item {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+
+        .summary-item .number {
+            font-size: 40px;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+        }
+
+        .summary-item .label {
+            font-size: 14px;
+            color: white;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .summary-item:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+            width: 2px;
+            height: 90%;
+            background-color: white; /* 白色直線 */
+            opacity: 1;
+        }
+        .summary-divider {
+            border: none;
+            height: 2px;
+            background-color: #81d3e1;
+            margin: 0 32px 20px;
+            border-radius: 4px;
+            opacity: 0.6;
+        }
+    </style>
+    </head>
+    <body>
+        <div class="header">
+            <div class="left-section">
+                <svg
+                id="back-button"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+                >
+                <path
+                    d="M15 19l-7-7 7-7"
+                    stroke="#81d3e1"
+                    stroke-width="2"
+                    fill="none"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                ></path>
+                <path
+                    d="M8 12h14"
+                    stroke="#81d3e1"
+                    stroke-width="2"
+                    fill="none"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                ></path>
+                </svg>
+            </div>
+            <div class="navbar-title">
+                <img src="/static/logo.png" alt="Logo" />
+                運動分析
+            </div>
+        </div>
+        <div class="summary">
+            <div class="summary-item">
+                <div class="label">連續運動<br>
+                <div class="number">40</div>天</div>
+            </div>
+            <div class="summary-item">
+                <div class="label">累積時數<br>
+                <div class="number">57.3</div>小時</div>
+            </div>
+            <div class="summary-item">
+                <div class="label">最常參與 - 跑步<br>
+                <div class="number">18</div>次</div>
+            </div>
+        </div>
+        <hr class="summary-divider" />
+        <script>
+            document.getElementById("back-button").onclick = () => {
+                history.back(); // 或者使用 location.href = 'member.html';
+            };
+        </script>
+    </body>
+</html>

@@ -9,7 +9,7 @@ class ActivityFavorite(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     member_id = Column(String(36), ForeignKey('members.member_id'), nullable=False)
-    activity_id = Column(Integer, ForeignKey('activity.id'), nullable=False)
+    activity_id = Column(Integer, ForeignKey('activities.activity_id'), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     __table_args__ = (

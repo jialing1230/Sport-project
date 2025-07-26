@@ -1,8 +1,8 @@
 from sqlalchemy import Column, Integer, DateTime, ForeignKey, UniqueConstraint, String
-from sqlalchemy.ext.declarative import declarative_base
+from app.database import Base
+from sqlalchemy.orm import relationship
 from datetime import datetime
 
-Base = declarative_base()
 
 class ActivityFavorite(Base):
     __tablename__ = 'activity_favorite'
@@ -15,3 +15,6 @@ class ActivityFavorite(Base):
     __table_args__ = (
         UniqueConstraint('member_id', 'activity_id', name='uq_member_activity'),
     )
+
+    member = relationship("Member", back_populates="activity_favorites")
+    activity = relationship("Activity", back_populates="favorites")

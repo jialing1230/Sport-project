@@ -594,6 +594,7 @@
           container.appendChild(card);
         });
 
+  
         // 加入愛心點擊切換事件
         document.querySelectorAll('.heart-icon').forEach(function(heart) {
           heart.addEventListener('click', function(e) {
@@ -790,6 +791,64 @@
             else if (index === 3) goToProfile();
           }, 300);
         });
+      });
+
+      document.addEventListener('DOMContentLoaded', function() {
+        let activityIds = [];
+
+        fetch(`/api/activities/favorite/list?member_id=${memberId}`)
+          .then(response => response.json())
+          .then(ids => {
+            activityIds = ids;
+            console.log('收藏的活動 ID 列表:', activityIds);
+            document.querySelectorAll('.activity-card').forEach(function(card) {
+              const activityId = parseInt(card.querySelector('a').href.split('id=')[1].split('&')[0], 10);
+              console.log('卡片活動 ID:', activityId);
+              const heartIcon = card.querySelector('.heart-icon');
+              const svg = heartIcon.querySelector('.heart-svg');
+              const path = svg.querySelector('.heart-path');
+
+              if (!path) {
+                console.error('心形 path 元素未找到');
+                return;
+              }
+
+              // 如果該活動已收藏，設置心形為填滿狀態
+              if (activityIds.includes(activityId)) {
+                path.setAttribute('fill', '#f8a9b3');
+                path.setAttribute('stroke', '#f8a9b3');
+              } else {
+                path.setAttribute('fill', 'none');
+                path.setAttribute('stroke', '#f8a9b3');
+              }
+            });
+          })
+          .catch(() => console.error('無法獲取收藏列表'));
+
+        // 確保活動卡片渲染完成後更新心形狀態
+        const observer = new MutationObserver(() => {
+          document.querySelectorAll('.activity-card').forEach(function(card) {
+            const activityId = parseInt(card.querySelector('a').href.split('id=')[1].split('&')[0], 10);
+            const heartIcon = card.querySelector('.heart-icon');
+            const svg = heartIcon.querySelector('.heart-svg');
+            const path = svg.querySelector('.heart-path');
+
+            if (!path) {
+              console.error('心形 path 元素未找到');
+              return;
+            }
+
+            if (activityIds.includes(activityId)) {
+              path.setAttribute('fill', '#f8a9b3');
+              path.setAttribute('stroke', '#f8a9b3');
+            } else {
+              path.setAttribute('fill', 'none');
+              path.setAttribute('stroke', '#f8a9b3');
+            }
+          });
+        });
+
+        observer.observe(document.getElementById('activityList'), { childList: true });
       });
     </script>
   </body>

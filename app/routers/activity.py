@@ -633,3 +633,15 @@ def remove_favorite():
     except Exception as e:
         return jsonify({"error": f"伺服器錯誤: {str(e)}"}), 500
 
+@activity_bp.route("/favorite/list", methods=["GET"])
+def get_favorite_activities():
+    member_id = request.args.get("member_id")
+    if not member_id:
+        return jsonify({"error": "缺少 member_id"}), 400
+
+    with get_db() as db:
+        favorites = db.query(ActivityFavorite.activity_id).filter(ActivityFavorite.member_id == member_id).all()
+        activity_ids = [favorite.activity_id for favorite in favorites]
+
+    return jsonify(activity_ids), 200
+

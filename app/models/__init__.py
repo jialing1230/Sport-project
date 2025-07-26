@@ -11,6 +11,7 @@ from .time_option import TimeOption
 from .preference_time import PreferenceTime
 from .course_schedul import CourseSchedule
 from .review_template import ReviewTemplate
+from .activity_favorite import ActivityFavorite
 
 __all__ = [
     "PreferenceSport",

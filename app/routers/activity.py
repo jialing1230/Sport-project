@@ -6,6 +6,7 @@ from app.models.sport_type import SportType
 from app.models.activity_join import ActivityJoin 
 from app.models.course_schedul import CourseSchedule
 from app.models.member import Member
+from app.models.activity_favorite import ActivityFavorite
 
 
 
@@ -583,4 +584,64 @@ def get_past_activities():
                 }
 
         return jsonify(list(unique_activities.values())), 200
+
+@activity_bp.route("/favorite", methods=["POST"])
+def add_favorite():
+    try:
+        data = request.get_json()
+        member_id = data.get("member_id")
+        activity_id = data.get("activity_id")
+
+        if not member_id or not activity_id:
+            return jsonify({"error": "缺少必要參數", "details": {"member_id": member_id, "activity_id": activity_id}}), 400
+
+        with get_db() as db:
+            # 檢查是否已存在
+            existing_favorite = db.query(ActivityFavorite).filter_by(member_id=member_id, activity_id=activity_id).first()
+            if existing_favorite:
+                return jsonify({"error": "已收藏"}), 400
+
+            # 新增收藏，強制設置 created_at 為 datetime.now()
+            favorite = ActivityFavorite(member_id=member_id, activity_id=activity_id, created_at=datetime.now())
+            db.add(favorite)
+            db.commit()
+
+        return jsonify({"message": "收藏成功"}), 201
+    except Exception as e:
+        return jsonify({"error": f"伺服器錯誤: {str(e)}"}), 500
+
+@activity_bp.route("/favorite", methods=["DELETE"])
+def remove_favorite():
+    try:
+        data = request.get_json()
+        member_id = data.get("member_id")
+        activity_id = data.get("activity_id")
+
+        if not member_id or not activity_id:
+            return jsonify({"error": "缺少必要參數"}), 400
+
+        with get_db() as db:
+            # 刪除收藏
+            favorite = db.query(ActivityFavorite).filter_by(member_id=member_id, activity_id=activity_id).first()
+            if not favorite:
+                return jsonify({"error": "收藏不存在"}), 404
+
+            db.delete(favorite)
+            db.commit()
+
+        return jsonify({"message": "移除收藏成功"}), 200
+    except Exception as e:
+        return jsonify({"error": f"伺服器錯誤: {str(e)}"}), 500
+
+@activity_bp.route("/favorite/list", methods=["GET"])
+def get_favorite_activities():
+    member_id = request.args.get("member_id")
+    if not member_id:
+        return jsonify({"error": "缺少 member_id"}), 400
+
+    with get_db() as db:
+        favorites = db.query(ActivityFavorite.activity_id).filter(ActivityFavorite.member_id == member_id).all()
+        activity_ids = [favorite.activity_id for favorite in favorites]
+
+    return jsonify(activity_ids), 200
 

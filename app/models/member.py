@@ -34,3 +34,4 @@ class Member(Base):
         back_populates="target_member",
     )
     exercise_records = relationship("ExerciseRecord", back_populates="member")
+    activity_favorites = relationship("ActivityFavorite", back_populates="member")

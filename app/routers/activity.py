@@ -296,6 +296,8 @@ def get_activity_details():
         if not activity:
             return jsonify({"error": "活動不存在"}), 404
 
+        organizer = db.query(Member).filter(Member.member_id == activity.organizer_id).first()
+
         response = {
             "activity_id": activity.activity_id,
             "title": activity.title,
@@ -308,7 +310,9 @@ def get_activity_details():
             "location_lng": activity.location_lng,
             "max_participants": activity.max_participants,
             "current_participants": activity.current_participants,
-            "organizer_id": activity.organizer_id,
+            "organizer": {
+                "name": organizer.name if organizer else "未知"
+            },
             "level": activity.level,
             "sport_type_id": activity.sport_type_id,
             "description": activity.description,

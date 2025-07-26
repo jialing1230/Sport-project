@@ -456,7 +456,7 @@
 
     <script>
       document.getElementById("back-button").onclick = () => {
-        location.href = `/api/activities/overview?member_id=${memberId}`;
+        history.back();
       };
 
       const urlParams = new URLSearchParams(window.location.search);

@@ -217,129 +217,67 @@
             </div>
         </div>
         <div class="favorite-list">
-            <!-- 卡片 1 -->
-            <div class="activity-card">
-            <div class="activity-title-row">
-                <div class="activity-title">羽球快打練習</div>
-                <span class="status-badge">開放報名</span>
             </div>
-            <div class="activity-info">羽球 | 初學 | 由 小明 發起</div>
-            <div style="width: 100%; height: 1.5px; background: #81d3e1; border-radius: 1px; margin: 10px 0;"></div>
-            <div class="activity-info">📍 台北市大安運動中心</div>
-            <div class="activity-info">🕒 2025/08/10（日）14:00 - 16:00</div>
-            <div class="activity-info" style="display: flex; justify-content: space-between;">
-                <div>💲100 元｜<span class="activity-type-label training-course">訓練課程</span></div>
-                <span class="heart-icon">
-                <svg class="heart-svg" viewBox="0 0 24 24">
-                    <path class="heart-path" d="M12 21.35l-1.45-1.32C5.4 15.36...Z"/>
-                </svg>
-                </span>
-            </div>
-            </div>
-
-            <!-- 卡片 2 -->
-            <div class="activity-card">
-            <div class="activity-title-row">
-                <div class="activity-title">桌球切磋時間</div>
-                <span class="status-badge" style="background: #81d3e1;">額滿候補</span>
-            </div>
-            <div class="activity-info">桌球 | 中階 | 由 小美 發起</div>
-            <div style="width: 100%; height: 1.5px; background: #81d3e1; border-radius: 1px; margin: 10px 0;"></div>
-            <div class="activity-info">📍 新北市板橋運動中心</div>
-            <div class="activity-info">🕒 2025/08/12（二）19:00 - 21:00</div>
-            <div class="activity-info" style="display: flex; justify-content: space-between;">
-                <div>💲免費｜<span class="activity-type-label">一般活動</span></div>
-                <span class="heart-icon">
-                <svg class="heart-svg" viewBox="0 0 24 24">
-                    <path class="heart-path" d="M12 21.35l-1.45-1.32C5.4 15.36...Z"/>
-                </svg>
-                </span>
-            </div>
-            </div>
-
-            <!-- 卡片 3 -->
-            <div class="activity-card">
-            <div class="activity-title-row">
-                <div class="activity-title">跑步訓練營</div>
-                <span class="status-badge">開放報名</span>
-            </div>
-            <div class="activity-info">跑步 | 高階 | 由 老王 發起</div>
-            <div style="width: 100%; height: 1.5px; background: #81d3e1; border-radius: 1px; margin: 10px 0;"></div>
-            <div class="activity-info">📍 台中市中央公園</div>
-            <div class="activity-info">🕒 2025/08/15（五）18:30 - 20:00</div>
-            <div class="activity-info" style="display: flex; justify-content: space-between;">
-                <div>💲150 元｜<span class="activity-type-label training-course">訓練課程</span></div>
-                <span class="heart-icon">
-                <svg class="heart-svg" viewBox="0 0 24 24">
-                    <path class="heart-path" d="M12 21.35l-1.45-1.32C5.4 15.36...Z"/>
-                </svg>
-                </span>
-            </div>
-            </div>
-        </div>
-
 
         <script>
             document.getElementById("back-button").onclick = () => {
             history.back(); // 或者使用 location.href = 'member.html';
             };
 
-            const favoriteActivities = [
-                {
-                    id: 1,
-                    title: "羽球快打練習",
-                    status: "開放報名",
-                    sport: "羽球",
-                    level: "初學",
-                    organizer: "小明",
-                    location: "台北市大安運動中心",
-                    time: "2025/08/10（日）14:00 - 16:00",
-                    fee: 100,
-                    type: "訓練課程"
-                },
-                // ... 更多活動資料
-                ];
+        </script>
+        <script>
+          const memberId = new URLSearchParams(window.location.search).get("member_id");
 
-                function renderFavorites(data) {
-                const container = document.getElementById("favoriteList");
-                container.innerHTML = "";
-                data.forEach(act => {
+          if (memberId) {
+            fetch(`/api/activities/favorite/list?member_id=${memberId}`)
+              .then(response => response.json())
+              .then(activityIds => {
+                console.log("已收藏的活動 ID:", activityIds);
+
+                const activityDetailsPromises = activityIds.map(activityId => {
+                  return fetch(`/api/activities/details?activity_id=${activityId}`)
+                    .then(response => response.json())
+                    .catch(error => {
+                      console.error(`無法獲取活動 ID ${activityId} 的詳細資料:`, error);
+                      return null;
+                    });
+                });
+
+                Promise.all(activityDetailsPromises).then(activityDetails => {
+                  const container = document.querySelector(".favorite-list");
+                  container.innerHTML = "";
+
+                  activityDetails.forEach(details => {
+                    if (!details) return;
+
                     const card = document.createElement("div");
                     card.className = "activity-card";
                     card.innerHTML = `
-                    <a href="/api/activities/details_page?id=${act.id}" style="text-decoration: none; color: inherit; display: block; position: relative;">
+                      <a href="/api/activities/details_page?id=${details.activity_id}" style="text-decoration: none; color: inherit; display: block; position: relative;">
                         <div class="activity-title-row">
-                        <div class="activity-title">${act.title}</div>
-                        <span class="status-badge" style="background: ${act.status === '開放報名' ? '#f8a9b3' : '#81d3e1'}">${act.status}</span>
+                          <div class="activity-title">${details.title}</div>
+                          <span class="status-badge" style="background: ${details.status === 'open' ? '#f8a9b3' : details.status === 'close' ? '#d3d3d3' : '#81d3e1'}">${details.status === 'open' ? '開放報名' : details.status === 'close' ? '已結束' : '進行中'}</span>
                         </div>
-                        <div class="activity-info">${act.sport} | ${act.level} | 由 ${act.organizer} 發起</div>
-                        <div style="width: 100%; height: 1.5px; background: #81d3e1; border-radius: 1px; margin: 10px 0 15px 0;"></div>
-                        <div class="activity-info" style="display: flex; align-items: center;">
-                        <svg class="location-icon" width="20" height="20">...</svg>
-                        <span class="value">　${act.location}</span>
-                        </div>
-                        <div class="activity-info" style="display: flex; align-items: center;">
-                        <svg class="clock-icon" width="20" height="20">...</svg>
-                        <span class="value">　${act.time}</span>
-                        </div>
-                        <div class="activity-info" style="display: flex; align-items: center; justify-content: space-between;">
-                        <div style="display: flex; align-items: center;">
-                            <svg class="dollar-icon" width="20" height="20">...</svg>
-                            <span class="value">${act.fee > 0 ? act.fee + ' 元' : '免費'}｜<span class="activity-type-label training-course">${act.type}</span></span>
-                        </div>
-                        <span class="heart-icon">
-                            <svg class="heart-svg" width="24" height="24">
-                            <path class="heart-path" d="M12 21.35l-1.45-1.32C5.4 15.36...Z" fill="#f8a9b3" stroke="#f8a9b3"/>
+                        <div class="activity-info">${details.sport_name} | ${details.level} | 由 ${details.organizer.name} 發起</div>
+                        <div style="width: 100%; height: 1.5px; background: #81d3e1; border-radius: 1px; margin: 10px 0;"></div>
+                        <div class="activity-info">📍 ${details.location_name}</div>
+                        <div class="activity-info">🕒 ${new Date(details.start_time).toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' })} (${new Date(details.start_time).toLocaleDateString('zh-TW', { weekday: 'narrow' })}) ${new Date(details.start_time).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false })}-${new Date(details.end_time).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false })}</div>
+                        <div class="activity-info" style="display: flex; justify-content: space-between;">
+                          <div>💲${details.venue_fee > 0 ? details.venue_fee + ' 元' : '免費'}｜<span class="activity-type-label ${details.type === 'class' || details.type === 'muti_class' ? 'training-course' : ''}" style="background: ${details.type === 'class' || details.type === 'muti_class' ? '#2c4975' : '#fff'}; color: ${details.type === 'class' || details.type === 'muti_class' ? '#fff' : '#2c4975'};">${details.type === 'class' || details.type === 'muti_class' ? '訓練課程' : '一般活動'}</span></div>
+                          <span class="heart-icon">
+                            <svg class="heart-svg" viewBox="0 0 24 24">
+                              <path class="heart-path" d="M12 21.35l-1.45-1.32C5.4 15.36...Z" fill="#f8a9b3" stroke="#f8a9b3"/>
                             </svg>
-                        </span>
+                          </span>
                         </div>
-                    </a>
+                      </a>
                     `;
                     container.appendChild(card);
+                  });
                 });
-                }
-
-                renderFavorites(favoriteActivities);
+              })
+              .catch(error => console.error("無法獲取收藏列表:", error));
+          }
         </script>
     </body>
 </html>

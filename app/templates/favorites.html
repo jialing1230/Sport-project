@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <link rel="manifest" href="/static/manifest.json" />
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          .register("/static/service-worker.js")
+          .then(() => console.log("Service Worker Registered"))
+          .catch((error) =>
+            console.error("Service Worker Registration Failed:", error)
+          );
+      }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>我的收藏</title>
+     <style>
+        * {
+        box-sizing: border-box;
+        font-family: 'Noto Sans TC', sans-serif;
+        margin: 0;
+        padding: 0;
+        }
+
+        .header {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 10px 30px;
+            background-color: #fff;
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            height: 70px;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-right: 12px;
+        }
+
+        .arrow-icon {
+            fill: #2c4975;
+            transition: fill 0.2s ease;
+        }
+
+        .back-button:hover .arrow-icon {
+            fill: #81d3e1;
+        }
+
+        .left-section {
+            position: relative;
+            z-index: 2;
+        }
+
+        .left-section svg {
+            width: 24px;
+            height: 24px;
+            fill: #81d3e1;
+            cursor: pointer;
+            transition: fill 0.3s ease;
+        }
+
+        .navbar-title {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            font-size: 20px;
+            color: #2c4975;
+        }
+
+        .navbar-title img {
+            height: 28px;
+            margin-right: 10px;
+        }
+
+        @media (max-width: 480px) {
+            .navbar-title {
+                font-size: 18px;
+            }
+        }
+
+        .favorite-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 一排三張 */
+            gap: 20px;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        @media (max-width: 900px) {
+            .favorite-list {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .favorite-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .activity-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .activity-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+        }
+        .activity-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+        }
+        .activity-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin: 0;
+            line-height: 1.2;
+            flex: 1 1 0;
+        }
+        .status-badge {
+            font-size: 16px;
+            padding: 2px 32px;
+            border-radius: 10px;
+            font-weight: bold;
+            color: white;
+            background: #f8a9b3; /* 或 #81d3e1 */
+            margin-left: 10px;
+            line-height: 1.2;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .activity-info {
+            font-size: 14px;
+            margin: 4px 0;
+            color: #444;
+        }
+        .activity-type-label {
+            display: inline-block;
+            border-radius: 8px;
+            padding: 2px 10px;
+            font-size: 14px;
+            font-weight: bold;
+            border: 1.5px solid #2c4975;
+            color: #2c4975;
+            background: #fff;
+        }
+        .activity-type-label.training-course {
+            background: #2c4975;
+            color: #fff;
+            border: 1.5px solid #2c4975;
+        }
+        .heart-icon {
+            display: inline-block;
+            cursor: pointer;
+            vertical-align: middle;
+        }
+        .heart-svg {
+            width: 24px;
+            height: 24px;
+        }
+        .heart-path {
+            stroke: #f8a9b3;
+            stroke-width: 2;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+    </style>
+  </head>
+    <body>
+        <div class="header">
+            <div class="left-section">
+                <svg
+                id="back-button"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+                >
+                <path
+                    d="M15 19l-7-7 7-7"
+                    stroke="#81d3e1"
+                    stroke-width="2"
+                    fill="none"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                ></path>
+                <path
+                    d="M8 12h14"
+                    stroke="#81d3e1"
+                    stroke-width="2"
+                    fill="none"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                ></path>
+                </svg>
+            </div>
+            <div class="navbar-title">
+                <img src="/static/logo.png" alt="Logo" />
+                我的收藏
+            </div>
+        </div>
+        <div class="favorite-list">
+            <!-- 卡片 1 -->
+            <div class="activity-card">
+            <div class="activity-title-row">
+                <div class="activity-title">羽球快打練習</div>
+                <span class="status-badge">開放報名</span>
+            </div>
+            <div class="activity-info">羽球 | 初學 | 由 小明 發起</div>
+            <div style="width: 100%; height: 1.5px; background: #81d3e1; border-radius: 1px; margin: 10px 0;"></div>
+            <div class="activity-info">📍 台北市大安運動中心</div>
+            <div class="activity-info">🕒 2025/08/10（日）14:00 - 16:00</div>
+            <div class="activity-info" style="display: flex; justify-content: space-between;">
+                <div>💲100 元｜<span class="activity-type-label training-course">訓練課程</span></div>
+                <span class="heart-icon">
+                <svg class="heart-svg" viewBox="0 0 24 24">
+                    <path class="heart-path" d="M12 21.35l-1.45-1.32C5.4 15.36...Z"/>
+                </svg>
+                </span>
+            </div>
+            </div>
+
+            <!-- 卡片 2 -->
+            <div class="activity-card">
+            <div class="activity-title-row">
+                <div class="activity-title">桌球切磋時間</div>
+                <span class="status-badge" style="background: #81d3e1;">額滿候補</span>
+            </div>
+            <div class="activity-info">桌球 | 中階 | 由 小美 發起</div>
+            <div style="width: 100%; height: 1.5px; background: #81d3e1; border-radius: 1px; margin: 10px 0;"></div>
+            <div class="activity-info">📍 新北市板橋運動中心</div>
+            <div class="activity-info">🕒 2025/08/12（二）19:00 - 21:00</div>
+            <div class="activity-info" style="display: flex; justify-content: space-between;">
+                <div>💲免費｜<span class="activity-type-label">一般活動</span></div>
+                <span class="heart-icon">
+                <svg class="heart-svg" viewBox="0 0 24 24">
+                    <path class="heart-path" d="M12 21.35l-1.45-1.32C5.4 15.36...Z"/>
+                </svg>
+                </span>
+            </div>
+            </div>
+
+            <!-- 卡片 3 -->
+            <div class="activity-card">
+            <div class="activity-title-row">
+                <div class="activity-title">跑步訓練營</div>
+                <span class="status-badge">開放報名</span>
+            </div>
+            <div class="activity-info">跑步 | 高階 | 由 老王 發起</div>
+            <div style="width: 100%; height: 1.5px; background: #81d3e1; border-radius: 1px; margin: 10px 0;"></div>
+            <div class="activity-info">📍 台中市中央公園</div>
+            <div class="activity-info">🕒 2025/08/15（五）18:30 - 20:00</div>
+            <div class="activity-info" style="display: flex; justify-content: space-between;">
+                <div>💲150 元｜<span class="activity-type-label training-course">訓練課程</span></div>
+                <span class="heart-icon">
+                <svg class="heart-svg" viewBox="0 0 24 24">
+                    <path class="heart-path" d="M12 21.35l-1.45-1.32C5.4 15.36...Z"/>
+                </svg>
+                </span>
+            </div>
+            </div>
+        </div>
+
+
+        <script>
+            document.getElementById("back-button").onclick = () => {
+            history.back(); // 或者使用 location.href = 'member.html';
+            };
+
+            const favoriteActivities = [
+                {
+                    id: 1,
+                    title: "羽球快打練習",
+                    status: "開放報名",
+                    sport: "羽球",
+                    level: "初學",
+                    organizer: "小明",
+                    location: "台北市大安運動中心",
+                    time: "2025/08/10（日）14:00 - 16:00",
+                    fee: 100,
+                    type: "訓練課程"
+                },
+                // ... 更多活動資料
+                ];
+
+                function renderFavorites(data) {
+                const container = document.getElementById("favoriteList");
+                container.innerHTML = "";
+                data.forEach(act => {
+                    const card = document.createElement("div");
+                    card.className = "activity-card";
+                    card.innerHTML = `
+                    <a href="/api/activities/details_page?id=${act.id}" style="text-decoration: none; color: inherit; display: block; position: relative;">
+                        <div class="activity-title-row">
+                        <div class="activity-title">${act.title}</div>
+                        <span class="status-badge" style="background: ${act.status === '開放報名' ? '#f8a9b3' : '#81d3e1'}">${act.status}</span>
+                        </div>
+                        <div class="activity-info">${act.sport} | ${act.level} | 由 ${act.organizer} 發起</div>
+                        <div style="width: 100%; height: 1.5px; background: #81d3e1; border-radius: 1px; margin: 10px 0 15px 0;"></div>
+                        <div class="activity-info" style="display: flex; align-items: center;">
+                        <svg class="location-icon" width="20" height="20">...</svg>
+                        <span class="value">　${act.location}</span>
+                        </div>
+                        <div class="activity-info" style="display: flex; align-items: center;">
+                        <svg class="clock-icon" width="20" height="20">...</svg>
+                        <span class="value">　${act.time}</span>
+                        </div>
+                        <div class="activity-info" style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center;">
+                            <svg class="dollar-icon" width="20" height="20">...</svg>
+                            <span class="value">${act.fee > 0 ? act.fee + ' 元' : '免費'}｜<span class="activity-type-label training-course">${act.type}</span></span>
+                        </div>
+                        <span class="heart-icon">
+                            <svg class="heart-svg" width="24" height="24">
+                            <path class="heart-path" d="M12 21.35l-1.45-1.32C5.4 15.36...Z" fill="#f8a9b3" stroke="#f8a9b3"/>
+                            </svg>
+                        </span>
+                        </div>
+                    </a>
+                    `;
+                    container.appendChild(card);
+                });
+                }
+
+                renderFavorites(favoriteActivities);
+        </script>
+    </body>
+</html>

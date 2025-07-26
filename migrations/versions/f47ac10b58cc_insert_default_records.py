@@ -10,6 +10,7 @@ import random
 import string
 from datetime import datetime, date, timedelta
 from typing import Sequence, Union
+import json
 
 from alembic import op
 from sqlalchemy.orm import Session
@@ -140,6 +141,43 @@ def upgrade() -> None:
     session.add_all(activities)
     session.flush()
 
+    # 插入4筆活動時間為過去的資料
+    k = 1
+    past_activities = []
+    for i in range(6, 10):
+        name, lat, lng = location_data[(i - 6) % len(location_data)]
+
+        activity_start = now - timedelta(days=i)
+        activity_end = activity_start + timedelta(hours=1)
+        a = Activity(
+            activity_id=i,
+            title=f"Past Activity{i}",
+            type="activity",
+            start_time=activity_start,
+            end_time=activity_end,
+            location_name=name,
+            location_lat=lat,
+            location_lng=lng,
+            max_participants=5 + i,
+            current_participants=2,
+            organizer_id=members[k - 1].member_id,
+            level="中階" if i % 2 == 0 else "高階",
+            sport_type_id=sport_types[(i - 6) % len(sport_types)].sport_type_id,
+            description=f"Description for Past Activity{i}",
+            status="closed",
+            created_at=activity_start - timedelta(days=1),
+            has_review=True,
+            target_identity="不限",
+            gender="不限",
+            age_range="20-30",
+            venue_fee=500.00,
+            registration_deadline=activity_start - timedelta(days=2),
+        )
+        past_activities.append(a)
+        k += 1
+    session.add_all(past_activities)
+    session.flush()
+
     prefs = []
     for i in range(1, 6):
         pref = SportPreference(
@@ -195,6 +233,7 @@ def upgrade() -> None:
                 activity_id=activities[i - 1].activity_id,
                 join_time=now,
                 status="joined",
+                is_checked_in=False,
             )
         )
 
@@ -206,6 +245,7 @@ def upgrade() -> None:
                 activity_id=activities[(i - 6) % 5].activity_id,
                 join_time=now,
                 status="pending",
+                is_checked_in=False,
             )
         )
         
@@ -320,6 +360,112 @@ def upgrade() -> None:
         VALUES (:type, :text)
         """),
         review_templates,
+    )
+
+    # 修正 activity_favorite 插入邏輯，使用 UUID
+    activity_favorites = [
+        {
+            "member_id": members[0].member_id,  # 使用第一位成員的 UUID
+            "activity_id": 4,
+            "created_at": now,
+        },
+        {
+            "member_id": members[1].member_id,  # 使用第二位成員的 UUID
+            "activity_id": 5,
+            "created_at": now,
+        },
+    ]
+    session.execute(
+        text("""
+        INSERT INTO activity_favorite (member_id, activity_id, created_at)
+        VALUES (:member_id, :activity_id, :created_at)
+        """),
+        activity_favorites,
+    )
+
+    # 更新過去活動的參加人，確保不與發起人相同
+    past_activity_joins = []
+    next_join_id = max(join.join_id for join in joins) + 1  # 確保 join_id 從最大值開始遞增
+
+    for past_activity in past_activities:
+        organizer_id = past_activity.organizer_id
+
+        # 選擇非發起人的成員作為參加人
+        participant_id = next(
+            member.member_id
+            for member in members
+            if member.member_id != organizer_id
+        )
+
+        past_activity_joins.append(
+            ActivityJoin(
+                join_id=next_join_id,
+                member_id=participant_id,
+                activity_id=past_activity.activity_id,
+                join_time=now - timedelta(days=1),
+                status="joined",
+                is_checked_in=True,
+            )
+        )
+        next_join_id += 1
+
+    session.add_all(past_activity_joins)
+    session.flush()
+
+    user_reviews = [
+        {
+            "review_id": 1,
+            "reviewer_id": members[1].member_id,
+            "target_member_id": members[0].member_id,
+            "rating": 4,
+            "created_time": now,
+            "activity_id": past_activities[0].activity_id,
+            "template_ids": json.dumps([16, 17]),
+        },
+        {
+            "review_id": 2,
+            "reviewer_id": members[0].member_id,
+            "target_member_id": members[1].member_id,
+            "rating": 5,
+            "created_time": now,
+            "activity_id": past_activities[1].activity_id,
+            "template_ids": json.dumps([22, 23]),
+        },
+    ]
+
+    session.execute(
+        text("""
+        INSERT INTO user_reviews (review_id, reviewer_id, target_member_id, rating, created_time, activity_id, template_ids)
+        VALUES (:review_id, :reviewer_id, :target_member_id, :rating, :created_time, :activity_id, :template_ids)
+        """),
+        user_reviews,
+    )
+
+    activity_reviews = [
+        {
+            "review_id": 1,
+            "activity_id": past_activities[0].activity_id,
+            "reviewer_id": members[1].member_id,
+            "rating": 4,
+            "template_ids": json.dumps([1, 2]),
+            "created_time": now,
+        },
+        {
+            "review_id": 2,
+            "activity_id": past_activities[1].activity_id,
+            "reviewer_id": members[0].member_id,
+            "rating": 5,
+            "template_ids": json.dumps([3, 4]),
+            "created_time": now,
+        },
+    ]
+
+    session.execute(
+        text("""
+        INSERT INTO activity_reviews (review_id, activity_id, reviewer_id, rating, created_time, template_ids)
+        VALUES (:review_id, :activity_id, :reviewer_id, :rating, :created_time, :template_ids)
+        """),
+        activity_reviews,
     )
 
     session.commit()

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, ForeignKey, Text, DateTime,String
+from sqlalchemy import Column, Integer, ForeignKey, DateTime,String
 from sqlalchemy.orm import relationship
 from app.database import Base
 from sqlalchemy.dialects.mysql import JSON
@@ -10,7 +10,6 @@ class UserReview(Base):
     reviewer_id = Column(String(36), ForeignKey("members.member_id"))
     target_member_id = Column(String(36), ForeignKey("members.member_id"))
     rating = Column(Integer)
-    comment = Column(Text)
     created_time = Column(DateTime)
     activity_id = Column(Integer, ForeignKey("activities.activity_id"), nullable=True)
     template_ids = Column(JSON, nullable=True)

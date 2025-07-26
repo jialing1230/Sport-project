@@ -441,16 +441,16 @@ def upgrade() -> None:
     activity_reviews = [
         {
             "review_id": 1,
-            "activity_id": activities[0].activity_id,
-            "reviewer_id": members[0].member_id,
+            "activity_id": past_activities[0].activity_id,
+            "reviewer_id": members[1].member_id,
             "rating": 4,
             "template_ids": json.dumps([1, 2]),
             "created_time": now,
         },
         {
             "review_id": 2,
-            "activity_id": activities[1].activity_id,
-            "reviewer_id": members[1].member_id,
+            "activity_id": past_activities[1].activity_id,
+            "reviewer_id": members[0].member_id,
             "rating": 5,
             "template_ids": json.dumps([3, 4]),
             "created_time": now,

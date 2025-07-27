@@ -221,7 +221,7 @@
 
         <script>
             document.getElementById("back-button").onclick = () => {
-            history.back(); // 或者使用 location.href = 'member.html';
+             window.location.href = `/member_view?member_id=${memberId}`;
             };
 
         </script>
@@ -253,7 +253,7 @@
                     const card = document.createElement("div");
                     card.className = "activity-card";
                     card.innerHTML = `
-                      <a href="/api/activities/details_page?id=${details.activity_id}" style="text-decoration: none; color: inherit; display: block; position: relative;">
+                      <a href="/api/activities/details_page?id=${details.activity_id}&member_id=${memberId}" style="text-decoration: none; color: inherit; display: block; position: relative;">
                         <div class="activity-title-row">
                           <div class="activity-title">${details.title}</div>
                           <span class="status-badge" style="background: ${details.status === 'open' ? '#f8a9b3' : details.status === 'close' ? '#d3d3d3' : '#81d3e1'}">${details.status === 'open' ? '開放報名' : details.status === 'close' ? '已結束' : '進行中'}</span>

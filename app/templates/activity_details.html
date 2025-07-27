@@ -372,6 +372,17 @@
         border-radius: 50%;
         display: block;
       }
+
+      .heart-icon {
+        cursor: pointer;
+        width: 24px;
+        height: 24px;
+        transition: transform 0.3s ease;
+      }
+
+      .heart-path {
+        transition: fill 0.3s ease, stroke 0.3s ease;
+      }
     </style>
   </head>
   <body>
@@ -398,41 +409,53 @@
           </svg>
       </div>
       <div class="right-section">
-        <svg 
+        <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 48 48"
           width="30"
-          height="30">
-            <path d="M24 30 V14"
-                  stroke="#1B3A6E"
-                  stroke-width="3"
-                  fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"></path>
-            <path d="M16 22 L24 14 L32 22"
-                  stroke="#1B3A6E"
-                  stroke-width="3"
-                  fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"></path>
-            <path d="M10 30 V36 A4 4 0 0 0 14 40 H34 A4 4 0 0 0 38 36 V30"
-                  stroke="#1B3A6E"
-                  stroke-width="3"
-                  fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"></path>
+          height="30"
+        >
+          <path
+            d="M24 30 V14"
+            stroke="#1B3A6E"
+            stroke-width="3"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          ></path>
+          <path
+            d="M16 22 L24 14 L32 22"
+            stroke="#1B3A6E"
+            stroke-width="3"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          ></path>
+          <path
+            d="M10 30 V36 A4 4 0 0 0 14 40 H34 A4 4 0 0 0 38 36 V30"
+            stroke="#1B3A6E"
+            stroke-width="3"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          ></path>
         </svg>
-        <svg 
+        <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
           width="24"
-          height="24">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-                  stroke= "#f8a9b3"
-                  stroke-width="2"
-                  fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"></path>
+          height="24"
+          class="heart-icon"
+        >
+          <path
+            class="heart-path"
+            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+            stroke="#f8a9b3"
+            stroke-width="2"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          ></path>
         </svg>
       </div>
     </div>
@@ -456,7 +479,12 @@
 
     <script>
       document.getElementById("back-button").onclick = () => {
-        history.back();
+        const referrer = document.referrer;
+        if (referrer) {
+          location.href = referrer;
+        } else {
+          alert("無法獲取上一頁的網址！");
+        }
       };
 
       const urlParams = new URLSearchParams(window.location.search);
@@ -738,6 +766,143 @@
             alert("審核失敗，請稍後再試");
           });
       }
+
+      document.querySelectorAll(".heart-icon").forEach(function (heart) {
+        heart.addEventListener("click", function (e) {
+          e.stopPropagation();
+          e.preventDefault();
+          const svg = this.querySelector(".heart-svg");
+          const path = svg.querySelector(".heart-path");
+          const activityId = this.closest(".activity-card")
+            .querySelector("a")
+            .href.split("id=")[1]
+            .split("&")[0];
+
+          if (
+            path.getAttribute("fill") === "none" ||
+            !path.getAttribute("fill")
+          ) {
+            // 填滿心形，發送新增請求
+            fetch(`/api/activities/favorite`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                member_id: memberId,
+                activity_id: activityId,
+              }),
+            })
+              .then((response) => {
+                if (response.ok) {
+                  path.setAttribute("fill", "#f8a9b3");
+                  path.setAttribute("stroke", "#f8a9b3");
+                } else {
+                  alert("加入收藏失敗");
+                }
+              })
+              .catch(() => alert("加入收藏失敗"));
+          } else {
+            // 清空心形，發送刪除請求
+            fetch(`/api/activities/favorite`, {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                member_id: memberId,
+                activity_id: activityId,
+              }),
+            })
+              .then((response) => {
+                if (response.ok) {
+                  path.setAttribute("fill", "none");
+                  path.setAttribute("stroke", "#f8a9b3");
+                } else {
+                  alert("移除收藏失敗");
+                }
+              })
+              .catch(() => alert("移除收藏失敗"));
+          }
+        });
+      });
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const heartIcon = document.querySelector(".heart-icon");
+        const path = heartIcon.querySelector(".heart-path");
+
+        fetch(`/api/activities/favorite/list?member_id=${memberId}`)
+          .then((response) => response.json())
+          .then((ids) => {
+            const activityId = urlParams.get("id");
+            if (!activityId) {
+              console.error("活動 ID 未找到");
+              return;
+            }
+
+            // 如果該活動已收藏，設置心形為填滿狀態
+            if (ids.includes(parseInt(activityId, 10))) {
+              path.setAttribute("fill", "#f8a9b3");
+              path.setAttribute("stroke", "#f8a9b3");
+            } else {
+              path.setAttribute("fill", "none");
+              path.setAttribute("stroke", "#f8a9b3");
+            }
+
+            heartIcon.addEventListener("click", function (e) {
+              e.stopPropagation();
+              e.preventDefault();
+
+              if (
+                path.getAttribute("fill") === "none" ||
+                !path.getAttribute("fill")
+              ) {
+                // 填滿心形，發送新增請求
+                fetch(`/api/activities/favorite`, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    member_id: memberId,
+                    activity_id: activityId,
+                  }),
+                })
+                  .then((response) => {
+                    if (response.ok) {
+                      path.setAttribute("fill", "#f8a9b3");
+                      path.setAttribute("stroke", "#f8a9b3");
+                    } else {
+                      alert("加入收藏失敗");
+                    }
+                  })
+                  .catch(() => alert("加入收藏失敗"));
+              } else {
+                // 清空心形，發送刪除請求
+                fetch(`/api/activities/favorite`, {
+                  method: "DELETE",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    member_id: memberId,
+                    activity_id: activityId,
+                  }),
+                })
+                  .then((response) => {
+                    if (response.ok) {
+                      path.setAttribute("fill", "none");
+                      path.setAttribute("stroke", "#f8a9b3");
+                    } else {
+                      alert("移除收藏失敗");
+                    }
+                  })
+                  .catch(() => alert("移除收藏失敗"));
+              }
+            });
+          })
+          .catch(() => console.error("無法獲取收藏列表"));
+      });
     </script>
   </body>
 </html>

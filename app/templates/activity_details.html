@@ -491,6 +491,8 @@
       const activityId = urlParams.get("id");
       const memberId = urlParams.get("member_id");
 
+      let joinStatus = "";  // ✅ 這行是新增的：用來記錄使用者的報名狀態
+
       if (!activityId) {
         document.querySelector(".container").innerHTML =
           `<p style="color:red;">找不到活動 ID！</p>`;
@@ -502,10 +504,14 @@
       fetch(`/api/activities/participants?activity_id=${activityId}`).then(res => res.json())
     ])
     .then(([detail, participant]) => {
-      const isFull = detail.current_participants >= detail.max_participants;
       const now = new Date();
       const signupDeadline = new Date(detail.registration_deadline);
       const hasDeadline = signupDeadline > now;
+      const confirmed = detail.current_participants;
+      const pending = participant.pending_participants.length;
+      const max = detail.max_participants;
+      const isFull = (confirmed + pending) >= max;
+
 
       // 報名狀態（假設 API 有回傳 participant.joined_ids 陣列，裡面有 memberId 代表已報名）
       const isJoined = participant.joined_participants.some(p => String(p.member_id) === String(memberId));
@@ -607,11 +613,8 @@
           </div>
           `;
 
-          const confirmed = detail.current_participants;
-          const max = detail.max_participants;
-          const pendingCount = participant.pending_participants.length;
 
-          const participantText = `報名完成：${confirmed} / ${max} 人，待審核：${pendingCount} 人`;
+          const participantText = `報名完成：${confirmed} / ${max} 人，待審核：${pending} 人`;
           document.getElementById("participant-status").textContent = participantText;
 
 
@@ -689,30 +692,39 @@
               alert("請先登入或提供 member_id 才能參加活動！");
               return;
             }
+            
+            console.log("狀態：", joinStatus);  // ✅ 放在這裡
+
             fetch("/api/activities/join", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ member_id: memberId, activity_id: activityId }),
+              body: JSON.stringify({ member_id: memberId, activity_id: activityId, status: joinStatus }),
             })
               .then((res) => res.json())
               .then((result) => {
-              const btn = document.getElementById("join-btn");
+                const btn = document.getElementById("join-btn");
 
-              if (!result.error) {
-                alert("報名成功，等待發起人審核");
-                btn.textContent = "審核中";
-                btn.disabled = true;
-                btn.classList.add("disabled");
-                btn.style.backgroundColor = "#ccc";
-              } else if (result.error.includes("已參加") || result.error.includes("申請過")) {
-                btn.textContent = "審核中";
-                btn.disabled = true;
-                btn.classList.add("disabled");
-                btn.style.backgroundColor = "#ccc";
-              }
+                if (!result.error) {
+                  if (joinStatus === "waiting") {
+                    alert("已加入候補名單，若有空位將依序遞補");
+                    btn.textContent = "已候補";
+                  } else {
+                    alert("報名成功，等待發起人審核");
+                    btn.textContent = "審核中";
+                  }
+                  btn.disabled = true;
+                  btn.classList.add("disabled");
+                  btn.style.backgroundColor = "#ccc";
+                } else if (result.error.includes("已參加") || result.error.includes("申請過")) {
+                  btn.textContent = "審核中";
+                  btn.disabled = true;
+                  btn.classList.add("disabled");
+                  btn.style.backgroundColor = "#ccc";
+                }
               })
               .catch((err) => alert("參加活動失敗，請稍後再試！"));
           };
+
 
     });
 

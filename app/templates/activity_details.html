@@ -383,6 +383,46 @@
       .heart-path {
         transition: fill 0.3s ease, stroke 0.3s ease;
       }
+      #course-schedule {
+        margin-top: 20px;
+        padding: 16px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        color: #2c4975;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      #course-schedule h3 {
+        margin-bottom: 10px;
+        font-size: 18px;
+        font-weight: bold;
+        color: #81d3e1;
+      }
+      .schedule-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+
+      .schedule-table th,
+      .schedule-table td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: center;
+      }
+
+      .schedule-table th {
+        background-color: #81d3e1;
+        color: white;
+        font-weight: bold;
+      }
+
+      
+
+
     </style>
   </head>
   <body>
@@ -462,6 +502,28 @@
 
     <div class="container">
       <section id="activity-info" class="info-box"></section>
+            <!-- ✅ 新增課程時間表 -->
+      <section id="course-schedule" class="info-box" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3>課程時間表</h3>
+            <button id="toggle-schedule" style="font-size: 14px; background: none; border: none; color: #2c4975; cursor: pointer;">
+  <span id="toggle-text">展開</span>
+  <span id="toggle-arrow" style="display: inline-block; transition: transform 0.3s;">▾</span>
+</button>
+          </div>
+          <div id="schedule-content">
+            <table class="schedule-table">
+              <thead>
+                <tr>
+                  <th>堂數</th>
+                  <th>上課日期</th>
+                  <th>時間段</th>
+                </tr>
+              </thead>
+              <tbody id="schedule-tbody"></tbody>
+            </table>
+          </div>
+      </section>
       <section id="description" class="info-box" style="display: none;"></section>
       <section id="participants" class="info-box"></section>
       <div style="height: 40px;"></div>
@@ -504,6 +566,10 @@
       fetch(`/api/activities/participants?activity_id=${activityId}`).then(res => res.json())
     ])
     .then(([detail, participant]) => {
+      console.log("🧪 活動類型 =", detail.activity_type, "｜type =", detail.type);
+      console.log("🧪 課表長度 =", detail.course_schedules?.length);
+      console.log("🧪 課表內容 =", detail.course_schedules);
+
       const now = new Date();
       const signupDeadline = new Date(detail.registration_deadline);
       const hasDeadline = signupDeadline > now;
@@ -541,7 +607,7 @@
         joinBtn.disabled = true;
       }
 
-      const statusText = isFull ? "額滿候補" : "開放報名";
+      const statusText = now > signupDeadline ? "報名截止" : isFull ? "額滿候補" : "開放報名";
       const statusClass = isFull ? "badge-full" : "badge-open";
       const organizerName = participant.organizer.name;
           
@@ -558,7 +624,7 @@
                   viewBox="0 0 24 24"
                   width="26"
                   height="26"
-                  style="vertical-align: middle; margin-right: 6px;">
+                  style="vertical-align: middle; margin-right: 14px;">
             <path d="M12 1.5C6.5 1.5 3 6 3 10c0 6.5 9 13 9 13s9-6.5 9-13c0-4-3.5-8.5-9-8.5z"
                   stroke="#2c4975"
                   stroke-width="2"
@@ -568,29 +634,66 @@
             <span>${detail.location_name}</span>
           </div>
           
-          <div class="location-row">
-            <svg class="location-icon"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  width="26"
-                  height="26"
-                  style="vertical-align: middle; margin-right: 6px;">
-              <path d="M12 12 V5"
-                    stroke="#2c4975"
-                    stroke-width="2"
-                    fill="none"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"/>
-              <path d="M12 12 L16 15"
-                    stroke="#2c4975"
-                    stroke-width="2"
-                    fill="none"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"/>
-              <circle cx="12" cy="12" r="9" stroke="#2c4975" stroke-width="2" fill="none"></circle>
-            </svg>
-            <span class="location-text">${formatDateRange(detail.start_time, detail.end_time)}</span>
-          </div>  
+                ${(() => {
+          if (detail.type === "muti_class" && detail.course_schedules?.length > 1) {
+            const first = new Date(detail.course_schedules[0].start_time);
+            const pad = (n) => String(n).padStart(2, "0");
+            const dayNames = ["日", "一", "二", "三", "四", "五", "六"];
+
+            const firstStr = `${first.getMonth() + 1}/${first.getDate()}（${dayNames[first.getDay()]}）${pad(first.getHours())}:${pad(first.getMinutes())}～${pad(new Date(detail.course_schedules[0].end_time).getHours())}:${pad(new Date(detail.course_schedules[0].end_time).getMinutes())}`;
+
+            const daysUsed = [...new Set(detail.course_schedules.map(s => dayNames[new Date(s.start_time).getDay()]))];
+            const second = new Date(detail.course_schedules[1].start_time);
+            const secondEnd = new Date(detail.course_schedules[1].end_time);
+            const rangeTime = `${pad(second.getHours())}:${pad(second.getMinutes())}～${pad(secondEnd.getHours())}:${pad(secondEnd.getMinutes())}`;
+            const total = detail.course_schedules.length;
+
+            return `
+              <div class="location-row">
+                <svg class="location-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="26" height="26" style="vertical-align: middle; margin-right: 14px;">
+                  <circle cx="12" cy="12" r="9" stroke="#2c4975" stroke-width="2" fill="none"/>
+                  <path d="M12 7v5l3 3" stroke="#2c4975" stroke-width="2" fill="none"/>
+                </svg>
+                <span class="location-text">第一次上課：${firstStr}</span>
+              </div>
+              <div class="location-row">
+                <svg class="location-icon" xmlns="http://www.w3.org/2000/svg"
+                  width="26" height="26"
+                  viewBox="0 0 256 256"
+                  fill="#2c4975"
+                  style="vertical-align: middle; margin-right: 14px;">
+                  <path d="M208,28H188V24a12,12,0,0,0-24,0v4H92V24a12,12,0,0,0-24,0v4H48A20,20,0,0,0,28,48V208a20,20,0,0,0,20,20H208a20,20,0,0,0,20-20V48A20,20,0,0,0,208,28ZM68,52a12,12,0,0,0,24,0h72a12,12,0,0,0,24,0h16V76H52V52ZM52,204V100H204V204Zm112-52a12,12,0,0,1-12,12H104a12,12,0,0,1,0-24h48A12,12,0,0,1,164,152Z" />
+                </svg>
+                <span class="location-text">固定課程：每週${daysUsed.join("、")}｜${rangeTime}（共 ${total} 堂）</span>
+              </div>`;
+          } else {
+            return `
+              <div class="location-row">
+                <svg class="location-icon"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      width="26"
+                      height="26"
+                      style="vertical-align: middle; margin-right: 14px;">
+                  <path d="M12 12 V5"
+                        stroke="#2c4975"
+                        stroke-width="2"
+                        fill="none"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                  <path d="M12 12 L16 15"
+                        stroke="#2c4975"
+                        stroke-width="2"
+                        fill="none"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                  <circle cx="12" cy="12" r="9" stroke="#2c4975" stroke-width="2" fill="none"></circle>
+                </svg>
+                <span class="location-text">${formatDateRange(detail.start_time, detail.end_time)}</span>
+              </div>`;
+          }
+        })()}
+
           
           <div class="location-row">
             <!-- 圓圈裡面的錢圖示 -->
@@ -598,7 +701,7 @@
                 viewBox="0 0 24 24"
                 width="24"
                 height="24"
-                style="vertical-align: middle; margin-right: 6px;">
+                style="vertical-align: middle; margin-right: 16px;">
                 <circle cx="12" cy="12" r="10" stroke="#2c4975" stroke-width="2" fill="none"/>
                 <text x="12" y="16" font-size="12" font-weight="bold" text-anchor="middle" fill="#2c4975" font-family="Arial">$</text>
             <span style="vertical-align: baseline; line-height: 1.2;">
@@ -681,11 +784,40 @@
           if (detail.description && detail.description.trim() !== "") {
             descSection.innerHTML = `
               <h3>活動介紹</h3>
-              <p><span>${detail.description}</span></p>`;
+              <p><span>${detail.description.replace(/\n/g, '<br>')}</span></p>`;
             descSection.style.display = "block";
           } else {
             descSection.style.display = "none";
           }
+          if (detail.course_schedules && detail.course_schedules.length > 0) {
+            const scheduleSection = document.getElementById("course-schedule");
+            scheduleSection.style.display = "block";
+
+            const tbody = document.getElementById("schedule-tbody");
+            tbody.innerHTML = ""; // 清空舊資料
+
+            const pad = (n) => String(n).padStart(2, "0");
+            const days = ["日", "一", "二", "三", "四", "五", "六"];
+
+            detail.course_schedules.forEach((s, index) => {
+              const start = new Date(s.start_time);
+              const end = new Date(s.end_time);
+
+              const dateStr = `${start.getMonth() + 1}/${start.getDate()}（${days[start.getDay()]}）`;
+              const timeStr = `${pad(start.getHours())}:${pad(start.getMinutes())} - ${pad(end.getHours())}:${pad(end.getMinutes())}`;
+
+              const row = document.createElement("tr");
+              row.innerHTML = `
+                <td>第 ${index + 1} 堂</td>
+                <td>${dateStr}</td>
+                <td>${timeStr}</td>
+              `;
+              tbody.appendChild(row);
+            });
+          }
+
+
+
 
           document.getElementById("join-btn").onclick = () => {
             if (!memberId) {
@@ -724,6 +856,24 @@
               })
               .catch((err) => alert("參加活動失敗，請稍後再試！"));
           };
+            // 🔁 課程表收合/展開邏輯
+                const toggleBtn = document.getElementById("toggle-schedule");
+                const scheduleContent = document.getElementById("schedule-content");
+                const toggleText = document.getElementById("toggle-text");
+                const toggleArrow = document.getElementById("toggle-arrow");
+
+                // ✅ 預設收合
+                scheduleContent.style.display = "none";
+                toggleText.textContent = "展開";
+                toggleArrow.style.transform = "rotate(0deg)";
+
+                toggleBtn.addEventListener("click", () => {
+                  const isHidden = scheduleContent.style.display === "none";
+                  scheduleContent.style.display = isHidden ? "block" : "none";
+                  toggleText.textContent = isHidden ? "收合" : "展開";
+                  toggleArrow.style.transform = isHidden ? "rotate(180deg)" : "rotate(0deg)";
+                });
+
 
 
     });

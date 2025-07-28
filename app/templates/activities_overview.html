@@ -47,10 +47,10 @@
         align-items: center;
       }
       .navbar-title {
-        font-size: 22px;
-        font-weight: bold;
-        color: #2c4975;
-        letter-spacing: 1px;
+        font-size: 20px;
+        color: var(--deep-blue); /* 或你想自訂的顏色 */
+        white-space: nowrap;     /* ✅ 不換行 */
+        margin-bottom: 2px;
       }
       .navbar-icons {
         display: flex;
@@ -116,17 +116,25 @@
       }
       .navbar-inner .filters input,
       .navbar-inner .filters select {
-        padding: 6px 8px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
+        padding: 3px 1px; /* 原本是 6px 16px，減少水平內距 */
+        border: 1px solid #2c4975;
+        border-radius: 20px;
         font-size: 14px;
         color: #2c4975;
-        font-weight: bold;
-        flex: 0 1 auto;
+        font-weight: 500;
+        background-color: white;
+        appearance: none;
         text-align: center;
+        cursor: pointer;
+        background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%232c4975' d='M2 0L0 2h4zm0 5L0 3h4z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        background-size: 10px 10px;
+        width: auto;     /* 自動根據內容調整 */
+        min-width: fit-content;
       }
       .navbar-inner .filters button {
-        padding: 6px 14px;
+        padding: 6px 10px;
         background-color: #81d3e1;
         color: white;
         border: none;
@@ -222,8 +230,8 @@
       }
       .activity-type-label {
         display: inline-block;
-        border-radius: 8px;
-        padding: 2px 10px;
+        border-radius: 5px;
+        padding: 2px 9px 4px 9px;
         font-size: 14px;
         font-weight: bold;
         border: 1.5px solid #2c4975;
@@ -231,6 +239,7 @@
         background: #fff;
         vertical-align: middle;
         margin-left: 2px;
+        margin-top: -5px;
       }
       .activity-type-label.training-course {
         background: #2c4975;
@@ -529,37 +538,49 @@
           const days = ['日','一','二','三','四','五','六'];
           function pad(n) { return String(n).padStart(2, '0'); }
           let timeStr = '';
-          if (act.type === 'class' || act.type === 'muti_class') {
-            // 訓練課程
-            let showSchedule = null;
-            if (Array.isArray(act.course_schedules) && act.course_schedules.length > 0) {
-              // 找到最近未來的課程
-              const now = new Date();
-              showSchedule = act.course_schedules.find(cs => new Date(cs.start_time) > now);
-              if (!showSchedule) {
-                // 如果都過了，顯示第一堂
-                showSchedule = act.course_schedules[0];
-              }
-              const start = new Date(showSchedule.start_time);
-              const end = new Date(showSchedule.end_time);
-              if (start.getFullYear() === end.getFullYear() && start.getMonth() === end.getMonth() && start.getDate() === end.getDate()) {
-                timeStr = `${pad(start.getMonth()+1)}/${pad(start.getDate())}（${days[start.getDay()]}）${pad(start.getHours())}:${pad(start.getMinutes())} <span class='time-dash'>-</span> ${pad(end.getHours())}:${pad(end.getMinutes())}`;
-              } else {
-                timeStr = `${pad(start.getMonth()+1)}/${pad(start.getDate())}（${days[start.getDay()]}）${pad(start.getHours())}:${pad(start.getMinutes())} <span class='time-dash'>-</span> ${pad(end.getMonth()+1)}/${pad(end.getDate())}（${days[end.getDay()]}）${pad(end.getHours())}:${pad(end.getMinutes())}`;
-              }
-            } else {
-              timeStr = '尚無課程安排';
-            }
+          if (act.type === "muti_class" && Array.isArray(act.course_schedules) && act.course_schedules.length > 0) {
+            const first = new Date(act.course_schedules[0].start_time);
+            const firstEnd = new Date(act.course_schedules[0].end_time);
+            const weekdayFirst = days[first.getDay()];
+            const startTime = pad(first.getHours()) + ":" + pad(first.getMinutes());
+            const endTime = pad(firstEnd.getHours()) + ":" + pad(firstEnd.getMinutes());
+            const total = act.course_schedules.length;
+            const daysUsed = [...new Set(act.course_schedules.map(s => days[new Date(s.start_time).getDay()]))];
+
+            timeStr = `
+              <div class="activity-info" style="display: flex; align-items: flex-start; color: #2c4975;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" style="vertical-align: middle; margin-top: 2px; margin-right: 8px">
+                  <circle cx="12" cy="12" r="10" stroke="#2c4975" stroke-width="2" fill="none"/>
+                  <path d="M12 7v5l3 3" stroke="#2c4975" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="value" style="color: #2c4975; margin-left: 6px;">第一次上課：${first.getMonth() + 1}/${first.getDate()}（${weekdayFirst}）${startTime}～${endTime}</span>
+              </div>
+              <div class="activity-info" style="display: flex; align-items: flex-start; color: #2c4975;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 256 256" fill="#2c4975" style="vertical-align: middle; margin-top: 2px;  margin-right: 8px">
+                  <path d="M208,28H188V24a12,12,0,0,0-24,0v4H92V24a12,12,0,0,0-24,0v4H48A20,20,0,0,0,28,48V208a20,20,0,0,0,20,20H208a20,20,0,0,0,20-20V48A20,20,0,0,0,208,28ZM68,52a12,12,0,0,0,24,0h72a12,12,0,0,0,24,0h16V76H52V52ZM52,204V100H204V204Zm112-52a12,12,0,0,1-12,12H104a12,12,0,0,1,0-24h48A12,12,0,0,1,164,152Z"/>
+                </svg>
+                <span class="value" style="color: #2c4975; margin-left: 6px;">固定課程：每週${daysUsed.join("、")}｜${startTime}～${endTime}（共 ${total} 堂）</span>
+              </div>
+            `;
           } else {
-            // 一般活動
             const start = new Date(act.start_time);
             const end = new Date(act.end_time);
-            if (start.getFullYear() === end.getFullYear() && start.getMonth() === end.getMonth() && start.getDate() === end.getDate()) {
-              timeStr = `${pad(start.getMonth()+1)}/${pad(start.getDate())}（${days[start.getDay()]}）${pad(start.getHours())}:${pad(start.getMinutes())} <span class='time-dash'>-</span> ${pad(end.getHours())}:${pad(end.getMinutes())}`;
-            } else {
-              timeStr = `${pad(start.getMonth()+1)}/${pad(start.getDate())}（${days[start.getDay()]}）${pad(start.getHours())}:${pad(start.getMinutes())} <span class='time-dash'>-</span> ${pad(end.getMonth()+1)}/${pad(end.getDate())}（${days[end.getDay()]}）${pad(end.getHours())}:${pad(end.getMinutes())}`;
-            }
+            const weekday = days[start.getDay()];
+            const startTime = pad(start.getHours()) + ":" + pad(start.getMinutes());
+            const endTime = pad(end.getHours()) + ":" + pad(end.getMinutes());
+
+            timeStr = `
+              <div class="activity-info" style="display: flex; align-items: center; color: #2c4975;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 8px">
+                  <circle cx="12" cy="12" r="10" stroke="#2c4975" stroke-width="2" fill="none"/>
+                  <path d="M12 7v5l3 3" stroke="#2c4975" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="value" style="color: #2c4975; margin-left: 6px;">${start.getMonth() + 1}/${start.getDate()}（${weekday}）${startTime}～${endTime}</span>
+              </div>
+            `;
           }
+
+
           const card = document.createElement("div");
           card.className = "activity-card";
           card.innerHTML = `<a href="/api/activities/details_page?id=${act.activity_id}${memberId ? `&member_id=${memberId}` : ""}" style="text-decoration: none; color: inherit; display: block; position: relative;">
@@ -575,9 +596,9 @@
               <svg class="location-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="26" height="26" style="vertical-align: middle;"><path d="M12 1.5C6.5 1.5 3 6 3 10c0 6.5 9 13 9 13s9-6.5 9-13c0-4-3.5-8.5-9-8.5z" stroke="#2c4975" stroke-width="2" fill="none"/><circle cx="12" cy="10" r="2.5" stroke="#2c4975" stroke-width="2" fill="none"/></svg>
               <span class="value" style="color: #2c4975;">　${act.location_name}</span>
             </div>
-            <div class="activity-info" style="color: #2c4975; display: flex; align-items: center;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" style="vertical-align: middle;"><circle cx="12" cy="12" r="10" stroke="#2c4975" stroke-width="2" fill="none"/><path d="M12 7v5l3 3" stroke="#2c4975" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span class="value" style="color: #2c4975;">　${timeStr}</span>
+            ${timeStr}
+
+
             </div>
             <div class="activity-info" style="color: #2c4975; display: flex; align-items: center; justify-content: space-between;">
               <div style="display: flex; align-items: center;">

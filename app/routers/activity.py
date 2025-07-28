@@ -277,7 +277,7 @@ def list_my_activities():
                 "registration_deadline": a.registration_deadline.isoformat() if a.registration_deadline else None,
                 "status": a.status,
                 "level": a.level,
-                "venue_fee": float(a.venue_fee) if a.venue_fee else None,
+                "venue_fee": float(a.venue_fee) if a.venue_fee else 0,
                 "type": a.type,
                 "organizer": {
                     "name": a.organizer.name if a.organizer else "未知"
@@ -322,7 +322,7 @@ def get_activity_details():
             "target_identity": activity.target_identity,
             "gender": activity.gender,
             "age_range": activity.age_range,
-            "venue_fee": float(activity.venue_fee) if activity.venue_fee else None,
+            "venue_fee": float(activity.venue_fee) if activity.venue_fee else 0,
             "registration_deadline": activity.registration_deadline.isoformat() if activity.registration_deadline else None,
         }
 

@@ -354,7 +354,26 @@
 
   <div class="form-row">
     <label class="form-label">地點</label>
-    <input type="text" name="location" placeholder="請輸入完整地址" required />
+    <div style="display: flex; gap: 10px;">
+      <input
+        type="text"
+        id="place-input"
+        name="location"
+        placeholder="請輸入完整地址"
+        required
+        style="flex: 1;"
+      />
+    </div>
+    <input type="hidden" id="location-lat" name="location_lat" />
+    <input type="hidden" id="location-lng" name="location_lng" />
+  </div>
+  
+  <div class="form-row">
+    <label class="form-label">地圖預覽</label>
+    <div
+      id="map"
+      style="width: 100%; height: 300px; border: 1px solid #ccc; border-radius: 4px;"
+    ></div>
   </div>
 
   <div class="form-row">
@@ -469,6 +488,8 @@
       <label class="form-label">補充說明</label>
       <textarea name="description" placeholder="EX：地標描述、裝備建議、注意事項..."></textarea>
     </div>
+    <input type="hidden" id="location-lat" name="location_lat">
+<input type="hidden" id="location-lng" name="location_lng">
      <button type="submit" class="btn-primary" id="single-submit-btn">發起單堂課程</button>
   </div>
 
@@ -623,6 +644,8 @@
       <label class="form-label">補充說明</label>
       <textarea name="multi_description" placeholder="EX：地標描述、裝備建議、注意事項..."></textarea>
     </div>
+    <input type="hidden" id="location-lat" name="location_lat">
+<input type="hidden" id="location-lng" name="location_lng">
      <button type="submit" class="btn-primary" id="multi-submit-btn">發起多堂課程</button>
   </div>
 
@@ -787,9 +810,9 @@
             every_endtime: formData.get("every_endTime"),
             weekdays: formData.getAll("weekdays"),
             multi_count: parseInt(formData.get("multi_count")),
-            location_name: formData.get("location"),
-            location_lat: 25.033,
-            location_lng: 121.565,
+            location_name: document.getElementById("place-input").value,
+            location_lat: parseFloat(document.getElementById("location-lat").value),
+  location_lng: parseFloat(document.getElementById("location-lng").value),
             max_participants: parseInt(formData.get("numPeople")),
             venue_fee: parseFloat(formData.get("venue_fee")),
             registration_deadline: formData.get("registration_deadline"),
@@ -873,9 +896,9 @@
             gender: formData.get("multi_gender"),
             age_range: formData.get("multi_ageRange"),
             level: formData.get("multi_level"),
-            location_name: formData.get("location"),
-            location_lat: 25.033,
-            location_lng: 121.565,
+            location_name: document.getElementById("place-input").value,
+            location_lat: parseFloat(document.getElementById("location-lat").value),
+  location_lng: parseFloat(document.getElementById("location-lng").value),
             venue_fee: parseFloat(formData.get("multi_venue_fee")),
             registration_deadline: formData.get("multi_registration_deadline"),
             organizer_id: memberId, // 使用網址中的 member_id
@@ -989,5 +1012,58 @@
 
 
     </script>
-  </body>
-</html>
+    <!-- Google Maps JS 載入 -->
+    <script>
+      let map, marker, autocomplete;
+
+function initAutocomplete() {
+  console.log("✅ initAutocomplete 已執行！");
+
+  map = new google.maps.Map(document.getElementById("map"), {
+    center: { lat: 25.0330, lng: 121.5654 },
+    zoom: 15,
+  });
+
+  const input = document.getElementById("place-input");
+  autocomplete = new google.maps.places.Autocomplete(input, {
+    types: ["geocode"],
+    componentRestrictions: { country: "tw" },
+  });
+
+  autocomplete.addListener("place_changed", () => {
+    const place = autocomplete.getPlace();
+    console.log("📍 使用者選擇地點：", place);
+
+    if (!place.geometry || !place.geometry.location) {
+      alert("找不到此地址的地理位置，請重新輸入！");
+      return;
+    }
+
+    const location = place.geometry.location;
+    const lat = location.lat();
+    const lng = location.lng();
+
+    map.setCenter(location);
+
+    if (marker) marker.setMap(null);
+    marker = new google.maps.Marker({
+      map: map,
+      position: location,
+      title: place.name || input.value,
+    });
+
+    // ✅ 這兩行一定要先設定（將緯度經度填入隱藏欄位）
+    document.getElementById("location-lat").value = lat;
+    document.getElementById("location-lng").value = lng;
+
+    // ✅ 這兩行是用來確認你是否正確抓到
+    console.log("✅ 緯度 lat:", lat);
+    console.log("✅ 經度 lng:", lng);
+  });
+}
+    </script>
+    
+    <!-- ✅ 將 Google Maps 的 script 放到最下方 -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjPPoRxjshMgepTKlniZst9G4fgpqQkQk&libraries=places&callback=initAutocomplete" defer></script>
+    </body>
+    </html>

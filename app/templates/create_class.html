@@ -725,6 +725,25 @@
                             option.checked = true;
                           }
                         });
+
+                        // 更新地圖地標
+                        const lat = parseFloat(activity.location_lat);
+                        const lng = parseFloat(activity.location_lng);
+                        if (!isNaN(lat) && !isNaN(lng)) {
+                          const location = { lat, lng };
+                          map.setCenter(location);
+
+                          if (marker) marker.setMap(null);
+                          marker = new google.maps.Marker({
+                            map: map,
+                            position: location,
+                            title: activity.location_name,
+                          });
+
+                          document.getElementById("location-lat").value = lat;
+                          document.getElementById("location-lng").value = lng;
+                        }
+
                         list.style.display = "none";
                       });
                       list.appendChild(li);
@@ -1052,7 +1071,7 @@ function initAutocomplete() {
       title: place.name || input.value,
     });
 
-    // ✅ 這兩行一定要先設定（將緯度經度填入隱藏欄位）
+    // ✅ 這兩行一定要先設定（將緯度經緯度填入隱藏欄位）
     document.getElementById("location-lat").value = lat;
     document.getElementById("location-lng").value = lng;
 

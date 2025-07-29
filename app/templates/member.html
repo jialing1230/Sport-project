@@ -811,9 +811,33 @@
     });
 
     document.getElementById("confirmDelete").addEventListener("click", function () {
-      // 若你有後端 API 要刪除帳號，可以在這裡加上 fetch
-      // 這裡直接跳轉註冊畫面
-      window.location.href = "/register";
+        const urlParams = new URLSearchParams(window.location.search);
+        const memberId = urlParams.get("member_id");
+
+        if (!memberId) {
+            alert("無法取得會員 ID，請重新登入後再試！");
+            return;
+        }
+
+        // 呼叫後端 API 刪除帳號
+        fetch(`/api/members/${memberId}/delete-account`, {
+            method: "DELETE",
+        })
+        .then((response) => {
+            if (!response.ok) {
+                return response.json().then((data) => {
+                    throw new Error(data.error || "刪除帳號失敗");
+                });
+            }
+            return response.json();
+        })
+        .then((data) => {
+            alert("帳號刪除成功！");
+            window.location.href = "/"; // 刪除成功後跳轉到首頁
+        })
+        .catch((error) => {
+            alert(`刪除帳號失敗：${error.message}`);
+        });
     });
 
       const overviewBtn = document.getElementById("overview-link");

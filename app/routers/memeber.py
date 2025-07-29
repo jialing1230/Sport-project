@@ -10,6 +10,11 @@ from app.models.preference_sport import PreferenceSport
 from app.models.preference_time import PreferenceTime
 from app.models.sport_type import SportType
 from app.models.time_option import TimeOption
+from app.models.activity import Activity
+from app.models.activity_favorite import ActivityFavorite
+from app.models.activity_join import ActivityJoin
+from app.models.activity_review import ActivityReview
+from app.models.user_review import UserReview
 
 
 member_bp = Blueprint("members", __name__, url_prefix="/api/members")
@@ -335,6 +340,64 @@ def update_avatar(member_id):
 
     file.save(save_path)
     return jsonify({"message": "頭像更新成功"}), 200
+
+@member_bp.route("/<string:member_id>/delete-account", methods=["DELETE"])
+def delete_account(member_id):
+    with get_db() as db:
+        # 刪除 member 表中對應的資料
+        member = db.query(Member).get(member_id)
+        if not member:
+            return jsonify({"error": "找不到該會員"}), 404
+
+        # 檢查是否有 open 或 ongoing 狀態的活動
+        open_or_ongoing_activities = db.query(Activity).filter(
+            Activity.organizer_id == member_id,
+            Activity.status.in_(["open", "ongoing"])
+        ).count()
+
+        if open_or_ongoing_activities > 0:
+            return jsonify({"error": "無法刪除帳號，因為有進行中的活動"}), 400
+
+        # 將活動狀態為 close 的 organizer_id 設為 NULL
+        db.query(Activity).filter(
+            Activity.organizer_id == member_id,
+            Activity.status == "close"
+        ).update({"organizer_id": None})
+
+        # 刪除 activity_favorite 表中對應的資料
+        db.query(ActivityFavorite).filter(ActivityFavorite.member_id == member_id).delete()
+
+        # 刪除 activity_joins 表中對應的資料
+        db.query(ActivityJoin).filter(ActivityJoin.member_id == member_id).delete()
+
+        # 將 activity_review 表中 reviewer_id 設為 NULL
+        db.query(ActivityReview).filter(ActivityReview.reviewer_id == member_id).update({"reviewer_id": None})
+
+        # 刪除 sport_preference 表中對應的資料
+        preferences = db.query(SportPreference).filter(SportPreference.member_id == member_id).all()
+        for preference in preferences:
+            # 刪除 preference_sport 表中對應的資料
+            db.query(PreferenceSport).filter(PreferenceSport.preference_id == preference.preference_id).delete()
+            # 刪除 preference_time 表中對應的資料
+            db.query(PreferenceTime).filter(PreferenceTime.preference_id == preference.preference_id).delete()
+            # 刪除 sport_preference 資料
+            db.delete(preference)
+
+        # 將 user_views 表中 reviewer_id 設為 NULL
+        db.query(UserReview).filter(UserReview.reviewer_id == member_id).update({"reviewer_id": None})
+        # 刪除 user_views 表中 target_member_id 對應的資料
+        db.query(UserReview).filter(UserReview.target_member_id == member_id).delete()
+
+        # 刪除會員資料
+        db.delete(member)
+
+        try:
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            return jsonify({"error": str(e)}), 500
+
+    return jsonify({"success": True}), 200
 
 
 

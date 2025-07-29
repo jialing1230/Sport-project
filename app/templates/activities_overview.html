@@ -25,26 +25,19 @@
       }
       .navbar {
         width: 100%;
-        background: #fff;
+        background-color: #fff;
         box-shadow: 0 2px 8px rgba(0,0,0,0.06);
         position: sticky;
         top: 0;
         z-index: 100;
       }
       .navbar-inner {
-        max-width: 1400px;
         margin: 0 auto;
         padding: 0 20px;
         display: flex;
-        align-items: center;
-        justify-content: space-between;
+        flex-direction: column; /* ❗改這裡 */
         width: 100%;
         box-sizing: border-box;
-        min-height: 72px;
-      }
-      .navbar-logo {
-        display: flex;
-        align-items: center;
       }
       .navbar-title {
         font-size: 20px;
@@ -52,11 +45,7 @@
         white-space: nowrap;     /* ✅ 不換行 */
         margin-bottom: 2px;
       }
-      .navbar-icons {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-      }
+
       .navbar-icons svg {
         width: 24px;
         height: 24px;
@@ -97,41 +86,46 @@
       .value {
         color: #000;
       }
-      /* 導覽列篩選欄位樣式 */
-      .filter-bar-outer {
-        width: 100%;
-        overflow-x: unset;
-      }
+
       .filter-bar-inner {
-        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 20px;
+        box-sizing: border-box;
+        overflow-x: hidden;  /* ✅ 一起封掉 */
       }
+      .filters {
+        overflow-x: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+      .filters::-webkit-scrollbar {
+        display: none;
+      }
+
       .navbar-inner .filters {
         display: flex;
-        flex-wrap: wrap;
-        min-width: 0;
-        gap: 8px;
-        align-items: center;
+        flex-wrap: nowrap; /* ❗ 一行內排滿，不換行 */
         justify-content: center;
-        width: 100%;
+        gap: 10px;
       }
-      .navbar-inner .filters input,
-      .navbar-inner .filters select {
-        padding: 3px 1px; /* 原本是 6px 16px，減少水平內距 */
+      .navbar-inner .filters input{
+        height: 28px;
+        padding: 2px 10px;
+        padding-right: 26px;  /* 給箭頭空間 */
         border: 1px solid #2c4975;
-        border-radius: 20px;
+        border-radius: 12px;
         font-size: 14px;
-        color: #2c4975;
         font-weight: 500;
-        background-color: white;
+        color: #2c4975;
+        background-color: #ffffff;
         appearance: none;
         text-align: center;
         cursor: pointer;
-        background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%232c4975' d='M2 0L0 2h4zm0 5L0 3h4z'/%3E%3C/svg%3E");
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%232c4975'/%3E%3C/svg%3E");
         background-repeat: no-repeat;
-        background-position: right 10px center;
-        background-size: 10px 10px;
-        width: auto;     /* 自動根據內容調整 */
-        min-width: fit-content;
+        background-position: right 8px center;
+        background-size: 8px 6px;
       }
       .navbar-inner .filters button {
         padding: 6px 10px;
@@ -142,9 +136,12 @@
         font-size: 15px;
         cursor: pointer;
       }
-      .navbar-inner .filters button:hover {
-        background-color: #1f3657;
+      .navbar-inner .filters select:hover,
+      .navbar-inner .filters select:focus {
+        outline: none;
+        box-shadow: none;
       }
+
 
       .activity-list {
         display: grid;
@@ -170,6 +167,8 @@
           order: 3;
           flex: 1 1 100%;
           margin: 8px 0 0;
+          background-color: #ffffff;  /* ✅ 新增這行 */
+          overflow-x: hidden;  /* ✅ 禁止橫向滾動 */
         }
         .activity-list {
           grid-template-columns: repeat(2, 1fr);
@@ -183,6 +182,7 @@
         .navbar-inner .filters {
           flex-wrap: nowrap;
           min-width: max-content;
+          overflow-x: auto;
         }
         .activity-list {
           grid-template-columns: 1fr;
@@ -361,101 +361,256 @@
           opacity: 0;
         }
       }
+      .select-wrapper {
+        position: relative;
+        display: inline-block;
+        border: 1px solid #2c4975;
+        border-radius: 10px;
+        margin: 0;
+        padding: 0;
+        background-color: white;
+      }
+
+      .select-wrapper select {
+        border: none;
+        font-size: 14px;
+        font-weight: 500;
+        color: #2c4975;
+        padding: 4px 24px 4px 12px;
+        border-radius: 10px;
+        background: transparent;
+        appearance: none;
+        height: 24px;
+        width: 100%;
+        text-align: center;
+        text-align-last: center; /* ✅ IE/Edge/Chrome 支援選中的文字也置中 */
+        cursor: pointer;
+      }
+
+      .select-wrapper .arrow {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        width: 0;
+        height: 0;
+        pointer-events: none;
+        transform: translateY(-50%);
+        border-left: 4px solid transparent;
+        border-right: 4px solid transparent;
+        border-top: 5px solid #2c4975;
+      }
+      .select-wrapper.city,
+      .select-wrapper.type,
+      .select-wrapper.sport {
+        width: 92px;
+      }
+
+      .select-wrapper.time,
+      .select-wrapper.gender,
+      .select-wrapper.level {
+        width: 70px;
+      }
+      .navbar-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        padding: 10px 0;                    /* ✅ 取消左右 padding */
+        max-width: 1400px;                  /* ✅ 與 .navbar-inner 一致 */
+        margin: 0 auto;                     /* ✅ 水平置中 */
+        box-sizing: border-box;
+        width: 100%;
+        padding-left: 20px;                 /* ✅ 左右 padding 放這邊 */
+        padding-right: 20px;
+      }
+
+      .navbar-bottom {
+        margin-top: 6px;
+        padding-top: 6px;
+        padding-bottom: 10px;
+        border-top: 1px solid #eee;
+      }
+      nav,
+      .navbar-bottom {
+        background-color: #ffffff;
+        box-shadow: none;
+      }
+
+
+      /* 桌機版：顯示搜尋框和文字 */
+      @media (min-width: 901px) {
+        .desktop-icons {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+        }
+        .desktop-search {
+          height: 30px;
+          padding: 0 10px;
+          border-radius: 16px;
+          border: 1px solid #2c4975;
+          font-size: 14px;
+          color: #2c4975;
+        }
+        .desktop-map, .desktop-menu {
+          font-size: 15px;
+          font-weight: bold;
+          color: #2c4975;
+          cursor: pointer;
+        }
+        .desktop-map:hover, .desktop-menu:hover {
+          color: #81d3e1;
+        }
+        .mobile-icons {
+          display: none;
+        }
+      }
+
+      /* 手機版：只顯示三個 icon */
+      @media (max-width: 900px) {
+        .desktop-icons {
+          display: none;
+        }
+        .mobile-icons {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 0 20px; /* ✅ 新增：左右間距 */
+          margin-top: 4px; /* ✅ 新增：與上方 logo 留空 */
+        }
+      }
+
     </style>
   </head>
   <body>
-    <nav class="navbar">
-      <div class="navbar-inner">
-        <div class="navbar-logo">
-          <img src="/static/logo.png" alt="logo" style="height:48px;margin-right:10px;" />
-          <span class="navbar-title">SportMatch</span>
-        </div>
-        <!-- 篩選欄位放這裡 -->
-        <div class="filter-bar-outer">
-          <div class="filter-bar-inner">
-            <form class="filters" id="navbarFilters">
-              <select id="searchCity" style="min-width: 120px;">
-                <option value="">所有縣市</option>
-                <option value="台北市">台北市</option>
-                <option value="新北市">新北市</option>
-                <option value="基隆市">基隆市</option>
-                <option value="桃園市">桃園市</option>
-                <option value="新竹市">新竹市</option>
-                <option value="新竹縣">新竹縣</option>
-                <option value="苗栗縣">苗栗縣</option>
-                <option value="台中市">台中市</option>
-                <option value="彰化縣">彰化縣</option>
-                <option value="南投縣">南投縣</option>
-                <option value="雲林縣">雲林縣</option>
-                <option value="嘉義市">嘉義市</option>
-                <option value="嘉義縣">嘉義縣</option>
-                <option value="台南市">台南市</option>
-                <option value="高雄市">高雄市</option>
-                <option value="屏東縣">屏東縣</option>
-                <option value="宜蘭縣">宜蘭縣</option>
-                <option value="花蓮縣">花蓮縣</option>
-                <option value="台東縣">台東縣</option>
-                <option value="澎湖縣">澎湖縣</option>
-                <option value="金門縣">金門縣</option>
-                <option value="連江縣">連江縣</option>
-              </select>
-              <select id="searchActivityType" style="min-width: 110px;">
-                <option value="">活動類型</option>
-                <option value="一般活動">一般活動</option>
-                <option value="訓練課程">訓練課程</option>
-              </select>
-              <select id="searchType" style="min-width: 100px;">
-                <option value="">運動類型</option>
-                <option value="籃球">籃球</option>
-                <option value="羽球">羽球</option>
-                <option value="網球">網球</option>
-                <option value="桌球">桌球</option>
-                <option value="排球">排球</option>
-                <option value="游泳">游泳</option>
-                <option value="健身">健身</option>
-                <option value="瑜珈">瑜珈</option>
-                <option value="跑步">跑步</option>
-                <option value="騎腳踏車">騎腳踏車</option>
-                <option value="足球">足球</option>
-                <option value="拳擊">拳擊</option>
-              </select>
-              <select id="searchTimeOption" style="min-width: 100px;">
-                <option value="">時段</option>
-                <option value="morning">早上</option>
-                <option value="afternoon">下午</option>
-                <option value="evening">晚上</option>
-              </select>
-              <select id="searchGender" style="min-width: 100px;">
-                <option value="">性別</option>
-                <option value="男">男</option>
-                <option value="女">女</option>
-              </select>
-              <select id="searchLevel" style="min-width: 100px;">
-                <option value="">等級</option>
-                <option value="初學">初學</option>
-                <option value="中階">中階</option>
-                <option value="高階">高階</option>
-              </select>
-            </form>
+      <nav class="navbar">
+        <div class="navbar-inner">
+          <!-- ✅ 上層：品牌 + icon/文字 -->
+          <div class="navbar-top">
+            <div class="navbar-logo">
+              <img src="/static/logo.png" alt="logo" style="height:48px;margin-right:10px;" />
+              <span class="navbar-title">SportMatch</span>
+            </div>
+            <!-- 桌機版 -->
+            <div class="navbar-icons desktop-icons">
+              <input type="text" placeholder="搜尋活動…" class="desktop-search" />
+              <span class="desktop-map" onclick="goToPage()">切換地圖</span>
+              <span class="desktop-menu">選單</span>
+            </div>
+            <!-- 手機版 -->
+            <div class="navbar-icons mobile-icons">
+              <!-- 搜尋 -->
+              <svg viewBox="0 0 24 24" width="24" height="24">
+                <circle cx="10" cy="10" r="7" stroke="#2c4975" stroke-width="2" fill="none"/>
+                <line x1="15.95" y1="15.95" x2="21" y2="21" stroke="#2c4975" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <!-- 地圖（保留功能） -->
+              <svg id="backBtn" viewBox="0 0 24 24" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2.5 20V5.5C2.5 5.22 2.72 5 3 5l5.5 2.75L15 3l6 3c.28 0 .5.22.5.5v15c0 .28-.22.5-.5.5l-6-3-6.5 3.5-5.5-2.75c-.28 0-.5-.22-.5-.5Z" stroke="#2C4975" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                <path d="M8.5 7.75V21.5" stroke="#2C4975" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                <path d="M15 3V19" stroke="#2C4975" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              </svg>
+              <!-- 選單 -->
+              <svg viewBox="0 0 24 24" width="24" height="24">
+                <line x1="3" y1="6" x2="21" y2="6" stroke="#2c4975" stroke-width="2" stroke-linecap="round"/>
+                <line x1="3" y1="12" x2="21" y2="12" stroke="#2c4975" stroke-width="2" stroke-linecap="round"/>
+                <line x1="3" y1="18" x2="21" y2="18" stroke="#2c4975" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- ✅ 下層：篩選列 -->
+          <div class="navbar-bottom">
+            <div class="filter-bar-outer">
+              <div class="filter-bar-inner">
+                <form class="filters" id="navbarFilters">
+                  <div class="select-wrapper">
+                    <select id="searchCity">
+                      <option value="">所有縣市</option>
+                      <option value="台北市">台北市</option>
+                      <option value="新北市">新北市</option>
+                      <option value="基隆市">基隆市</option>
+                      <option value="桃園市">桃園市</option>
+                      <option value="新竹市">新竹市</option>
+                      <option value="新竹縣">新竹縣</option>
+                      <option value="苗栗縣">苗栗縣</option>
+                      <option value="台中市">台中市</option>
+                      <option value="彰化縣">彰化縣</option>
+                      <option value="南投縣">南投縣</option>
+                      <option value="雲林縣">雲林縣</option>
+                      <option value="嘉義市">嘉義市</option>
+                      <option value="嘉義縣">嘉義縣</option>
+                      <option value="台南市">台南市</option>
+                      <option value="高雄市">高雄市</option>
+                      <option value="屏東縣">屏東縣</option>
+                      <option value="宜蘭縣">宜蘭縣</option>
+                      <option value="花蓮縣">花蓮縣</option>
+                      <option value="台東縣">台東縣</option>
+                      <option value="澎湖縣">澎湖縣</option>
+                      <option value="金門縣">金門縣</option>
+                      <option value="連江縣">連江縣</option>
+                    </select>
+                    <span class="arrow"></span>
+                  </div>
+                  <div class="select-wrapper">
+                    <select id="searchActivityType">
+                      <option value="">活動類型</option>
+                      <option value="一般活動">一般活動</option>
+                      <option value="訓練課程">訓練課程</option>
+                    </select>
+                    <span class="arrow"></span>
+                  </div>
+                  <div class="select-wrapper">
+                    <select id="searchType">
+                      <option value="">運動類型</option>
+                      <option value="籃球">籃球</option>
+                      <option value="羽球">羽球</option>
+                      <option value="網球">網球</option>
+                      <option value="桌球">桌球</option>
+                      <option value="排球">排球</option>
+                      <option value="游泳">游泳</option>
+                      <option value="健身">健身</option>
+                      <option value="瑜珈">瑜珈</option>
+                      <option value="跑步">跑步</option>
+                      <option value="騎腳踏車">騎腳踏車</option>
+                      <option value="足球">足球</option>
+                      <option value="拳擊">拳擊</option>
+                    </select>
+                    <span class="arrow"></span>
+                  </div>
+                  <div class="select-wrapper">
+                    <select id="searchTimeOption">
+                      <option value="">時段</option>
+                      <option value="morning">早上</option>
+                      <option value="afternoon">下午</option>
+                      <option value="evening">晚上</option>
+                    </select>
+                    <span class="arrow"></span>
+                  </div>
+                  <div class="select-wrapper">
+                    <select id="searchGender">
+                      <option value="">性別</option>
+                      <option value="男">男</option>
+                      <option value="女">女</option>
+                    </select>
+                    <span class="arrow"></span>
+                  </div>
+                  <div class="select-wrapper">
+                    <select id="searchLevel">
+                      <option value="">等級</option>
+                      <option value="初學">初學</option>
+                      <option value="中階">中階</option>
+                      <option value="高階">高階</option>
+                    </select>
+                    <span class="arrow"></span>
+                  </div>
+                </form>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="navbar-icons">
-          <!-- 搜尋 SVG -->
-          <svg viewBox="0 0 24 24" width="24" height="24"><circle cx="10" cy="10" r="7" stroke="#2c4975" stroke-width="2" fill="none"/><line x1="15.95" y1="15.95" x2="21" y2="21" stroke="#2c4975" stroke-width="2" stroke-linecap="round"/></svg>
-          <!-- 地圖展開 SVG（新版） -->
-          <svg id="backBtn" viewBox="0 0 24 24" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M2.5 20V5.5C2.5 5.22 2.72 5 3 5l5.5 2.75L15 3l6 3c.28 0 .5.22.5.5v15c0 .28-.22.5-.5.5l-6-3-6.5 3.5-5.5-2.75c-.28 0-.5-.22-.5-.5Z" stroke="#2C4975" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-            <path d="M8.5 7.75V21.5" stroke="#2C4975" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-            <path d="M15 3V19" stroke="#2C4975" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-          </svg>
-          <svg viewBox="0 0 24 24" width="24" height="24">
-            <line x1="3" y1="6" x2="21" y2="6" stroke="#2c4975" stroke-width="2" stroke-linecap="round"/>
-            <line x1="3" y1="12" x2="21" y2="12" stroke="#2c4975" stroke-width="2" stroke-linecap="round"/>
-            <line x1="3" y1="18" x2="21" y2="18" stroke="#2c4975" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </div>
-      </div>
-    </nav>
+      </nav>
+
     <div class="main-content">
       <div class="activity-list" id="activityList">
         <p>載入中...</p>
@@ -871,6 +1026,15 @@
 
         observer.observe(document.getElementById('activityList'), { childList: true });
       });
+        // Shift + 滾輪 左右滾動功能
+          document.querySelectorAll('.filters').forEach(container => {
+            container.addEventListener('wheel', function (e) {
+              if (e.shiftKey) {
+                e.preventDefault();  // ❗避免垂直滾動干擾
+                container.scrollLeft += e.deltaY;
+              }
+            });
+          });
     </script>
   </body>
 </html>

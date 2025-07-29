@@ -631,24 +631,33 @@
   .then((response) => response.json())
   .then((data) => {
     data.forEach((activity) => {
-      const marker = new google.maps.Marker({
-        position: {
-          lat: parseFloat(activity.location_lat),
-          lng: parseFloat(activity.location_lng),
-        },
-        map: map,
-        title: activity.title,
-      });
+  let iconUrl =
+    activity.type === "class"
+      ? "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+      : "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
 
-      const content = `
+  const marker = new google.maps.Marker({
+    position: {
+      lat: parseFloat(activity.location_lat),
+      lng: parseFloat(activity.location_lng),
+    },
+    map: map,
+    title: activity.title,
+    icon: iconUrl, // ✅ 指定標記圖示顏色
+  });
+
+  const typeLabel = activity.type === "class" ? "訓練課程" : "一般活動";
+
+const content = `
   <div class="map-info-card">
     <div class="title">${activity.title}</div>
-    <div><span class="label">類型：</span><span class="value">${activity.sport_type}</span></div>
-    <div><span class="label">開始：</span><span class="value">${new Date(activity.start_time).toLocaleString("zh-TW")}</span></div>
-    <div><span class="label">結束：</span><span class="value">${new Date(activity.end_time).toLocaleString("zh-TW")}</span></div>
-    <div><span class="label">地點：</span><span class="value">${activity.location_name}</span></div>
+    <div><span class="label">活動類型：</span><span class="value">${typeLabel}</span></div>
+    <div><span class="label">運動類型：</span><span class="value">${activity.sport_type}</span></div>
+    <div><span class="label">開始時間：</span><span class="value">${new Date(activity.start_time).toLocaleString("zh-TW")}</span></div>
+    <div><span class="label">結束時間：</span><span class="value">${new Date(activity.end_time).toLocaleString("zh-TW")}</span></div>
+    <div><span class="label">運動地點：</span><span class="value">${activity.location_name}</span></div>
     <div><span class="label">目前狀態：</span><span class="value">${activity.status === "open" ? "開放報名" : activity.status}</span></div>
-    <div><span class="label">人數：</span><span class="value">${activity.current_participants}/${activity.max_participants}</span></div>
+    <div><span class="label">參加人數：</span><span class="value">${activity.current_participants}/${activity.max_participants}</span></div>
   </div>
 `;
       const infoWindow = new google.maps.InfoWindow({

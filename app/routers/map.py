@@ -43,7 +43,8 @@ def get_active_markers():
                 "max_participants": a.max_participants,
                 "location_name": a.location_name,
                 "status": a.status,
-                "sport_type": a.sport_type.name if a.sport_type else "未分類"
+                "sport_type": a.sport_type.name if a.sport_type else "未分類",
+                "type": a.type  # ✅ 新增這一行（最重要）
             })
 
     return jsonify(result), 200

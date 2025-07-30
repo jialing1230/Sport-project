@@ -445,7 +445,7 @@
         fetch(`/reviews/statistics?target_member_id=${targetMemberId}`)
             .then(response => response.json())
             .then(data => {
-                const badgeGroup = document.querySelector(".badge-group");
+                const badgeGroup = document.querySelector("#participant-section .badge-group");
                 badgeGroup.innerHTML = ""; // 清空原有的罐頭訊息
 
                 // 添加前三個罐頭訊息
@@ -457,8 +457,8 @@
                 });
 
                 // 更新平均星等和總評價數量
-                document.querySelector(".score").textContent = data.average_rating.toFixed(1);
-                document.querySelector(".count").textContent = `/ ${data.total_reviews}則評論`;
+                document.querySelector("#participant-section .score").textContent = data.average_rating.toFixed(1);
+                document.querySelector("#participant-section .count").textContent = `/ ${data.total_reviews}則評論`;
             })
             .catch(error => console.error("獲取評論統計資料失敗：", error));
 
@@ -474,6 +474,27 @@
                 organizerReviewDateElement.append(` 最近發起：${lastOrganizerActivityDate}`); // 添加空格和文字
             })
             .catch(error => console.error("獲取最近發起活動失敗：", error));
+
+        // 獲取發起人統計資料
+        fetch(`/reviews/organizer_statistics?organizer_id=${targetMemberId}`)
+            .then(response => response.json())
+            .then(data => {
+                // 更新平均星等和總評價數量
+                document.querySelector("#organizer-section .score").textContent = data.average_rating.toFixed(1);
+                document.querySelector("#organizer-section .count").textContent = `/ ${data.total_reviews}則評論`;
+
+                // 更新罐頭訊息
+                const organizerBadgeGroup = document.querySelector("#organizer-section .badge-group");
+                organizerBadgeGroup.innerHTML = ""; // 清空原有的罐頭訊息
+
+                data.common_templates.forEach(template => {
+                    const badge = document.createElement("span");
+                    badge.className = "badge";
+                    badge.textContent = `${template.template}`;
+                    organizerBadgeGroup.appendChild(badge);
+                });
+            })
+            .catch(error => console.error("獲取發起人統計資料失敗：", error));
     </script>
   </body>
 </html>

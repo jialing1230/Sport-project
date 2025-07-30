@@ -90,3 +90,66 @@ def get_organizer_last_activity():
         latest_activity_date = max(organized_activities, key=lambda x: x[0])[0]
 
         return jsonify({"last_activity_date": latest_activity_date.strftime("%Y/%m/%d")})
+
+
+@review_bp.route("/reviews/organizer_statistics", methods=["GET"])
+def get_organizer_statistics():
+    organizer_id = request.args.get("organizer_id")
+
+    with get_db() as db:
+        # 從 activity 表中查詢該使用者作為發起者的所有活動
+        activities = (
+            db.query(Activity.activity_id)
+            .filter(Activity.organizer_id == organizer_id)
+            .all()
+        )
+
+        if not activities:
+            return jsonify({
+                "total_reviews": 0,
+                "average_rating": 0,
+                "common_templates": []
+            })
+
+        # 提取活動 ID
+        activity_ids = [activity.activity_id for activity in activities]
+
+        # 從 activity_reviews 表中查詢所有相關評論
+        reviews = (
+            db.query(UserReview)
+            .filter(UserReview.activity_id.in_(activity_ids))
+            .all()
+        )
+
+        if not reviews:
+            return jsonify({
+                "total_reviews": 0,
+                "average_rating": 0,
+                "common_templates": []
+            })
+
+        # 計算評論數量和平均星等
+        total_reviews = len(reviews)
+        average_rating = sum(review.rating for review in reviews) / total_reviews
+
+        # 統計罐頭訊息的出現次數
+        template_count = {}
+        for review in reviews:
+            for template_id in review.template_ids:
+                if template_id not in template_count:
+                    template_count[template_id] = 0
+                template_count[template_id] += 1
+
+        # 找出前三個最常見的罐頭訊息
+        sorted_templates = sorted(template_count.items(), key=lambda x: x[1], reverse=True)[:3]
+        common_templates = []
+        for template_id, count in sorted_templates:
+            template = db.query(ReviewTemplate).filter(ReviewTemplate.template_id == template_id).first()
+            if template:
+                common_templates.append({"template": template.text, "count": count})
+
+        return jsonify({
+            "total_reviews": total_reviews,
+            "average_rating": average_rating,
+            "common_templates": common_templates
+        })

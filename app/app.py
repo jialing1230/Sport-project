@@ -5,8 +5,8 @@ from app.routers.activity import activity_bp
 from app.routers.memeber import member_bp
 from app.routers.preference import preference_bp
 from app.routers.yahoo_news import yahoo_news_bp
+from app.routers.review import review_bp
 from app.services.scheduler import start_scheduler
-#from app.routers.class_ import class_bp
 
 
 def create_app():
@@ -23,7 +23,8 @@ def create_app():
     app.register_blueprint(member_bp)
     app.register_blueprint(preference_bp)
     app.register_blueprint(yahoo_news_bp)
-    #app.register_blueprint(class_bp) 
+    app.register_blueprint(review_bp)
+    
 
 
     # 前端頁面路由

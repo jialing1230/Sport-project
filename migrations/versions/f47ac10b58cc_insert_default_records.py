@@ -351,7 +351,89 @@ def upgrade() -> None:
         {
             "type": "5",
             "text": "完美活動，強烈推薦！",
-        }
+        },
+        {
+            "type": "6",
+            "text": "準時性差",
+        },
+        {
+            "type": "6",
+            "text": "溝通困難",
+        },
+        {
+            "type": "6",
+            "text": "配合度不高",
+        },
+        {
+            "type": "6",
+            "text": "無故缺席",
+        },
+        {
+            "type": "7",
+            "text": "稍微遲到",
+        },
+        {
+            "type": "7",
+            "text": "態度冷淡",
+        },
+        {
+            "type": "7",
+            "text": "可再積極參與",
+        },
+        {
+            "type": "7",
+            "text": "參與度低",
+        },
+        {
+            "type": "8",
+            "text": "普通參與",
+        },
+         {
+            "type": "8",
+            "text": "表現穩定",
+        },
+         {
+            "type": "8",
+            "text": "有改進空間",
+        },
+        {
+            "type": "8",
+            "text": "過程順利",
+        },
+        {
+            "type": "9",
+            "text": "準時有禮",
+        },
+        {
+            "type": "9",
+            "text": "配合良好",
+        },
+        {
+            "type": "9",
+            "text": "氣氛不錯",
+        },
+        {
+            "type": "9",
+            "text": "態度積極",
+        },
+        {
+            "type": "10",
+            "text": "非常準時",
+        },
+        {
+            "type": "10",
+            "text": "態度極佳",
+        },
+        {
+            "type": "10",
+            "text": "積極參與",
+        },
+        {
+            "type": "10",
+            "text": "表現出色",
+        },
+         
+
     ]
 
     session.execute(
@@ -420,7 +502,7 @@ def upgrade() -> None:
             "rating": 4,
             "created_time": now,
             "activity_id": past_activities[0].activity_id,
-            "template_ids": json.dumps([16, 17]),
+            "template_ids": json.dumps([38, 39]),
         },
         {
             "review_id": 2,
@@ -429,7 +511,7 @@ def upgrade() -> None:
             "rating": 5,
             "created_time": now,
             "activity_id": past_activities[1].activity_id,
-            "template_ids": json.dumps([22, 23]),
+            "template_ids": json.dumps([43, 44]),
         },
     ]
 
@@ -447,7 +529,7 @@ def upgrade() -> None:
             "activity_id": past_activities[0].activity_id,
             "reviewer_id": members[1].member_id,
             "rating": 4,
-            "template_ids": json.dumps([1, 2]),
+            "template_ids": json.dumps([16, 17]),
             "created_time": now,
         },
         {
@@ -455,7 +537,7 @@ def upgrade() -> None:
             "activity_id": past_activities[1].activity_id,
             "reviewer_id": members[0].member_id,
             "rating": 5,
-            "template_ids": json.dumps([3, 4]),
+            "template_ids": json.dumps([21, 22]),
             "created_time": now,
         },
     ]

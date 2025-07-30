@@ -419,6 +419,48 @@
             sectionParticipant.style.display = "none";
             sectionOrganizer.style.display = "block";
         };
+
+        // 從網址中提取 member_id
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetMemberId = urlParams.get("member_id");
+
+        if (!targetMemberId) {
+            console.error("無法取得 member_id");
+        }
+
+        // 獲取最近參與的活動
+        fetch(`/reviews/last_activity?target_member_id=${targetMemberId}`)
+            .then(response => response.json())
+            .then(data => {
+                const lastActivityDate = data.last_activity_date || "無記錄";
+                const reviewDateElement = document.querySelector(".review-date");
+                const svgElement = reviewDateElement.querySelector("svg");
+                reviewDateElement.innerHTML = ""; // 清空原內容
+                reviewDateElement.appendChild(svgElement); // 保留原本的 SVG
+                reviewDateElement.append(` 最近參與：${lastActivityDate}`); // 添加空格和文字
+            })
+            .catch(error => console.error("獲取最近參與活動失敗：", error));
+
+        // 獲取評論統計資料
+        fetch(`/reviews/statistics?target_member_id=${targetMemberId}`)
+            .then(response => response.json())
+            .then(data => {
+                const badgeGroup = document.querySelector(".badge-group");
+                badgeGroup.innerHTML = ""; // 清空原有的罐頭訊息
+
+                // 添加前三個罐頭訊息
+                data.common_templates.forEach(template => {
+                    const badge = document.createElement("span");
+                    badge.className = "badge";
+                    badge.textContent = `${template.template}`;
+                    badgeGroup.appendChild(badge);
+                });
+
+                // 更新平均星等和總評價數量
+                document.querySelector(".score").textContent = data.average_rating.toFixed(1);
+                document.querySelector(".count").textContent = `/ ${data.total_reviews}則評論`;
+            })
+            .catch(error => console.error("獲取評論統計資料失敗：", error));
     </script>
   </body>
 </html>

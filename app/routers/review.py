@@ -70,3 +70,23 @@ def get_last_activity():
         latest_activity = max(joined_activities, key=lambda x: x[1])
 
         return jsonify({"last_activity_date": latest_activity[1].strftime("%Y/%m/%d")})
+
+
+@review_bp.route("/reviews/organizer_last_activity", methods=["GET"])
+def get_organizer_last_activity():
+    organizer_id = request.args.get("organizer_id")
+    with get_db() as db:
+        # 從 activity 表中查詢該使用者作為發起者的所有活動
+        organized_activities = (
+            db.query(Activity.end_time)
+            .filter(Activity.organizer_id == organizer_id)
+            .all()
+        )
+
+        if not organized_activities:
+            return jsonify({"last_activity_date": None})
+
+        # 找出結束日期最晚的活動
+        latest_activity_date = max(organized_activities, key=lambda x: x[0])[0]
+
+        return jsonify({"last_activity_date": latest_activity_date.strftime("%Y/%m/%d")})

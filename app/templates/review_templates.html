@@ -433,7 +433,7 @@
             .then(response => response.json())
             .then(data => {
                 const lastActivityDate = data.last_activity_date || "無記錄";
-                const reviewDateElement = document.querySelector(".review-date");
+                const reviewDateElement = document.querySelector("#participant-section .review-date");
                 const svgElement = reviewDateElement.querySelector("svg");
                 reviewDateElement.innerHTML = ""; // 清空原內容
                 reviewDateElement.appendChild(svgElement); // 保留原本的 SVG
@@ -461,6 +461,19 @@
                 document.querySelector(".count").textContent = `/ ${data.total_reviews}則評論`;
             })
             .catch(error => console.error("獲取評論統計資料失敗：", error));
+
+        // 獲取最近發起的活動
+        fetch(`/reviews/organizer_last_activity?organizer_id=${targetMemberId}`)
+            .then(response => response.json())
+            .then(data => {
+                const lastOrganizerActivityDate = data.last_activity_date || "無記錄";
+                const organizerReviewDateElement = document.querySelector("#organizer-section .review-date");
+                const organizerSvgElement = organizerReviewDateElement.querySelector("svg");
+                organizerReviewDateElement.innerHTML = ""; // 清空原內容
+                organizerReviewDateElement.appendChild(organizerSvgElement); // 保留原本的 SVG
+                organizerReviewDateElement.append(` 最近發起：${lastOrganizerActivityDate}`); // 添加空格和文字
+            })
+            .catch(error => console.error("獲取最近發起活動失敗：", error));
     </script>
   </body>
 </html>

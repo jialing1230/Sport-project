@@ -929,7 +929,17 @@
               style="width: 100%"
             ></progress>
           </div>
-
+          <div id="evaluate-button-wrapper" style="text-align: center; margin-top: 16px; display: none;">
+            <button id="evaluate-button" style="
+              padding: 10px 20px;
+              background-color: #64bcd0;
+              color: white;
+              border: none;
+              border-radius: 8px;
+              font-size: 16px;
+              cursor: pointer;
+            ">待評價</button>
+          </div>
           <div class="modal-tab-content" id="modal-tab-1">
             <h3>參加者列表</h3>
             <div class="participants-container">
@@ -1106,6 +1116,18 @@
             data.status === "open" ? "開放報名" :
             data.status === "ongoing" ? "進行中" :
             "已結束";
+            // 控制待評價按鈕是否顯示
+          const evalWrapper = document.getElementById("evaluate-button-wrapper");
+          if (data.status === "close") {
+            evalWrapper.style.display = "block";
+            const evalBtn = document.getElementById("evaluate-button");
+            evalBtn.onclick = () => {
+              window.location.href = `/evaluate?activity_id=${activityId}&member_id=${memberId}`;
+            };
+          } else {
+            evalWrapper.style.display = "none";
+          }
+
           document.getElementById("modal-level").innerText =
             data.level || "未設定";
 
@@ -1329,6 +1351,18 @@
             data.status === "open" ? "開放報名" :
             data.status === "ongoing" ? "進行中" :
             "已結束";
+            // 控制待評價按鈕是否顯示
+          const evalWrapper = document.getElementById("evaluate-button-wrapper");
+          if (data.status === "close") {
+            evalWrapper.style.display = "block";
+            const evalBtn = document.getElementById("evaluate-button");
+            evalBtn.onclick = () => {
+              window.location.href = `/evaluate?activity_id=${activityId}&member_id=${memberId}`;
+            };
+          } else {
+            evalWrapper.style.display = "none";
+          }
+
           document.getElementById("modal-level").innerText =
             data.level || "未設定";
 

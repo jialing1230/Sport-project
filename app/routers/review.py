@@ -4,6 +4,7 @@ from app.models.user_review import UserReview
 from app.models.review_template import ReviewTemplate
 from app.models.activity import Activity
 from app.models.activity_join import ActivityJoin
+from app.models.activity_review import ActivityReview  # 新增匯入
 
 review_bp = Blueprint("review", __name__)
 
@@ -116,8 +117,8 @@ def get_organizer_statistics():
 
         # 從 activity_reviews 表中查詢所有相關評論
         reviews = (
-            db.query(UserReview)
-            .filter(UserReview.activity_id.in_(activity_ids))
+            db.query(ActivityReview)
+            .filter(ActivityReview.activity_id.in_(activity_ids))
             .all()
         )
 

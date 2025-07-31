@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>活動評價</title>
+
+    <style>
+      :root {
+        --main-color: #81d3e1;
+        --deep-blue: #2c4975;
+        --text-color: #444;
+        --bg-color: #f5f5f5;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: var(--bg-color);
+        margin: 0;
+        padding: 0px 20px;
+      }
+
+      .page-header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background-color: #ffffff;
+        display: flex;
+        align-items: center;
+        padding: 10px 16px;
+        border-bottom: 1px solid #eee;
+        margin: 0 -20px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+      }
+
+      .arrow-icon {
+        fill: #2c4975;
+        transition: fill 0.2s ease;
+        cursor: pointer;
+        flex-shrink: 0;
+        margin-left: 10px;
+      }
+
+      .arrow-icon:hover {
+        fill: #64bcd0;
+      }
+
+      .header-center {
+        display: flex;
+        align-items: center;
+        margin: 0 auto;
+        gap: 8px;
+      }
+
+      .header-logo {
+        width: 45px;
+        height: 45px;
+        margin-top: 10px;
+      }
+
+      .header-title {
+        font-size: 16px;
+        font-weight: bold;
+        color: #2c4975;
+      }
+
+      /* ✅ 新增白底置中容器樣式 */
+      .container {
+        background-color: #ffffff;
+        max-width: 600px;
+        margin: 0px auto;
+        padding: 0px 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+		min-height: calc(100vh - 66px); /* 扣掉 header 的高度（依實際高度調整） */
+	    box-sizing: border-box;
+	    display: flex;
+	    flex-direction: column;
+	    justify-content: flex-start;
+      }
+
+     .activity-title {
+	   font-size: 24px;
+	   font-weight: bold;
+	   color: var(--deep-blue);
+	   border-bottom: 1px solid var(--main-color);
+	   padding-bottom: 15px;
+	   margin-bottom: 12px;
+	   margin-top: 20px;
+	 }
+
+      .section {
+        margin-top: 2px;
+      }
+
+      .section-title {
+        font-size: 18px;
+        
+        color: var(--deep-blue);
+        margin-bottom: 0px;
+      }
+
+		.star-container {
+		  display: flex;
+		  gap: 8px;
+		  align-items: center;
+		  margin-bottom: 8px;
+		}
+
+		.star {
+		  cursor: pointer;
+		}
+
+		.star svg {
+		  width: 32px;
+		  height: 32px;
+		  fill: #cccccc; /* 預設灰色 */
+		  transition: fill 0.2s ease;
+		}
+
+		.star.active svg {
+		  fill: #fcbf1b; /* 選中時變金色 */
+		}
+
+
+      .tag-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+		margin-top: 15px;
+		margin-bottom: 15px;
+		border-bottom: 1px solid var(--main-color);
+		padding-bottom: 20px;
+      }
+
+      .tag {
+        padding: 6px 12px;
+        border-radius: 20px;
+        background: #f0f0f0;
+        border: 1px solid #ccc;
+        cursor: pointer;
+        font-size: 14px;
+        user-select: none;
+        transition: background-color 0.2s;
+      }
+
+      .tag.active {
+        background-color: var(--main-color);
+        color: white;
+        border-color: var(--main-color);
+      }
+
+      .note {
+        font-size: 14px;
+        color: #888;
+        margin-bottom: 10px;
+		margin-top: 2px;
+      }
+	 .evaluate-container {
+		display: flex;
+		gap: 24px;
+	
+	  }
+
+	  .avatar-list {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	  }
+
+	  .avatar-block {
+		  border-radius: 0;
+		  padding: 0;
+		  display: flex;
+		  flex-direction: column;
+		  align-items: center;
+		  cursor: pointer;
+	  }
+	  
+
+	  .feedback-output {
+		font-size: 20px;
+		color: #2c4975;
+		font-weight: bold;
+		padding: 12px;
+
+		border-radius: 6px;
+		min-width: 100px;
+	  }
+    </style>
+  </head>
+
+  <body>
+    <header class="page-header">
+      <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 256 256" onclick="redirectToMemberView()">
+        <path d="M228,128a12,12,0,0,1-12,12H69l51.52,51.51a12,12,0,0,1-17,17l-72-72a12,12,0,0,1,0-17l72-72a12,12,0,0,1,17,17L69,116H216A12,12,0,0,1,228,128Z"/>
+      </svg>
+      <div class="header-center">
+        <img src="/static/logo.png" class="header-logo" alt="logo">
+        <span class="header-title">活動評價</span>
+      </div>
+    </header>
+
+    <!-- ✅ 白底內容容器開始 -->
+    <div class="container">
+	<div class="activity-title">輕鬆認識拍友團</div>
+      <div class="section">
+        <div class="section-title">評價此活動</div>
+        <div class="note">從流程、氣氛到內容，給主辦人一個回饋吧！</div>
+
+		<div class="star-container" id="activity-stars">
+		  <span class="star" data-score="1">
+			<svg viewBox="0 0 256 256"><path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"/></svg>
+		  </span>
+		  <span class="star" data-score="2">
+			<svg viewBox="0 0 256 256"><path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"/></svg>
+		  </span>
+		  <span class="star" data-score="3">
+			<svg viewBox="0 0 256 256"><path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"/></svg>
+		  </span>
+		  <span class="star" data-score="4">
+			<svg viewBox="0 0 256 256"><path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"/></svg>
+		  </span>
+		  <span class="star" data-score="5">
+			<svg viewBox="0 0 256 256"><path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"/></svg>
+		  </span>
+		</div>
+
+
+
+        <div class="section-title">這次活動感覺如何？（可複選）</div>
+        <div id="activity-tags" class="tag-container"></div>
+      </div>
+	  <div class="section-title">評價其他參加者</div>
+	  <div class="note">點選頭像可為該參加者給予星等與標籤回饋！</div>
+	  <div class="evaluate-container">
+	  <div class="avatar-list">
+	  <div class="avatar-block" data-user="user1">
+		<div class="avatar-svg">
+		  <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="#505050" viewBox="0 0 256 256">
+			<path d="M172,120a44,44,0,1,1-44-44A44.05,44.05,0,0,1,172,120Zm60,8A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88.09,88.09,0,0,0-91.47-87.93C77.43,41.89,39.87,81.12,40,128.25a87.65,87.65,0,0,0,22.24,58.16A79.71,79.71,0,0,1,84,165.1a4,4,0,0,1,4.83.32,59.83,59.83,0,0,0,78.28,0,4,4,0,0,1,4.83-.32,79.71,79.71,0,0,1,21.79,21.31A87.62,87.62,0,0,0,216,128Z"/>
+		  </svg>
+		</div>
+		<div class="avatar-name">User1</div>
+	  </div>
+    </div>
+	  <div class="feedback-output" id="feedback-output"></div>
+	</div>
+	</div>
+	
+    <!-- ✅ 白底內容容器結束 -->
+
+    <script>
+      // 星星互動邏輯
+      let selectedActivityStars = 0;
+		const activityStars = document.querySelectorAll("#activity-stars .star");
+
+		activityStars.forEach(star => {
+		  star.addEventListener("click", () => {
+			selectedActivityStars = parseInt(star.dataset.score);
+			activityStars.forEach(s => {
+			  s.classList.toggle("active", parseInt(s.dataset.score) <= selectedActivityStars);
+			});
+		  });
+		});
+
+      // 評價 tag 互動
+      const activityTags = [
+        "主辦很親切", "氣氛很好", "反應及時",
+        "活動安排很好", "參加起來沒壓力", "整體很不錯"
+      ];
+		const userTags = [
+		  "互動很自然", "友善好聊", "人很隨和", "活潑又熱情",
+		  "和他互動很輕鬆", "活動有趣", "氣氛帶動", "有禮親切"
+		];
+
+      const selectedActivityTags = new Set();
+      const activityTagContainer = document.getElementById("activity-tags");
+
+      activityTags.forEach(tagText => {
+        const tag = document.createElement("div");
+        tag.className = "tag";
+        tag.innerText = tagText;
+
+        tag.addEventListener("click", () => {
+          tag.classList.toggle("active");
+          if (selectedActivityTags.has(tagText)) {
+            selectedActivityTags.delete(tagText);
+          } else {
+            selectedActivityTags.add(tagText);
+          }
+        });
+
+        activityTagContainer.appendChild(tag);
+      });
+
+      // 可給後端呼叫的函式
+      function getActivityEvaluation() {
+        return {
+          stars: selectedStars,
+          tags: Array.from(selectedActivityTags)
+        };
+      }
+
+      // 返回頁面
+      function redirectToMemberView() {
+        window.location.href = "/member_view";
+      }
+	 const blocks = document.querySelectorAll('.avatar-block');
+	  const output = document.getElementById('feedback-output');
+
+	  let activeUser = null;
+
+	  blocks.forEach(block => {
+		block.addEventListener('click', () => {
+		  const user = block.dataset.user;
+
+		  if (activeUser === user) {
+			// 如果是點同一個，就收回
+			output.textContent = '';
+			activeUser = null;
+			block.classList.remove('active');
+		  } else {
+			// 顯示內容
+			blocks.forEach(b => b.classList.remove('active'));
+			block.classList.add('active');
+			output.innerHTML = `
+					<div class="star-container" id="user-stars">
+			  <span class="star" data-score="1">
+				<svg viewBox="0 0 256 256"><path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"/></svg>
+			  </span>
+			  <span class="star" data-score="2">
+				<svg viewBox="0 0 256 256"><path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"/></svg>
+			  </span>
+			  <span class="star" data-score="3">
+				<svg viewBox="0 0 256 256"><path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"/></svg>
+			  </span>
+			  <span class="star" data-score="4">
+				<svg viewBox="0 0 256 256"><path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"/></svg>
+			  </span>
+			  <span class="star" data-score="5">
+				<svg viewBox="0 0 256 256"><path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"/></svg>
+			  </span>
+			</div>
+
+			<div id="user-tags"></div>
+			`;
+			initUserStars();
+			renderUserTags("user-tags");
+			activeUser = user;
+		  }
+		});
+	  });
+		function initUserStars() {
+		  const userStars = document.querySelectorAll("#user-stars .star");
+		  let selectedUserStars = 0;
+
+		  userStars.forEach(star => {
+			star.addEventListener("click", () => {
+			  selectedUserStars = parseInt(star.dataset.score);
+			  userStars.forEach(s => {
+				s.classList.toggle("active", parseInt(s.dataset.score) <= selectedUserStars);
+			  });
+			});
+		  });
+		}
+		function renderUserTags(containerId) {
+		  const tagContainer = document.createElement("div");
+		  tagContainer.className = "tag-container";
+
+		  const selectedTags = new Set();
+
+		  userTags.forEach(tagText => {
+			const tag = document.createElement("div");
+			tag.className = "tag";
+			tag.innerText = tagText;
+
+			tag.addEventListener("click", () => {
+			  tag.classList.toggle("active");
+			  if (selectedTags.has(tagText)) {
+				selectedTags.delete(tagText);
+			  } else {
+				selectedTags.add(tagText);
+			  }
+			});
+
+			tagContainer.appendChild(tag);
+		  });
+
+		  const container = document.getElementById(containerId);
+		  container.innerHTML = ""; // 確保舊的標籤被清空
+		  container.appendChild(tagContainer);
+		}
+
+
+
+    </script>
+	
+  </body>
+</html>

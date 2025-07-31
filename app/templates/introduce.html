@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <link rel="manifest" href="/static/manifest.json" />
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          .register("/static/service-worker.js")
+          .then(() => console.log("Service Worker Registered"))
+          .catch((error) =>
+            console.error("Service Worker Registration Failed:", error)
+          );
+      }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>活動詳細頁</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background-color: #f5f5f5;
+        color: #2c4975;
+      }
+      .container {
+        padding: 20px;
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      h1 {
+        text-align: center;
+        margin-top: 20px;
+        margin-bottom: 10px;
+        font-size: 28px;
+        color: #2c4975;
+      }
+
+      .info-box h3 {
+        margin-top: 10px;    /* 距離卡片頂部縮小 */
+        margin-bottom: 16px;  /* 與內容間距 */
+        color: #2c4975;
+        font-size: 30px;
+        font-weight: bold;
+      }
+
+      .info-box h2 {
+        margin-top: 10px;    /* 距離卡片頂部縮小 */
+        margin-bottom: 8px;  /* 與內容間距 */
+        color: #81d3e1;
+        font-size: 18px;
+        font-weight: bold;
+        margin: 0;
+      }
+      .info-box {
+        position: relative;
+        background: #fff;
+        padding: 15px;
+        border-radius: 10px;
+        margin: 0 auto 20px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        max-width: 400px;
+        margin-top: 20px;
+      }
+      .info-box p {
+        margin: 10px 0;
+        line-height: 1.6;
+        font-size: 16px;
+      }
+      .info-box p strong {
+        color: #2c4975;
+        font-weight: bold;
+      }
+      .info-box p span {
+        color: #2c4975;
+      }
+      .review-stars {
+            display: flex;
+            align-items: flex-end;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+        .review-stars .score {
+            font-size: 30px;
+            font-weight: bold;
+            color: #2c4975;
+            line-height: 1;
+        }
+        
+        .review-stars .count {
+            font-size: 12px;
+            color: #2c4975;
+            line-height: 1;
+            padding-bottom: 2px;
+        }
+        .review-attendance {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #2c4975;
+            margin-top: 4px;
+            line-height: 2;
+        }
+        .review-date {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #2c4975;
+            margin-top: 4px;
+            line-height: 2;
+        }
+
+        .rating-text {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            line-height: 1;
+        }
+
+        .rating-text .score {
+            font-size: 20px; /* 跟星星高度相近 */
+            color: #f9a825;
+            font-weight: bold;
+        }
+
+        .rating-text .count {
+            font-size: 12px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+
+        @media (max-width: 480px) {
+            .navbar-title {
+                font-size: 18px;
+            }
+            .review-card {
+                padding: 12px;
+            }
+        }
+
+        .badge-group {
+            margin-top: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding-left: 6px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            font-size: 13px;
+            color: #2c4975;               /* 深藍色文字 */
+            border: 1px solid #ccc;       /* 淺灰色外框 */
+            border-radius: 6px;
+            background-color: #fff;       /* 背景白 */
+        }
+      .btn {
+        display: block;
+        width: 200px;
+        padding: 12px;
+        margin-top: 20px;
+        background-color: #81d3e1;
+        color: white;
+        text-align: center;
+        text-decoration: none;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+      .btn:hover {
+        background-color: #2c4975;
+      }
+      .disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+      @media screen and (max-width: 600px) {
+        .container {
+          padding: 10px;
+        }
+      }
+
+      /* 讓 header sticky */
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 30px;
+        background-color: #fff;
+        flex-wrap: wrap;
+        gap: 16px;
+        box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        position: sticky;
+        top: 0;
+      }
+
+      .left-section {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        padding: 10px;
+      }
+
+      .left-section svg {
+        width: 24px;
+        height: 24px;
+        fill: var(--deep-blue);
+        cursor: pointer;
+        transition: fill 0.3s ease;
+      }
+
+      .navbar-title {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            font-size: 20px;
+            color: #2c4975;
+        }
+
+        .navbar-title img {
+            height: 28px;
+            margin-right: 10px;
+        }
+
+      .title-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .title-text {
+        font-size: 30px;
+        font-weight: bold;
+        margin: 0;
+        color: #2c4975;
+      }
+
+      .status-badge {
+        font-size: 20px;
+        padding: 4px 10px;
+        border-radius: 10px;
+        font-weight: bold;
+        white-space: nowrap;
+        color: white;
+      }
+
+      .badge-open {
+        background-color: #f8a9b3; /* 粉紅 */
+      }
+
+      .badge-full {
+        background-color: #81d3e1; /* 淡藍 */
+      }
+
+      .section-divider {
+        width: 100%;
+        height: 1.5px;
+        background-color: #81d3e1; /* 淺藍色 */
+        margin: 10px 0 15px 0;     /* 上下留點空隙 */
+        border-radius: 1px;
+      }
+
+      .location-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+
+      .location-icon {
+        margin-right: 12px; /* 統一左右間距 */
+        display: inline-block;
+        vertical-align: middle;
+      }
+
+      .location-text {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .activity-type-label {
+        padding: 3px 8px;
+        font-size: 14px;
+        font-weight: bold;
+        border-radius: 4px;
+        vertical-align: baseline; /* 垂直居中對齊 */
+      }
+
+      .activity-type-label.training-course {
+        background-color: #2c4975; /* 訓練課程的背景色 */
+        color: white; /* 訓練課程的文字顏色 */
+        font-size: inherit;
+        padding-top: 4px;
+        padding-bottom: 4px;
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+
+      .activity-type-label.general-activity {
+        color: inherit;
+        background: none;
+        font-size: inherit;
+        font-weight: inherit;
+        padding: 0;
+        border-radius: 0;
+      }
+
+      .location-row span {
+        margin-right: 8px; /* 費用與活動類型之間的間距 */
+        vertical-align: baseline;
+      }
+      .activity-type-label {
+        vertical-align: baseline;
+      }
+
+      .bottom-center {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 100px;
+        font-weight: bold;
+        color: #2c4975;
+        font-size: 15px;
+        line-height: 1.3;
+      }
+      .bottom-text {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        margin-right: 16px;
+      }
+      
+      #join-btn {
+        margin-right: 15px; /* 按鈕往右邊移一點 */
+      }
+
+      #signup-deadline {
+        font-size: 15px;
+        margin-top: 2px;
+        color: #2c4975;
+      }
+
+      .bottom-nav {
+        position: fixed;
+        bottom: 0px;
+        left: 0;
+        width: 100%;
+        background: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 72px;
+        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+        z-index: 99;
+      }
+
+      .bottom-nav-inner {
+        max-width: 900px;
+        margin: 0 auto;
+        width: 100%;
+        height: 100%;
+        padding: 0 30px; /* 左右與 header 一致 */
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+      }
+      .bottom-nav .nav-item {
+        color: #2c4975;
+        font-size: 16px;
+        text-decoration: none;
+        padding: 8px 0;
+        flex: 1;
+        text-align: center;
+        transition: color 0.2s;
+      }
+      .bottom-nav .nav-item:hover {
+        color: #81d3e1;
+        background: #eaf7fb;
+      }
+      .bottom-nav .btn {
+        white-space: nowrap;   /* 不換行 */
+        width: auto;           /* 自動寬度 */
+        margin-left: auto;    
+        margin-right: 36px;    
+        padding: 10px 16px;
+        font-size: 16px;
+        font-weight: bold;
+        background-color: #81d3e1;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-bottom: 24px;
+        margin-top: 24px;
+      }
+
+      @media (min-width: 768px) {
+        .search-box {
+          max-width: 420px; /* ✅ 桌機版拉長 */
+        }
+      }
+      .filter-icon {
+        width: 24px;
+        height: 24px;
+        margin-left: 12px;
+        color: var(--deep-blue);
+        cursor: pointer;
+        transition: color 0.3s ease;
+      }
+
+      .filter-icon:hover {
+        color: var(--light-blue);
+      }
+
+      .overview-button {
+        font-size: 14px;
+        font-weight: bold;
+        color: var(--deep-blue);
+        background-color: #fff;
+        border: 2px solid var(--deep-blue);
+        border-radius: 6px;
+        padding: 6px 12px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        white-space: nowrap; /* 不要自動換行 */
+      }
+
+      .overview-button:hover {
+        background-color: var(--light-blue);
+        color: white;
+        border-color: var(--light-blue);
+      }
+
+      .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .map-area {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+      }
+
+      .avatar-box {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .avatar-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        display: block;
+      }
+
+      .heart-icon {
+        cursor: pointer;
+        width: 24px;
+        height: 24px;
+        transition: transform 0.3s ease;
+      }
+
+      .heart-path {
+        transition: fill 0.3s ease, stroke 0.3s ease;
+      }
+      #course-schedule {
+        margin-top: 20px;
+        padding: 16px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        color: #2c4975;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      #course-schedule h3 {
+        margin-bottom: 10px;
+        font-size: 18px;
+        font-weight: bold;
+        color: #81d3e1;
+      }
+      .schedule-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+
+      .schedule-table th,
+      .schedule-table td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: center;
+      }
+
+      .schedule-table th {
+        background-color: #81d3e1;
+        color: white;
+        font-weight: bold;
+      }
+
+      
+
+
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div class="left-section">
+          <svg
+          id="back-button" 
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          width="24"
+          height="24">
+            <path d="M15 19l-7-7 7-7"
+                  stroke= #81d3e1
+                  stroke-width="2"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"></path>
+            <path d="M8 12h14"
+                  stroke="#81d3e1"
+                  stroke-width="2"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"></path>
+          </svg>
+      </div>
+      <div class="navbar-title">
+            <img src="/static/logo.png" alt="Logo" />
+            發起人資訊
+      </div>
+    </div>
+
+      <div class="info-box">
+        <div class="avatar-box" style="position: absolute; top: 30px; right: 35px; width: 60px; height: 60px;">
+            <img src="/static/avatar.jpg" alt="使用者頭像" />
+        </div>
+        <h3>使用者</h3>
+        <h2>自我介紹</h2>
+        <p>這是卡片的內容，可以放任何文字或資訊。這是卡片的內容，可以放任何文字或資訊。這是卡片的內容，可以放任何文字或資訊。這是卡片的內容，可以放任何文字或資訊。</p>
+      </div>
+      <div class="info-box">
+        <h2>活動概況</h2>
+        <div class="review-stars">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="#f9a825" stroke="#f9a825" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;">
+                <path d="M12 2L15 9H22L17 14L19 21L12 17L5 21L7 14L2 9H9L12 2Z"/>
+            </svg>
+            <span class="score">4.2</span>
+            <span class="count">/ 20則評論</span>
+        </div>
+        <div class="review-attendance">
+            <div style="width: 0.5px;"></div>
+            <p style="display: flex; align-items: center; gap: 12px; margin: 0;">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    fill="none"
+                    stroke="#2c4975"
+                    stroke-width="2"
+                    viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M8 12l3 3l5-5" />
+                </svg>
+                <strong>發起場數：32場</strong>
+            </p>
+        </div>
+        <div class="review-date">
+            <div style="width: 0.5px;"></div>
+            <p style="display: flex; align-items: center; gap: 6px; margin: 0;">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    width="20" height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#2c4975"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    style="vertical-align: middle; margin-right: 6px;">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                <strong>最近發起：2025/08/01</strong>
+            </p>
+        </div>
+        </div>
+      <div class="info-box">
+        <h2>常見評價</h2>
+        <div class="badge-group">
+            <span class="badge">有耐心</span>
+            <span class="badge">準時到達</span>
+            <span class="badge">動作確實</span>
+            <!-- 這些會由 JS 自動塞入 -->
+        </div>
+      </div>
+      </div>
+
+
+    <script>
+      // 返回按鈕功能
+      document.getElementById("back-button").addEventListener("click", function() {
+        window.history.back();
+      });
+    </script>
+  </body>
+</html>

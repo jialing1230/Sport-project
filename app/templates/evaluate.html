@@ -67,7 +67,7 @@
       /* ✅ 新增白底置中容器樣式 */
       .container {
         background-color: #ffffff;
-        max-width: 600px;
+        max-width: 500px;
         margin: 0px auto;
         padding: 0px 24px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -76,6 +76,7 @@
 	    display: flex;
 	    flex-direction: column;
 	    justify-content: flex-start;
+		padding-bottom: 30px;
       }
 
      .activity-title {
@@ -151,7 +152,7 @@
 
       .note {
         font-size: 14px;
-        color: #888;
+        color: #64BCD0;
         margin-bottom: 10px;
 		margin-top: 2px;
       }
@@ -162,30 +163,95 @@
 	  }
 
 	  .avatar-list {
-		display: flex;
-		flex-direction: column;
-		gap: 12px;
+		  display: grid;
+          grid-template-columns: repeat(5, 1fr); /* 5 欄，這是你原本就有的 */
+		  gap:12px 25px;
+          padding: 0 6px;  /* ✅ 左右補齊 gap，使兩側距離一致 */
+		  box-sizing: border-box;
+		  width: 100%;
+		  max-width: 800px;
+		  margin: 0 auto; /* 置中 */
 	  }
 
 	  .avatar-block {
-		  border-radius: 0;
-		  padding: 0;
 		  display: flex;
 		  flex-direction: column;
 		  align-items: center;
 		  cursor: pointer;
+		  text-align: center;
 	  }
-	  
+			  
+		.avatar-svg svg {
+		  width: 56px;
+		  height: 56px;
+		}
+		.avatar-name {
+		  font-size: 13px;
+		}
 
-	  .feedback-output {
-		font-size: 20px;
-		color: #2c4975;
-		font-weight: bold;
-		padding: 12px;
+		.feedback-output {
+		  grid-column: 1 / -1;       /* ✅ 讓評價區佔滿整列 */
+		  width: 100%;
+		  box-sizing: border-box;
 
-		border-radius: 6px;
-		min-width: 100px;
-	  }
+		  max-height: 0;
+		  opacity: 0;
+		  overflow: hidden;
+		  transition: max-height  0.25s cubic-bezier(.23,1.21,.51,1.02), opacity 0.25s, padding 0.25s;
+          padding: 0 12px;
+		  padding: 0 12px;
+		  margin-top: 12px;
+		}
+
+		.feedback-output.active {
+		  max-height: 500px; /* 根據實際內容高度調整 */
+		  opacity: 1;
+		  padding: 12px;
+		}
+		#user-stars {
+		  display: flex;
+		  flex-wrap: wrap;
+		  gap: 8px;
+		  justify-content: flex-start;
+		}
+		.avatar-arrow {
+		  width: 0;
+		  height: 0;
+		  margin-top: 2px;
+		  border-left: 12px solid transparent;
+		  border-right: 12px solid transparent;
+		  border-top: 12px solid #81d3e1; /* 箭頭顏色，和主色一致 */
+		  display: none;
+		  transition: opacity 0.2s;
+		}
+		.avatar-block.active-user .avatar-arrow {
+		  display: block;
+		  /* 你可以加個動畫進場，如果想更有感 */
+		  opacity: 1;
+		  /* 可以加點陰影，讓箭頭更立體 */
+		  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
+		}
+		.submit-evaluation-btn {
+		  background-color: #fea3a8;
+		  color: #fff;
+		  font-size: 20px;
+		  font-weight: bold;
+		  border: none;
+		  width: 100%;
+		  margin: 36px 0 0 0;
+		  border-radius: 12px;
+		  height: 56px;
+		  box-shadow: 0 2px 10px rgba(252,167,167,0.08);
+		  letter-spacing: 2px;
+		  cursor: pointer;
+		  transition: background 0.18s, filter 0.18s;
+		  display: block;
+		}
+		.submit-evaluation-btn:active {
+		  filter: brightness(0.95);
+		}
+
+
     </style>
   </head>
 
@@ -241,10 +307,79 @@
 		  </svg>
 		</div>
 		<div class="avatar-name">User1</div>
+		  <div class="avatar-arrow"></div> 
+		<div class="evaluation-slot"></div>
+		 <div class="checkmark" style="display: none;">✔</div> <!-- ✅ 新增 -->
 	  </div>
+	  <div class="avatar-block" data-user="user2">
+		<div class="avatar-svg">
+		  <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="#505050" viewBox="0 0 256 256">
+			<path d="M172,120a44,44,0,1,1-44-44A44.05,44.05,0,0,1,172,120Zm60,8A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88.09,88.09,0,0,0-91.47-87.93C77.43,41.89,39.87,81.12,40,128.25a87.65,87.65,0,0,0,22.24,58.16A79.71,79.71,0,0,1,84,165.1a4,4,0,0,1,4.83.32,59.83,59.83,0,0,0,78.28,0,4,4,0,0,1,4.83-.32,79.71,79.71,0,0,1,21.79,21.31A87.62,87.62,0,0,0,216,128Z"/>
+		  </svg>
+		</div>
+		<div class="avatar-name">User2</div>
+		  <div class="avatar-arrow"></div> 
+		 <div class="checkmark" style="display: none;">✔</div> <!-- ✅ 新增 -->
+	  </div>
+	  <div class="avatar-block" data-user="user3">
+		<div class="avatar-svg">
+		  <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="#505050" viewBox="0 0 256 256">
+			<path d="M172,120a44,44,0,1,1-44-44A44.05,44.05,0,0,1,172,120Zm60,8A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88.09,88.09,0,0,0-91.47-87.93C77.43,41.89,39.87,81.12,40,128.25a87.65,87.65,0,0,0,22.24,58.16A79.71,79.71,0,0,1,84,165.1a4,4,0,0,1,4.83.32,59.83,59.83,0,0,0,78.28,0,4,4,0,0,1,4.83-.32,79.71,79.71,0,0,1,21.79,21.31A87.62,87.62,0,0,0,216,128Z"/>
+		  </svg>
+		</div>
+		<div class="avatar-name">User3</div>
+		  <div class="avatar-arrow"></div> 
+		 <div class="checkmark" style="display: none;">✔</div> <!-- ✅ 新增 -->
+	  </div>
+	  <div class="avatar-block" data-user="user4">
+		<div class="avatar-svg">
+		  <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="#505050" viewBox="0 0 256 256">
+			<path d="M172,120a44,44,0,1,1-44-44A44.05,44.05,0,0,1,172,120Zm60,8A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88.09,88.09,0,0,0-91.47-87.93C77.43,41.89,39.87,81.12,40,128.25a87.65,87.65,0,0,0,22.24,58.16A79.71,79.71,0,0,1,84,165.1a4,4,0,0,1,4.83.32,59.83,59.83,0,0,0,78.28,0,4,4,0,0,1,4.83-.32,79.71,79.71,0,0,1,21.79,21.31A87.62,87.62,0,0,0,216,128Z"/>
+		  </svg>
+		</div>
+		<div class="avatar-name">User4</div>
+		  <div class="avatar-arrow"></div> 
+		 <div class="checkmark" style="display: none;">✔</div> <!-- ✅ 新增 -->
+	  </div>
+	  <div class="avatar-block" data-user="user5">
+		<div class="avatar-svg">
+		  <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="#505050" viewBox="0 0 256 256">
+			<path d="M172,120a44,44,0,1,1-44-44A44.05,44.05,0,0,1,172,120Zm60,8A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88.09,88.09,0,0,0-91.47-87.93C77.43,41.89,39.87,81.12,40,128.25a87.65,87.65,0,0,0,22.24,58.16A79.71,79.71,0,0,1,84,165.1a4,4,0,0,1,4.83.32,59.83,59.83,0,0,0,78.28,0,4,4,0,0,1,4.83-.32,79.71,79.71,0,0,1,21.79,21.31A87.62,87.62,0,0,0,216,128Z"/>
+		  </svg>
+		</div>
+		<div class="avatar-name">User5</div>
+		  <div class="avatar-arrow"></div> 
+		 <div class="checkmark" style="display: none;">✔</div> <!-- ✅ 新增 -->
+	  </div>
+	      <div class="feedback-output" id="feedback-slot-1"></div>
+	  <div class="avatar-block" data-user="user6">
+		<div class="avatar-svg">
+		  <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="#505050" viewBox="0 0 256 256">
+			<path d="M172,120a44,44,0,1,1-44-44A44.05,44.05,0,0,1,172,120Zm60,8A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88.09,88.09,0,0,0-91.47-87.93C77.43,41.89,39.87,81.12,40,128.25a87.65,87.65,0,0,0,22.24,58.16A79.71,79.71,0,0,1,84,165.1a4,4,0,0,1,4.83.32,59.83,59.83,0,0,0,78.28,0,4,4,0,0,1,4.83-.32,79.71,79.71,0,0,1,21.79,21.31A87.62,87.62,0,0,0,216,128Z"/>
+		  </svg>
+		</div>
+		<div class="avatar-name">User6</div>
+		  <div class="avatar-arrow"></div> 
+		 <div class="checkmark" style="display: none;">✔</div> <!-- ✅ 新增 -->
+	  </div>
+	  <div class="avatar-block" data-user="user7">
+		<div class="avatar-svg">
+		  <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="#505050" viewBox="0 0 256 256">
+			<path d="M172,120a44,44,0,1,1-44-44A44.05,44.05,0,0,1,172,120Zm60,8A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88.09,88.09,0,0,0-91.47-87.93C77.43,41.89,39.87,81.12,40,128.25a87.65,87.65,0,0,0,22.24,58.16A79.71,79.71,0,0,1,84,165.1a4,4,0,0,1,4.83.32,59.83,59.83,0,0,0,78.28,0,4,4,0,0,1,4.83-.32,79.71,79.71,0,0,1,21.79,21.31A87.62,87.62,0,0,0,216,128Z"/>
+		  </svg>
+		</div>
+		<div class="avatar-name">User7</div>
+		  <div class="avatar-arrow"></div> 
+		 <div class="checkmark" style="display: none;">✔</div> <!-- ✅ 新增 -->
+	  </div>	
+	  	  <div class="feedback-output" id="feedback-slot-2"></div>  
     </div>
-	  <div class="feedback-output" id="feedback-output"></div>
+
 	</div>
+		<div class="fixed-submit-btn-bar">
+	  <button type="button" class="submit-evaluation-btn">送出評價</button>
+	</div>
+
 	</div>
 	
     <!-- ✅ 白底內容容器結束 -->
@@ -305,95 +440,146 @@
       function redirectToMemberView() {
         window.location.href = "/member_view";
       }
-	 const blocks = document.querySelectorAll('.avatar-block');
-	  const output = document.getElementById('feedback-output');
+	const blocks = document.querySelectorAll('.avatar-block');
+const feedbackSlot1 = document.getElementById('feedback-slot-1');
+const feedbackSlot2 = document.getElementById('feedback-slot-2');
+let activeUser = null;
 
-	  let activeUser = null;
+const selectedUserStarsMap = new Map(); // 儲存每個 user 的星星
+const selectedUserTagsMap = new Map();  // 儲存每個 user 的 tag（Set）
 
-	  blocks.forEach(block => {
-		block.addEventListener('click', () => {
-		  const user = block.dataset.user;
+blocks.forEach(block => {
+  block.addEventListener('click', () => {
+    const user = block.dataset.user;
+    const slot = (['user1','user2','user3','user4','user5'].includes(user)) ? feedbackSlot1 : feedbackSlot2;
 
-		  if (activeUser === user) {
-			// 如果是點同一個，就收回
-			output.textContent = '';
-			activeUser = null;
-			block.classList.remove('active');
-		  } else {
-			// 顯示內容
-			blocks.forEach(b => b.classList.remove('active'));
-			block.classList.add('active');
-			output.innerHTML = `
-					<div class="star-container" id="user-stars">
-			  <span class="star" data-score="1">
-				<svg viewBox="0 0 256 256"><path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"/></svg>
-			  </span>
-			  <span class="star" data-score="2">
-				<svg viewBox="0 0 256 256"><path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"/></svg>
-			  </span>
-			  <span class="star" data-score="3">
-				<svg viewBox="0 0 256 256"><path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"/></svg>
-			  </span>
-			  <span class="star" data-score="4">
-				<svg viewBox="0 0 256 256"><path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"/></svg>
-			  </span>
-			  <span class="star" data-score="5">
-				<svg viewBox="0 0 256 256"><path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"/></svg>
-			  </span>
-			</div>
+    // 防切換（有填但未完成不可切）
+    let preventSwitch = false;
+    if (activeUser) {
+      const stars = selectedUserStarsMap.get(activeUser);
+      const tags = selectedUserTagsMap.get(activeUser);
+      const hasFilled = (stars > 0) || (tags && tags.size > 0);
+      const isComplete = isUserEvaluationComplete(activeUser);
+      preventSwitch = hasFilled && !isComplete;
+    }
 
-			<div id="user-tags"></div>
-			`;
-			initUserStars();
-			renderUserTags("user-tags");
-			activeUser = user;
-		  }
-		});
-	  });
-		function initUserStars() {
-		  const userStars = document.querySelectorAll("#user-stars .star");
-		  let selectedUserStars = 0;
-
-		  userStars.forEach(star => {
-			star.addEventListener("click", () => {
-			  selectedUserStars = parseInt(star.dataset.score);
-			  userStars.forEach(s => {
-				s.classList.toggle("active", parseInt(s.dataset.score) <= selectedUserStars);
-			  });
-			});
-		  });
-		}
-		function renderUserTags(containerId) {
-		  const tagContainer = document.createElement("div");
-		  tagContainer.className = "tag-container";
-
-		  const selectedTags = new Set();
-
-		  userTags.forEach(tagText => {
-			const tag = document.createElement("div");
-			tag.className = "tag";
-			tag.innerText = tagText;
-
-			tag.addEventListener("click", () => {
-			  tag.classList.toggle("active");
-			  if (selectedTags.has(tagText)) {
-				selectedTags.delete(tagText);
-			  } else {
-				selectedTags.add(tagText);
-			  }
-			});
-
-			tagContainer.appendChild(tag);
-		  });
-
-		  const container = document.getElementById(containerId);
-		  container.innerHTML = ""; // 確保舊的標籤被清空
-		  container.appendChild(tagContainer);
-		}
+    // 點自己且尚未填寫 ➜ 收合
+    if (activeUser === user && !(selectedUserStarsMap.get(user) > 0) && !(selectedUserTagsMap.get(user) && selectedUserTagsMap.get(user).size > 0)) {
+      slot.classList.remove('active');
+      setTimeout(() => { slot.innerHTML = ''; }, 250); // 給收合動畫時間
+      activeUser = null;
+      block.classList.remove('active-user');
+    } else if (activeUser !== user) {
+      if (preventSwitch) {
+        alert("請先完成目前這位參加者的星等與標籤評價！");
+        return;
+      }
+      // 換人時滑順收合
+      slot.classList.remove('active');
+      setTimeout(() => {
+        renderUserEvaluation(user, slot);
+        slot.classList.add('active');
+      }, 220);  // 與 CSS transition 時間相同
+      blocks.forEach(b => b.classList.remove('active-user'));
+      block.classList.add('active-user');
+      activeUser = user;
+    }
+  });
+});
 
 
+// 星星互動
+function initUserStars(user) {
+  const userStars = document.querySelectorAll("#user-stars .star");
+  let selectedUserStars = selectedUserStarsMap.get(user) || 0;
 
+  userStars.forEach(star => {
+    // 狀態回填
+    const sScore = parseInt(star.dataset.score);
+    star.classList.toggle("active", sScore <= selectedUserStars);
+
+    star.addEventListener("click", () => {
+      const score = parseInt(star.dataset.score);
+      if (score === selectedUserStars) {
+        selectedUserStars = 0;
+      } else {
+        selectedUserStars = score;
+      }
+      selectedUserStarsMap.set(user, selectedUserStars);
+      userStars.forEach(s => {
+        const sScore = parseInt(s.dataset.score);
+        s.classList.toggle("active", sScore <= selectedUserStars);
+      });
+    });
+  });
+}
+
+// 標籤互動
+function renderUserTags(containerId, user) {
+  const tagContainer = document.createElement("div");
+  tagContainer.className = "tag-container";
+
+  const selectedTags = selectedUserTagsMap.get(user) || new Set();
+
+  userTags.forEach(tagText => {
+    const tag = document.createElement("div");
+    tag.className = "tag";
+    tag.innerText = tagText;
+
+    // 標示已選
+    if (selectedTags.has(tagText)) {
+      tag.classList.add("active");
+    }
+
+    tag.addEventListener("click", () => {
+      tag.classList.toggle("active");
+      if (selectedTags.has(tagText)) {
+        selectedTags.delete(tagText);
+      } else {
+        selectedTags.add(tagText);
+      }
+      selectedUserTagsMap.set(user, selectedTags); // 更新儲存
+    });
+
+    tagContainer.appendChild(tag);
+  });
+
+  const container = document.getElementById(containerId);
+  container.innerHTML = "";
+  container.appendChild(tagContainer);
+}
+
+function renderUserEvaluation(user, slot) {
+  // 直接覆蓋自己這個 slot（不用 setTimeout）
+  slot.classList.remove('active');
+  slot.innerHTML = `
+    <div class="star-container" id="user-stars">
+      ${[1,2,3,4,5].map(score => `
+        <span class="star" data-score="${score}">
+          <svg viewBox="0 0 256 256"><path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"/></svg>
+        </span>`).join('')}
+    </div>
+    <div id="user-tags"></div>
+  `;
+  initUserStars(user);
+  renderUserTags("user-tags", user);
+
+  // 更新頭像勾勾
+  blocks.forEach(b => {
+    const u = b.dataset.user;
+    const done = isUserEvaluationComplete(u);
+    const check = b.querySelector('.checkmark');
+    if (check) {
+      check.style.display = done ? 'block' : 'none';
+    }
+  });
+}
+
+function isUserEvaluationComplete(user) {
+  const stars = selectedUserStarsMap.get(user);
+  const tags = selectedUserTagsMap.get(user);
+  return stars > 0 && tags && tags.size > 0;
+}
     </script>
-	
   </body>
 </html>

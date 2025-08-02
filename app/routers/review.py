@@ -5,6 +5,7 @@ from app.models.review_template import ReviewTemplate
 from app.models.activity import Activity
 from app.models.activity_join import ActivityJoin
 from app.models.activity_review import ActivityReview  # 新增匯入
+from flask import render_template
 
 review_bp = Blueprint("review", __name__)
 
@@ -154,3 +155,10 @@ def get_organizer_statistics():
             "average_rating": average_rating,
             "common_templates": common_templates
         })
+
+@review_bp.route("/evaluate", methods=["GET"])
+def render_evaluate_page():
+    activity_id = request.args.get("activity_id")
+    member_id = request.args.get("member_id")
+    return render_template("evaluate.html", activity_id=activity_id, member_id=member_id)
+

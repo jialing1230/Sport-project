@@ -438,8 +438,8 @@
 
       // 返回頁面
       function getMemberIdFromURL() {
-         const urlParams = new URLSearchParams(window.location.search);
-         return urlParams.get('member_id');
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('member_id');
 }
 
       function redirectToMemberView() {
@@ -447,9 +447,13 @@
         if (memberId) {
           window.location.href = `/activity?member_id=${memberId}`;
         } else {
-          window.location.href = '/';
-    }
+           window.location.href = '/'; // 或導回登入頁
+  }
 }
+	      const blocks = document.querySelectorAll('.avatar-block');
+const feedbackSlot1 = document.getElementById('feedback-slot-1');
+const feedbackSlot2 = document.getElementById('feedback-slot-2');
+let activeUser = null;
 
 
 const selectedUserStarsMap = new Map(); // 儲存每個 user 的星星

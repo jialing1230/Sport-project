@@ -399,8 +399,12 @@ def delete_account(member_id):
 
     return jsonify({"success": True}), 200
 
-@member_bp.route("/<string:member_id>/change-password", methods=["POST"])
-def change_password(member_id):
+@member_bp.route("/change-password", methods=["POST"])
+def change_password():
+    member_id = request.args.get("member_id")
+    if not member_id:
+        return jsonify({"error": "缺少會員 ID"}), 400
+
     data = request.get_json() or {}
     new_password = data.get("password")
 
@@ -410,7 +414,7 @@ def change_password(member_id):
     with get_db() as db:
         member = db.query(Member).get(member_id)
         if not member:
-            return jsonify({"error": "找不到該會員"}), 404
+            return jsonify({"error": "會員不存在"}), 404
 
         member.password = new_password
         member.updated_at = datetime.utcnow()

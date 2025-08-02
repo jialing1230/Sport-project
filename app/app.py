@@ -117,6 +117,11 @@ def create_app():
     def analysis_page():
         member_id = request.args.get("member_id")
         return render_template("analysis.html", member_id=member_id)
+    
+    @app.route("/change_password")
+    def change_password_page():
+        member_id = request.args.get("member_id")
+        return render_template("change_password.html", member_id=member_id)
 
     start_scheduler()  # 啟動排程
     return app

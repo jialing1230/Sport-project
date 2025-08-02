@@ -399,5 +399,29 @@ def delete_account(member_id):
 
     return jsonify({"success": True}), 200
 
+@member_bp.route("/<string:member_id>/change-password", methods=["POST"])
+def change_password(member_id):
+    data = request.get_json() or {}
+    new_password = data.get("password")
+
+    if not new_password:
+        return jsonify({"error": "缺少新的密碼"}), 400
+
+    with get_db() as db:
+        member = db.query(Member).get(member_id)
+        if not member:
+            return jsonify({"error": "找不到該會員"}), 404
+
+        member.password = new_password
+        member.updated_at = datetime.utcnow()
+
+        try:
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            return jsonify({"error": str(e)}), 500
+
+    return jsonify({"success": True}), 200
+
 
 

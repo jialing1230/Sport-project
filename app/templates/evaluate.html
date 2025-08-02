@@ -437,13 +437,20 @@
       }
 
       // 返回頁面
+      function getMemberIdFromURL() {
+         const urlParams = new URLSearchParams(window.location.search);
+         return urlParams.get('member_id');
+}
+
       function redirectToMemberView() {
-        window.location.href = "/member_view";
-      }
-	const blocks = document.querySelectorAll('.avatar-block');
-const feedbackSlot1 = document.getElementById('feedback-slot-1');
-const feedbackSlot2 = document.getElementById('feedback-slot-2');
-let activeUser = null;
+        const memberId = getMemberIdFromURL();
+        if (memberId) {
+          window.location.href = `/activity?member_id=${memberId}`;
+        } else {
+          window.location.href = '/';
+    }
+}
+
 
 const selectedUserStarsMap = new Map(); // 儲存每個 user 的星星
 const selectedUserTagsMap = new Map();  // 儲存每個 user 的 tag（Set）

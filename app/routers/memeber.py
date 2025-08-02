@@ -416,6 +416,9 @@ def change_password():
         if not member:
             return jsonify({"error": "會員不存在"}), 404
 
+        if member.password == new_password:
+            return jsonify({"error": "新密碼不能與舊密碼相同"}), 400
+
         member.password = new_password
         member.updated_at = datetime.utcnow()
 

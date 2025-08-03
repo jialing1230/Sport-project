@@ -210,6 +210,17 @@ def upgrade() -> None:
         sa.UniqueConstraint('member_id', 'activity_id', name='uq_member_activity')
     )
     op.create_index('ix_activity_favorite_id', 'activity_favorite', ['id'], unique=False)
+    op.create_table(
+    'blacklist',
+    sa.Column('id', sa.Integer(), primary_key=True, autoincrement=True),
+    sa.Column('member_id', sa.String(length=36), nullable=False),
+    sa.Column('blocked_member_id', sa.String(length=36), nullable=False),
+    sa.Column('reason', sa.String(length=255), nullable=True),
+    sa.Column('created_at', sa.DateTime(), nullable=False, default=sa.func.now()),
+    sa.ForeignKeyConstraint(['member_id'], ['members.member_id']),
+    sa.ForeignKeyConstraint(['blocked_member_id'], ['members.member_id']),
+)
+op.create_index('ix_blacklist_id', 'blacklist', ['id'], unique=False)
     # ### end Alembic commands ###
 
 
@@ -243,4 +254,6 @@ def downgrade() -> None:
     op.drop_table('review_templates')
     op.drop_index('ix_activity_favorite_id', table_name='activity_favorite')
     op.drop_table('activity_favorite')
+    op.drop_index('ix_blacklist_id', table_name='blacklist')
+    op.drop_table('blacklist')
     # ### end Alembic commands ###

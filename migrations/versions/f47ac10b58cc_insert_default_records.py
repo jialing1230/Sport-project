@@ -550,6 +550,29 @@ def upgrade() -> None:
         activity_reviews,
     )
 
+    blacklist_entries = [
+        {
+            "member_id": members[0].member_id,
+            "blocked_member_id": members[1].member_id,
+            "reason": "不當行為",
+            "created_at": now,
+        },
+        {
+            "member_id": members[2].member_id,
+            "blocked_member_id": members[3].member_id,
+            "reason": "騷擾其他使用者",
+            "created_at": now,
+        },
+    ]
+
+    session.execute(
+        text("""
+        INSERT INTO blacklist (member_id, blocked_member_id, reason, created_at)
+        VALUES (:member_id, :blocked_member_id, :reason, :created_at)
+        """),
+        blacklist_entries,
+    )
+
     session.commit()
 
 

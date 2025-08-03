@@ -35,3 +35,5 @@ class Member(Base):
     )
     exercise_records = relationship("ExerciseRecord", back_populates="member")
     activity_favorites = relationship("ActivityFavorite", back_populates="member")
+    blacklist_given = relationship("Blacklist", foreign_keys="Blacklist.member_id", back_populates="member")
+    blacklist_received = relationship("Blacklist", foreign_keys="Blacklist.blocked_member_id", back_populates="blocked_member")

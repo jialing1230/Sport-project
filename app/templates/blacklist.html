@@ -332,6 +332,7 @@
                         data.forEach((item) => {
                             const card = document.createElement("div");
                             card.className = "activity-card";
+                            card.dataset.blockedMemberId = item.blocked_member_id; // 添加 data-blocked-member-id 屬性
 
                             card.innerHTML = `
                                 <div class="card-inner">
@@ -368,6 +369,47 @@
             }
 
             document.addEventListener("DOMContentLoaded", fetchBlacklist);
+
+            document.addEventListener("click", async (event) => {
+                if (event.target.classList.contains("unblock-btn")) {
+                    const confirmUnblock = confirm("確定要解除封鎖嗎？");
+                    if (!confirmUnblock) {
+                        return;
+                    }
+
+                    const card = event.target.closest(".activity-card");
+                    const blockedMemberId = card.dataset.blockedMemberId; // 從 data-blocked-member-id 屬性獲取
+                    const memberId = new URLSearchParams(window.location.search).get("member_id");
+
+                    console.log("解析的 blockedMemberId:", blockedMemberId);
+                    console.log("解析的 memberId:", memberId);
+
+                    if (!memberId || !blockedMemberId) {
+                        console.error("缺少必要的參數", { memberId, blockedMemberId });
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch("/api/members/blacklist/unblock", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({ member_id: memberId, blocked_member_id: blockedMemberId }),
+                        });
+
+                        if (response.ok) {
+                            console.log("解除封鎖成功", { memberId, blockedMemberId });
+                            card.remove();
+                        } else {
+                            const errorData = await response.json();
+                            console.error("解除封鎖失敗", errorData);
+                        }
+                    } catch (error) {
+                        console.error("解除封鎖失敗", error);
+                    }
+                }
+            });
         </script>
     </body>
 </html>

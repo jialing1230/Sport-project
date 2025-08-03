@@ -15,6 +15,7 @@ from app.models.activity_favorite import ActivityFavorite
 from app.models.activity_join import ActivityJoin
 from app.models.activity_review import ActivityReview
 from app.models.user_review import UserReview
+from app.models.blacklist import Blacklist
 
 
 member_bp = Blueprint("members", __name__, url_prefix="/api/members")
@@ -429,6 +430,31 @@ def change_password():
             return jsonify({"error": str(e)}), 500
 
     return jsonify({"success": True}), 200
+
+@member_bp.route("/blacklist", methods=["GET"])
+def get_blacklist():
+    """取得特定會員的黑名單列表"""
+    member_id = request.args.get("member_id")
+    if not member_id:
+        return jsonify({"error": "缺少會員 ID"}), 400
+
+    with get_db() as db:
+        blacklists = db.query(Blacklist).filter_by(member_id=member_id).all()
+
+    if not blacklists:
+        return jsonify({"error": "該會員沒有黑名單記錄"}), 404
+
+    result = []
+    for b in blacklists:
+        blocked_member = db.query(Member).filter_by(member_id=b.blocked_member_id).first()
+        result.append({
+            "blocked_member_id": b.blocked_member_id,
+            "blocked_member_name": blocked_member.name if blocked_member else "未知",
+            "reason": b.reason,
+            "created_at": b.created_at.isoformat() if b.created_at else None
+        })
+
+    return jsonify(result), 200
 
 
 

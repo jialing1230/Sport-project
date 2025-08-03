@@ -7,8 +7,8 @@ class Blacklist(Base):
     __tablename__ = 'blacklist'
 
     id = Column(Integer, primary_key=True, index=True)
-    member_id = Column(Integer, ForeignKey('member.id'), nullable=False)
-    blocked_member_id = Column(Integer, ForeignKey('member.id'), nullable=False)
+    member_id = Column(Integer, ForeignKey('members.member_id'), nullable=False)
+    blocked_member_id = Column(Integer, ForeignKey('members.member_id'), nullable=False)
     reason = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 

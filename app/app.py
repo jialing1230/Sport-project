@@ -122,6 +122,12 @@ def create_app():
     def change_password_page():
         member_id = request.args.get("member_id")
         return render_template("change_password.html", member_id=member_id)
+    
+    @app.route("/blacklist")
+    def blacklist_page():
+        member_id = request.args.get("member_id")
+        return render_template("blacklist.html", member_id=member_id)
+
 
     start_scheduler()  # 啟動排程
     return app

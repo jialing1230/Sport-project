@@ -311,6 +311,105 @@
                     console.error("member_id 未找到");
                 }
             });
+
+            async function fetchBlacklist() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const memberId = urlParams.get("member_id");
+
+                if (!memberId) {
+                    console.error("缺少會員 ID");
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/api/members/blacklist?member_id=${memberId}`);
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        const activityList = document.querySelector(".activity-list");
+                        activityList.innerHTML = ""; // 清空列表
+
+                        data.forEach((item) => {
+                            const card = document.createElement("div");
+                            card.className = "activity-card";
+                            card.dataset.blockedMemberId = item.blocked_member_id; // 添加 data-blocked-member-id 屬性
+
+                            card.innerHTML = `
+                                <div class="card-inner">
+                                    <div class="avatar">
+                                        <img src="/static/avatar_default.jpg" alt="avatar" />
+                                    </div>
+                                    <div class="card-content" style="flex: 1;">
+                                        <div class="activity-title-row" style="margin-bottom: 6px;">
+                                            <div class="activity-title">${item.blocked_member_name}</div>
+                                        </div>
+                                        <div class="activity-info" style="color: #2c4975;">
+                                            <span class="value">封鎖原因：</span>
+                                            <span class="value">${item.reason}</span>
+                                        </div>
+                                        <div class="activity-info" style="color: #2c4975;">
+                                            <span class="value">封鎖時間：</span>
+                                            <span class="value">${item.created_at}</span>
+                                        </div>
+                                        <div style="display: flex; justify-content: flex-end; margin-top: 12px;">
+                                            <button class="unblock-btn">解除封鎖</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+
+                            activityList.appendChild(card);
+                        });
+                    } else {
+                        console.error(data.error);
+                    }
+                } catch (error) {
+                    console.error("無法取得黑名單資料", error);
+                }
+            }
+
+            document.addEventListener("DOMContentLoaded", fetchBlacklist);
+
+            document.addEventListener("click", async (event) => {
+                if (event.target.classList.contains("unblock-btn")) {
+                    const confirmUnblock = confirm("確定要解除封鎖嗎？");
+                    if (!confirmUnblock) {
+                        return;
+                    }
+
+                    const card = event.target.closest(".activity-card");
+                    const blockedMemberId = card.dataset.blockedMemberId; // 從 data-blocked-member-id 屬性獲取
+                    const memberId = new URLSearchParams(window.location.search).get("member_id");
+
+                    console.log("解析的 blockedMemberId:", blockedMemberId);
+                    console.log("解析的 memberId:", memberId);
+
+                    if (!memberId || !blockedMemberId) {
+                        console.error("缺少必要的參數", { memberId, blockedMemberId });
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch("/api/members/blacklist/unblock", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({ member_id: memberId, blocked_member_id: blockedMemberId }),
+                        });
+
+                        if (response.ok) {
+                            console.log("解除封鎖成功", { memberId, blockedMemberId });
+                            card.remove();
+                        } else {
+                            const errorData = await response.json();
+                            console.error("解除封鎖失敗", errorData);
+                        }
+                    } catch (error) {
+                        console.error("解除封鎖失敗", error);
+                    }
+                }
+            });
         </script>
     </body>
 </html>

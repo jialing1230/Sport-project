@@ -219,8 +219,8 @@ def upgrade() -> None:
     sa.Column('created_at', sa.DateTime(), nullable=False, default=sa.func.now()),
     sa.ForeignKeyConstraint(['member_id'], ['members.member_id']),
     sa.ForeignKeyConstraint(['blocked_member_id'], ['members.member_id']),
-)
-op.create_index('ix_blacklist_id', 'blacklist', ['id'], unique=False)
+    )
+    op.create_index('ix_blacklist_id', 'blacklist', ['id'], unique=False)
     # ### end Alembic commands ###
 
 

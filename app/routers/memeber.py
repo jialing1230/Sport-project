@@ -456,5 +456,32 @@ def get_blacklist():
 
     return jsonify(result), 200
 
+@member_bp.route("/blacklist/unblock", methods=["POST"])
+def unblock_member():
+    """解除封鎖指定會員"""
+    data = request.get_json() or {}
+    member_id = data.get("member_id")
+    blocked_member_id = data.get("blocked_member_id")
+
+    if not member_id or not blocked_member_id:
+        return jsonify({"error": "缺少必要的參數"}), 400
+
+    with get_db() as db:
+        blacklist_entry = db.query(Blacklist).filter_by(
+            member_id=member_id, blocked_member_id=blocked_member_id
+        ).first()
+
+        if not blacklist_entry:
+            return jsonify({"error": "找不到封鎖記錄"}), 404
+
+        db.delete(blacklist_entry)
+        try:
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            return jsonify({"error": str(e)}), 500
+
+    return jsonify({"success": True}), 200
+
 
 

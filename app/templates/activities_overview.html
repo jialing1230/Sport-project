@@ -30,12 +30,13 @@
         position: sticky;
         top: 0;
         z-index: 100;
+        
       }
       .navbar-inner {
-        margin: 0 auto;
-        padding: 0 20px;
+        margin: 0 0px;
+        padding: 0 0px;
         display: flex;
-        flex-direction: column; /* ❗改這裡 */
+        flex-direction: column; 
         width: 100%;
         box-sizing: border-box;
       }
@@ -43,13 +44,13 @@
         font-size: 20px;
         color: var(--deep-blue); /* 或你想自訂的顏色 */
         white-space: nowrap;     /* ✅ 不換行 */
-        margin-bottom: 2px;
+        margin-top: -5px; /* 負值往上移，正值往下 */
+        margin-left: 8px; /* 距離 logo */
       }
 
       .navbar-icons svg {
-        width: 24px;
-        height: 24px;
-        margin-left: 12px;
+        width: 20px;
+        height: 20px;
         cursor: pointer;
         fill: #2c4975;
         transition: fill 0.2s;
@@ -90,14 +91,25 @@
       .filter-bar-inner {
         max-width: 1400px;
         margin: 0 auto;
-        padding: 0 20px;
+        padding: 0 250px 0 0px;
         box-sizing: border-box;
-        overflow-x: hidden;  /* ✅ 一起封掉 */
+        overflow-x: auto;   /* 只留這個就好 */
+        scrollbar-width: none;      /* Firefox */
+        -ms-overflow-style: none;   /* IE 10+
+        
+      }
+        .filter-bar-inner::-webkit-scrollbar {
+        display: none;              /* Chrome/Safari/Edge */
       }
       .filters {
-        overflow-x: auto;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 8px;
+      }
+      .filters .fake-padding {
+        width: 65px;
+        flex: 0 0 auto;
+        pointer-events: none; /* 不會影響互動 */
       }
       .filters::-webkit-scrollbar {
         display: none;
@@ -107,7 +119,7 @@
         display: flex;
         flex-wrap: nowrap; /* ❗ 一行內排滿，不換行 */
         justify-content: center;
-        gap: 10px;
+        gap: 6px;
       }
       .navbar-inner .filters input{
         height: 28px;
@@ -152,43 +164,45 @@
         margin-top: 18px;
       }
 
-      @media (max-width: 900px) {
+      @media (max-width: 767px) {
         .navbar-inner {
           flex-wrap: wrap;
         }
         .navbar-logo {
-          order: 1;
-          margin-right: auto;
+          display: flex;
+          align-items: center;
         }
         .navbar-icons {
           order: 2;
         }
+        
         .filter-bar-outer {
           order: 3;
           flex: 1 1 100%;
           margin: 8px 0 0;
-          background-color: #ffffff;  /* ✅ 新增這行 */
-          overflow-x: hidden;  /* ✅ 禁止橫向滾動 */
+          background-color: #ffffff;
         }
         .activity-list {
           grid-template-columns: repeat(2, 1fr);
         }
       }
 
-      @media (max-width: 600px) {
-        .filter-bar-outer {
-          overflow-x: auto;
+      @media (max-width: 767px) {
+        .filter-bar-inner {
+          overflow-x: auto;  /* 只要這一行負責水平卷軸 */
         }
-        .navbar-inner .filters {
+        .filters {
           flex-wrap: nowrap;
-          min-width: max-content;
-          overflow-x: auto;
+          gap: 8px;
         }
         .activity-list {
           grid-template-columns: 1fr;
         }
       }
-
+        .navbar-logo {
+          display: flex;
+          align-items: center;
+        }
       .activity-card {
         background: white;
         border: 1px solid #ddd;
@@ -369,6 +383,7 @@
         margin: 0;
         padding: 0;
         background-color: white;
+        flex: 0 0 auto;
       }
 
       .select-wrapper select {
@@ -395,8 +410,8 @@
         height: 0;
         pointer-events: none;
         transform: translateY(-50%);
-        border-left: 4px solid transparent;
-        border-right: 4px solid transparent;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
         border-top: 5px solid #2c4975;
       }
       .select-wrapper.city,
@@ -415,20 +430,21 @@
         align-items: center;
         justify-content: space-between;
         flex-wrap: wrap;
-        padding: 10px 0;                    /* ✅ 取消左右 padding */
         max-width: 1400px;                  /* ✅ 與 .navbar-inner 一致 */
         margin: 0 auto;                     /* ✅ 水平置中 */
         box-sizing: border-box;
         width: 100%;
-        padding-left: 20px;                 /* ✅ 左右 padding 放這邊 */
-        padding-right: 20px;
+        padding-left: 8px;                 /* ✅ 左右 padding 放這邊 */
+        padding-right: 0px;
+        padding-top: 12px;
+        padding-bottom: 15px;
       }
 
       .navbar-bottom {
-        margin-top: 6px;
-        padding-top: 6px;
+        margin-top: -6px;
+        padding-top: 0px;
         padding-bottom: 10px;
-        border-top: 1px solid #eee;
+       
       }
       nav,
       .navbar-bottom {
@@ -442,7 +458,9 @@
         .desktop-icons {
           display: flex;
           align-items: center;
-          gap: 16px;
+          gap: 30px;
+          margin-right: 18px;
+          margin-bottom: 4px;
         }
         .desktop-search {
           height: 30px;
@@ -452,8 +470,15 @@
           font-size: 14px;
           color: #2c4975;
         }
-        .desktop-map, .desktop-menu {
-          font-size: 15px;
+        .desktop-map {
+          font-size: 14px;
+          font-weight: bold;
+          color: #2c4975;
+          cursor: pointer;
+          margin-right: 2px
+        }
+        .desktop-menu {
+          font-size: 14px;
           font-weight: bold;
           color: #2c4975;
           cursor: pointer;
@@ -476,9 +501,59 @@
           align-items: center;
           gap: 12px;
           padding: 0 20px; /* ✅ 新增：左右間距 */
-          margin-top: 4px; /* ✅ 新增：與上方 logo 留空 */
+          margin-top: -10px; /* ✅ 新增：與上方 logo 留空 */
+          margin-right: -20px
         }
       }
+      .search-box {
+        display: flex;
+        align-items: center;
+        background-color: #ffffff;
+        border-radius: 6px;
+        padding: 7px 16px;
+        max-width: 240px;
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.08);
+        margin-right: -4px;
+        transition: box-shadow 0.2s, border-color 0.2s;
+        gap: 8px;
+      }
+      .search-icon {
+        width: 22px;
+        height: 22px;
+        color: #2c4975;
+        stroke: currentColor;
+        transition: color 0.2s, stroke 0.2s;
+      }
+      .search-box input {
+        border: none;
+        background: transparent;
+        outline: none;
+        color: #2c4975;
+        font-size: 16px;
+        flex: 1;
+        padding-left: 4px;
+      }
+      .search-box input::placeholder {
+        color: #2c4975;
+        opacity: 0.6;
+        font-size: 14px;
+      }
+      .search-box:hover .search-icon,
+      .search-box:focus-within .search-icon {
+        color: #64bcd0;
+        stroke: #64bcd0;
+      }
+      @media (max-width: 768px) {
+        .search-box {
+          display: none !important;
+        }
+      }
+      .fade-out {
+        transition: opacity 0.4s cubic-bezier(0.4,0,0.2,1);
+        opacity: 0;
+      }
+
+
 
     </style>
   </head>
@@ -488,13 +563,29 @@
           <!-- ✅ 上層：品牌 + icon/文字 -->
           <div class="navbar-top">
             <div class="navbar-logo">
-              <img src="/static/logo.png" alt="logo" style="height:48px;margin-right:10px;" />
+              <img src="/static/logo.png" alt="logo" style="height:42px;margin-right:0px;" />
               <span class="navbar-title">SportMatch</span>
             </div>
             <!-- 桌機版 -->
             <div class="navbar-icons desktop-icons">
-              <input type="text" placeholder="搜尋活動…" class="desktop-search" />
-              <span class="desktop-map" onclick="goToPage()">切換地圖</span>
+              <div class="search-box">
+                <svg
+                    class="search-icon"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24" 
+                  >
+                    <path
+                      d="M15.8 15.8L21 21M18 10.5C18 14.64 14.64 18 10.5 18C6.36 18 3 14.64 3 10.5C3 6.36 6.36 3 10.5 3C14.64 3 18 6.36 18 10.5Z"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                <input type="text" placeholder="搜尋地點或活動名稱" />
+              </div>
+             <span class="desktop-map" id="mapSwitchBtn">切換地圖</span>
               <span class="desktop-menu">選單</span>
             </div>
             <!-- 手機版 -->
@@ -524,6 +615,7 @@
             <div class="filter-bar-outer">
               <div class="filter-bar-inner">
                 <form class="filters" id="navbarFilters">
+                  <div class="fake-padding"></div>
                   <div class="select-wrapper">
                     <select id="searchCity">
                       <option value="">所有縣市</option>
@@ -1027,14 +1119,20 @@
         observer.observe(document.getElementById('activityList'), { childList: true });
       });
         // Shift + 滾輪 左右滾動功能
-          document.querySelectorAll('.filters').forEach(container => {
-            container.addEventListener('wheel', function (e) {
-              if (e.shiftKey) {
-                e.preventDefault();  // ❗避免垂直滾動干擾
-                container.scrollLeft += e.deltaY;
-              }
-            });
-          });
+      document.querySelectorAll('.filter-bar-inner').forEach(container => {
+        container.addEventListener('wheel', function (e) {
+          if (e.shiftKey) {
+            e.preventDefault();
+            container.scrollLeft += e.deltaY;
+          }
+        });
+      });
+      document.getElementById("mapSwitchBtn").onclick = function() {
+        document.body.classList.add("fade-out");
+        setTimeout(goToPage, 400); // 0.4秒後導頁
+      };
+
+
     </script>
   </body>
 </html>

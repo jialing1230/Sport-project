@@ -239,7 +239,12 @@
                             card.innerHTML = `
                                 <div class="card-inner">
                                     <div class="avatar">
-                                        <img src="/static/avatars/default.jpg" alt="avatar" />
+                                        <img
+                                            id="avatarImage"
+                                            src="/static/avatars/${item.blocked_member_id}.png"
+                                            alt="會員頭像"
+                                            onerror="this.src='{{ url_for('static', filename='avatars/default.jpg') }}';"
+                                        />
                                     </div>
                                     <div class="card-content" style="flex: 1;">
                                         <div class="activity-title-row" style="margin-bottom: 6px;">

@@ -706,7 +706,9 @@ function initUserStars(user) {
 }
 
 function loadUserTagsByStars(stars, containerId) {
-  fetch(`/api/review_templates?stars=${stars}`)
+  // 參加者的 type = 活動星等 + 5
+  const type = stars + 5;
+  fetch(`/api/review_templates?stars=${type}`)
     .then(res => res.json())
     .then(data => {
       const tagContainer = document.createElement("div");

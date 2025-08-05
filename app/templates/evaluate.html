@@ -534,29 +534,6 @@ const urlParams = new URLSearchParams(window.location.search);
 const activityId = urlParams.get('activity_id');
 const currentUserId = urlParams.get('member_id');
 
-fetch(`/api/activities/${activityId}/participants`)
-  .then(res => res.json())
-  .then(participants => {
-    const avatarList = document.querySelector('.avatar-list');
-    avatarList.innerHTML = '';
-    participants
-      .filter(p => p.user_id != currentUserId)
-      .forEach(p => {
-        const block = document.createElement('div');
-        block.className = 'avatar-block';
-        block.dataset.user = p.user_id;
-        block.innerHTML = `
-          <div class="avatar-svg">
-            <img src="${p.avatar_url || '/static/default-avatar.png'}" alt="${p.name}" width="56" height="56" style="border-radius:50%;">
-          </div>
-          <div class="avatar-name">${p.name}</div>
-          <div class="avatar-arrow"></div>
-          <div class="checkmark" style="display:none;">✔</div>
-        `;
-        avatarList.appendChild(block);
-      });
-    initAvatarClickEvents();
-  });
 
 function initAvatarClickEvents() {
   const blocks = document.querySelectorAll('.avatar-block');
@@ -648,7 +625,7 @@ fetch(`/api/activities/${activityId}/participants`)
         block.dataset.user = p.user_id;
         block.innerHTML = `
           <div class="avatar-svg">
-            <img src="/static/default-avatar.png" alt="${p.name}" width="56" height="56" style="border-radius:50%;">
+            <img src="/static/avatars/default.jpg" alt="${p.name}" width="56" height="56" style="border-radius:50%;">
           </div>
           <div class="avatar-name">${p.name}</div>
           <div class="avatar-arrow"></div>

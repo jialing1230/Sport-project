@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>參加者審核</title>
+  <style>
+    :root {
+      --main-color: #81d3e1;
+      --deep-blue: #2c4975;
+      --text-color: #444;
+      --bg-color: #f5f5f5;
+      --approve-color: #81d3e1;
+      --reject-color: #fea3a8;
+    }
+    html, body {
+      margin: 0;
+      background: var(--bg-color);
+      font-family: Arial, sans-serif;
+      color: var(--deep-blue);
+    }
+    .header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      padding: 22px 16px;
+      border-bottom: 1px solid #eee;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      color: var(--deep-blue);
+    }
+    .arrow-icon {
+      fill: var(--deep-blue);
+      cursor: pointer;
+      margin-left: 8px;
+    }
+    .header-center {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .header img { height: 30px; }
+    .header-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--deep-blue);
+    }
+    .container {
+      background: #fff;
+      max-width: 401px;
+      margin: 60px auto auto auto;
+      padding: 0 24px 30px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      border-radius: 0px;
+      top: 60px;
+      overflow-y: auto;
+      color: var(--text-color);
+    }
+    .participant-card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid #eee;
+      margin-bottom: 10px;
+      margin-top: 20px;
+    }
+    .info { display: flex; align-items: center; gap: 10px; }
+    .avatar {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: #ddd; display: flex; align-items: center; justify-content: center;
+    }
+    .name {
+      font-weight: bold;
+      color: var(--deep-blue);
+      cursor: pointer;
+    }
+    .name:hover { text-decoration: underline; }
+    .status { font-size: 14px; color: var(--deep-blue); }
+    .btn {
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 15px;
+      margin-left: 8px;
+      transition: background 0.2s;
+    }
+    .btn-approve {
+      background: var(--approve-color);
+      color: #fff;
+    }
+    .btn-reject {
+      background: var(--reject-color);
+      color: #fff;
+    }
+    .btn-approve[disabled], .btn-reject[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    /* modal */
+    .modal-bg {
+      position: fixed;
+      z-index: 9999;
+      left: 0; top: 0; right: 0; bottom: 0;
+      background: rgba(44,73,117,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn .2s;
+    }
+    @keyframes fadeIn { from{ opacity: 0; } to { opacity: 1; } }
+    .modal {
+      background: #fff;
+      border-radius: 14px;
+      padding: 28px 20px 20px 20px;
+      box-shadow: 0 4px 16px rgba(44,73,117,0.12);
+      max-width: 320px;
+      min-width: 260px;
+      position: relative;
+      text-align: center;
+      color: var(--text-color);
+      animation: popupIn .25s;
+    }
+    @keyframes popupIn {
+      from { transform: scale(.95); opacity: 0.5; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .modal-avatar {
+      width: 54px; height: 54px; margin-bottom: 10px; border-radius: 50%; background: #ddd; display: flex; align-items: center; justify-content: center; margin-left: auto; margin-right: auto;
+    }
+    .modal-title { font-weight: bold; color: var(--main-color); font-size: 18px; margin-bottom: 2px;}
+    .modal-row { margin: 10px 0 5px 0; }
+    .modal-btn {
+      margin-top: 16px;
+      padding: 6px 28px;
+      background: var(--main-color);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .modal-btn:hover { background: var(--deep-blue);}
+    .modal-close {
+      position: absolute;
+      right: 18px; top: 14px; font-size: 22px; color: #bbb; cursor: pointer; background: none; border: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 標題列 -->
+  <div class="header">
+    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 256 256" onclick="history.back()">
+      <path d="M228,128a12,12,0,0,1-12,12H69l51.52,51.51a12,12,0,0,1-17,17l-72-72a12,12,0,0,1,0-17l72-72a12,12,0,0,1,17,17L69,116H216A12,12,0,0,1,228,128Z"/>
+    </svg>
+    <div class="header-center">
+      <img src="logo.png" alt="logo">
+      <div class="header-title">參加者審核</div>
+    </div>
+  </div>
+
+  <!-- 審核卡片內容 -->
+  <div class="container">
+    <div id="participants"></div>
+  </div>
+
+  <!-- 詳細資料 modal -->
+  <div id="modalBg" style="display:none">
+    <div class="modal-bg">
+      <div class="modal">
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+        <div class="modal-avatar" id="modalAvatar"></div>
+        <div class="modal-title" id="modalName"></div>
+        <div class="modal-row">出席率：<span id="modalAttendance"></span></div>
+        <div class="modal-row">評價星等：<span id="modalRating"></span></div>
+        <div class="modal-row">最近活動紀錄：</div>
+        <div id="modalRecords" style="font-size:14px;color:#666;"></div>
+        <button class="modal-btn" onclick="closeModal()">關閉</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // SVG 頭像圖示
+    const avatarSVG = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#bbb" viewBox="0 0 256 256">
+        <circle cx="128" cy="96" r="48"/>
+        <path d="M216,208a88,88,0,0,0-176,0"/>
+      </svg>
+    `;
+
+    // 假資料
+    const participants = [
+      { id: 1, name: "吳志強", status: "pending", viewed: false, attendance: "94%", rating: "★★★★☆", records: ["7/1 籃球｜出席", "7/8 跑步｜出席", "7/11 桌球｜未出席"] },
+      { id: 2, name: "周佩玲", status: "pending", viewed: false, attendance: "85%", rating: "★★★☆☆", records: ["7/2 羽球｜未出席", "7/6 跑步｜出席"] },
+      { id: 3, name: "黃冠宇", status: "pending", viewed: false, attendance: "100%", rating: "★★★★★", records: ["7/4 羽球｜出席", "7/7 籃球｜出席"] },
+      { id: 4, name: "李冠廷", status: "pending", viewed: false, attendance: "90%", rating: "★★★★☆", records: ["7/3 游泳｜出席", "7/8 跑步｜未出席"] },
+      { id: 5, name: "張雅雯", status: "pending", viewed: false, attendance: "92%", rating: "★★★★☆", records: ["7/5 籃球｜出席", "7/9 桌球｜出席"] }
+    ];
+
+    let currentUserId = null;
+
+    // 點名字或頭像 → 顯示詳細
+    function showUserDetail(id) {
+      currentUserId = id;
+      const p = participants.find(x => x.id === id);
+      document.getElementById("modalAvatar").innerHTML = avatarSVG;
+      document.getElementById("modalName").textContent = p.name;
+      document.getElementById("modalAttendance").textContent = p.attendance;
+      document.getElementById("modalRating").textContent = p.rating;
+      document.getElementById("modalRecords").innerHTML = p.records.map(r => `<div>${r}</div>`).join('');
+      document.getElementById("modalBg").style.display = "";
+    }
+
+    function closeModal() {
+      // 標記已看過詳細
+      if (currentUserId) {
+        const p = participants.find(x => x.id === currentUserId);
+        p.viewed = true;
+        currentUserId = null;
+      }
+      document.getElementById("modalBg").style.display = "none";
+      renderList();
+    }
+
+    // 通過/拒絕審核（要先看過詳細才可按）
+    function approve(id) {
+      const p = participants.find(x => x.id === id);
+      if (!p.viewed) return;
+      p.status = "approved";
+      renderList();
+    }
+    function reject(id) {
+      const p = participants.find(x => x.id === id);
+      if (!p.viewed) return;
+      p.status = "rejected";
+      renderList();
+    }
+
+    function renderList() {
+      const container = document.getElementById('participants');
+      container.innerHTML = '';
+      participants.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'participant-card';
+        let statusText = "";
+        let btnHtml = "";
+        if (p.status === "approved") {
+          statusText = '<span style="color:var(--approve-color);font-weight:bold">已通過</span>';
+        } else if (p.status === "rejected") {
+          statusText = '<span style="color:var(--reject-color);font-weight:bold">已拒絕</span>';
+        } else {
+          statusText = '<span style="color:#b3b3b3;">待審核</span>';
+        }
+        if (p.status === "pending") {
+          btnHtml = `
+            <button class="btn btn-approve" onclick="approve(${p.id})" ${!p.viewed ? "disabled" : ""}>✔ 通過</button>
+            <button class="btn btn-reject" onclick="reject(${p.id})" ${!p.viewed ? "disabled" : ""}>✖ 拒絕</button>
+          `;
+        }
+        card.innerHTML = `
+          <div class="info">
+            <div class="avatar" onclick="showUserDetail(${p.id})">${avatarSVG}</div>
+            <div>
+              <div class="name" onclick="showUserDetail(${p.id})">${p.name}</div>
+              <div class="status">${statusText}</div>
+              <div style="font-size:12px;color:#aaa;${p.viewed ? '' : 'font-style:italic;'}">${p.viewed ? '已檢視詳細' : '需先檢視詳細'}</div>
+            </div>
+          </div>
+          <div>
+            ${btnHtml}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // 頁面初始化
+    renderList();
+  </script>
+</body>
+</html>

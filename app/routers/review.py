@@ -162,3 +162,86 @@ def render_evaluate_page():
     member_id = request.args.get("member_id")
     return render_template("evaluate.html", activity_id=activity_id, member_id=member_id)
 
+#抓罐頭訊息
+@review_bp.route("/api/review_templates", methods=["GET"])
+def get_review_templates():
+    stars = request.args.get("stars", type=int)
+    with get_db() as db_session:
+        results = db_session.query(ReviewTemplate).filter(ReviewTemplate.type == stars).all()
+        return jsonify([
+            {"template_id": r.template_id, "type": r.type, "text": r.text}
+            for r in results
+        ])
+
+
+
+
+#抓活動參與者（含活動發起人）
+@review_bp.route("/api/activities/<int:activity_id>/participants", methods=["GET"])
+def get_activity_participants(activity_id):
+    participants = []
+    with get_db() as db_session:
+        # 活動發起人
+        activity = db_session.query(Activity).filter(Activity.id == activity_id).first()
+        if activity:
+            host = db_session.query(Member).filter(Member.id == activity.organizer_id).first()
+            if host:
+                participants.append({
+                    "user_id": host.id,
+                    "name": host.name,
+                    "avatar_url": host.avatar_url
+                })
+
+        # 報名成功的參加者
+        joins = db_session.query(ActivityJoin).filter(
+            ActivityJoin.activity_id == activity_id,
+            ActivityJoin.status == 'joined'
+        ).all()
+        for j in joins:
+            user = db_session.query(Member).filter(Member.id == j.member_id).first()
+            if user and all(u["user_id"] != user.id for u in participants):
+                participants.append({
+                    "user_id": user.id,
+                    "name": user.name,
+                    "avatar_url": user.avatar_url
+                })
+
+    return jsonify(participants)
+
+
+#儲存活動評價
+@review_bp.route("/api/activity_reviews", methods=["POST"])
+def create_activity_review():
+    data = request.get_json()
+    with get_db() as db_session:
+        review = ActivityReview(
+            activity_id=data["activity_id"],
+            reviewer_id=data["member_id"],
+            stars=data["stars"],
+            tags=",".join(data.get("tags", []))
+        )
+        db_session.add(review)
+        db_session.commit()
+    return jsonify({"status": "success"})
+
+
+
+
+#儲存對其他參加者的評價
+@review_bp.route("/api/user_reviews/bulk", methods=["POST"])
+def create_user_reviews_bulk():
+    reviews = request.get_json()
+    with get_db() as db_session:
+        for r in reviews:
+            review = UserReview(
+                activity_id=r["activity_id"],
+                reviewer_id=r["member_id"],
+                target_user_id=r["target_user_id"],
+                stars=r["stars"],
+                tags=",".join(r.get("tags", []))
+            )
+            db_session.add(review)
+        db_session.commit()
+    return jsonify({"status": "success"})
+
+

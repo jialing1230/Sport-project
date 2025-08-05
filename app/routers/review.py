@@ -5,6 +5,7 @@ from app.models.review_template import ReviewTemplate
 from app.models.activity import Activity
 from app.models.activity_join import ActivityJoin
 from app.models.activity_review import ActivityReview  # 新增匯入
+from app.models.member import Member
 from flask import render_template
 
 review_bp = Blueprint("review", __name__)
@@ -181,30 +182,32 @@ def get_review_templates():
 def get_activity_participants(activity_id):
     participants = []
     with get_db() as db_session:
-        # 活動發起人
-        activity = db_session.query(Activity).filter(Activity.id == activity_id).first()
-        if activity:
-            host = db_session.query(Member).filter(Member.id == activity.organizer_id).first()
+        # 先抓活動發起人
+        activity = db_session.query(Activity).filter(Activity.activity_id == activity_id).first()
+        if activity and activity.organizer_id:
+            host = db_session.query(Member).filter(Member.member_id == activity.organizer_id).first()
             if host:
                 participants.append({
-                    "user_id": host.id,
+                    "user_id": str(host.member_id),
                     "name": host.name,
-                    "avatar_url": host.avatar_url
-                })
+                    "avatar_url": host.avatar_url if host.avatar_url else "/static/default-avatar.png"
+    })
 
-        # 報名成功的參加者
+
+        # 再抓報名成功的參加者
         joins = db_session.query(ActivityJoin).filter(
             ActivityJoin.activity_id == activity_id,
             ActivityJoin.status == 'joined'
         ).all()
         for j in joins:
-            user = db_session.query(Member).filter(Member.id == j.member_id).first()
-            if user and all(u["user_id"] != user.id for u in participants):
+            user = db_session.query(Member).filter(Member.member_id == j.member_id).first()
+            if user and all(u["user_id"] != str(user.member_id) for u in participants):
                 participants.append({
-                    "user_id": user.id,
+                    "user_id": str(user.member_id),
                     "name": user.name,
-                    "avatar_url": user.avatar_url
-                })
+                    "avatar_url": host.avatar_url if host.avatar_url else "/static/default-avatar.png"
+    })
+
 
     return jsonify(participants)
 

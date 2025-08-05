@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>活動點名</title>
+  <style>
+    html, body {
+      height: auto;
+      margin: 0;
+      overflow: auto; 
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #2c4975;
+    }
+
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 15px;
+      z-index: 100;
+      background-color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: left;
+      padding: 22px 16px;
+      border-bottom: 1px solid #eee;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    }
+
+    .arrow-icon {
+      fill: #2c4975;
+      transition: fill 0.2s ease;
+      cursor: pointer;
+      flex-shrink: 0;
+      margin-left: 8px;
+    }
+    .arrow-icon:hover {
+      fill: #64bcd0;
+    }
+
+    .header-center {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header img {
+      height: 30px;
+    }
+
+    .header-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #2c4975;
+    }
+
+    .container {
+      background-color: #ffffff;
+      max-width: 401px;
+      margin: 60px auto auto auto;
+      padding: 0 24px 30px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      border-radius: 0px;
+   
+      top: 60px;
+      bottom: 0;
+      left: 0;
+      right: 0;
+
+      overflow-y: auto; /* 內容可滾動 */
+    }
+
+    .participant-card {
+      background: white;
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid #eee;
+      margin-bottom: 10px;
+      margin-top: 20px;
+    }
+    .info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #ddd;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .name {
+      font-weight: bold;
+    }
+    .status {
+      font-size: 14px;
+      color: #2c4975;
+    }
+    .btn {
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .btn-arrive {
+      background: #81d3e1;
+      color: white;
+    }
+    .btn-cancel {
+      background: #fea3a8;
+      color: white;
+    }
+    .btn-arrive:hover,
+    .btn-submit:hover {
+      background: #2c4975;
+    }
+    .btn-cancel:hover {
+      background: #c94f57;
+    }
+
+    .summary {
+      text-align: center;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+    .summary span {
+      margin: 0 6px;
+    }
+    .btn-submit {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background: #81d3e1;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 標題列 -->
+  <div class="header">
+    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 256 256" onclick="redirectToMemberView()">
+      <path d="M228,128a12,12,0,0,1-12,12H69l51.52,51.51a12,12,0,0,1-17,17l-72-72a12,12,0,0,1,0-17l72-72a12,12,0,0,1,17,17L69,116H216A12,12,0,0,1,228,128Z"/>
+    </svg>
+    <div class="header-center">
+      <img src="logo.png" alt="logo">
+      <div class="header-title">活動點名</div>
+    </div>
+  </div>
+
+  <!-- 白卡片內容 -->
+  <div class="container">
+    <div id="participants"></div>
+
+    <div class="summary">
+      <span>準時 <span id="onTimeCount">0</span> 人</span> |
+      <span>遲到 <span id="lateCount">0</span> 人</span> |
+      <span>缺席 <span id="absentCount">0</span> 人</span> |
+      <span>未點名 <span id="notMarkedCount">0</span> 人</span>
+    </div>
+
+    <button class="btn-submit" onclick="saveAttendance()">儲存點名</button>
+  </div>
+
+<script>
+  const activityStartTime = new Date("2025-08-05T14:00:00");
+  const activityEndTime = new Date("2025-08-05T20:00:00");
+  const graceMinutesBefore = 10;
+  const graceMinutesAfter = 10;
+  const lockHoursAfterEnd = 2;
+
+  const avatarSVG = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+      <path d="M172,120a44,44,0,1,1-44-44A44.05,44.05,0,0,1,172,120Zm60,8A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88.09,88.09,0,0,0-91.47-87.93C77.43,41.89,39.87,81.12,40,128.25a87.65,87.65,0,0,0,22.24,58.16A79.71,79.71,0,0,1,84,165.1a4,4,0,0,1,4.83.32,59.83,59.83,0,0,1,78.34,0,4,4,0,0,1,4.83-.32,79.71,79.71,0,0,1,21.76,21.31A87.65,87.65,0,0,0,216,128Z"/>
+    </svg>
+  `;
+
+  const participants = [
+    { id: 1, name: "張小明", status: "unmarked", time: null },
+    { id: 2, name: "李美麗", status: "unmarked", time: null },
+    { id: 3, name: "王大仁", status: "unmarked", time: null },
+    { id: 4, name: "陳大華", status: "unmarked", time: null },
+    { id: 5, name: "林小芳", status: "unmarked", time: null },
+    { id: 6, name: "吳志強", status: "unmarked", time: null },
+    { id: 7, name: "周佩玲", status: "unmarked", time: null },
+    { id: 8, name: "黃冠宇", status: "unmarked", time: null },
+    { id: 9, name: "李冠廷", status: "unmarked", time: null },
+    { id: 10, name: "張雅雯", status: "unmarked", time: null }
+  ];
+
+  function renderList() {
+    // 超過可編輯時間 → 將所有未點名改成缺席
+    if (!canEdit()) {
+      participants.forEach(p => {
+        if (p.status === 'unmarked') {
+          p.status = 'absent';
+        }
+      });
+    }
+
+    const container = document.getElementById('participants');
+    container.innerHTML = '';
+
+    participants.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'participant-card';
+
+      let statusText = '';
+      let btnHtml = '';
+
+      if (p.status === 'on_time') {
+        statusText = `狀態：準時 ✅ (${p.time})`;
+        btnHtml = canEdit() ? `<button class="btn btn-cancel" onclick="cancel(${p.id})">取消</button>` : '';
+      } else if (p.status === 'late') {
+        statusText = `狀態：遲到 ⚠️ (${p.time})`;
+        btnHtml = canEdit() ? `<button class="btn btn-cancel" onclick="cancel(${p.id})">取消</button>` : '';
+      } else if (p.status === 'absent') {
+        statusText = `狀態：缺席 ❌`;
+      } else {
+        statusText = '未點名';
+        btnHtml = canEdit() ? `<button class="btn btn-arrive" onclick="mark(${p.id})">到</button>` : '';
+      }
+
+      card.innerHTML = `
+        <div class="info">
+          <div class="avatar">${avatarSVG}</div>
+          <div>
+            <div class="name">${p.name}</div>
+            <div class="status">${statusText}</div>
+          </div>
+        </div>
+        ${btnHtml}
+      `;
+      container.appendChild(card);
+    });
+
+    updateSummary();
+  }
+
+  function canEdit() {
+    const now = new Date();
+    return now <= new Date(activityEndTime.getTime() + lockHoursAfterEnd * 60 * 60 * 1000);
+  }
+
+  function mark(id) {
+    const p = participants.find(x => x.id === id);
+    const now = new Date();
+    const timeStr = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+
+    const earlyThreshold = new Date(activityStartTime.getTime() - graceMinutesBefore * 60000);
+    const lateThreshold = new Date(activityStartTime.getTime() + graceMinutesAfter * 60000);
+
+    if (now >= earlyThreshold && now <= lateThreshold) {
+      p.status = 'on_time';
+    } else {
+      p.status = 'late';
+    }
+    p.time = timeStr;
+    renderList();
+  }
+
+  function cancel(id) {
+    const p = participants.find(x => x.id === id);
+    p.status = 'unmarked';
+    p.time = null;
+    renderList();
+  }
+
+  function updateSummary() {
+    document.getElementById('onTimeCount').textContent = participants.filter(p => p.status === 'on_time').length;
+    document.getElementById('lateCount').textContent = participants.filter(p => p.status === 'late').length;
+    document.getElementById('absentCount').textContent = participants.filter(p => p.status === 'absent').length;
+    document.getElementById('notMarkedCount').textContent = participants.filter(p => p.status === 'unmarked').length;
+  }
+
+  function saveAttendance() {
+    alert('已儲存點名（可隨時回來補點名）');
+  }
+
+  renderList();
+</script>
+</body>
+</html>

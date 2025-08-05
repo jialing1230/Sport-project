@@ -141,13 +141,12 @@
         }
 
         .avatar {
-            aspect-ratio: 1 / 1;
             flex-shrink: 0;
-            height: 100%;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             overflow: hidden;
             background-color: #ffffff;
-            border: 3px solid #81d3e1;
         }
 
         .avatar img {
@@ -239,7 +238,7 @@
                             card.innerHTML = `
                                 <div class="card-inner">
                                     <div class="avatar">
-                                        <img src="/static/avatar_default.jpg" alt="avatar" />
+                                        <img src="/static/avatars/default.jpg" alt="avatar" />
                                     </div>
                                     <div class="card-content" style="flex: 1;">
                                         <div class="activity-title-row" style="margin-bottom: 6px;">

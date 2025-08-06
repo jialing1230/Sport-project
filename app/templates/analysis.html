@@ -109,6 +109,13 @@
             text-align: center;
         }
 
+        .summary-item .unit {
+            font-size: 16px;
+            color: white;
+            text-align: center;
+            font-weight: bold;
+        }
+
         .summary-item .label {
             font-size: 14px;
             color: white;
@@ -172,16 +179,17 @@
         </div>
         <div class="summary">
             <div class="summary-item">
-                <div class="label">連續運動<br>
-                <div class="number">40</div>天</div>
+                <div class="label">總參加活動<br>
+                <div class="number"></div>次</div>
             </div>
             <div class="summary-item">
                 <div class="label">累積時數<br>
-                <div class="number">57.3</div>小時</div>
+                <div class="number"></div>小時</div>
             </div>
             <div class="summary-item">
-                <div class="label">最常參與 - 跑步<br>
-                <div class="number">18</div>次</div>
+                <div class="label">最常參與</div>
+                <div class="number"></div>
+                <div class="unit">次</div>
             </div>
         </div>
         <hr class="summary-divider" />
@@ -189,6 +197,30 @@
             document.getElementById("back-button").onclick = () => {
                 history.back(); // 或者使用 location.href = 'member.html';
             };
+
+            async function fetchUserActivityStats() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const memberId = urlParams.get("member_id");
+                if (!memberId) {
+                    console.error("缺少 member_id");
+                    return;
+                }
+
+                const response = await fetch(`/api/activities/user_activity_stats?member_id=${memberId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log("API 返回數據:", data); // 添加調試信息
+
+                    document.querySelector(".summary-item:nth-child(1) .number").textContent = data.total_activities;
+                    document.querySelector(".summary-item:nth-child(2) .number").textContent = data.total_duration_hours.toFixed(1);
+                    document.querySelector(".summary-item:nth-child(3) .number").textContent = data.most_common_sport_count;
+                    document.querySelector(".summary-item:nth-child(3) .label").textContent = `最常參與 - ${data.most_common_sport}`;
+
+
+                }
+            }
+
+            fetchUserActivityStats();
         </script>
     </body>
 </html>

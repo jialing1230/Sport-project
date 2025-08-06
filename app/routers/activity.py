@@ -649,3 +649,57 @@ def get_favorite_activities():
 
     return jsonify(activity_ids), 200
 
+@activity_bp.route("/user_activity_stats", methods=["GET"])
+def get_user_activity_stats():
+    member_id = request.args.get("member_id")
+    if not member_id:
+        return jsonify({"error": "缺少 member_id"}), 400
+
+    with get_db() as db:
+        # 查詢使用者參加的活動
+        joined_activities = (
+            db.query(ActivityJoin.activity_id)
+            .filter(ActivityJoin.member_id == member_id, ActivityJoin.status == "joined")
+            .all()
+        )
+
+        if not joined_activities:
+            return jsonify({"error": "該使用者未參加任何活動"}), 404
+
+        activity_ids = [activity.activity_id for activity in joined_activities]
+
+        # 查詢活動詳細資訊並計算持續時間
+        activities = (
+            db.query(Activity)
+            .filter(Activity.activity_id.in_(activity_ids))
+            .all()
+        )
+
+        activity_durations = []
+        sport_type_count = {}
+
+        for activity in activities:
+            if activity.start_time and activity.end_time:
+                duration = (activity.end_time - activity.start_time).total_seconds() / 3600  # 持續時間（小時）
+                activity_durations.append(duration)
+
+            if activity.sport_type_id:
+                sport_type = db.query(SportType).filter(SportType.sport_type_id == activity.sport_type_id).first()
+                if sport_type:
+                    sport_name = sport_type.name
+                    if sport_name in sport_type_count:
+                        sport_type_count[sport_name] += 1
+                    else:
+                        sport_type_count[sport_name] = 1
+
+        # 計算最常參加的運動種類及次數
+        most_common_sport = max(sport_type_count, key=sport_type_count.get) if sport_type_count else None
+        most_common_sport_count = sport_type_count[most_common_sport] if most_common_sport else 0
+
+        return jsonify({
+            "total_activities": len(activity_ids),
+            "total_duration_hours": sum(activity_durations),
+            "most_common_sport": most_common_sport,
+            "most_common_sport_count": most_common_sport_count
+        }), 200
+

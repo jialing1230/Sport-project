@@ -127,6 +127,11 @@ def create_app():
     def blacklist_page():
         member_id = request.args.get("member_id")
         return render_template("blacklist.html", member_id=member_id)
+    
+    @app.route("/introduce")
+    def introduce_page():
+        member_id = request.args.get("member_id")
+        return render_template("introduce.html", member_id=member_id)
 
 
     start_scheduler()  # 啟動排程

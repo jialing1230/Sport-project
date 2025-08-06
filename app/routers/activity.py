@@ -660,14 +660,23 @@ def get_user_activity_stats():
         # 查詢使用者參加的活動
         joined_activities = (
             db.query(ActivityJoin.activity_id)
-            .filter(ActivityJoin.member_id == member_id, ActivityJoin.status == "joined")
+            .join(Activity, ActivityJoin.activity_id == Activity.activity_id)
+            .filter(ActivityJoin.member_id == member_id, ActivityJoin.status == "joined", Activity.status == "close")
             .all()
         )
 
-        if not joined_activities:
-            return jsonify({"error": "該使用者未參加任何活動"}), 404
+        # 查詢使用者作為發起者的活動
+        organized_activities = (
+            db.query(Activity.activity_id)
+            .filter(Activity.organizer_id == member_id, Activity.status == "close")
+            .all()
+        )
 
-        activity_ids = [activity.activity_id for activity in joined_activities]
+        # 合併活動 ID
+        activity_ids = [activity.activity_id for activity in joined_activities] + [activity.activity_id for activity in organized_activities]
+
+        if not activity_ids:
+            return jsonify({"error": "該使用者未參加或發起任何已結束的活動"}), 404
 
         # 查詢活動詳細資訊並計算持續時間
         activities = (

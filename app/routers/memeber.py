@@ -73,7 +73,6 @@ def list_members():
             "birthdate": u.birthdate.isoformat() if u.birthdate else None,
             "height": u.height,
             "weight": u.weight,
-            "avatar_url": u.avatar_url,
             "created_at": u.created_at.isoformat() if u.created_at else None,
             "updated_at": u.updated_at.isoformat() if u.updated_at else None,
         })
@@ -98,9 +97,12 @@ def get_member(member_id):
             "weight": u.weight,
             "city": u.city,
             "area": u.area,
-            "avatar_url": u.avatar_url,
             "created_at": u.created_at.isoformat() if u.created_at else None,
             "updated_at": u.updated_at.isoformat() if u.updated_at else None,
+            "public_intro": u.public_intro,
+            "facebook_url": u.facebook_url,
+            "instagram_url": u.instagram_url,
+
         }
 
         # 嘗試查詢該會員的偏好資料
@@ -181,8 +183,6 @@ def update_member(member_id):
     if not data and not file:
         return jsonify({"error": "沒有可更新的欄位或檔案"}), 400
 
-    saved_avatar_url = None
-
     with get_db() as db:
         m = db.query(Member).get(member_id)
         if not m:
@@ -207,7 +207,6 @@ def update_member(member_id):
             os.makedirs(upload_folder, exist_ok=True)
             save_path = os.path.join(upload_folder, filename)
             file.save(save_path)
-            m.avatar_url = f"avatars/{filename}"
 
         if m.is_first_login:
             m.is_first_login = False
@@ -216,12 +215,11 @@ def update_member(member_id):
 
         try:
             db.commit()
-            saved_avatar_url = m.avatar_url
         except Exception as e:
             db.rollback()
             return jsonify({"error": str(e)}), 500
 
-    return jsonify({"success": True, "avatar_url": saved_avatar_url}), 200
+    return jsonify({"success": True}), 200
 
 
 @member_bp.route("/<string:member_id>", methods=["DELETE"])
@@ -252,11 +250,6 @@ def delete_member(member_id):
             for pt in preference_time:
                 db.delete(pt)
 
-        # 刪除對應頭像圖片
-        if m.avatar_url:
-            image_path = os.path.join(current_app.root_path, 'static', m.avatar_url)
-            if os.path.exists(image_path):
-                os.remove(image_path)
 
         # 刪除會員資料
         db.delete(m)

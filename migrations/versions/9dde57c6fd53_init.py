@@ -34,9 +34,11 @@ def upgrade() -> None:
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('city', sa.String(length=50), nullable=True, comment='縣市'),
     sa.Column('area', sa.String(length=50), nullable=True, comment='鄉鎮市區'),
-    sa.Column('avatar_url', sa.String(length=255), nullable=True, comment='頭像檔案路徑'),
     sa.Column('is_first_login', sa.Boolean(), nullable=True, server_default=sa.sql.expression.true(), comment='是否為第一次登入'),
     sa.Column('is_unfinish_preference', sa.Boolean(), nullable=True, server_default=sa.sql.expression.true(), comment='是否完成偏好'),
+    sa.Column('public_intro', sa.String(length=500), nullable=True, comment='公開介紹'),
+    sa.Column('facebook_url', sa.String(length=255), nullable=True, comment='Facebook 連結'),
+    sa.Column('instagram_url', sa.String(length=255), nullable=True, comment='Instagram 連結'),
     
     
     sa.PrimaryKeyConstraint('member_id'),

@@ -560,7 +560,16 @@
 
       <div class="info-box">
         <div class="avatar-box" style="position: absolute; top: 30px; right: 35px; width: 60px; height: 60px;">
-            <img src="/static/avatar.jpg" alt="使用者頭像" />
+            <img
+          id="avatarImage"
+          src="{{ url_for('static', filename='avatars/' + member_id + '.png') }}"
+          alt="會員頭像"
+        />
+        <script>
+          document.getElementById("avatarImage").onerror = function() {
+            this.src = "{{ url_for('static', filename='avatars/default.jpg') }}";
+          };
+        </script>
         </div>
         <h3>使用者</h3>
         <h2>自我介紹</h2>
@@ -631,5 +640,49 @@
         window.history.back();
       });
     </script>
+    <script>
+  async function fetchOrganizerData() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const organizerId = urlParams.get("member_id");
+
+    if (!organizerId) {
+      console.error("缺少 organizer_id");
+      return;
+    }
+
+    try {
+      // 調用第一個 API 獲取最近活動日期
+      const lastActivityResponse = await fetch(`/reviews/organizer_last_activity?organizer_id=${organizerId}`);
+      const lastActivityData = await lastActivityResponse.json();
+      const lastActivityDate = lastActivityData.last_activity_date || "無最近活動";
+
+      // 更新最近活動日期到頁面
+      document.querySelector(".review-date strong").textContent = `最近發起：${lastActivityDate}`;
+
+      // 調用第二個 API 獲取統計數據
+      const statisticsResponse = await fetch(`/reviews/organizer_statistics?organizer_id=${organizerId}`);
+      const statisticsData = await statisticsResponse.json();
+
+      // 更新評論數量和平均星等到頁面
+      document.querySelector(".review-stars .score").textContent = statisticsData.average_rating.toFixed(1);
+      document.querySelector(".review-stars .count").textContent = `/ ${statisticsData.total_reviews}則評論`;
+      document.querySelector(".review-attendance strong").textContent = `發起場數：${statisticsData.total_activities}場`;
+
+      // 更新常見評價到頁面
+      const badgeGroup = document.querySelector(".badge-group");
+      badgeGroup.innerHTML = ""; // 清空原有內容
+      statisticsData.common_templates.forEach(template => {
+        const badge = document.createElement("span");
+        badge.className = "badge";
+        badge.textContent = `${template.template} `;
+        badgeGroup.appendChild(badge);
+      });
+    } catch (error) {
+      console.error("Error fetching organizer data:", error);
+    }
+  }
+
+  fetchOrganizerData();
+</script>
   </body>
 </html>

@@ -310,6 +310,7 @@ def get_activity_details():
             "location_lng": activity.location_lng,
             "max_participants": activity.max_participants,
             "current_participants": activity.current_participants,
+            "organizer_id": activity.organizer_id,
             "organizer": {
                 "name": organizer.name if organizer else "未知"
             },

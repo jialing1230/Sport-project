@@ -126,8 +126,8 @@ def upgrade() -> None:
             location_name=name,
             location_lat=lat,
             location_lng=lng,
-            max_participants=2 + i,
-            current_participants=2,
+            max_participants=3 + i,
+            current_participants=3,
             organizer_id=members[i - 1].member_id,
             level="初學" if i % 2 == 0 else "中階",
             sport_type_id=sport_types[i - 1].sport_type_id,
@@ -163,7 +163,7 @@ def upgrade() -> None:
             location_lat=lat,
             location_lng=lng,
             max_participants=5 + i,
-            current_participants=2,
+            current_participants=3,
             organizer_id=members[k - 1].member_id,
             level="中階" if i % 2 == 0 else "高階",
             sport_type_id=sport_types[(i - 6) % len(sport_types)].sport_type_id,
@@ -240,6 +240,8 @@ def upgrade() -> None:
                 is_checked_in=False,
             )
         )
+    
+
 
     for i in range(6, 11):
         joins.append(
@@ -252,8 +254,23 @@ def upgrade() -> None:
                 is_checked_in=False,
             )
         )
+
+    # 修正 join_id 的生成邏輯，確保從 11 到 15
+    for i in range(1, 6):
+        joins.append(
+            ActivityJoin(
+                join_id=10 + i,  # 確保 join_id 從 11 到 15
+                member_id=members[(i + 3) % 5].member_id,  # 使用不同的成員
+                activity_id=activities[i - 1].activity_id,
+                join_time=now,
+                status="joined",
+                is_checked_in=False,
+            )
+        )
         
     session.add_all(joins)
+
+
 
     review_templates = [
         {
@@ -477,23 +494,24 @@ def upgrade() -> None:
         organizer_id = past_activity.organizer_id
 
         # 選擇非發起人的成員作為參加人
-        participant_id = next(
+        participant_ids = [
             member.member_id
             for member in members
             if member.member_id != organizer_id
-        )
+        ]
 
-        past_activity_joins.append(
-            ActivityJoin(
-                join_id=next_join_id,
-                member_id=participant_id,
-                activity_id=past_activity.activity_id,
-                join_time=now - timedelta(days=1),
-                status="joined",
-                is_checked_in=True,
+        for participant_id in participant_ids[:2]:  # 加入兩個參加人
+            past_activity_joins.append(
+                ActivityJoin(
+                    join_id=next_join_id,
+                    member_id=participant_id,
+                    activity_id=past_activity.activity_id,
+                    join_time=now - timedelta(days=1),
+                    status="joined",
+                    is_checked_in=True,
+                )
             )
-        )
-        next_join_id += 1
+            next_join_id += 1
 
     session.add_all(past_activity_joins)
     session.flush()
@@ -501,15 +519,6 @@ def upgrade() -> None:
     user_reviews = [
         {
             "review_id": 1,
-            "reviewer_id": members[1].member_id,
-            "target_member_id": members[0].member_id,
-            "rating": 4,
-            "created_time": now,
-            "activity_id": past_activities[0].activity_id,
-            "template_ids": json.dumps([38, 39]),
-        },
-        {
-            "review_id": 2,
             "reviewer_id": members[0].member_id,
             "target_member_id": members[1].member_id,
             "rating": 5,
@@ -518,7 +527,7 @@ def upgrade() -> None:
             "template_ids": json.dumps([43, 44]),
         },
         {
-            "review_id": 3,
+            "review_id": 2,
             "reviewer_id": members[2].member_id,
             "target_member_id": members[0].member_id,
             "rating": 3,
@@ -527,7 +536,7 @@ def upgrade() -> None:
             "template_ids": json.dumps([34, 35, 36]),
         },
         {
-            "review_id": 4,
+            "review_id": 3,
             "reviewer_id": members[3].member_id,
             "target_member_id": members[0].member_id,
             "rating": 2,
@@ -547,16 +556,9 @@ def upgrade() -> None:
     )
 
     activity_reviews = [
+        
         {
             "review_id": 1,
-            "activity_id": past_activities[0].activity_id,
-            "reviewer_id": members[1].member_id,
-            "rating": 4,
-            "template_ids": json.dumps([16, 17]),
-            "created_time": now,
-        },
-        {
-            "review_id": 2,
             "activity_id": past_activities[1].activity_id,
             "reviewer_id": members[0].member_id,
             "rating": 5,
@@ -564,7 +566,7 @@ def upgrade() -> None:
             "created_time": now,
         },
         {
-            "review_id": 3,
+            "review_id": 2,
             "activity_id": past_activities[2].activity_id,
             "reviewer_id": members[0].member_id,
             "rating": 3,
@@ -572,13 +574,40 @@ def upgrade() -> None:
             "created_time": now,
         },
         {
-            "review_id": 4,
+            "review_id": 3,
             "activity_id": past_activities[3].activity_id,
             "reviewer_id": members[0].member_id,
             "rating": 2,
             "template_ids": json.dumps([6, 7, 8]),
             "created_time": now,
+        },
+        {
+            "review_id": 4,
+            "activity_id": past_activities[1].activity_id,
+            "reviewer_id": members[2].member_id,
+            "rating": 3,
+            "template_ids": json.dumps([11, 12, 13]),
+            "created_time": now,
+        },
+        {
+            "review_id": 5,
+            "activity_id": past_activities[2].activity_id,
+            "reviewer_id": members[1].member_id,
+            "rating": 4,
+            "template_ids": json.dumps([16, 17, 18]),
+            "created_time": now,
+        },
+        {
+            "review_id": 6,
+            "activity_id": past_activities[3].activity_id,
+            "reviewer_id": members[1].member_id,
+            "rating": 5,
+            "template_ids": json.dumps([21, 22, 23]),
+            "created_time": now,
         }
+
+
+
     ]
 
     session.execute(

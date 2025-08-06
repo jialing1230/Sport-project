@@ -469,10 +469,6 @@
       </div>
     </div>
 
-    <div class="logout-container">
-      <button class="logout-button" onclick="logout()">登出</button>
-    </div>
-
     <div
       id="cropModal"
       style="
@@ -1350,11 +1346,6 @@
         window.location.href = `/member_view?member_id=${memberId}`;
       }
 
-      function logout() {
-        if (confirm("確定要登出嗎？")) {
-          window.location.href = "/login"; // 替換為你的登出 API 路徑
-        }
-      }
 
       function redirectToMemberView() {
         const params = new URLSearchParams(window.location.search);

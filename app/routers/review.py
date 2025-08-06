@@ -107,11 +107,14 @@ def get_organizer_statistics():
             .all()
         )
 
+        total_activities = len(activities)  # 統計發起活動總數
+
         if not activities:
             return jsonify({
                 "total_reviews": 0,
                 "average_rating": 0,
-                "common_templates": []
+                "common_templates": [],
+                "total_activities": 0
             })
 
         # 提取活動 ID
@@ -128,7 +131,8 @@ def get_organizer_statistics():
             return jsonify({
                 "total_reviews": 0,
                 "average_rating": 0,
-                "common_templates": []
+                "common_templates": [],
+                "total_activities": total_activities
             })
 
         # 計算評論數量和平均星等
@@ -154,7 +158,8 @@ def get_organizer_statistics():
         return jsonify({
             "total_reviews": total_reviews,
             "average_rating": average_rating,
-            "common_templates": common_templates
+            "common_templates": common_templates,
+            "total_activities": total_activities
         })
 
 @review_bp.route("/evaluate", methods=["GET"])

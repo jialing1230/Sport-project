@@ -616,7 +616,10 @@
             <h2 class="title-text">${detail.title}</h2>
             <span class="status-badge ${statusClass}">${statusText}</span>
           </div>
-          <span>${detail.sport_name}｜${detail.level}運動者推薦｜由${organizerName}發起</span>
+          <span>${detail.sport_name}｜${detail.level}運動者推薦｜由
+    <a href="/introduce?member_id=${detail.organizer_id}">${organizerName}</a>
+    發起
+</span>
           <div class="section-divider"></div>
           <div class="location-row">
             <svg class="location-icon" 

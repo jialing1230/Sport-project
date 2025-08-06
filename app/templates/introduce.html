@@ -560,11 +560,20 @@
 
       <div class="info-box">
         <div class="avatar-box" style="position: absolute; top: 30px; right: 35px; width: 60px; height: 60px;">
-            <img src="/static/avatar.jpg" alt="使用者頭像" />
+            <img
+          id="avatarImage"
+          src="{{ url_for('static', filename='avatars/' + member_id + '.png') }}"
+          alt="會員頭像"
+        />
+        <script>
+          document.getElementById("avatarImage").onerror = function() {
+            this.src = "{{ url_for('static', filename='avatars/default.jpg') }}";
+          };
+        </script>
         </div>
-        <h3>使用者</h3>
+        <h3></h3>
         <h2>自我介紹</h2>
-        <p>這是卡片的內容，可以放任何文字或資訊。這是卡片的內容，可以放任何文字或資訊。這是卡片的內容，可以放任何文字或資訊。這是卡片的內容，可以放任何文字或資訊。</p>
+        <p></p>
       </div>
       <div class="info-box">
         <h2>活動概況</h2>
@@ -572,8 +581,8 @@
             <svg width="32" height="32" viewBox="0 0 24 24" fill="#f9a825" stroke="#f9a825" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;">
                 <path d="M12 2L15 9H22L17 14L19 21L12 17L5 21L7 14L2 9H9L12 2Z"/>
             </svg>
-            <span class="score">4.2</span>
-            <span class="count">/ 20則評論</span>
+            <span class="score"></span>
+            <span class="count"></span>
         </div>
         <div class="review-attendance">
             <div style="width: 0.5px;"></div>
@@ -589,7 +598,7 @@
                     <circle cx="12" cy="12" r="10" />
                     <path d="M8 12l3 3l5-5" />
                 </svg>
-                <strong>發起場數：32場</strong>
+                <strong></strong>
             </p>
         </div>
         <div class="review-date">
@@ -609,16 +618,16 @@
                     <line x1="8" y1="2" x2="8" y2="6"/>
                     <line x1="3" y1="10" x2="21" y2="10"/>
                 </svg>
-                <strong>最近發起：2025/08/01</strong>
+                <strong></strong>
             </p>
         </div>
         </div>
       <div class="info-box">
         <h2>常見評價</h2>
         <div class="badge-group">
-            <span class="badge">有耐心</span>
-            <span class="badge">準時到達</span>
-            <span class="badge">動作確實</span>
+            <span class="badge"></span>
+            <span class="badge"></span>
+            <span class="badge"></span>
             <!-- 這些會由 JS 自動塞入 -->
         </div>
       </div>
@@ -631,5 +640,78 @@
         window.history.back();
       });
     </script>
+    <script>
+  async function fetchOrganizerData() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const organizerId = urlParams.get("member_id");
+
+    if (!organizerId) {
+      console.error("缺少 organizer_id");
+      return;
+    }
+
+    try {
+      // 調用第一個 API 獲取最近活動日期
+      const lastActivityResponse = await fetch(`/reviews/organizer_last_activity?organizer_id=${organizerId}`);
+      const lastActivityData = await lastActivityResponse.json();
+      const lastActivityDate = lastActivityData.last_activity_date || "無最近活動";
+
+      // 更新最近活動日期到頁面
+      document.querySelector(".review-date strong").textContent = `最近發起：${lastActivityDate}`;
+
+      // 調用第二個 API 獲取統計數據
+      const statisticsResponse = await fetch(`/reviews/organizer_statistics?organizer_id=${organizerId}`);
+      const statisticsData = await statisticsResponse.json();
+
+      // 更新評論數量和平均星等到頁面
+      document.querySelector(".review-stars .score").textContent = statisticsData.average_rating.toFixed(1);
+      document.querySelector(".review-stars .count").textContent = `/ ${statisticsData.total_reviews}則評論`;
+      document.querySelector(".review-attendance strong").textContent = `發起場數：${statisticsData.total_activities}場`;
+
+      // 更新常見評價到頁面
+      const badgeGroup = document.querySelector(".badge-group");
+      badgeGroup.innerHTML = ""; // 清空原有內容
+      statisticsData.common_templates.forEach(template => {
+        const badge = document.createElement("span");
+        badge.className = "badge";
+        badge.textContent = `${template.template} `;
+        badgeGroup.appendChild(badge);
+      });
+    } catch (error) {
+      console.error("Error fetching organizer data:", error);
+    }
+  }
+
+  fetchOrganizerData();
+</script>
+<script>
+  async function fetchMemberIntro() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const memberId = urlParams.get("member_id");
+
+    if (!memberId) {
+      console.error("缺少 member_id");
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/members/${memberId}`);
+      const memberData = await response.json();
+
+      if (memberData.error) {
+        console.error("Error fetching member data:", memberData.error);
+        return;
+      }
+
+      // 更新 name 和公開介紹到頁面
+      document.querySelector(".info-box h3").textContent = memberData.name;
+      document.querySelector(".info-box p").textContent = memberData.public_intro;
+    } catch (error) {
+      console.error("Error fetching member data:", error);
+    }
+  }
+
+  fetchMemberIntro();
+</script>
   </body>
 </html>

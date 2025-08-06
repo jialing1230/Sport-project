@@ -371,7 +371,7 @@
     <div class="profile">
       <div class="profile-info">
         <h2 id="name" class="username">會員姓名</h2>
-        <div class="streak">已連續運動 4 天！</div>
+        <div class="streak">{{ random_motivational_message }}</div>
       </div>
       <div class="avatar-wrapper">
         <img
@@ -934,6 +934,10 @@
       nameElement.textContent = "無法取得會員 ID";
     }
   });
+
+  const messages = JSON.parse('{{ motivational_messages | tojson | safe }}');
+const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+document.querySelector(".streak").textContent = randomMessage;
     </script>
   </body>
 </html>

@@ -82,6 +82,10 @@ def upgrade() -> None:
     session.add_all(members)
     session.flush()
 
+    # 插入公開介紹欄位的內容
+    for i, m in enumerate(members, start=1):
+        m.public_intro = f"這是 User{i} 的公開介紹，歡迎大家交流！"
+
     names = [
         "跑步",
         "羽球",
@@ -513,6 +517,25 @@ def upgrade() -> None:
             "activity_id": past_activities[1].activity_id,
             "template_ids": json.dumps([43, 44]),
         },
+        {
+            "review_id": 3,
+            "reviewer_id": members[2].member_id,
+            "target_member_id": members[0].member_id,
+            "rating": 3,
+            "created_time": now,
+            "activity_id": past_activities[2].activity_id,
+            "template_ids": json.dumps([34, 35, 36]),
+        },
+        {
+            "review_id": 4,
+            "reviewer_id": members[3].member_id,
+            "target_member_id": members[0].member_id,
+            "rating": 2,
+            "created_time": now,
+            "activity_id": past_activities[3].activity_id,
+            "template_ids": json.dumps([30, 31, 32]),
+        },
+       
     ]
 
     session.execute(
@@ -540,6 +563,22 @@ def upgrade() -> None:
             "template_ids": json.dumps([21, 22]),
             "created_time": now,
         },
+        {
+            "review_id": 3,
+            "activity_id": past_activities[2].activity_id,
+            "reviewer_id": members[0].member_id,
+            "rating": 3,
+            "template_ids": json.dumps([10, 11, 12]),
+            "created_time": now,
+        },
+        {
+            "review_id": 4,
+            "activity_id": past_activities[3].activity_id,
+            "reviewer_id": members[0].member_id,
+            "rating": 2,
+            "template_ids": json.dumps([6, 7, 8]),
+            "created_time": now,
+        }
     ]
 
     session.execute(

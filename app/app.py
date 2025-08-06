@@ -101,8 +101,15 @@ def create_app():
     @app.route("/member_view")
     def member_view():
         member_id = request.args.get("member_id")
-        return render_template("member.html", member_id=member_id)
-    
+        motivational_messages = [
+            "保持運動，健康生活！",
+            "今天的努力是明天的成功！",
+            "運動讓你更強壯、更快樂！",
+            "每一步都在邁向更好的自己！",
+            "堅持下去，你會看到改變！"
+        ]
+        return render_template("member.html", member_id=member_id, motivational_messages=motivational_messages)
+
     @app.route("/review_templates")
     def review_templates_page():
         member_id = request.args.get("member_id")
@@ -127,6 +134,11 @@ def create_app():
     def blacklist_page():
         member_id = request.args.get("member_id")
         return render_template("blacklist.html", member_id=member_id)
+    
+    @app.route("/introduce")
+    def introduce_page():
+        member_id = request.args.get("member_id")
+        return render_template("introduce.html", member_id=member_id)
 
 
     start_scheduler()  # 啟動排程

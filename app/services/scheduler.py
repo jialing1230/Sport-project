@@ -18,17 +18,28 @@ def update_activity_status():
                 activity.status = "open"
             elif activity.registration_deadline and now >= activity.registration_deadline and (not activity.start_time or now < activity.start_time):
                 activity.status = "deadline"
-            elif activity.start_time and now >= activity.start_time and (not activity.end_time or now < activity.end_time):
-                activity.status = "ongoing"
-            elif activity.end_time and now >= activity.end_time:
-                activity.status = "close"
-                # 更新 pending 為 reject
                 pending_participants = db.query(ActivityJoin).filter(
                     ActivityJoin.activity_id == activity.activity_id,
                     ActivityJoin.status == "pending"
                 ).all()
                 for participant in pending_participants:
-                    participant.status = "reject"
+                    db.delete(participant)
+            elif activity.start_time and now >= activity.start_time and (not activity.end_time or now < activity.end_time):
+                activity.status = "ongoing"
+                pending_participants = db.query(ActivityJoin).filter(
+                    ActivityJoin.activity_id == activity.activity_id,
+                    ActivityJoin.status == "pending"
+                ).all()
+                for participant in pending_participants:
+                    db.delete(participant)
+            elif activity.end_time and now >= activity.end_time:
+                activity.status = "close"
+                pending_participants = db.query(ActivityJoin).filter(
+                    ActivityJoin.activity_id == activity.activity_id,
+                    ActivityJoin.status == "pending"
+                ).all()
+                for participant in pending_participants:
+                    db.delete(participant)
             else:
                 activity.status = "unknown"
 

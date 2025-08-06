@@ -82,6 +82,10 @@ def upgrade() -> None:
     session.add_all(members)
     session.flush()
 
+    # 插入公開介紹欄位的內容
+    for i, m in enumerate(members, start=1):
+        m.public_intro = f"這是 User{i} 的公開介紹，歡迎大家交流！"
+
     names = [
         "跑步",
         "羽球",

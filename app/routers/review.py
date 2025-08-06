@@ -195,7 +195,6 @@ def get_activity_participants(activity_id):
                 participants.append({
                     "user_id": str(host.member_id),
                     "name": host.name,
-                    "avatar_url": host.avatar_url if host.avatar_url else "/static/default-avatar.png"
     })
 
 
@@ -210,7 +209,6 @@ def get_activity_participants(activity_id):
                 participants.append({
                     "user_id": str(user.member_id),
                     "name": user.name,
-                    "avatar_url": host.avatar_url if host.avatar_url else "/static/default-avatar.png"
     })
 
 

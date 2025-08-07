@@ -148,7 +148,7 @@ def upgrade() -> None:
     # 插入4筆活動時間為過去的資料
     k = 1
     past_activities = []
-    for i in range(6, 10):
+    for idx, i in enumerate(range(6, 10)):
         name, lat, lng = location_data[(i - 6) % len(location_data)]
 
         activity_start = now - timedelta(days=i)
@@ -170,7 +170,7 @@ def upgrade() -> None:
             description=f"Description for Past Activity{i}",
             status="closed",
             created_at=activity_start - timedelta(days=1),
-            has_review=True,
+            has_review=False if idx == 0 else True,
             target_identity="不限",
             gender="不限",
             age_range="20-30",
@@ -252,6 +252,7 @@ def upgrade() -> None:
                 activity_id=activities[(i - 6) % 5].activity_id,
                 join_time=now,
                 status="pending",
+                has_review=False,
                 is_checked_in=False,
             )
         )
@@ -265,6 +266,7 @@ def upgrade() -> None:
                 activity_id=activities[i - 1].activity_id,
                 join_time=now,
                 status="joined",
+                has_review=False,
                 is_checked_in=False,
             )
         )

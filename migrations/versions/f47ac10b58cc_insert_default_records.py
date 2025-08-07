@@ -501,7 +501,12 @@ def upgrade() -> None:
             if member.member_id != organizer_id
         ]
 
-        for participant_id in participant_ids[:2]:  # 加入兩個參加人
+        for idx, participant_id in enumerate(participant_ids[:2]):  # 加入兩個參加人
+            # 第一個 past_activity 的兩個參加人 has_review=False，其餘為 True
+            if past_activity == past_activities[0]:
+                has_review_flag = False
+            else:
+                has_review_flag = True
             past_activity_joins.append(
                 ActivityJoin(
                     join_id=next_join_id,
@@ -509,7 +514,7 @@ def upgrade() -> None:
                     activity_id=past_activity.activity_id,
                     join_time=now - timedelta(days=1),
                     status="joined",
-                    has_review=True,
+                    has_review=has_review_flag,
                     is_checked_in=True,
                 )
             )

@@ -1,4 +1,5 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, render_template
+from datetime import datetime  # ✅ 加這行
 from app.database import get_db
 from app.models.user_review import UserReview
 from app.models.review_template import ReviewTemplate
@@ -215,7 +216,7 @@ def get_activity_participants(activity_id):
     return jsonify(participants)
 
 
-#儲存活動評價
+# 儲存活動評價
 @review_bp.route("/api/activity_reviews", methods=["POST"])
 def create_activity_review():
     data = request.get_json()
@@ -223,17 +224,16 @@ def create_activity_review():
         review = ActivityReview(
             activity_id=data["activity_id"],
             reviewer_id=data["member_id"],
-            stars=data["stars"],
-            tags=",".join(data.get("tags", []))
+            rating=data["stars"],  # ✅ 對應 models 裡的 rating 欄位
+            template_ids=data.get("tags", []),
+            created_time=datetime.now()
         )
         db_session.add(review)
         db_session.commit()
     return jsonify({"status": "success"})
 
 
-
-
-#儲存對其他參加者的評價
+# 儲存對其他參加者的評價（批次）
 @review_bp.route("/api/user_reviews/bulk", methods=["POST"])
 def create_user_reviews_bulk():
     reviews = request.get_json()
@@ -242,12 +242,11 @@ def create_user_reviews_bulk():
             review = UserReview(
                 activity_id=r["activity_id"],
                 reviewer_id=r["member_id"],
-                target_user_id=r["target_user_id"],
-                stars=r["stars"],
-                tags=",".join(r.get("tags", []))
+                target_member_id=r["target_user_id"],
+                rating=r["stars"],  # ✅ 對應 models 裡的 rating 欄位
+                template_ids=r.get("tags", []),
+                created_time=datetime.now()
             )
             db_session.add(review)
         db_session.commit()
     return jsonify({"status": "success"})
-
-

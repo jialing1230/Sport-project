@@ -336,17 +336,17 @@ function loadActivityTagsByStars(stars) {
     .then(res => res.json())
     .then(data => {
       activityTagContainer.innerHTML = '';
-      selectedActivityTags.clear();
+      selectedActivityTemplateIds.clear();
       data.forEach(item => {
         const tag = document.createElement("div");
         tag.className = "tag";
         tag.innerText = item.text;
         tag.addEventListener("click", () => {
           tag.classList.toggle("active");
-          if (selectedActivityTags.has(item.text)) {
-            selectedActivityTags.delete(item.text);
+          if (selectedActivityTemplateIds.has(item.template_id)) {
+            selectedActivityTemplateIds.delete(item.template_id);
           } else {
-            selectedActivityTags.add(item.text);
+            selectedActivityTemplateIds.add(item.template_id);
           }
         });
         activityTagContainer.appendChild(tag);
@@ -363,14 +363,14 @@ function loadActivityTagsByStars(stars) {
 		  "和他互動很輕鬆", "活動有趣", "氣氛帶動", "有禮親切"
 		];
 
-      const selectedActivityTags = new Set();
+      const selectedActivityTemplateIds = new Set();
       const activityTagContainer = document.getElementById("activity-tags");
 
       // 可給後端呼叫的函式
       function getActivityEvaluation() {
         return {
           stars: selectedStars,
-          tags: Array.from(selectedActivityTags)
+          tags: Array.from(selectedActivityTemplateIds)
         };
       }
 
@@ -395,7 +395,8 @@ let activeUser = null;
 
 
 const selectedUserStarsMap = new Map(); // 儲存每個 user 的星星
-const selectedUserTagsMap = new Map();  // 儲存每個 user 的 tag（Set）
+const selectedUserTagsMap = new Map();
+const selectedUserTemplateMap = new Map();  // 儲存每個 user 的 tag（Set）
 
 blocks.forEach(block => {
   block.addEventListener('click', () => {
@@ -576,19 +577,19 @@ function initAvatarClickEvents() {
 document.querySelector('.submit-evaluation-btn').addEventListener('click', () => {
   const activityPayload = {
     activity_id: parseInt(activityId),
-    member_id: parseInt(currentUserId),
+    member_id: currentUserId,
     stars: selectedActivityStars,
-    tags: Array.from(selectedActivityTags)
+    tags: Array.from(selectedActivityTemplateIds)
   };
 
   const userPayloads = [];
   selectedUserStarsMap.forEach((stars, userId) => {
     userPayloads.push({
       activity_id: parseInt(activityId),
-      member_id: parseInt(currentUserId),
-      target_user_id: parseInt(userId),
+      member_id: currentUserId,
+      target_user_id: userId,
       stars: stars,
-      tags: Array.from(selectedUserTagsMap.get(userId) || [])
+      tags: Array.from(selectedUserTemplateMap.get(userId) || [])
     });
   });
 
@@ -713,21 +714,22 @@ function loadUserTagsByStars(stars, containerId) {
     .then(data => {
       const tagContainer = document.createElement("div");
       tagContainer.className = "tag-container";
-      const selectedTags = selectedUserTagsMap.get(activeUser) || new Set();
+      const selectedTags = selectedUserTemplateMap.get(activeUser) || new Set();
+      selectedUserTemplateMap.set(activeUser, selectedTags);
 
       data.forEach(item => {
         const tag = document.createElement("div");
         tag.className = "tag";
         tag.innerText = item.text;
-        if (selectedTags.has(item.text)) {
+        if (selectedTags.has(item.template_id)) {
           tag.classList.add("active");
         }
         tag.addEventListener("click", () => {
           tag.classList.toggle("active");
-          if (selectedTags.has(item.text)) {
-            selectedTags.delete(item.text);
+          if (selectedTags.has(item.template_id)) {
+            selectedTags.delete(item.template_id);
           } else {
-            selectedTags.add(item.text);
+            selectedTags.add(item.template_id);
           }
           selectedUserTagsMap.set(activeUser, selectedTags);
         });

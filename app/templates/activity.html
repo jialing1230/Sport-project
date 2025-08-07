@@ -1565,9 +1565,9 @@
           </p>
 
         `;
-            card.addEventListener("click", () =>
-              openModal(activity.activity_id)
-            );
+card.addEventListener("click", () => {
+    window.location.href = `/api/activities/joined_details_page?id=${activity.activity_id}${memberId ? `&member_id=${memberId}` : ''}`;
+});
             cardContainer.appendChild(card);
           });
 

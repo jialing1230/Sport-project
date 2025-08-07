@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+    <head>
+        <link rel="manifest" href="/static/manifest.json" />
+        <script>
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker
+            .register("/static/service-worker.js")
+            .then(() => console.log("Service Worker Registered"))
+            .catch((error) =>
+                console.error("Service Worker Registration Failed:", error)
+            );
+        }
+        </script>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>編輯自我介紹</title>
+        <style>
+            body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f5f5f5;
+            color: #2c4975;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 30px;
+            background-color: #fff;
+            flex-wrap: wrap;
+            gap: 16px;
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            position: sticky;
+            top: 0;
+        }
+
+        .left-section {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .left-section svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--deep-blue); /* 注意這個變數在此未定義，可換成實際顏色 */
+            cursor: pointer;
+            transition: fill 0.3s ease;
+        }
+
+        .navbar-title {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            font-size: 20px;
+            color: #2c4975;
+        }
+
+        .navbar-title img {
+            height: 40px;
+            margin-right: 5px;
+            margin-top: 3px;
+        }
+        .info-box {
+            background: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 30px auto 20px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+        }
+        .info-box h3 {
+            margin-top: 0px;
+            margin-bottom: 8px;
+            color: #81d3e1;
+        }
+        .info-box p {
+            margin: 5px 0;
+        }
+        .info-box p strong {
+            color: #2c4975;
+            font-weight: bold;
+        }
+        .info-box p span {
+            color: #2c4975;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            resize: vertical;
+            box-sizing: border-box;  /* ✅ 加這行就不會超出 .info-box */
+        }
+        .photo-gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .upload-label {
+            width: 100px;
+            height: 120px;
+            background-color: #e0e0e0;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: border-color 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .upload-label:hover {
+            border-color: #81d3e1;
+        }
+
+        .plus-icon {
+            font-size: 32px;
+            color: #aaa;
+        }
+
+        .photo-item {
+            position: relative;
+            width: 100px;
+            height: 120px;
+            border-radius: 8px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: pointer;
+            border: 1px solid #ccc;
+        }
+
+        .photo-item input {
+            display: none;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            line-height: 18px;
+            text-align: center;
+            padding-left: 4px;
+        }
+
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <div class="left-section">
+                <svg
+                id="back-button" 
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width="24"
+                height="24">
+                    <path d="M15 19l-7-7 7-7"
+                        stroke= #81d3e1
+                        stroke-width="2"
+                        fill="none"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"></path>
+                    <path d="M8 12h14"
+                        stroke="#81d3e1"
+                        stroke-width="2"
+                        fill="none"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"></path>
+                </svg>
+            </div>
+            <div class="navbar-title">
+                <img src="/static/logo.png" alt="Logo" />
+                自我介紹
+            </div>
+    </div>
+            <div class="info-box">
+                <h3>關於我</h3>
+                <textarea id="bio-input" rows="6" placeholder="請輸入自我介紹..."></textarea>
+            </div>
+            <div class="info-box">
+                <h3>個人照片</h3>
+                <div id="photo-gallery" class="photo-gallery">
+                    <label for="photo-upload" class="upload-label">
+                        <span class="plus-icon">+</span>
+                    </label>
+                    <input type="file" id="photo-upload" accept="image/*" style="display: none;" multiple />
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button onclick="saveBio()" style="width: 200px; padding: 10px; background-color: #81d3e1; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">儲存</button>
+            </div>
+        <script>
+            document.getElementById("back-button").addEventListener("click", function() {
+                window.history.back();
+            });
+
+            function saveBio() {
+                const bio = document.getElementById("bio-input").value;
+                if (!bio.trim()) {
+                alert("請輸入自我介紹內容！");
+                return;
+                }
+
+                // 範例 POST，請依照實際 API 調整
+                fetch("/api/member/update_bio", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ member_id: "123", bio: bio })  // ⚠️請將 member_id 改為實際變數
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                    alert("自我介紹已更新！");
+                    } else {
+                    alert(data.error || "儲存失敗，請稍後再試！");
+                    }
+                })
+                .catch(() => alert("發生錯誤，請稍後再試！"));
+            }
+
+            const gallery = document.getElementById("photo-gallery");
+            const uploadedPhotos = new Set(); // ✅ 用來記錄已上傳過的圖片 key
+
+            document.getElementById("photo-upload").addEventListener("change", function (event) {
+                const files = Array.from(event.target.files);
+
+                files.forEach(file => {
+                    // 以「檔名 + 檔案大小 + type」組合成唯一 key
+                    const fileKey = `${file.name}_${file.size}_${file.type}`;
+
+                    if (uploadedPhotos.has(fileKey)) {
+                        alert(`已上傳過相同的照片，請勿重複上傳。`);
+                        return;
+                        }
+
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const photoItem = document.createElement("div");
+                        photoItem.className = "photo-item";
+
+                        const img = document.createElement("img");
+                        img.src = e.target.result;
+
+                        const fileInput = document.createElement("input");
+                        fileInput.type = "file";
+                        fileInput.accept = "image/*";
+
+                        const deleteBtn = document.createElement("button");
+                        deleteBtn.className = "delete-btn";
+                        deleteBtn.textContent = "✕";
+
+                        // 點圖片重新選檔案
+                        img.addEventListener("click", () => fileInput.click());
+
+                        // 替換圖片
+                        fileInput.addEventListener("change", function () {
+                            const newFile = fileInput.files[0];
+                            const newKey = `${newFile.name}_${newFile.size}_${newFile.type}`;
+                            if (uploadedPhotos.has(newKey)) {
+                            alert(`已經上傳過，請選其他照片。`);
+                            return;
+                            }
+
+                            const newReader = new FileReader();
+                            newReader.onload = function (ev) {
+                            img.src = ev.target.result;
+                            };
+                            newReader.readAsDataURL(newFile);
+
+                            // 更新 key
+                            uploadedPhotos.delete(fileKey);     // 移除舊 key
+                            uploadedPhotos.add(newKey);         // 新增新 key
+                        });
+
+                        // 刪除圖片卡片
+                        deleteBtn.addEventListener("click", () => {
+                            gallery.removeChild(photoItem);
+                            uploadedPhotos.delete(fileKey); // ✅ 刪除對應的 key
+                        });
+
+                        photoItem.appendChild(img);
+                        photoItem.appendChild(fileInput);
+                        photoItem.appendChild(deleteBtn);
+
+                        gallery.insertBefore(photoItem, gallery.querySelector(".upload-label").nextSibling);
+
+                        // ✅ 圖片加進 Set 中
+                        uploadedPhotos.add(fileKey);
+                        };
+
+                        reader.readAsDataURL(file);
+                    });
+
+                    event.target.value = "";
+            });
+        </script>
+    </body>
+</html>

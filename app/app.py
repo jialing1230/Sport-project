@@ -139,6 +139,12 @@ def create_app():
     def introduce_page():
         member_id = request.args.get("member_id")
         return render_template("introduce.html", member_id=member_id)
+    
+    @app.route("/join_activity")
+    def join_activity_page():
+        member_id = request.args.get("member_id")
+        activity_id = request.args.get("activity_id")
+        return render_template("join_activity.html", member_id=member_id, activity_id=activity_id)
 
 
     start_scheduler()  # 啟動排程

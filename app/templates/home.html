@@ -409,7 +409,6 @@
             display: flex;
             justify-content: center;
              gap: 12px;
-     
         }
 
         /* 篩選按鈕列排版 */
@@ -431,7 +430,7 @@
 
         /* 單一篩選按鈕樣式 */
         .filter-btn {
-          padding: 2px 10px;
+          padding: 1px 10px;
           background-color: #ffffff;
           color: var(--deep-blue);
           border: 1px solid #1b3a6e;
@@ -471,7 +470,7 @@
        .top-panel {
           background-color: #ffffff;
           box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12);
-
+          margin-bottom: 6px; /* ✅ 或改用 padding-bottom 取代內部 filter-bar */
           z-index: 10;
           position: relative;
         }
@@ -485,8 +484,44 @@
             padding: 0 16px;
           }
         }
-
+        .filter-btn[data-type="county"] {
+          position: relative; /* ✅ 讓下拉以此按鈕為基準定位 */
+          display: inline-block; /* ✅ 和其他篩選按鈕並排 */
+        }
+        .county-dropdown {
+          position: absolute;
+          top: 100%;
+          left: 24%;
+          background-color: white;
+          border: 1px solid #ccc;
+          z-index: 100;
+          width: 100px;
+          padding: 8px 0;
+          border-radius: 8px;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+          transform: translateX(-50%);
+        }
+        .county-dropdown.hidden {
+          display: none;
+        }
+        
+        .county-list {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+        
+        .county-option {
+          padding: 4.5px 10px; /* ✅ 減少內距 */
+          font-size: 12px;   /* ✅ 縮小字型 */
+          cursor: pointer;
+        }
+        
+        .county-option:hover {
+          background-color: #f0f0f0;
+          }
     </style>
+    
   </head>
   <body>
     <div class="top-panel">
@@ -557,7 +592,35 @@
         <button class="filter-btn" data-type="county">
             <span class="label">所有縣市</span>
             <span class="arrow"></span>
-        </button>
+          </button>
+            <div class="county-dropdown hidden">
+              <ul class="county-list">
+                <li class="county-option" data-county="all">所有縣市</li>
+                <li class="county-option" data-county="台北市">台北市</li>
+                <li class="county-option" data-county="新北市">新北市</li>
+                <li class="county-option" data-county="基隆市">基隆市</li>
+                <li class="county-option" data-county="桃園市">桃園市</li>
+                <li class="county-option" data-county="新竹市">新竹市</li>
+                <li class="county-option" data-county="新竹縣">新竹縣</li>
+                <li class="county-option" data-county="苗栗縣">苗栗縣</li>
+                <li class="county-option" data-county="台中市">台中市</li>
+                <li class="county-option" data-county="彰化縣">彰化縣</li>
+                <li class="county-option" data-county="南投縣">南投縣</li>
+                <li class="county-option" data-county="雲林縣">雲林縣</li>
+                <li class="county-option" data-county="嘉義市">嘉義市</li>
+                <li class="county-option" data-county="嘉義縣">嘉義縣</li>
+                <li class="county-option" data-county="台南市">台南市</li>
+                <li class="county-option" data-county="高雄市">高雄市</li>
+                <li class="county-option" data-county="屏東縣">屏東縣</li>
+                <li class="county-option" data-county="宜蘭縣">宜蘭縣</li>
+                <li class="county-option" data-county="花蓮縣">花蓮縣</li>
+                <li class="county-option" data-county="台東縣">台東縣</li>
+                <li class="county-option" data-county="澎湖縣">澎湖縣</li>
+                <li class="county-option" data-county="金門縣">金門縣</li>
+                <li class="county-option" data-county="連江縣">連江縣</li>
+              </ul>
+            </div>
+          </button>
         <button class="filter-btn" data-type="activity">
             <span class="label">活動類型</span>
             <span class="arrow"></span>
@@ -620,60 +683,75 @@
 
 
     <script>
-      function initMap() {
-        const center = { lat: 25.033964, lng: 121.562321 };
-        const map = new google.maps.Map(document.getElementById("map"), {
-          zoom: 15,
-          center: center,
+      let map;
+let markers = [];
+
+function initMap() {
+  const center = { lat: 25.033964, lng: 121.562321 };
+  map = new google.maps.Map(document.getElementById("map"), {
+    zoom: 15,
+    center: center,
+  });
+
+  loadMarkers("all"); // 初始載入所有標記
+}
+
+// 🆕 新增這個函式
+function loadMarkers(county) {
+  // 清除舊有 marker
+  markers.forEach(marker => marker.setMap(null));
+  markers = [];
+
+  const url = `/api/map/markers/by-county?county=${county}`;
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      data.forEach(activity => {
+        let iconUrl =
+          activity.type === "class"
+            ? "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+            : "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
+
+        const marker = new google.maps.Marker({
+          position: {
+            lat: parseFloat(activity.location_lat),
+            lng: parseFloat(activity.location_lng),
+          },
+          map: map,
+          title: activity.title,
+          icon: iconUrl,
         });
 
-        
-        fetch("/api/map/active-markers")
-  .then((response) => response.json())
-  .then((data) => {
-    data.forEach((activity) => {
-  let iconUrl =
-    activity.type === "class"
-      ? "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
-      : "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
+        const typeLabel = activity.type === "class" ? "訓練課程" : "一般活動";
 
-  const marker = new google.maps.Marker({
-    position: {
-      lat: parseFloat(activity.location_lat),
-      lng: parseFloat(activity.location_lng),
-    },
-    map: map,
-    title: activity.title,
-    icon: iconUrl, // ✅ 指定標記圖示顏色
-  });
+        const content = `
+          <div class="map-info-card">
+            <div class="title">${activity.title}</div>
+            <div><span class="label">活動類型：</span><span class="value">${typeLabel}</span></div>
+            <div><span class="label">運動類型：</span><span class="value">${activity.sport_type}</span></div>
+            <div><span class="label">開始時間：</span><span class="value">${new Date(activity.start_time).toLocaleString("zh-TW")}</span></div>
+            <div><span class="label">結束時間：</span><span class="value">${new Date(activity.end_time).toLocaleString("zh-TW")}</span></div>
+            <div><span class="label">運動地點：</span><span class="value">${activity.location_name}</span></div>
+            <div><span class="label">目前狀態：</span><span class="value">${activity.status === "open" ? "開放報名" : activity.status}</span></div>
+            <div><span class="label">參加人數：</span><span class="value">${activity.current_participants}/${activity.max_participants}</span></div>
+          </div>
+        `;
 
-  const typeLabel = activity.type === "class" ? "訓練課程" : "一般活動";
+        const infoWindow = new google.maps.InfoWindow({
+          content: content,
+        });
 
-const content = `
-  <div class="map-info-card">
-    <div class="title">${activity.title}</div>
-    <div><span class="label">活動類型：</span><span class="value">${typeLabel}</span></div>
-    <div><span class="label">運動類型：</span><span class="value">${activity.sport_type}</span></div>
-    <div><span class="label">開始時間：</span><span class="value">${new Date(activity.start_time).toLocaleString("zh-TW")}</span></div>
-    <div><span class="label">結束時間：</span><span class="value">${new Date(activity.end_time).toLocaleString("zh-TW")}</span></div>
-    <div><span class="label">運動地點：</span><span class="value">${activity.location_name}</span></div>
-    <div><span class="label">目前狀態：</span><span class="value">${activity.status === "open" ? "開放報名" : activity.status}</span></div>
-    <div><span class="label">參加人數：</span><span class="value">${activity.current_participants}/${activity.max_participants}</span></div>
-  </div>
-`;
-      const infoWindow = new google.maps.InfoWindow({
-        content: content,
+        marker.addListener("click", () => {
+          infoWindow.open(map, marker);
+        });
+
+        markers.push(marker); // 加入到陣列
       });
-
-      marker.addListener("click", () => {
-        infoWindow.open(map, marker);
-      });
+    })
+    .catch(error => {
+      console.error("載入活動標記失敗", error);
     });
-  })
-  .catch((error) => {
-    console.error("載入活動標記失敗", error);
-  });
-      }
+}
     </script>
     <script
       async
@@ -748,5 +826,61 @@ const content = `
         });
       });
     </script>
+    <script>
+      const countyBtn = document.querySelector('.filter-btn[data-type="county"]');
+      const countyDropdown = document.querySelector('.county-dropdown');
+      const countyOptions = document.querySelectorAll('.county-option');
+      
+      const countyCenter = {
+        '台北市': { lat: 25.0330, lng: 121.5654 },
+        '新北市': { lat: 25.0169, lng: 121.4628 },
+        '基隆市': { lat: 25.1283, lng: 121.7415 },
+        '桃園市': { lat: 24.9937, lng: 121.3009 },
+        '新竹市': { lat: 24.8039, lng: 120.9647 },
+        '新竹縣': { lat: 24.8387, lng: 121.0023 },
+        '苗栗縣': { lat: 24.5602, lng: 120.8214 },
+        '台中市': { lat: 24.1477, lng: 120.6736 },
+        '彰化縣': { lat: 24.0685, lng: 120.5575 },
+        '南投縣': { lat: 23.8388, lng: 120.9876 },
+        '雲林縣': { lat: 23.7092, lng: 120.4313 },
+        '嘉義市': { lat: 23.4801, lng: 120.4491 },
+        '嘉義縣': { lat: 23.4518, lng: 120.2555 },
+        '台南市': { lat: 23.0000, lng: 120.2269 },
+        '高雄市': { lat: 22.6273, lng: 120.3014 },
+        '屏東縣': { lat: 22.5510, lng: 120.5487 },
+        '宜蘭縣': { lat: 24.7021, lng: 121.7378 },
+        '花蓮縣': { lat: 23.9872, lng: 121.6015 },
+        '台東縣': { lat: 22.7648, lng: 121.1440 },
+        '澎湖縣': { lat: 23.5715, lng: 119.5790 },
+        '金門縣': { lat: 24.4371, lng: 118.3171 },
+        '連江縣': { lat: 26.1608, lng: 119.9517 }
+      };
+      
+      // 點擊「所有縣市」按鈕 → 顯示/隱藏下拉
+      countyBtn.addEventListener('click', () => {
+        countyDropdown.classList.toggle('hidden');
+      });
+      
+      // 點選縣市後 → 移動地圖與更新按鈕文字
+      countyOptions.forEach(option => {
+        option.addEventListener('click', () => {
+          const countyName = option.dataset.county;
+          const countyText = option.textContent;  // 顯示的中文字
+
+countyBtn.querySelector('.label').textContent = countyText;
+countyDropdown.classList.add('hidden');
+
+if (countyName === 'all') {
+  map.setCenter({ lat: 23.6978, lng: 120.9605 });
+  map.setZoom(8);
+  loadMarkers("all");
+} else if (countyCenter[countyName]) {
+  map.setCenter(countyCenter[countyName]);
+  map.setZoom(13);
+  loadMarkers(countyName);
+}
+        });
+      });
+      </script>
   </body>
 </html>

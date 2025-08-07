@@ -139,7 +139,7 @@ def create_app():
     def introduce_page():
         member_id = request.args.get("member_id")
         return render_template("introduce.html", member_id=member_id)
-
+    
 
     start_scheduler()  # 啟動排程
     return app

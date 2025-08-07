@@ -10,6 +10,7 @@ class ActivityJoin(Base):
     activity_id = Column(Integer, ForeignKey("activities.activity_id"))
     join_time = Column(DateTime)
     status = Column(String(50))
+    has_review = Column(Boolean)
     is_checked_in = Column(Boolean, nullable=True)
 
     member = relationship("Member", back_populates="activity_joins")

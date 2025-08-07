@@ -533,290 +533,599 @@
   </div>
 
   <script>
-	document.getElementById("back-button").onclick = () => {
-	  const referrer = document.referrer;
-	  if (referrer) {
-		location.href = referrer;
-	  } else {
-		alert("無法獲取上一頁的網址！");
-	  }
-	};
+  document.getElementById("back-button").onclick = () => {
+    const referrer = document.referrer;
+    if (referrer) {
+    location.href = referrer;
+    } else {
+    alert("無法獲取上一頁的網址！");
+    }
+  };
 
-	const urlParams = new URLSearchParams(window.location.search);
-	const activityId = urlParams.get("id");
-	const memberId = urlParams.get("member_id");
+  const urlParams = new URLSearchParams(window.location.search);
+  const activityId = urlParams.get("id");
+  const memberId = urlParams.get("member_id");
 
-	if (!activityId) {
-	  document.querySelector(".container").innerHTML =
-		`<p style="color:red;">找不到活動 ID！</p>`;
-	  throw new Error("No activity ID found in URL");
-	}
+  if (!activityId) {
+    document.querySelector(".container").innerHTML =
+    `<p style="color:red;">找不到活動 ID！</p>`;
+    throw new Error("No activity ID found in URL");
+  }
 
-	// 取得評價狀態
-	const fetchEvaluationStatus = fetch(`/api/evaluation/status?activity_id=${activityId}&member_id=${memberId}`)
-	  .then(res => res.json());
+      Promise.all([
+      fetch(`/api/activities/details?activity_id=${activityId}`).then(res => res.json()),
+      fetch(`/api/activities/participants?activity_id=${activityId}`).then(res => res.json())
+    ])
+    .then(([detail, participant]) => {
+      console.log("🧪 活動類型 =", detail.activity_type, "｜type =", detail.type);
+      console.log("🧪 課表長度 =", detail.course_schedules?.length);
+      console.log("🧪 課表內容 =", detail.course_schedules);
 
-	// 主體載入：活動資料、參加者、評價狀態
-	Promise.all([
-	  fetch(`/api/activities/details?activity_id=${activityId}`).then(res => res.json()),
-	  fetch(`/api/activities/participants?activity_id=${activityId}`).then(res => res.json()),
-	  fetchEvaluationStatus
-	])
-	.then(([detail, participant, evaluationStatus]) => {
-	  // 狀態計算
-	  const now = new Date();
-	  const signupDeadline = new Date(detail.registration_deadline);
-	  const startTime = new Date(detail.start_time);
-	  const endTime = new Date(detail.end_time);
+      const now = new Date();
+      const signupDeadline = new Date(detail.registration_deadline);
+      const hasDeadline = signupDeadline > now;
+      const confirmed = detail.current_participants;
+      const pending = participant.pending_participants.length;
+      const max = detail.max_participants;
+      const isFull = (confirmed + pending) >= max;
 
-	  let state = "";
-	  if (now < signupDeadline) {
-		state = "已報名";
-	  } else if (now >= signupDeadline && now < startTime) {
-		state = "準備中";
-	  } else if (now >= startTime && now < endTime) {
-		state = "進行中";
-	  } else if (now >= endTime) {
-		state = "已結束";
-	  }
 
-	  const hasEvaluated = !!evaluationStatus.evaluated;
+      // 報名狀態（假設 API 有回傳 participant.joined_ids 陣列，裡面有 memberId 代表已報名）
+      const isJoined = participant.joined_participants.some(p => String(p.member_id) === String(memberId));
+      const isPending = participant.pending_participants.some(p => String(p.member_id) === String(memberId));
 
-	  // 狀態標籤顏色與文字
-	  let statusText = "";
-	  let statusClass = "";
-	  if (state === "已報名") {
-		statusText = "已報名";
-		statusClass = "badge-open";
-	  } else if (state === "準備中") {
-		statusText = "準備中";
-		statusClass = "badge-full";
-	  } else if (state === "進行中") {
-		statusText = "進行中";
-		statusClass = "badge-full";
-	  } else if (state === "已結束") {
-		statusText = "已結束";
-		statusClass = "badge-full";
-	  }
+      const joinBtn = document.getElementById("join-btn");
+      // 活動狀態：open、deadline、ongoing、close
+      let state = "";
+      switch (detail.status) {
+        case "open":
+          state = "已報名";
+          break;
+        case "deadline":
+          state = "準備中";
+          break;
+        case "ongoing":
+          state = "進行中";
+          break;
+        case "close":
+          state = "已結束";
+          break;
+        default:
+          state = "未知狀態";
+      }
 
-	  // 活動主資訊
-	  const organizerName = participant.organizer.name;
-	  document.getElementById("activity-info").innerHTML = `
-		<div class="title-row">
-		  <h2 class="title-text">${detail.title}</h2>
-		  <span class="status-badge ${statusClass}">${statusText}</span>
-		</div>
-		<span>${detail.sport_name}｜${detail.level}運動者推薦｜由
-		  <a href="/introduce?member_id=${detail.organizer_id}">${organizerName}</a>
-		  發起
-		</span>
-		<div class="section-divider"></div>
-		<div class="location-row">
-		  <svg class="location-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="26" height="26" style="vertical-align: middle; margin-right: 14px;">
-			<path d="M12 1.5C6.5 1.5 3 6 3 10c0 6.5 9 13 9 13s9-6.5 9-13c0-4-3.5-8.5-9-8.5z" stroke="#2c4975" stroke-width="2" fill="none"/>
-			<circle cx="12" cy="10" r="2.5" stroke="#2c4975" stroke-width="2" fill="none"/>
-		  </svg>
-		  <span>${detail.location_name}</span>
-		</div>
-		<!-- 這裡可以依課程類型插入更多地點/時間資訊（略） -->
-		<div class="location-row">
-		  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="vertical-align: middle; margin-right: 16px;">
-			<circle cx="12" cy="12" r="10" stroke="#2c4975" stroke-width="2" fill="none"/>
-			<text x="12" y="16" font-size="12" font-weight="bold" text-anchor="middle" fill="#2c4975" font-family="Arial">$</text>
-		  </svg>
-		  <span style="vertical-align: baseline; line-height: 1.2;">
-			${!detail.venue_fee || detail.venue_fee === 0 ? `免費` : `${detail.venue_fee} 元`}
-			<span style="margin: 0 4px; vertical-align: baseline;">|</span>
-			<span class="activity-type-label" id="activity-type">
-			  ${detail.activity_type === '一般活動' ? '一般活動' : detail.activity_type === '訓練課程' ? '訓練課程' : detail.type === 'class' || detail.type === 'muti_class' ? '訓練課程' : detail.type === 'activity' ? '一般活動' : '活動'}
-			</span>
-		  </span>
-		</div>
-	  `;
+      // 只檢查參加者中，網址中的 member_id 的 has_review 狀態
+      let hasEvaluated = false;
+      const self = participant.joined_participants.find(p => String(p.member_id) === String(memberId));
+      if (self) {
+        hasEvaluated = self.has_review === true;
+      }
 
-	  // 人數/截止日
-	  const participantText = `報名完成：${detail.current_participants} / ${detail.max_participants} 人`;
-	  document.getElementById("participant-status").textContent = participantText;
-	  const pad = n => String(n).padStart(2, "0");
-	  const days = ["日", "一", "二", "三", "四", "五", "六"];
-	  const month = signupDeadline.getMonth() + 1;
-	  const day = signupDeadline.getDate();
-	  const week = days[signupDeadline.getDay()];
-	  const hour = pad(signupDeadline.getHours());
-	  const minute = pad(signupDeadline.getMinutes());
-	  const deadlineText = `報名截止：${month}/${day}（${week}）${hour}:${minute}`;
-	  document.getElementById("signup-deadline").textContent = deadlineText;
+      // 判斷 member_id 是否在參加者列表
+      const isParticipant = participant.joined_participants.some(p => String(p.member_id) === String(memberId));
 
-	  // 狀態按鈕切換
-	  const joinBtn = document.getElementById("join-btn");
-	  joinBtn.style.display = "inline-block";
-	  if (state === "已報名") {
-		joinBtn.textContent = "取消參加";
-		joinBtn.classList.remove("disabled");
-		joinBtn.disabled = false;
-		joinBtn.onclick = () => {
-		  if (confirm("你確定要取消參加這個活動嗎？（取消後須重新報名審核）")) {
-			fetch("/api/activities/cancel", {
-			  method: "POST",
-			  headers: { "Content-Type": "application/json" },
-			  body: JSON.stringify({ member_id: memberId, activity_id: activityId }),
-			})
-			.then(res => res.json())
-			.then(result => {
-			  if (!result.error) {
-				alert("已取消參加！");
-				window.location.href = "/joined_activities";
-			  } else {
-				alert(result.error || "取消失敗！");
-			  }
-			});
-		  }
-		};
-	  } else if (state === "準備中") {
-		joinBtn.style.display = "none";
-	  } else if (state === "進行中") {
-		joinBtn.textContent = "待評價";
-		joinBtn.classList.add("disabled");
-		joinBtn.disabled = true;
-		joinBtn.onclick = null;
-	  } else if (state === "已結束") {
-		if (hasEvaluated) {
-		  joinBtn.textContent = "已評價";
-		  joinBtn.classList.remove("disabled");
-		  joinBtn.disabled = false;
-		  joinBtn.onclick = () => {
-			window.location.href = `/evaluation_result?activity_id=${activityId}&member_id=${memberId}`;
-		  };
-		} else {
-		  joinBtn.textContent = "待評價";
-		  joinBtn.classList.remove("disabled");
-		  joinBtn.disabled = false;
-		  joinBtn.onclick = () => {
-			window.location.href = `/evaluate?activity_id=${activityId}&member_id=${memberId}`;
-		  };
-		}
-	  }
+      if (isParticipant) {
+        if (state === "已報名") {
+          joinBtn.textContent = "取消參加";
+          joinBtn.classList.remove("disabled");
+          joinBtn.disabled = false;
+          joinBtn.style.backgroundColor = "#81d3e1";
+          joinBtn.onclick = () => {
+            if (confirm("你確定要取消參加這個活動嗎？（取消後須重新報名審核）")) {
+              fetch("/api/activities/cancel", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ member_id: memberId, activity_id: activityId }),
+              })
+                .then(res => res.json())
+                .then(result => {
+                  if (!result.error) {
+                    alert("已取消參加！");
+                    window.location.href = `/activity?member_id=${memberId}`;
+                  } else {
+                    alert(result.error || "取消失敗！");
+                  }
+                });
+            }
+          };
+        } else if (state === "準備中") {
+          joinBtn.style.display = "none";
+        } else if (state === "進行中") {
+          joinBtn.textContent = "待評價";
+          joinBtn.classList.add("disabled");
+          joinBtn.disabled = true;
+          joinBtn.onclick = null;
+        } else if (state === "已結束") {
+          if (hasEvaluated) {
+            joinBtn.textContent = "已評價";
+            joinBtn.classList.remove("disabled");
+            joinBtn.disabled = false;
+            joinBtn.onclick = () => {
+              window.location.href = `/evaluation_result?activity_id=${activityId}&member_id=${memberId}`;
+            };
+          } else {
+            joinBtn.textContent = "待評價";
+            joinBtn.classList.remove("disabled");
+            joinBtn.disabled = false;
+            joinBtn.onclick = () => {
+              window.location.href = `/evaluate?activity_id=${activityId}&member_id=${memberId}`;
+            };
+          }
+        } else {
+          joinBtn.style.display = "none";
+        }
+     }
 
-	  // 活動介紹
-	  const descSection = document.getElementById("description");
-	  if (detail.description && detail.description.trim() !== "") {
-		descSection.innerHTML = `<h3>活動介紹</h3><p><span>${detail.description.replace(/\n/g, '<br>')}</span></p>`;
-		descSection.style.display = "block";
-	  } else {
-		descSection.style.display = "none";
-	  }
+      // 活動狀態：open、deadline、ongoing、close
+      let statusText = "";
+      switch (detail.status) {
+        case "open":
+          statusText = "已報名";
+          break;
+        case "deadline":
+          statusText = "準備中";
+          break;
+        case "ongoing":
+          statusText = "進行中";
+          break;
+        case "close":
+          statusText = "已結束";
+          break;
+        default:
+          statusText = "未知狀態";
+      }
+      const statusClass = detail.status === "close" ? "badge-full" : "badge-open";
+      const organizerName = participant.organizer.name;
+          
+        document.getElementById("activity-info").innerHTML = `
+          <div class="title-row">
+            <h2 class="title-text">${detail.title}</h2>
+            <span class="status-badge ${statusClass}">${statusText}</span>
+          </div>
+          <span>${detail.sport_name}｜${detail.level}運動者推薦｜由
+    <a href="/introduce?member_id=${detail.organizer_id}">${organizerName}</a>
+    發起
+</span>
+          <div class="section-divider"></div>
+          <div class="location-row">
+            <svg class="location-icon" 
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  width="26"
+                  height="26"
+                  style="vertical-align: middle; margin-right: 14px;">
+            <path d="M12 1.5C6.5 1.5 3 6 3 10c0 6.5 9 13 9 13s9-6.5 9-13c0-4-3.5-8.5-9-8.5z"
+                  stroke="#2c4975"
+                  stroke-width="2"
+                  fill="none"/>
+            <circle cx="12" cy="10" r="2.5" stroke="#2c4975" stroke-width="2" fill="none"/>
+            </svg>
+            <span>${detail.location_name}</span>
+          </div>
+          
+                ${(() => {
+          if (detail.type === "muti_class" && detail.course_schedules?.length > 1) {
+            const first = new Date(detail.course_schedules[0].start_time);
+            const pad = (n) => String(n).padStart(2, "0");
+            const dayNames = ["日", "一", "二", "三", "四", "五", "六"];
 
-	  // 課程表
-	  if (detail.course_schedules && detail.course_schedules.length > 0) {
-		const scheduleSection = document.getElementById("course-schedule");
-		scheduleSection.style.display = "block";
-		const tbody = document.getElementById("schedule-tbody");
-		tbody.innerHTML = "";
-		detail.course_schedules.forEach((s, index) => {
-		  const start = new Date(s.start_time);
-		  const end = new Date(s.end_time);
-		  const dateStr = `${start.getMonth() + 1}/${start.getDate()}（${days[start.getDay()]}）`;
-		  const timeStr = `${pad(start.getHours())}:${pad(start.getMinutes())} - ${pad(end.getHours())}:${pad(end.getMinutes())}`;
-		  const row = document.createElement("tr");
-		  row.innerHTML = `<td>第 ${index + 1} 堂</td><td>${dateStr}</td><td>${timeStr}</td>`;
-		  tbody.appendChild(row);
-		});
-		// 展開/收合按鈕
-		const toggleBtn = document.getElementById("toggle-schedule");
-		const scheduleContent = document.getElementById("schedule-content");
-		const toggleText = document.getElementById("toggle-text");
-		const toggleArrow = document.getElementById("toggle-arrow");
-		scheduleContent.style.display = "none";
-		toggleText.textContent = "展開";
-		toggleArrow.style.transform = "rotate(0deg)";
-		toggleBtn.addEventListener("click", () => {
-		  const isHidden = scheduleContent.style.display === "none";
-		  scheduleContent.style.display = isHidden ? "block" : "none";
-		  toggleText.textContent = isHidden ? "收合" : "展開";
-		  toggleArrow.style.transform = isHidden ? "rotate(180deg)" : "rotate(0deg)";
-		});
-	  }
+            const firstStr = `${first.getMonth() + 1}/${first.getDate()}（${dayNames[first.getDay()]}）${pad(first.getHours())}:${pad(first.getMinutes())}～${pad(new Date(detail.course_schedules[0].end_time).getHours())}:${pad(new Date(detail.course_schedules[0].end_time).getMinutes())}`;
 
-	  // 參與人員
-	  fetch(`/api/activities/participants?activity_id=${activityId}`)
-		.then((res) => res.json())
-		.then((data) => {
-		  const organizer = data.organizer;
-		  const joined = data.joined_participants;
-		  let html = `<h3>參與人員</h3>`;
-		  html += `<div style="display: flex; flex-wrap: wrap; gap: 12px;">`;
-		  html += `
-			<div class="avatar-box">
-			  <img src="/static/avatars/${organizer.member_id}.png"
-				alt="${organizer.name}" title="${organizer.name}"
-				onerror="this.onerror=null;this.src='/static/avatars/default.jpg'">
-			</div>
-		  `;
-		  html += joined.map(p => `
-			<div class="avatar-box">
-			  <img src="/static/avatars/${p.member_id}.png"
-				alt="${p.name}" title="${p.name}"
-				onerror="this.onerror=null;this.src='/static/avatars/default.jpg'">
-			</div>
-		  `).join("");
-		  html += `</div>`;
-		  document.getElementById("participants").innerHTML = html;
-		});
+            const daysUsed = [...new Set(detail.course_schedules.map(s => dayNames[new Date(s.start_time).getDay()]))];
+            const second = new Date(detail.course_schedules[1].start_time);
+            const secondEnd = new Date(detail.course_schedules[1].end_time);
+            const rangeTime = `${pad(second.getHours())}:${pad(second.getMinutes())}～${pad(secondEnd.getHours())}:${pad(secondEnd.getMinutes())}`;
+            const total = detail.course_schedules.length;
 
-	  // 收藏功能
-	  document.addEventListener("DOMContentLoaded", function () {
-		const heartIcon = document.querySelector(".heart-icon");
-		const path = heartIcon.querySelector(".heart-path");
-		fetch(`/api/activities/favorite/list?member_id=${memberId}`)
-		  .then((response) => response.json())
-		  .then((ids) => {
-			if (ids.includes(parseInt(activityId, 10))) {
-			  path.setAttribute("fill", "#f8a9b3");
-			  path.setAttribute("stroke", "#f8a9b3");
-			} else {
-			  path.setAttribute("fill", "none");
-			  path.setAttribute("stroke", "#f8a9b3");
-			}
-			heartIcon.addEventListener("click", function (e) {
-			  e.stopPropagation();
-			  e.preventDefault();
-			  if (path.getAttribute("fill") === "none" || !path.getAttribute("fill")) {
-				fetch(`/api/activities/favorite`, {
-				  method: "POST",
-				  headers: { "Content-Type": "application/json" },
-				  body: JSON.stringify({ member_id: memberId, activity_id: activityId }),
-				})
-				  .then((response) => {
-					if (response.ok) {
-					  path.setAttribute("fill", "#f8a9b3");
-					  path.setAttribute("stroke", "#f8a9b3");
-					} else {
-					  alert("加入收藏失敗");
-					}
-				  })
-				  .catch(() => alert("加入收藏失敗"));
-			  } else {
-				fetch(`/api/activities/favorite`, {
-				  method: "DELETE",
-				  headers: { "Content-Type": "application/json" },
-				  body: JSON.stringify({ member_id: memberId, activity_id: activityId }),
-				})
-				  .then((response) => {
-					if (response.ok) {
-					  path.setAttribute("fill", "none");
-					  path.setAttribute("stroke", "#f8a9b3");
-					} else {
-					  alert("移除收藏失敗");
-					}
-				  })
-				  .catch(() => alert("移除收藏失敗"));
-			  }
-			});
-		  })
-		  .catch(() => console.error("無法獲取收藏列表"));
-	  });
-	});
+            return `
+              <div class="location-row">
+                <svg class="location-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="26" height="26" style="vertical-align: middle; margin-right: 14px;">
+                  <circle cx="12" cy="12" r="9" stroke="#2c4975" stroke-width="2" fill="none"/>
+                  <path d="M12 7v5l3 3" stroke="#2c4975" stroke-width="2" fill="none"/>
+                </svg>
+                <span class="location-text">第一次上課：${firstStr}</span>
+              </div>
+              <div class="location-row">
+                <svg class="location-icon" xmlns="http://www.w3.org/2000/svg"
+                  width="26" height="26"
+                  viewBox="0 0 256 256"
+                  fill="#2c4975"
+                  style="vertical-align: middle; margin-right: 14px;">
+                  <path d="M208,28H188V24a12,12,0,0,0-24,0v4H92V24a12,12,0,0,0-24,0v4H48A20,20,0,0,0,28,48V208a20,20,0,0,0,20,20H208a20,20,0,0,0,20-20V48A20,20,0,0,0,208,28ZM68,52a12,12,0,0,0,24,0h72a12,12,0,0,0,24,0h16V76H52V52ZM52,204V100H204V204Zm112-52a12,12,0,0,1-12,12H104a12,12,0,0,1,0-24h48A12,12,0,0,1,164,152Z" />
+                </svg>
+                <span class="location-text">固定課程：每週${daysUsed.join("、")}｜${rangeTime}（共 ${total} 堂）</span>
+              </div>`;
+          } else {
+            return `
+              <div class="location-row">
+                <svg class="location-icon"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      width="26"
+                      height="26"
+                      style="vertical-align: middle; margin-right: 14px;">
+                  <path d="M12 12 V5"
+                        stroke="#2c4975"
+                        stroke-width="2"
+                        fill="none"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                  <path d="M12 12 L16 15"
+                        stroke="#2c4975"
+                        stroke-width="2"
+                        fill="none"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                  <circle cx="12" cy="12" r="9" stroke="#2c4975" stroke-width="2" fill="none"></circle>
+                </svg>
+                <span class="location-text">${formatDateRange(detail.start_time, detail.end_time)}</span>
+              </div>`;
+          }
+        })()}
 
-  </script>
-</body>
+          
+          <div class="location-row">
+            <!-- 圓圈裡面的錢圖示 -->
+            <svg xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+                style="vertical-align: middle; margin-right: 16px;">
+                <circle cx="12" cy="12" r="10" stroke="#2c4975" stroke-width="2" fill="none"/>
+                <text x="12" y="16" font-size="12" font-weight="bold" text-anchor="middle" fill="#2c4975" font-family="Arial">$</text>
+            <span style="vertical-align: baseline; line-height: 1.2;">
+              ${!detail.venue_fee || detail.venue_fee === 0 
+                ? `免費` 
+                : `${detail.venue_fee} 元`}
+              <span style="margin: 0 4px; vertical-align: baseline;">|</span>
+              <span class="activity-type-label" id="activity-type">
+                ${detail.activity_type === '一般活動' ? '一般活動' : detail.activity_type === '訓練課程' ? '訓練課程' : detail.type === 'class' || detail.type === 'muti_class' ? '訓練課程' : detail.type === 'activity' ? '一般活動' : '活動'}
+              </span>
+            </span>
+          </div>
+          `;
+
+
+          const participantText = `報名完成：${confirmed} / ${max} 人`;
+          document.getElementById("participant-status").textContent = participantText;
+
+
+          const pad = (n) => String(n).padStart(2, "0");
+          const days = ["日", "一", "二", "三", "四", "五", "六"];
+          const month = signupDeadline.getMonth() + 1;
+          const day = signupDeadline.getDate();
+          const week = days[signupDeadline.getDay()];
+          const hour = pad(signupDeadline.getHours());
+          const minute = pad(signupDeadline.getMinutes());
+          const deadlineText = `報名截止：${month}/${day}（${week}）${hour}:${minute}`;
+
+          document.getElementById("signup-deadline").textContent = deadlineText;
+          
+          const activityType = detail.activity_type;  // 根據API返回的活動類型設定
+
+          // 根據活動類型來顯示對應的文字和樣式
+          requestAnimationFrame(() => {
+            const activityTypeLabel = document.getElementById("activity-type");
+            if (activityTypeLabel) {
+              const typeText = activityTypeLabel.textContent.trim();
+              if (typeText === "一般活動") {
+                activityTypeLabel.classList.remove("training-course");
+                activityTypeLabel.classList.add("general-activity");
+              } else if (typeText === "訓練課程") {
+                activityTypeLabel.classList.remove("general-activity");
+                activityTypeLabel.classList.add("training-course");
+              } else {
+                activityTypeLabel.classList.remove("general-activity", "training-course");
+              }
+            }
+          }, 0);
+
+          function formatDateRange(start, end) {
+            const startDate = new Date(start);
+            const endDate = new Date(end);
+
+            const pad = (n) => String(n).padStart(2, "0");
+            const getDayLabel = (d) => {
+              const days = ["日", "一", "二", "三", "四", "五", "六"];
+              return days[d.getDay()];
+            };
+
+            const sMonth = startDate.getMonth() + 1;
+            const sDay = startDate.getDate();
+            const sWeek = getDayLabel(startDate);
+            const sTime = `${pad(startDate.getHours())}:${pad(startDate.getMinutes())}`;
+
+            const eMonth = endDate.getMonth() + 1;
+            const eDay = endDate.getDate();
+            const eWeek = getDayLabel(endDate);
+            const eTime = `${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`;
+
+            if (sMonth === eMonth && sDay === eDay) {
+              // ✅ 同一天，只顯示一次日期
+              return `${sMonth}/${sDay}（${sWeek}）${sTime} ~ ${eTime}`;
+            } else {
+              // ⏭️ 不同天，兩個日期都顯示
+              return `${sMonth}/${sDay}（${sWeek}）${sTime} ~ ${eMonth}/${eDay} ${eTime}`;
+            }
+          }
+
+          const descSection = document.getElementById("description");
+          if (detail.description && detail.description.trim() !== "") {
+            descSection.innerHTML = `
+              <h3>活動介紹</h3>
+              <p><span>${detail.description.replace(/\n/g, '<br>')}</span></p>`;
+            descSection.style.display = "block";
+          } else {
+            descSection.style.display = "none";
+          }
+          if (detail.course_schedules && detail.course_schedules.length > 0) {
+            const scheduleSection = document.getElementById("course-schedule");
+            scheduleSection.style.display = "block";
+
+            const tbody = document.getElementById("schedule-tbody");
+            tbody.innerHTML = ""; // 清空舊資料
+
+            const pad = (n) => String(n).padStart(2, "0");
+            const days = ["日", "一", "二", "三", "四", "五", "六"];
+
+            detail.course_schedules.forEach((s, index) => {
+              const start = new Date(s.start_time);
+              const end = new Date(s.end_time);
+
+              const dateStr = `${start.getMonth() + 1}/${start.getDate()}（${days[start.getDay()]}）`;
+              const timeStr = `${pad(start.getHours())}:${pad(start.getMinutes())} - ${pad(end.getHours())}:${pad(end.getMinutes())}`;
+
+              const row = document.createElement("tr");
+              row.innerHTML = `
+                <td>第 ${index + 1} 堂</td>
+                <td>${dateStr}</td>
+                <td>${timeStr}</td>
+              `;
+              tbody.appendChild(row);
+            });
+          }
+
+          document.getElementById("join-btn").onclick = function() {
+            const btn = this;
+            if (btn.textContent === "取消參加") {
+              if (confirm("你確定要取消參加這個活動嗎？（取消後須重新報名審核）")) {
+                fetch("/api/activities/cancel", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ member_id: memberId, activity_id: activityId }),
+                })
+                  .then(res => res.json())
+                  .then(result => {
+                    if (!result.error) {
+                      alert("已取消參加！");
+                      window.location.href = `/activity?member_id=${memberId}`;
+                    } else {
+                      alert(result.error || "取消失敗！");
+                    }
+                  });
+              }
+              return;
+            }
+            if (btn.textContent === "待評價") {
+              window.location.href = `/evaluate?activity_id=${activityId}&member_id=${memberId}`;
+              return;
+            }
+            if (!memberId) {
+              alert("請先登入或提供 member_id 才能參加活動！");
+              return;
+            }
+            
+            
+          };
+            // 🔁 課程表收合/展開邏輯
+                const toggleBtn = document.getElementById("toggle-schedule");
+                const scheduleContent = document.getElementById("schedule-content");
+                const toggleText = document.getElementById("toggle-text");
+                const toggleArrow = document.getElementById("toggle-arrow");
+
+                // ✅ 預設收合
+                scheduleContent.style.display = "none";
+                toggleText.textContent = "展開";
+                toggleArrow.style.transform = "rotate(0deg)";
+
+                toggleBtn.addEventListener("click", () => {
+                  const isHidden = scheduleContent.style.display === "none";
+                  scheduleContent.style.display = isHidden ? "block" : "none";
+                  toggleText.textContent = isHidden ? "收合" : "展開";
+                  toggleArrow.style.transform = isHidden ? "rotate(180deg)" : "rotate(0deg)";
+                });
+
+
+
+    });
+
+      fetch(`/api/activities/participants?activity_id=${activityId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          const organizer = data.organizer;
+          const joined = data.joined_participants;
+
+          let html = `<h3>參與人員</h3>`;
+          html += `<div style="display: flex; flex-wrap: wrap; gap: 12px;">`;
+          // 主辦人頭貼
+          html += `
+  <div class="avatar-box">
+    <img src="/static/avatars/${organizer.member_id}.png"
+      alt="${organizer.name}"
+      title="${organizer.name}"
+      onerror="this.onerror=null;this.src='/static/avatars/default.jpg'">
+  </div>
+`;
+          // 參加者頭貼
+          html += joined.map(p => `
+  <div class="avatar-box">
+    <img src="/static/avatars/${p.member_id}.png"
+      alt="${p.name}"
+      title="${p.name}"
+      onerror="this.onerror=null;this.src='/static/avatars/default.jpg'">
+  </div>
+`).join("");
+          html += `</div>`;
+
+          document.getElementById("participants").innerHTML = html;
+        });
+
+      function updateParticipantStatus(targetMemberId, status) {
+        fetch("/api/activities/update_status", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            activity_id: activityId,
+            member_id: targetMemberId,
+            status: status,
+          }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            alert(data.message || data.error);
+            location.reload();
+          })
+          .catch((err) => {
+            alert("審核失敗，請稍後再試");
+          });
+      }
+
+      document.querySelectorAll(".heart-icon").forEach(function (heart) {
+        heart.addEventListener("click", function (e) {
+          e.stopPropagation();
+          e.preventDefault();
+          const svg = this.querySelector(".heart-svg");
+          const path = svg.querySelector(".heart-path");
+          const activityId = this.closest(".activity-card")
+            .querySelector("a")
+            .href.split("id=")[1]
+            .split("&")[0];
+
+          if (
+            path.getAttribute("fill") === "none" ||
+            !path.getAttribute("fill")
+          ) {
+            // 填滿心形，發送新增請求
+            fetch(`/api/activities/favorite`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                member_id: memberId,
+                activity_id: activityId,
+              }),
+            })
+              .then((response) => {
+                if (response.ok) {
+                  path.setAttribute("fill", "#f8a9b3");
+                  path.setAttribute("stroke", "#f8a9b3");
+                } else {
+                  alert("加入收藏失敗");
+                }
+              })
+              .catch(() => alert("加入收藏失敗"));
+          } else {
+            // 清空心形，發送刪除請求
+            fetch(`/api/activities/favorite`, {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                member_id: memberId,
+                activity_id: activityId,
+              }),
+            })
+              .then((response) => {
+                if (response.ok) {
+                  path.setAttribute("fill", "none");
+                  path.setAttribute("stroke", "#f8a9b3");
+                } else {
+                  alert("移除收藏失敗");
+                }
+              })
+              .catch(() => alert("移除收藏失敗"));
+          }
+        });
+      });
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const heartIcon = document.querySelector(".heart-icon");
+        const path = heartIcon.querySelector(".heart-path");
+
+        fetch(`/api/activities/favorite/list?member_id=${memberId}`)
+          .then((response) => response.json())
+          .then((ids) => {
+            const activityId = urlParams.get("id");
+            if (!activityId) {
+              console.error("活動 ID 未找到");
+              return;
+            }
+
+            // 如果該活動已收藏，設置心形為填滿狀態
+            if (ids.includes(parseInt(activityId, 10))) {
+              path.setAttribute("fill", "#f8a9b3");
+              path.setAttribute("stroke", "#f8a9b3");
+            } else {
+              path.setAttribute("fill", "none");
+              path.setAttribute("stroke", "#f8a9b3");
+            }
+
+            heartIcon.addEventListener("click", function (e) {
+              e.stopPropagation();
+              e.preventDefault();
+
+              if (
+                path.getAttribute("fill") === "none" ||
+                !path.getAttribute("fill")
+              ) {
+                // 填滿心形，發送新增請求
+                fetch(`/api/activities/favorite`, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    member_id: memberId,
+                    activity_id: activityId,
+                  }),
+                })
+                  .then((response) => {
+                    if (response.ok) {
+                      path.setAttribute("fill", "#f8a9b3");
+                      path.setAttribute("stroke", "#f8a9b3");
+                    } else {
+                      alert("加入收藏失敗");
+                    }
+                  })
+                  .catch(() => alert("加入收藏失敗"));
+              } else {
+                // 清空心形，發送刪除請求
+                fetch(`/api/activities/favorite`, {
+                  method: "DELETE",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    member_id: memberId,
+                    activity_id: activityId,
+                  }),
+                })
+                  .then((response) => {
+                    if (response.ok) {
+                      path.setAttribute("fill", "none");
+                      path.setAttribute("stroke", "#f8a9b3");
+                    } else {
+                      alert("移除收藏失敗");
+                    }
+                  })
+                  .catch(() => alert("移除收藏失敗"));
+              }
+            });
+          })
+          .catch(() => console.error("無法獲取收藏列表"));
+      });
+    </script>
+  </body>
 </html>

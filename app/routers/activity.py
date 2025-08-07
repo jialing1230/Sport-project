@@ -347,6 +347,9 @@ def get_activity_details():
 def activity_details_page():
     return render_template("activity_details.html")
 
+@activity_bp.route("/joined_details_page", methods=["GET"])
+def joined_activity_detail_page():
+    return render_template("joined_activity_detail.html")
 
 @activity_bp.route("/joined", methods=["GET"])
 def list_joined_activities():
@@ -418,6 +421,7 @@ def get_activity_participants():
                 {
                     "member_id": p.member_id,
                     "name": p.member.name,
+                    "has_review": getattr(p, "has_review", False)
                 }
                 for p in joined_participants
             ],
@@ -537,6 +541,7 @@ def join_activity():
             member_id=member_id,
             activity_id=activity_id,
             status="pending",
+            has_review=False,
             is_checked_in=False
         )
         db.add(join)

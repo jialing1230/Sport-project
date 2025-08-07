@@ -533,24 +533,24 @@
   </div>
 
   <script>
-	document.getElementById("back-button").onclick = () => {
-	  const referrer = document.referrer;
-	  if (referrer) {
-		location.href = referrer;
-	  } else {
-		alert("無法獲取上一頁的網址！");
-	  }
-	};
+  document.getElementById("back-button").onclick = () => {
+    const referrer = document.referrer;
+    if (referrer) {
+    location.href = referrer;
+    } else {
+    alert("無法獲取上一頁的網址！");
+    }
+  };
 
-	const urlParams = new URLSearchParams(window.location.search);
-	const activityId = urlParams.get("id");
-	const memberId = urlParams.get("member_id");
+  const urlParams = new URLSearchParams(window.location.search);
+  const activityId = urlParams.get("id");
+  const memberId = urlParams.get("member_id");
 
-	if (!activityId) {
-	  document.querySelector(".container").innerHTML =
-		`<p style="color:red;">找不到活動 ID！</p>`;
-	  throw new Error("No activity ID found in URL");
-	}
+  if (!activityId) {
+    document.querySelector(".container").innerHTML =
+    `<p style="color:red;">找不到活動 ID！</p>`;
+    throw new Error("No activity ID found in URL");
+  }
 
       Promise.all([
       fetch(`/api/activities/details?activity_id=${activityId}`).then(res => res.json()),
@@ -621,7 +621,7 @@
                 .then(result => {
                   if (!result.error) {
                     alert("已取消參加！");
-                    window.location.href = "/joined_activities";
+                    window.location.href = `/activity?member_id=${memberId}`;
                   } else {
                     alert(result.error || "取消失敗！");
                   }
@@ -631,7 +631,7 @@
         } else if (state === "準備中") {
           joinBtn.style.display = "none";
         } else if (state === "進行中") {
-          joinBtn.textContent = hasEvaluated ? "已評價" : "待評價";
+          joinBtn.textContent = "待評價";
           joinBtn.classList.add("disabled");
           joinBtn.disabled = true;
           joinBtn.onclick = null;
@@ -898,7 +898,7 @@
                   .then(result => {
                     if (!result.error) {
                       alert("已取消參加！");
-                      window.location.href = "/joined_activities";
+                      window.location.href = `/activity?member_id=${memberId}`;
                     } else {
                       alert(result.error || "取消失敗！");
                     }

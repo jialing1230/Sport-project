@@ -127,6 +127,7 @@ def upgrade() -> None:
     sa.Column('activity_id', sa.Integer(), nullable=True),
     sa.Column('join_time', sa.DateTime(), nullable=True),
     sa.Column('status', sa.String(length=50), nullable=True),
+    sa.Column('has_review', sa.Boolean(), nullable=True),
     sa.Column('is_checked_in', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['activity_id'], ['activities.activity_id'], ),
     sa.ForeignKeyConstraint(['member_id'], ['members.member_id'], ),

@@ -237,6 +237,7 @@ def upgrade() -> None:
                 activity_id=activities[i - 1].activity_id,
                 join_time=now,
                 status="joined",
+                has_review=False,
                 is_checked_in=False,
             )
         )
@@ -508,6 +509,7 @@ def upgrade() -> None:
                     activity_id=past_activity.activity_id,
                     join_time=now - timedelta(days=1),
                     status="joined",
+                    has_review=True,
                     is_checked_in=True,
                 )
             )

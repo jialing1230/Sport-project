@@ -466,8 +466,8 @@ def cancel_participation():
             activity.current_participants -= 1
 
         # 新增通知給主辦人
+        from app.models.notification import Notification
         if organizer_id:
-            from app.models.notification import Notification
             content = f"{member_name} 取消參加您的活動：{activity.title if activity else ''}"
             notification = Notification(
                 member_id=organizer_id,
@@ -475,6 +475,17 @@ def cancel_participation():
                 content=content
             )
             db.add(notification)
+
+        # 通知所有 waiting 狀態的人有名額釋出
+        if activity:
+            waiting_list = db.query(ActivityJoin).filter_by(activity_id=activity_id, status="waiting").all()
+            for w in waiting_list:
+                wait_notify = Notification(
+                    member_id=w.member_id,
+                    title="活動釋出名額通知",
+                    content=f"您曾報名的活動「{activity.title}」有名額釋出，歡迎立即報名參加！"
+                )
+                db.add(wait_notify)
 
         db.commit()
 
@@ -520,6 +531,24 @@ def update_participant_status():
                     # 更新活動的 current_participants
                     activity.current_participants += 1
                     notify_content = f"您申請參加的活動「{activity.title}」已通過審核，歡迎參加！"
+
+                    # 若通過後人數已達上限，處理剩餘 pending
+                    if activity.current_participants >= activity.max_participants:
+                        # 查詢所有還在 pending 的參加者（不含本次通過的）
+                        pendings = db.query(ActivityJoin).filter(
+                            ActivityJoin.activity_id == activity_id,
+                            ActivityJoin.status == "pending",
+                            ActivityJoin.member_id != member_id
+                        ).all()
+                        from app.models.notification import Notification
+                        for p in pendings:
+                            p.status = "waiting"
+                            wait_notify = Notification(
+                                member_id=p.member_id,
+                                title="活動額滿通知",
+                                content=f"您申請參加的活動「{activity.title}」因名額已滿，歡迎下次再度報名，有興趣請多關注本活動動態。"
+                            )
+                            db.add(wait_notify)
             elif new_status == "reject" and participant.status == "pending":
                 activity = db.query(Activity).filter(Activity.activity_id == activity_id).first()
                 if activity:
@@ -571,18 +600,24 @@ def join_activity():
         if activity.current_participants >= activity.max_participants:
             return jsonify({"error": "活動已額滿"}), 403
 
+
         existing = db.query(ActivityJoin).filter_by(member_id=member_id, activity_id=activity_id).first()
         if existing:
-            return jsonify({"error": "已參加或申請過此活動"}), 409
-
-        join = ActivityJoin(
-            member_id=member_id,
-            activity_id=activity_id,
-            status="pending",
-            has_review=False,
-            is_checked_in=False
-        )
-        db.add(join)
+            if existing.status == "waiting":
+                existing.status = "pending"
+                db.commit()
+                # 仍然要通知主辦人
+            else:
+                return jsonify({"error": "已參加或申請過此活動"}), 409
+        else:
+            join = ActivityJoin(
+                member_id=member_id,
+                activity_id=activity_id,
+                status="pending",
+                has_review=False,
+                is_checked_in=False
+            )
+            db.add(join)
 
         # 新增通知給主辦人
         from app.models.notification import Notification

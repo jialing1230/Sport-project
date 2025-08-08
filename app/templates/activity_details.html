@@ -613,7 +613,7 @@
         joinBtn.disabled = true;
       }
 
-      const statusText = now > signupDeadline ? "報名截止" : isFull ? "額滿候補" : "開放報名";
+      const statusText = now > signupDeadline ? "報名截止" : isFull ? "已額滿" : "開放報名";
       const statusClass = isFull ? "badge-full" : "badge-open";
       const organizerName = participant.organizer.name;
           

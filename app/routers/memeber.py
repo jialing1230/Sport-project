@@ -476,5 +476,26 @@ def unblock_member():
 
     return jsonify({"success": True}), 200
 
+@member_bp.route("/<string:member_id>/public-intro", methods=["POST"])
+def update_public_intro(member_id):
+    data = request.get_json() or {}
+    public_intro = data.get("public_intro")
+    if public_intro is None:
+        return jsonify({"error": "缺少自我介紹內容"}), 400
+
+    with get_db() as db:
+        member = db.query(Member).get(member_id)
+        if not member:
+            return jsonify({"error": "找不到該會員"}), 404
+        member.public_intro = public_intro
+        member.updated_at = datetime.utcnow()
+        try:
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            return jsonify({"error": str(e)}), 500
+
+    return jsonify({"success": True}), 200
+
 
 

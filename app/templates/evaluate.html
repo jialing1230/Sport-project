@@ -291,6 +291,24 @@
       opacity: 1;
       transition: opacity 0.2s;
     }
+    .blacklist-btn {
+      background: #f15b5b;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      padding: 6px 16px;
+      font-size: 15px;
+      margin-left: 12px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      display: inline-block;
+    }
+.blacklist-btn:hover {
+  background: #c91b1b;
+  box-shadow: 0 2px 10px rgba(241,91,91,0.16);
+
+  transition: all 0.17s;
+}
 
 
 
@@ -492,14 +510,20 @@ function renderUserEvaluation(user, slot) {
   // 直接覆蓋自己這個 slot（不用 setTimeout）
   slot.classList.remove('active');
   slot.innerHTML = `
-    <div class="star-container" id="user-stars">
-      ${[1,2,3,4,5].map(score => `
-        <span class="star" data-score="${score}">
-          <svg viewBox="0 0 256 256"><path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"/></svg>
-        </span>`).join('')}
-    </div>
-    <div id="user-tags"></div>
+  <div class="star-container" id="user-stars">
+    ${[1,2,3,4,5].map(score => `
+      <span class="star" data-score="${score}">
+        <svg viewBox="0 0 256 256"><path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"/></svg>
+      </span>`).join('')}
+    <button class="blacklist-btn" style="display:none; margin-left: 14px;">列入黑名單</button>
+  </div>
+  <div id="user-tags"></div>
+
   `;
+  // 新增：取得名稱
+  const userName = document.querySelector(`.avatar-block[data-user="${user}"] .avatar-name`)?.textContent || '這位參加者';
+  initUserStars(user, userName);
+
   initUserStars(user);
   let userStars = selectedUserStarsMap.get(user) || 0;
     if (userStars > 0) {
@@ -665,30 +689,55 @@ function initAvatarClickEvents() {
 }
 
 
-function initUserStars(user) {
-  const userStars = document.querySelectorAll("#user-stars .star");
-  let selectedUserStars = selectedUserStarsMap.get(user) || 0;
+  function initUserStars(user, userName) {
+    const userStars = document.querySelectorAll("#user-stars .star");
+    const blacklistBtn = document.querySelector("#user-stars .blacklist-btn");
+    let selectedUserStars = selectedUserStarsMap.get(user) || 0;
 
-  userStars.forEach(star => {
-    const sScore = parseInt(star.dataset.score);
-    star.classList.toggle("active", sScore <= selectedUserStars);
+    // 預設顯示
+    userStars.forEach(star => {
+      const sScore = parseInt(star.dataset.score);
+      star.classList.toggle("active", sScore <= selectedUserStars);
 
-    star.addEventListener("click", () => {
-      const score = parseInt(star.dataset.score);
-      selectedUserStars = (score === selectedUserStars) ? 0 : score;
-      selectedUserStarsMap.set(user, selectedUserStars);
+      star.addEventListener("click", () => {
+        const score = parseInt(star.dataset.score);
+        selectedUserStars = (score === selectedUserStars) ? 0 : score;
+        selectedUserStarsMap.set(user, selectedUserStars);
 
-      userStars.forEach(s => {
-        const sScore = parseInt(s.dataset.score);
-        s.classList.toggle("active", sScore <= selectedUserStars);
+        userStars.forEach(s => {
+          const sScore = parseInt(s.dataset.score);
+          s.classList.toggle("active", sScore <= selectedUserStars);
+        });
+
+        // 只有 1 星顯示按鈕，其餘隱藏
+        if (blacklistBtn) {
+          if (selectedUserStars === 1) {
+            blacklistBtn.style.display = 'inline-block';
+          } else {
+            blacklistBtn.style.display = 'none';
+          }
+        }
+
+        if (selectedUserStars > 0) {
+          loadUserTagsByStars(selectedUserStars, "user-tags");
+        }
       });
-
-      if (selectedUserStars > 0) {
-        loadUserTagsByStars(selectedUserStars, "user-tags");
-      }
     });
-  });
+
+  // 進入時如果預選就是1星，也要顯示
+  if (blacklistBtn) {
+    blacklistBtn.style.display = (selectedUserStars === 1) ? 'inline-block' : 'none';
+
+    // 綁定按下後彈窗（可接API或跳出提示）
+    blacklistBtn.onclick = function () {
+          if (confirm(`確定要將「${userName}」列入黑名單嗎？`)) {
+            alert(`「${userName}」已加入黑名單（可串接API）`);
+            // 這裡可呼叫API
+      }
+    }
+  }
 }
+
 
 function loadUserTagsByStars(stars, containerId) {
   const type = stars + 5;

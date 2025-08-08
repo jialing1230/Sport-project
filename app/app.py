@@ -140,6 +140,16 @@ def create_app():
         member_id = request.args.get("member_id")
         return render_template("introduce.html", member_id=member_id)
     
+    @app.route("/editor_introduce")
+    def editor_introduce_page():
+        member_id = request.args.get("member_id")
+        return render_template("editor_introduction.html", member_id=member_id)
+    
+    @app.route("/notice")
+    def notice_page():
+        member_id = request.args.get("member_id")
+        return render_template("notice.html", member_id=member_id)
+
 
     start_scheduler()  # 啟動排程
     return app

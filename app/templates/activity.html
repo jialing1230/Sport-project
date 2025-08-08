@@ -1077,6 +1077,10 @@
         window.location.href = `/member_view?member_id=${memberId}`;
       }
 
+      function goToNews() {
+        window.location.href = `/notice?member_id=${memberId}`;
+      }
+
       async function openModal(activityId) {
         try {
           const res = await fetch(
@@ -1649,7 +1653,7 @@ card.addEventListener("click", () => {
         setTimeout(() => {
           if (index === 0) goToPage();        // 地圖
           else if (index === 1) goToActivity(); // 活動
-          else if (index === 2) return;       // 通知，暫時不導頁
+          else if (index === 2) goToNews();     // 通知，暫時不導頁
           else if (index === 3) goToProfile(); // 個人
         }, 300);
       });

@@ -485,7 +485,7 @@
             <path d="M4 17 C 8 13, 16 13, 20 17"/>
             <path d="M4 7 C 12 12, 16 12, 20 7"/>
           </svg>
-          <span class="item-text">編輯運動偏好</span>
+          <span class="item-text">編輯公開資料</span>
         </span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -744,9 +744,9 @@
 
     document.getElementById("editPreferenceBtn").addEventListener("click", function () {
       if (memberId) {
-        window.location.href = `/edit_preference?member_id=${memberId}`;
+        window.location.href = `/editor_introduce?member_id=${memberId}`;
       } else {
-        window.location.href = "/edit_preference";
+        window.location.href = "/editor_introduce";
       }
     });
 
@@ -860,7 +860,7 @@
       }
 
       function goToNews() {
-        window.location.href = `/news?member_id=${memberId}`;
+        window.location.href = `/notice?member_id=${memberId}`;
       }
 
       function logout() {
@@ -900,7 +900,7 @@
           setTimeout(() => {
             if (index === 0) goToPage();        // 地圖
             else if (index === 1) goToActivity(); // 活動
-            else if (index === 2) return;       // 通知，暫時不導頁
+            else if (index === 2) goToNews();       // 通知，暫時不導頁
             else if (index === 3) goToProfile(); // 個人
           }, 300); // 動畫時間配合 CSS 中的 animation 時長
         });

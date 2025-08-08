@@ -503,5 +503,35 @@ def update_public_intro(member_id):
 
     return jsonify({"success": True}), 200
 
+# 取得指定會員的通知列表
+@member_bp.route("/<string:member_id>/notifications", methods=["GET"])
+def get_member_notifications(member_id):
+    with get_db() as db:
+        from app.models.notification import Notification
+        notifications = db.query(Notification).filter_by(member_id=member_id).order_by(Notification.created_at.desc()).all()
+        result = [
+            {
+                "id": n.id,
+                "title": n.title,
+                "content": n.content,
+                "is_read": n.is_read,
+                "created_at": n.created_at.isoformat() if n.created_at else None
+            }
+            for n in notifications
+        ]
+    return jsonify(result), 200
+
+@member_bp.route("/notifications/<int:notification_id>/read", methods=["PATCH"])
+def mark_notification_read(notification_id):
+    with get_db() as db:
+        from app.models.notification import Notification
+        notification = db.query(Notification).filter_by(id=notification_id).first()
+        if not notification:
+            return jsonify({"error": "通知不存在"}), 404
+        notification.is_read = True
+        db.commit()
+    return jsonify({"message": "已標記為已讀"}), 200
+
+
 
 

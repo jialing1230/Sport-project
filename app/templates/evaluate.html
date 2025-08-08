@@ -71,12 +71,12 @@
         margin: 0px auto;
         padding: 0px 24px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-		min-height: calc(100vh - 66px); /* 扣掉 header 的高度（依實際高度調整） */
-	    box-sizing: border-box;
-	    display: flex;
-	    flex-direction: column;
-	    justify-content: flex-start;
-		padding-bottom: 30px;
+		    min-height: calc(100vh - 66px); /* 扣掉 header 的高度（依實際高度調整） */
+	      box-sizing: border-box;
+	      display: flex;
+	      flex-direction: column;
+	      justify-content: flex-start;
+		    padding-bottom: 30px;
       }
 
      .activity-title {
@@ -127,10 +127,10 @@
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
-		margin-top: 15px;
-		margin-bottom: 15px;
-		border-bottom: 1px solid var(--main-color);
-		padding-bottom: 20px;
+        margin-top: 15px;
+        margin-bottom: 15px;
+        border-bottom: 1px solid var(--main-color);
+        padding-bottom: 20px;
       }
 
       .tag {
@@ -154,24 +154,16 @@
         font-size: 14px;
         color: #64BCD0;
         margin-bottom: 10px;
-		margin-top: 2px;
+		    margin-top: 2px;
+        font-weight: bold;
       }
 	 .evaluate-container {
 		display: flex;
 		gap: 24px;
-	
+	box-sizing: border-box;
 	  }
 
-	  .avatar-list {
-		  display: grid;
-          grid-template-columns: repeat(5, 1fr); /* 5 欄，這是你原本就有的 */
-		  gap:12px 25px;
-          padding: 0 6px;  /* ✅ 左右補齊 gap，使兩側距離一致 */
-		  box-sizing: border-box;
-		  width: 100%;
-		  max-width: 800px;
-		  margin: 0 auto; /* 置中 */
-	  }
+
 
 	  .avatar-block {
 		  display: flex;
@@ -180,7 +172,10 @@
 		  cursor: pointer;
 		  text-align: center;
 	  }
-			  
+		.avatar-svg {
+      position: relative;
+      display: inline-block;  /* 或 block，隨你需求 */
+    }	  
 		.avatar-svg svg {
 		  width: 56px;
 		  height: 56px;
@@ -190,15 +185,14 @@
 		}
 
 		.feedback-output {
-		  grid-column: 1 / -1;       /* ✅ 讓評價區佔滿整列 */
-		  width: 100%;
+			width: 100%;
 		  box-sizing: border-box;
-
+      overflow-x: auto;   /* 預防內容真的爆掉時橫向滾動，而不是推寬父容器 */
 		  max-height: 0;
 		  opacity: 0;
 		  overflow: hidden;
 		  transition: max-height  0.25s cubic-bezier(.23,1.21,.51,1.02), opacity 0.25s, padding 0.25s;
-          padding: 0 12px;
+      padding: 0 12px;
 		  padding: 0 12px;
 		  margin-top: 12px;
 		}
@@ -218,6 +212,7 @@
 		  width: 0;
 		  height: 0;
 		  margin-top: 2px;
+      margin-bottom: -20px;
 		  border-left: 12px solid transparent;
 		  border-right: 12px solid transparent;
 		  border-top: 12px solid #81d3e1; /* 箭頭顏色，和主色一致 */
@@ -232,24 +227,71 @@
 		  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
 		}
 		.submit-evaluation-btn {
-		  background-color: #fea3a8;
+		  background-color: #81d3e1;
 		  color: #fff;
-		  font-size: 20px;
-		  font-weight: bold;
+		  font-size: 18px;
 		  border: none;
 		  width: 100%;
 		  margin: 36px 0 0 0;
-		  border-radius: 12px;
-		  height: 56px;
+		  border-radius: 8px;
+		  height: 46px;
 		  box-shadow: 0 2px 10px rgba(252,167,167,0.08);
 		  letter-spacing: 2px;
 		  cursor: pointer;
 		  transition: background 0.18s, filter 0.18s;
 		  display: block;
+      margin-top: 8px;
+
 		}
-		.submit-evaluation-btn:active {
-		  filter: brightness(0.95);
-		}
+    .submit-evaluation-btn:hover {
+        background-color: #2c4975;
+       
+    }
+    .avatar-rows {
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+    .avatar-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px 25px;
+      padding: 8px 6px 0px 6px;
+      box-sizing: border-box;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .avatar-done-icon {
+      position: absolute;
+      right: 0;    /* 改成0 */
+      bottom: 0;   /* 改成0 */
+      width: 22px;
+      height: 22px;
+      background: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      border: 2px solid #fff;
+      padding: 0;
+      display: none; /* 預設隱藏，填完才顯示 */
+    }
+
+    .avatar-block {
+      position: relative;
+    }
+    .fade-out {
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+    }
+    .fade-in {
+      opacity: 1;
+      transition: opacity 0.2s;
+    }
+
 
 
     </style>
@@ -299,16 +341,12 @@
 	  <div class="section-title">評價其他參加者</div>
 	  <div class="note">點選頭像可為該參加者給予星等與標籤回饋！</div>
 	  <div class="evaluate-container">
-	  <div class="avatar-list"></div>
-<div class="feedback-output" id="feedback-slot-1"></div>
-<div class="feedback-output" id="feedback-slot-2"></div>  
-    </div>
-
-	</div>
+      <div class="avatar-rows"></div>
+	  </div>
 		<div class="fixed-submit-btn-bar">
 	  <button type="button" class="submit-evaluation-btn">送出評價</button>
 	</div>
-
+</div>
 	</div>
 	
     <!-- ✅ 白底內容容器結束 -->
@@ -332,9 +370,13 @@ activityStars.forEach(star => {
 });
 
 function loadActivityTagsByStars(stars) {
-  fetch(`/api/review_templates?stars=${stars}`)
-    .then(res => res.json())
-    .then(data => {
+activityTagContainer.classList.remove('fade-in');
+activityTagContainer.classList.add('fade-out');
+
+fetch(`/api/review_templates?stars=${stars}`)
+  .then(res => res.json())
+  .then(data => {
+    setTimeout(() => {
       activityTagContainer.innerHTML = '';
       selectedActivityTemplateIds.clear();
       data.forEach(item => {
@@ -351,17 +393,20 @@ function loadActivityTagsByStars(stars) {
         });
         activityTagContainer.appendChild(tag);
       });
-    });
+      activityTagContainer.classList.remove('fade-out');
+      activityTagContainer.classList.add('fade-in');
+    }, 180); // 時間和 transition 一樣
+  });
+
 }
+
+
 
 		;
 
       // 評價 tag 互動
       // 活動評價標籤由 API 動態載入
-		const userTags = [
-		  "互動很自然", "友善好聊", "人很隨和", "活潑又熱情",
-		  "和他互動很輕鬆", "活動有趣", "氣氛帶動", "有禮親切"
-		];
+
 
       const selectedActivityTemplateIds = new Set();
       const activityTagContainer = document.getElementById("activity-tags");
@@ -438,66 +483,10 @@ blocks.forEach(block => {
 });
 
 
-// 星星互動
-function initUserStars(user) {
-  const userStars = document.querySelectorAll("#user-stars .star");
-  let selectedUserStars = selectedUserStarsMap.get(user) || 0;
 
-  userStars.forEach(star => {
-    // 狀態回填
-    const sScore = parseInt(star.dataset.score);
-    star.classList.toggle("active", sScore <= selectedUserStars);
-
-    star.addEventListener("click", () => {
-      const score = parseInt(star.dataset.score);
-      if (score === selectedUserStars) {
-        selectedUserStars = 0;
-      } else {
-        selectedUserStars = score;
-      }
-      selectedUserStarsMap.set(user, selectedUserStars);
-      userStars.forEach(s => {
-        const sScore = parseInt(s.dataset.score);
-        s.classList.toggle("active", sScore <= selectedUserStars);
-      });
-    });
-  });
-}
 
 // 標籤互動
-function renderUserTags(containerId, user) {
-  const tagContainer = document.createElement("div");
-  tagContainer.className = "tag-container";
 
-  const selectedTags = selectedUserTagsMap.get(user) || new Set();
-
-  userTags.forEach(tagText => {
-    const tag = document.createElement("div");
-    tag.className = "tag";
-    tag.innerText = tagText;
-
-    // 標示已選
-    if (selectedTags.has(tagText)) {
-      tag.classList.add("active");
-    }
-
-    tag.addEventListener("click", () => {
-      tag.classList.toggle("active");
-      if (selectedTags.has(tagText)) {
-        selectedTags.delete(tagText);
-      } else {
-        selectedTags.add(tagText);
-      }
-      selectedUserTagsMap.set(user, selectedTags); // 更新儲存
-    });
-
-    tagContainer.appendChild(tag);
-  });
-
-  const container = document.getElementById(containerId);
-  container.innerHTML = "";
-  container.appendChild(tagContainer);
-}
 
 function renderUserEvaluation(user, slot) {
   // 直接覆蓋自己這個 slot（不用 setTimeout）
@@ -512,16 +501,16 @@ function renderUserEvaluation(user, slot) {
     <div id="user-tags"></div>
   `;
   initUserStars(user);
-  renderUserTags("user-tags", user);
-
+  let userStars = selectedUserStarsMap.get(user) || 0;
+    if (userStars > 0) {
+      loadUserTagsByStars(userStars, "user-tags");
+    }
   // 更新頭像勾勾
-  blocks.forEach(b => {
+  document.querySelectorAll('.avatar-block').forEach(b => {
     const u = b.dataset.user;
     const done = isUserEvaluationComplete(u);
-    const check = b.querySelector('.checkmark');
-    if (check) {
-      check.style.display = done ? 'block' : 'none';
-    }
+    const check = b.querySelector('.avatar-done-icon');
+    if (check) check.style.display = done ? 'flex' : 'none';
   });
 }
 
@@ -536,45 +525,18 @@ const activityId = urlParams.get('activity_id');
 const currentUserId = urlParams.get('member_id');
 
 
-function initAvatarClickEvents() {
-  const blocks = document.querySelectorAll('.avatar-block');
-  blocks.forEach(block => {
-    block.addEventListener('click', () => {
-      const user = block.dataset.user;
-      const slot = feedbackSlot1;
-      let preventSwitch = false;
-      if (activeUser) {
-        const stars = selectedUserStarsMap.get(activeUser);
-        const tags = selectedUserTagsMap.get(activeUser);
-        const hasFilled = (stars > 0) || (tags && tags.size > 0);
-        const isComplete = isUserEvaluationComplete(activeUser);
-        preventSwitch = hasFilled && !isComplete;
-      }
-      if (activeUser === user && !(selectedUserStarsMap.get(user) > 0) && !(selectedUserTagsMap.get(user) && selectedUserTagsMap.get(user).size > 0)) {
-        slot.classList.remove('active');
-        setTimeout(() => { slot.innerHTML = ''; }, 250);
-        activeUser = null;
-        block.classList.remove('active-user');
-      } else if (activeUser !== user) {
-        if (preventSwitch) {
-          alert("請先完成目前這位參加者的星等與標籤評價！");
-          return;
-        }
-        slot.classList.remove('active');
-        setTimeout(() => {
-          renderUserEvaluation(user, slot);
-          slot.classList.add('active');
-        }, 220);
-        blocks.forEach(b => b.classList.remove('active-user'));
-        block.classList.add('active-user');
-        activeUser = user;
-      }
-    });
-  });
-}
+
 
 
 document.querySelector('.submit-evaluation-btn').addEventListener('click', () => {
+    if (selectedActivityStars === 0) {
+    alert('請先評分此活動星等！');
+    return;
+  }
+    if (selectedActivityTemplateIds.size === 0) {
+    alert('請至少選一個活動標籤！');
+    return;
+  }
   const activityPayload = {
     activity_id: parseInt(activityId),
     member_id: currentUserId,
@@ -616,40 +578,56 @@ document.querySelector('.submit-evaluation-btn').addEventListener('click', () =>
 fetch(`/api/activities/${activityId}/participants`)
   .then(res => res.json())
   .then(participants => {
-    const avatarList = document.querySelector('.avatar-list');
-    avatarList.innerHTML = '';
-    participants
-      .filter(p => p.user_id != currentUserId)
-      .forEach((p, index) => {
+    const avatarRows = document.querySelector('.avatar-rows');
+    avatarRows.innerHTML = '';
+    const filtered = participants.filter(p => p.user_id != currentUserId);
+
+    for (let i = 0; i < filtered.length; i += 5) {
+      // 1. 新增一排
+      const row = document.createElement('div');
+      row.className = 'avatar-row';
+
+      filtered.slice(i, i + 5).forEach(p => {
         const block = document.createElement('div');
         block.className = 'avatar-block';
         block.dataset.user = p.user_id;
         block.innerHTML = `
           <div class="avatar-svg">
             <img src="/static/avatars/default.jpg" alt="${p.name}" width="56" height="56" style="border-radius:50%;">
+            <span class="avatar-done-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="#1ba711" viewBox="0 0 256 256" style="display:block;">
+                <path d="M243.31,90.91l-128.4,128.4a16,16,0,0,1-22.62,0l-71.62-72a16,16,0,0,1,0-22.61l20-20a16,16,0,0,1,22.58,0L104,144.22l96.76-95.57a16,16,0,0,1,22.59,0l19.95,19.54A16,16,0,0,1,243.31,90.91Z"></path>
+              </svg>
+            </span>         
           </div>
+
           <div class="avatar-name">${p.name}</div>
           <div class="avatar-arrow"></div>
-          <div class="checkmark" style="display:none;">✔</div>
         `;
-        avatarList.appendChild(block);
-        if ((index + 1) % 5 === 0) {
-          const slotId = (index + 1) / 5;
-          const slot = document.createElement('div');
-          slot.className = 'feedback-output';
-          slot.id = `feedback-slot-${slotId}`;
-          avatarList.appendChild(slot);
-        }
+
+
+        row.appendChild(block);
       });
-    initAvatarClickEvents();
+
+      avatarRows.appendChild(row);
+
+      // 2. 新增插槽
+      const slot = document.createElement('div');
+      slot.className = 'feedback-output';
+      slot.dataset.row = Math.floor(i / 5);
+      avatarRows.appendChild(slot);
+    }
+    initAvatarClickEvents(); // 這個要修正成新版，見下
   });
+
 
 function initAvatarClickEvents() {
   const blocks = document.querySelectorAll('.avatar-block');
   blocks.forEach((block, idx) => {
     block.addEventListener('click', () => {
       const user = block.dataset.user;
-      const slot = (idx < 5) ? document.getElementById('feedback-slot-1') : document.getElementById('feedback-slot-2');
+      const rowIdx = Math.floor(idx / 5); // 算出自己在第幾排
+      const slot = document.querySelectorAll('.feedback-output')[rowIdx];
       let preventSwitch = false;
       if (activeUser) {
         const stars = selectedUserStarsMap.get(activeUser);
@@ -668,7 +646,12 @@ function initAvatarClickEvents() {
           alert("請先完成目前這位參加者的星等與標籤評價！");
           return;
         }
-        slot.classList.remove('active');
+        // 收合所有 slot
+        document.querySelectorAll('.feedback-output').forEach(s => {
+          s.classList.remove('active');
+          s.innerHTML = '';
+        });
+        // 展開當前 slot
         setTimeout(() => {
           renderUserEvaluation(user, slot);
           slot.classList.add('active');
@@ -680,6 +663,7 @@ function initAvatarClickEvents() {
     });
   });
 }
+
 
 function initUserStars(user) {
   const userStars = document.querySelectorAll("#user-stars .star");
@@ -707,38 +691,48 @@ function initUserStars(user) {
 }
 
 function loadUserTagsByStars(stars, containerId) {
-  // 參加者的 type = 活動星等 + 5
   const type = stars + 5;
+  const container = document.getElementById(containerId);
+
+  // 1. 舊內容淡出
+  container.classList.remove('fade-in');
+  container.classList.add('fade-out');
+
   fetch(`/api/review_templates?stars=${type}`)
     .then(res => res.json())
     .then(data => {
-      const tagContainer = document.createElement("div");
-      tagContainer.className = "tag-container";
-      const selectedTags = selectedUserTemplateMap.get(activeUser) || new Set();
-      selectedUserTemplateMap.set(activeUser, selectedTags);
+      setTimeout(() => { // 等動畫結束再換內容
+        const tagContainer = document.createElement("div");
+        tagContainer.className = "tag-container";
+        const selectedTags = selectedUserTemplateMap.get(activeUser) || new Set();
+        selectedUserTemplateMap.set(activeUser, selectedTags);
 
-      data.forEach(item => {
-        const tag = document.createElement("div");
-        tag.className = "tag";
-        tag.innerText = item.text;
-        if (selectedTags.has(item.template_id)) {
-          tag.classList.add("active");
-        }
-        tag.addEventListener("click", () => {
-          tag.classList.toggle("active");
+        data.forEach(item => {
+          const tag = document.createElement("div");
+          tag.className = "tag";
+          tag.innerText = item.text;
           if (selectedTags.has(item.template_id)) {
-            selectedTags.delete(item.template_id);
-          } else {
-            selectedTags.add(item.template_id);
+            tag.classList.add("active");
           }
-          selectedUserTagsMap.set(activeUser, selectedTags);
+          tag.addEventListener("click", () => {
+            tag.classList.toggle("active");
+            if (selectedTags.has(item.template_id)) {
+              selectedTags.delete(item.template_id);
+            } else {
+              selectedTags.add(item.template_id);
+            }
+            selectedUserTagsMap.set(activeUser, selectedTags);
+          });
+          tagContainer.appendChild(tag);
         });
-        tagContainer.appendChild(tag);
-      });
 
-      const container = document.getElementById(containerId);
-      container.innerHTML = "";
-      container.appendChild(tagContainer);
+        container.innerHTML = "";
+        container.appendChild(tagContainer);
+
+        // 新內容淡入
+        container.classList.remove('fade-out');
+        container.classList.add('fade-in');
+      }, 180); // 0.18秒，跟CSS動畫時間一致
     });
 }
 

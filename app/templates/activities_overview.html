@@ -1025,6 +1025,11 @@
         }
       }
 
+      function goToNews() {
+        window.location.href = `/notice?member_id=${memberId}`;
+      }
+
+
       document.querySelectorAll(".bottom-item").forEach((item) => {
         item.addEventListener("click", function (e) {
           e.preventDefault();
@@ -1054,7 +1059,7 @@
           setTimeout(() => {
             if (index === 0) goToPage();
             else if (index === 1) goToActivity();
-            else if (index === 2) return; 
+            else if (index === 2) goToNews();
             else if (index === 3) goToProfile();
           }, 300);
         });

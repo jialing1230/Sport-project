@@ -40,3 +40,7 @@ class Member(Base):
     blacklist_given = relationship("Blacklist", foreign_keys="Blacklist.member_id", back_populates="member")
     blacklist_received = relationship("Blacklist", foreign_keys="Blacklist.blocked_member_id", back_populates="blocked_member")
     photos = relationship("Photo", back_populates="member")
+    notifications = relationship("Notification", back_populates="member")
+
+# 避免循環引用，於檔案結尾再 import Notification
+from app.models.notification import Notification

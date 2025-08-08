@@ -593,7 +593,7 @@ fetch(`/api/activities/${activityId}/participants`)
         block.dataset.user = p.user_id;
         block.innerHTML = `
           <div class="avatar-svg">
-            <img src="/static/avatars/default.jpg" alt="${p.name}" width="56" height="56" style="border-radius:50%;">
+            <img id="avatarImage" src="/static/avatars/${p.user_id}.png" alt="會員頭像" width="56" height="56" style="border-radius:50%;" onerror="this.src='/static/avatars/default.jpg';">
             <span class="avatar-done-icon">
               <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="#1ba711" viewBox="0 0 256 256" style="display:block;">
                 <path d="M243.31,90.91l-128.4,128.4a16,16,0,0,1-22.62,0l-71.62-72a16,16,0,0,1,0-22.61l20-20a16,16,0,0,1,22.58,0L104,144.22l96.76-95.57a16,16,0,0,1,22.59,0l19.95,19.54A16,16,0,0,1,243.31,90.91Z"></path>

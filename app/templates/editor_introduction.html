@@ -227,7 +227,12 @@
                 window.history.back();
             });
 
-
+            // 取得初始欄位值
+            let initialBio = "";
+            let initialFb = "";
+            let initialIg = "";
+            let initialPhotoPaths = [];
+            let isDirty = false;
 
             // 從網址取得 member_id
             function getMemberIdFromUrl() {
@@ -253,16 +258,15 @@
                         let data = await res.json();
                         if (data.public_intro) {
                             document.getElementById("bio-input").value = data.public_intro;
+                            initialBio = data.public_intro;
                         }
                         // 支援多種欄位名稱
                         const fbVal = data.fb_link || data.facebook_url || "";
                         const igVal = data.ig_link || data.instagram_url || "";
-                        if (fbVal) {
-                            document.getElementById("fb-link").value = fbVal;
-                        }
-                        if (igVal) {
-                            document.getElementById("ig-link").value = igVal;
-                        }
+                        document.getElementById("fb-link").value = fbVal;
+                        document.getElementById("ig-link").value = igVal;
+                        initialFb = fbVal;
+                        initialIg = igVal;
                     }
                 } catch {}
                 // 取得照片（假設有 /api/photos?member_id=xxx 回傳 {photos: [{file_path: ...}, ...]}）
@@ -274,9 +278,11 @@
                             data.photos.forEach(photo => {
                                 addPhotoItemFromUrl(photo.file_path);
                             });
+                            initialPhotoPaths = data.photos.map(p => p.file_path).sort();
                         }
                     }
                 } catch {}
+                isDirty = false;
             }
 
             // 新增已上傳照片的顯示卡片
@@ -295,11 +301,19 @@
                 deleteBtn.addEventListener("click", () => {
                     gallery.removeChild(photoItem);
                     deletedPhotoPaths.add(url);
+                    isDirty = true;
                 });
                 photoItem.appendChild(img);
                 photoItem.appendChild(deleteBtn);
                 gallery.insertBefore(photoItem, gallery.querySelector(".upload-label").nextSibling);
             }
+
+            // 監聽欄位變動
+            document.addEventListener('DOMContentLoaded', function() {
+                document.getElementById("bio-input").addEventListener("input", () => { isDirty = true; });
+                document.getElementById("fb-link").addEventListener("input", () => { isDirty = true; });
+                document.getElementById("ig-link").addEventListener("input", () => { isDirty = true; });
+            });
 
             // 頁面載入時自動載入資料
             window.addEventListener('DOMContentLoaded', loadMemberData);
@@ -368,7 +382,7 @@
                         }
                     }
                 }
-
+                isDirty = false;
                 alert("自我介紹與照片已儲存！");
             }
 
@@ -416,21 +430,32 @@
                             uploadedPhotos.delete(fileKey);
                             uploadedPhotos.set(newKey, newFile);
                             photoItem.dataset.fileKey = newKey;
+                            isDirty = true;
                         });
                         // 刪除圖片卡片
                         deleteBtn.addEventListener("click", () => {
                             gallery.removeChild(photoItem);
                             uploadedPhotos.delete(photoItem.dataset.fileKey);
+                            isDirty = true;
                         });
                         photoItem.appendChild(img);
                         photoItem.appendChild(fileInput);
                         photoItem.appendChild(deleteBtn);
                         gallery.insertBefore(photoItem, gallery.querySelector(".upload-label").nextSibling);
                         uploadedPhotos.set(fileKey, file);
+                        isDirty = true;
                     };
                     reader.readAsDataURL(file);
                 });
                 event.target.value = "";
+            });
+
+            // 離開頁面前提示未儲存
+            window.addEventListener('beforeunload', function(e) {
+                if (isDirty) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                }
             });
         </script>
     </body>

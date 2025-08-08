@@ -480,6 +480,8 @@ def unblock_member():
 def update_public_intro(member_id):
     data = request.get_json() or {}
     public_intro = data.get("public_intro")
+    fb_link = data.get("fb_link") or data.get("facebook_url")
+    ig_link = data.get("ig_link") or data.get("instagram_url")
     if public_intro is None:
         return jsonify({"error": "缺少自我介紹內容"}), 400
 
@@ -488,6 +490,10 @@ def update_public_intro(member_id):
         if not member:
             return jsonify({"error": "找不到該會員"}), 404
         member.public_intro = public_intro
+        if fb_link is not None:
+            member.facebook_url = fb_link
+        if ig_link is not None:
+            member.instagram_url = ig_link
         member.updated_at = datetime.utcnow()
         try:
             db.commit()

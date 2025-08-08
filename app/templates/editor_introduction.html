@@ -201,6 +201,14 @@
             <div class="info-box">
                 <h3>關於我</h3>
                 <textarea id="bio-input" rows="6" placeholder="請輸入自我介紹..."></textarea>
+                <div style="margin-top: 16px;">
+                    <label for="fb-link" style="display:block;margin-bottom:4px;">Facebook 連結</label>
+                    <input id="fb-link" type="url" placeholder="https://facebook.com/yourprofile" style="width:100%;padding:8px;border-radius:6px;border:1px solid #ccc;box-sizing:border-box;">
+                </div>
+                <div style="margin-top: 12px;">
+                    <label for="ig-link" style="display:block;margin-bottom:4px;">Instagram 連結</label>
+                    <input id="ig-link" type="url" placeholder="https://instagram.com/yourprofile" style="width:100%;padding:8px;border-radius:6px;border:1px solid #ccc;box-sizing:border-box;">
+                </div>
             </div>
             <div class="info-box">
                 <h3>個人照片</h3>
@@ -234,18 +242,81 @@
             }
             const member_id = getMemberIdFromUrl();
 
+
+            // 載入會員自我介紹與照片
+            async function loadMemberData() {
+                if (!member_id) return;
+                // 取得自我介紹與社群連結
+                try {
+                    let res = await fetch(`/api/members/${member_id}`);
+                    if (res.ok) {
+                        let data = await res.json();
+                        if (data.public_intro) {
+                            document.getElementById("bio-input").value = data.public_intro;
+                        }
+                        // 支援多種欄位名稱
+                        const fbVal = data.fb_link || data.facebook_url || "";
+                        const igVal = data.ig_link || data.instagram_url || "";
+                        if (fbVal) {
+                            document.getElementById("fb-link").value = fbVal;
+                        }
+                        if (igVal) {
+                            document.getElementById("ig-link").value = igVal;
+                        }
+                    }
+                } catch {}
+                // 取得照片（假設有 /api/photos?member_id=xxx 回傳 {photos: [{file_path: ...}, ...]}）
+                try {
+                    let res = await fetch(`/api/photos?member_id=${member_id}`);
+                    if (res.ok) {
+                        let data = await res.json();
+                        if (Array.isArray(data.photos)) {
+                            data.photos.forEach(photo => {
+                                addPhotoItemFromUrl(photo.file_path);
+                            });
+                        }
+                    }
+                } catch {}
+            }
+
+            // 新增已上傳照片的顯示卡片
+            // 記錄已刪除的 file_path
+            const deletedPhotoPaths = new Set();
+
+            function addPhotoItemFromUrl(url) {
+                const photoItem = document.createElement("div");
+                photoItem.className = "photo-item";
+                photoItem.dataset.filePath = url;
+                const img = document.createElement("img");
+                img.src = url;
+                const deleteBtn = document.createElement("button");
+                deleteBtn.className = "delete-btn";
+                deleteBtn.textContent = "✕";
+                deleteBtn.addEventListener("click", () => {
+                    gallery.removeChild(photoItem);
+                    deletedPhotoPaths.add(url);
+                });
+                photoItem.appendChild(img);
+                photoItem.appendChild(deleteBtn);
+                gallery.insertBefore(photoItem, gallery.querySelector(".upload-label").nextSibling);
+            }
+
+            // 頁面載入時自動載入資料
+            window.addEventListener('DOMContentLoaded', loadMemberData);
+
             async function saveBio() {
                 const bio = document.getElementById("bio-input").value;
+                const fbLink = document.getElementById("fb-link").value.trim();
+                const igLink = document.getElementById("ig-link").value.trim();
                 if (!bio.trim()) {
                     alert("請輸入自我介紹內容！");
                     return;
                 }
-
-                // 1. 送出自我介紹
+                // 1. 送出自我介紹與社群連結
                 let introRes = await fetch(`/api/members/${member_id}/public-intro`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ public_intro: bio })
+                    body: JSON.stringify({ public_intro: bio, fb_link: fbLink, ig_link: igLink })
                 });
                 let introData = await introRes.json();
                 if (!introRes.ok) {
@@ -253,7 +324,27 @@
                     return;
                 }
 
-                // 2. 上傳所有新選的照片（從 uploadedPhotos Map 取出所有 File）
+                // 2. 刪除已標記刪除的舊照片
+                for (const url of deletedPhotoPaths) {
+                    try {
+                        let res = await fetch(`/api/photos/delete`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ member_id, file_path: url })
+                        });
+                        let data = await res.json();
+                        if (!res.ok) {
+                            alert(data.error || '照片刪除失敗');
+                            return;
+                        }
+                    } catch {
+                        alert('照片刪除失敗');
+                        return;
+                    }
+                }
+                deletedPhotoPaths.clear();
+
+                // 3. 上傳所有新選的照片（從 uploadedPhotos Map 取出所有 File）
                 let uploadCount = 0;
                 for (const [fileKey, file] of uploadedPhotos.entries()) {
                     if (file) {

@@ -1,4 +1,3 @@
-
 from flask import Blueprint, request, jsonify, current_app
 from werkzeug.utils import secure_filename
 import os
@@ -50,3 +49,37 @@ def upload_photo():
         db.commit()
 
         return jsonify({'message': '上傳成功', 'file_path': photo.file_path})
+
+
+
+@photo_bp.route('/api/photos', methods=['GET'])
+def get_photos():
+    member_id = request.args.get('member_id')
+    if not member_id:
+        return jsonify({'error': '缺少 member_id'}), 400
+    with get_db() as db:
+        photos = db.query(Photo).filter_by(member_id=member_id).all()
+        result = [{'file_path': p.file_path} for p in photos]
+    return jsonify({'photos': result}), 200
+
+@photo_bp.route('/api/photos/delete', methods=['POST'])
+def delete_photo():
+    data = request.get_json() or {}
+    member_id = data.get('member_id')
+    file_path = data.get('file_path')
+    if not member_id or not file_path:
+        return jsonify({'error': '缺少必要參數'}), 400
+    with get_db() as db:
+        photo = db.query(Photo).filter_by(member_id=member_id, file_path=file_path).first()
+        if not photo:
+            return jsonify({'error': '找不到照片'}), 404
+        # 刪除檔案
+        abs_path = os.path.join(current_app.root_path, file_path.replace('/', os.sep))
+        if os.path.exists(abs_path):
+            try:
+                os.remove(abs_path)
+            except Exception:
+                pass
+        db.delete(photo)
+        db.commit()
+    return jsonify({'success': True}), 200

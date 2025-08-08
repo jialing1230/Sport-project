@@ -219,104 +219,127 @@
                 window.history.back();
             });
 
-            function saveBio() {
+
+
+            // 從網址取得 member_id
+            function getMemberIdFromUrl() {
+                // 先從 query string 取值
+                const urlParams = new URLSearchParams(window.location.search);
+                const mid = urlParams.get('member_id');
+                if (mid) return mid;
+                // 再從路徑取值（允許 uuid 或字串）
+                const pathMatch = window.location.pathname.match(/([a-zA-Z0-9\-]{8,})$/);
+                if (pathMatch) return pathMatch[1];
+                return null;
+            }
+            const member_id = getMemberIdFromUrl();
+
+            async function saveBio() {
                 const bio = document.getElementById("bio-input").value;
                 if (!bio.trim()) {
-                alert("請輸入自我介紹內容！");
-                return;
+                    alert("請輸入自我介紹內容！");
+                    return;
                 }
 
-                // 範例 POST，請依照實際 API 調整
-                fetch("/api/member/update_bio", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ member_id: "123", bio: bio })  // ⚠️請將 member_id 改為實際變數
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                    alert("自我介紹已更新！");
-                    } else {
-                    alert(data.error || "儲存失敗，請稍後再試！");
+                // 1. 送出自我介紹
+                let introRes = await fetch(`/api/members/${member_id}/public-intro`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ public_intro: bio })
+                });
+                let introData = await introRes.json();
+                if (!introRes.ok) {
+                    alert(introData.error || "自我介紹儲存失敗");
+                    return;
+                }
+
+                // 2. 上傳所有新選的照片（從 uploadedPhotos Map 取出所有 File）
+                let uploadCount = 0;
+                for (const [fileKey, file] of uploadedPhotos.entries()) {
+                    if (file) {
+                        const formData = new FormData();
+                        formData.append('member_id', member_id);
+                        formData.append('file', file);
+                        try {
+                            let res = await fetch('/api/upload_photo', {
+                                method: 'POST',
+                                body: formData
+                            });
+                            let data = await res.json();
+                            if (!res.ok) {
+                                alert(data.error || '照片上傳失敗');
+                                return;
+                            }
+                            uploadCount++;
+                        } catch (e) {
+                            alert('照片上傳發生錯誤');
+                            return;
+                        }
                     }
-                })
-                .catch(() => alert("發生錯誤，請稍後再試！"));
+                }
+
+                alert("自我介紹與照片已儲存！");
             }
 
             const gallery = document.getElementById("photo-gallery");
-            const uploadedPhotos = new Set(); // ✅ 用來記錄已上傳過的圖片 key
+            // 用 Map 記錄 key 對應的 File 物件
+            const uploadedPhotos = new Map();
 
             document.getElementById("photo-upload").addEventListener("change", function (event) {
                 const files = Array.from(event.target.files);
-
                 files.forEach(file => {
-                    // 以「檔名 + 檔案大小 + type」組合成唯一 key
                     const fileKey = `${file.name}_${file.size}_${file.type}`;
-
                     if (uploadedPhotos.has(fileKey)) {
                         alert(`已上傳過相同的照片，請勿重複上傳。`);
                         return;
-                        }
-
+                    }
                     const reader = new FileReader();
                     reader.onload = function (e) {
                         const photoItem = document.createElement("div");
                         photoItem.className = "photo-item";
-
+                        photoItem.dataset.fileKey = fileKey;
                         const img = document.createElement("img");
                         img.src = e.target.result;
-
                         const fileInput = document.createElement("input");
                         fileInput.type = "file";
                         fileInput.accept = "image/*";
-
                         const deleteBtn = document.createElement("button");
                         deleteBtn.className = "delete-btn";
                         deleteBtn.textContent = "✕";
-
                         // 點圖片重新選檔案
                         img.addEventListener("click", () => fileInput.click());
-
                         // 替換圖片
                         fileInput.addEventListener("change", function () {
                             const newFile = fileInput.files[0];
                             const newKey = `${newFile.name}_${newFile.size}_${newFile.type}`;
                             if (uploadedPhotos.has(newKey)) {
-                            alert(`已經上傳過，請選其他照片。`);
-                            return;
+                                alert(`已經上傳過，請選其他照片。`);
+                                return;
                             }
-
                             const newReader = new FileReader();
                             newReader.onload = function (ev) {
-                            img.src = ev.target.result;
+                                img.src = ev.target.result;
                             };
                             newReader.readAsDataURL(newFile);
-
                             // 更新 key
-                            uploadedPhotos.delete(fileKey);     // 移除舊 key
-                            uploadedPhotos.add(newKey);         // 新增新 key
+                            uploadedPhotos.delete(fileKey);
+                            uploadedPhotos.set(newKey, newFile);
+                            photoItem.dataset.fileKey = newKey;
                         });
-
                         // 刪除圖片卡片
                         deleteBtn.addEventListener("click", () => {
                             gallery.removeChild(photoItem);
-                            uploadedPhotos.delete(fileKey); // ✅ 刪除對應的 key
+                            uploadedPhotos.delete(photoItem.dataset.fileKey);
                         });
-
                         photoItem.appendChild(img);
                         photoItem.appendChild(fileInput);
                         photoItem.appendChild(deleteBtn);
-
                         gallery.insertBefore(photoItem, gallery.querySelector(".upload-label").nextSibling);
-
-                        // ✅ 圖片加進 Set 中
-                        uploadedPhotos.add(fileKey);
-                        };
-
-                        reader.readAsDataURL(file);
-                    });
-
-                    event.target.value = "";
+                        uploadedPhotos.set(fileKey, file);
+                    };
+                    reader.readAsDataURL(file);
+                });
+                event.target.value = "";
             });
         </script>
     </body>

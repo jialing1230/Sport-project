@@ -450,13 +450,31 @@ def cancel_participation():
         if not activity_join:
             return jsonify({"error": "未找到參加記錄"}), 404
 
+        # 查找會員名稱
+        member = db.query(Member).filter_by(member_id=member_id).first()
+        member_name = member.name if member else "該會員"
+
+        # 查找活動與主辦人
+        activity = db.query(Activity).filter_by(activity_id=activity_id).first()
+        organizer_id = activity.organizer_id if activity else None
+
         # 刪除參加記錄
         db.delete(activity_join)
 
         # 更新活動的 current_participants
-        activity = db.query(Activity).filter_by(activity_id=activity_id).first()
         if activity and activity.current_participants > 0:
             activity.current_participants -= 1
+
+        # 新增通知給主辦人
+        if organizer_id:
+            from app.models.notification import Notification
+            content = f"{member_name} 取消參加您的活動：{activity.title if activity else ''}"
+            notification = Notification(
+                member_id=organizer_id,
+                title="參加者取消活動通知",
+                content=content
+            )
+            db.add(notification)
 
         db.commit()
 
@@ -484,6 +502,10 @@ def update_participant_status():
                 # 添加詳細日誌
                 return jsonify({"error": f"參加者記錄不存在，activity_id: {activity_id}, member_id: {member_id}"}), 404
 
+            # 預設通知內容
+            notify_title = "活動審核通知"
+            notify_content = ""
+
             if new_status == "joined" and participant.status == "pending":
                 # 獲取活動資訊
                 activity = db.query(Activity).filter(Activity.activity_id == activity_id).first()
@@ -497,8 +519,24 @@ def update_participant_status():
 
                     # 更新活動的 current_participants
                     activity.current_participants += 1
+                    notify_content = f"您申請參加的活動「{activity.title}」已通過審核，歡迎參加！"
+            elif new_status == "reject" and participant.status == "pending":
+                activity = db.query(Activity).filter(Activity.activity_id == activity_id).first()
+                if activity:
+                    notify_content = f"您申請參加的活動「{activity.title}」未通過審核，請留意其他活動。"
 
             participant.status = new_status
+
+            # 新增通知
+            if notify_content:
+                from app.models.notification import Notification
+                notification = Notification(
+                    member_id=member_id,
+                    title=notify_title,
+                    content=notify_content
+                )
+                db.add(notification)
+
             db.commit()
         except Exception as e:
             # 捕獲並記錄例外情況
@@ -545,6 +583,20 @@ def join_activity():
             is_checked_in=False
         )
         db.add(join)
+
+        # 新增通知給主辦人
+        from app.models.notification import Notification
+        # 查詢申請人名稱
+        member = db.query(Member).filter_by(member_id=member_id).first()
+        member_name = member.name if member else "該會員"
+        content = f"{member_name} 申請參加您的活動：{activity.title if activity else ''}"
+        notification = Notification(
+            member_id=activity.organizer_id,
+            title="活動參加申請通知",
+            content=content
+        )
+        db.add(notification)
+
         db.commit()
 
     return jsonify({"message": "申請參加成功，等待主辦人確認"}), 200

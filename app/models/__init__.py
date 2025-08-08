@@ -12,6 +12,7 @@ from .preference_time import PreferenceTime
 from .course_schedul import CourseSchedule
 from .review_template import ReviewTemplate
 from .activity_favorite import ActivityFavorite
+from .photo import Photo
 from .blacklist import Blacklist
 
 __all__ = [
@@ -29,5 +30,6 @@ __all__ = [
     "CourseSchedule",
     "ReviewTemplate",
     "ActivityFavorite",
-    "Blacklist"
+    "Blacklist",
+    "Photo"
 ]

@@ -783,7 +783,7 @@ function loadMarkers(county) {
       }
 
       function goToNews() {
-        window.location.href = `/news?member_id=${memberId}`;
+        window.location.href = `/notice?member_id=${memberId}`;
       }
     </script>
     <script>
@@ -820,7 +820,7 @@ function loadMarkers(county) {
           setTimeout(() => {
             if (index === 0) goToPage();         // 地圖
             else if (index === 1) goToActivity(); // 活動
-            else if (index === 2) return;         // 通知：先不導頁
+            else if (index === 2) goToNews();     // 通知：先不導頁
             else if (index === 3) goToProfile();  // 個人
           }, 300);
         });

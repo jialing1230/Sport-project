@@ -229,6 +229,14 @@ def create_activity_review():
             created_time=datetime.now()
         )
         db_session.add(review)
+        # 更新 join 表 has_review
+        join = db_session.query(ActivityJoin).filter_by(activity_id=data["activity_id"], member_id=data["member_id"]).first()
+        if join:
+            join.has_review = True
+        # 若該 member_id 是本活動的發起人，則更新活動表 has_review
+        activity = db_session.query(Activity).filter_by(activity_id=data["activity_id"]).first()
+        if activity and activity.organizer_id == data["member_id"]:
+            activity.has_review = True
         db_session.commit()
     return jsonify({"status": "success"})
 

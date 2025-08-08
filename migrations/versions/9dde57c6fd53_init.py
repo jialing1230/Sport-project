@@ -146,6 +146,7 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['reviewer_id'], ['members.member_id'], ),
     sa.PrimaryKeyConstraint('review_id')
     )
+ 
     op.create_index(op.f('ix_activity_reviews_review_id'), 'activity_reviews', ['review_id'], unique=False)
 
     op.create_table('preference_sport',
@@ -224,6 +225,29 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['blocked_member_id'], ['members.member_id']),
     )
     op.create_index('ix_blacklist_id', 'blacklist', ['id'], unique=False)
+
+    op.create_table(
+        'photo',
+        sa.Column('id', sa.Integer(), primary_key=True, autoincrement=True),
+        sa.Column('file_path', sa.String(length=255), nullable=False),
+        sa.Column('member_id', sa.String(length=36), nullable=False),
+        sa.ForeignKeyConstraint(['member_id'], ['members.member_id'])
+    )
+
+    op.create_index('ix_photo_id', 'photo', ['id'], unique=False)
+
+    # 新增 notifications 通知表
+    op.create_table(
+        'notifications',
+        sa.Column('id', sa.Integer(), primary_key=True, autoincrement=True),
+        sa.Column('member_id', sa.String(length=36), nullable=False),
+        sa.Column('title', sa.String(length=128), nullable=False, comment='通知標題'),
+        sa.Column('content', sa.Text(), nullable=False, comment='通知內容'),
+        sa.Column('is_read', sa.Boolean(), nullable=False, server_default=sa.sql.expression.false(), comment='是否已讀'),
+        sa.Column('created_at', sa.DateTime(), nullable=False, default=sa.func.now()),
+        sa.ForeignKeyConstraint(['member_id'], ['members.member_id']),
+    )
+    op.create_index('ix_notifications_id', 'notifications', ['id'], unique=False)
     # ### end Alembic commands ###
 
 
@@ -259,4 +283,9 @@ def downgrade() -> None:
     op.drop_table('activity_favorite')
     op.drop_index('ix_blacklist_id', table_name='blacklist')
     op.drop_table('blacklist')
+    op.drop_index('ix_notifications_member_id', table_name='notifications')
+    op.drop_index('ix_notifications_id', table_name='notifications')
+    op.drop_table('notifications')
+    op.drop_index('ix_photo_id', table_name='photo')
+    op.drop_table('photo')
     # ### end Alembic commands ###

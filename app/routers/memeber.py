@@ -476,5 +476,62 @@ def unblock_member():
 
     return jsonify({"success": True}), 200
 
+@member_bp.route("/<string:member_id>/public-intro", methods=["POST"])
+def update_public_intro(member_id):
+    data = request.get_json() or {}
+    public_intro = data.get("public_intro")
+    fb_link = data.get("fb_link") or data.get("facebook_url")
+    ig_link = data.get("ig_link") or data.get("instagram_url")
+    if public_intro is None:
+        return jsonify({"error": "缺少自我介紹內容"}), 400
+
+    with get_db() as db:
+        member = db.query(Member).get(member_id)
+        if not member:
+            return jsonify({"error": "找不到該會員"}), 404
+        member.public_intro = public_intro
+        if fb_link is not None:
+            member.facebook_url = fb_link
+        if ig_link is not None:
+            member.instagram_url = ig_link
+        member.updated_at = datetime.utcnow()
+        try:
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            return jsonify({"error": str(e)}), 500
+
+    return jsonify({"success": True}), 200
+
+# 取得指定會員的通知列表
+@member_bp.route("/<string:member_id>/notifications", methods=["GET"])
+def get_member_notifications(member_id):
+    with get_db() as db:
+        from app.models.notification import Notification
+        notifications = db.query(Notification).filter_by(member_id=member_id).order_by(Notification.created_at.desc()).all()
+        result = [
+            {
+                "id": n.id,
+                "title": n.title,
+                "content": n.content,
+                "is_read": n.is_read,
+                "created_at": n.created_at.isoformat() if n.created_at else None
+            }
+            for n in notifications
+        ]
+    return jsonify(result), 200
+
+@member_bp.route("/notifications/<int:notification_id>/read", methods=["PATCH"])
+def mark_notification_read(notification_id):
+    with get_db() as db:
+        from app.models.notification import Notification
+        notification = db.query(Notification).filter_by(id=notification_id).first()
+        if not notification:
+            return jsonify({"error": "通知不存在"}), 404
+        notification.is_read = True
+        db.commit()
+    return jsonify({"message": "已標記為已讀"}), 200
+
+
 
 

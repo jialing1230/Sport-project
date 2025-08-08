@@ -39,3 +39,4 @@ class Member(Base):
     activity_favorites = relationship("ActivityFavorite", back_populates="member")
     blacklist_given = relationship("Blacklist", foreign_keys="Blacklist.member_id", back_populates="member")
     blacklist_received = relationship("Blacklist", foreign_keys="Blacklist.blocked_member_id", back_populates="blocked_member")
+    photos = relationship("Photo", back_populates="member")

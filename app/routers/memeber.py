@@ -476,6 +476,41 @@ def unblock_member():
 
     return jsonify({"success": True}), 200
 
+
+# 新增：將使用者加入黑名單
+@member_bp.route("/blacklist/block", methods=["POST"])
+def block_member():
+    """將指定會員加入黑名單"""
+    data = request.get_json() or {}
+    member_id = data.get("member_id")
+    blocked_member_id = data.get("blocked_member_id")
+    reason = data.get("reason")
+
+    if not member_id or not blocked_member_id:
+        return jsonify({"error": "缺少必要的參數"}), 400
+
+    with get_db() as db:
+        # 檢查是否已經在黑名單
+        exists = db.query(Blacklist).filter_by(
+            member_id=member_id, blocked_member_id=blocked_member_id
+        ).first()
+        if exists:
+            return jsonify({"error": "該會員已在黑名單中"}), 400
+
+        new_entry = Blacklist(
+            member_id=member_id,
+            blocked_member_id=blocked_member_id,
+            reason=reason
+        )
+        db.add(new_entry)
+        try:
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            return jsonify({"error": str(e)}), 500
+
+    return jsonify({"success": True}), 201
+
 @member_bp.route("/<string:member_id>/public-intro", methods=["POST"])
 def update_public_intro(member_id):
     data = request.get_json() or {}

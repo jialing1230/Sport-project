@@ -519,6 +519,25 @@ function renderUserEvaluation(user, slot) {
   </div>
   <div id="user-tags"></div>
 
+  <!-- 黑名單理由 Modal -->
+  <div id="blacklist-modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3); align-items:center; justify-content:center;">
+    <div style="background:#fff; padding:32px 24px 24px 24px; border-radius:12px; min-width:320px; max-width:90vw; box-shadow:0 2px 16px rgba(0,0,0,0.18); position:relative;">
+      <div style="font-size:18px; font-weight:bold; margin-bottom:16px;">請選擇列入黑名單的理由</div>
+      <select id="blacklist-reason-select" style="width:100%; font-size:16px; padding:6px 8px; margin-bottom:16px;">
+        <option value="">請選擇理由</option>
+        <option value="惡意言語或騷擾">惡意言語或騷擾</option>
+        <option value="違反活動規則">違反活動規則</option>
+        <option value="放鳥/未到場">放鳥/未到場</option>
+        <option value="其他">其他</option>
+      </select>
+      <input id="blacklist-reason-other" style="display:none; width:100%; font-size:15px; padding:6px 8px; margin-bottom:16px;" placeholder="請輸入其他理由..." />
+      <div style="text-align:right;">
+        <button id="blacklist-cancel-btn" style="margin-right:12px; padding:6px 18px; border:none; background:#eee; border-radius:6px; font-size:15px;">取消</button>
+        <button id="blacklist-confirm-btn" style="padding:6px 18px; border:none; background:#f15b5b; color:#fff; border-radius:6px; font-size:15px;">確認</button>
+      </div>
+    </div>
+  </div>
+
   `;
   // 新增：取得名稱
   const userName = document.querySelector(`.avatar-block[data-user="${user}"] .avatar-name`)?.textContent || '這位參加者';
@@ -599,9 +618,14 @@ document.querySelector('.submit-evaluation-btn').addEventListener('click', () =>
   });
 });
 
+// 1. 讓 participants 陣列全域可用
+let participantsArr = [];
 fetch(`/api/activities/${activityId}/participants`)
   .then(res => res.json())
   .then(participants => {
+    window.participantsArr = participants;
+    participantsArr = participants;
+
     const avatarRows = document.querySelector('.avatar-rows');
     avatarRows.innerHTML = '';
     const filtered = participants.filter(p => p.user_id != currentUserId);
@@ -728,13 +752,74 @@ function initAvatarClickEvents() {
   if (blacklistBtn) {
     blacklistBtn.style.display = (selectedUserStars === 1) ? 'inline-block' : 'none';
 
-    // 綁定按下後彈窗（可接API或跳出提示）
+    // 綁定按下後彈出理由 modal
     blacklistBtn.onclick = function () {
-          if (confirm(`確定要將「${userName}」列入黑名單嗎？`)) {
-            alert(`「${userName}」已加入黑名單（可串接API）`);
-            // 這裡可呼叫API
-      }
-    }
+      const modal = document.getElementById('blacklist-modal');
+      const reasonSelect = document.getElementById('blacklist-reason-select');
+      const reasonOther = document.getElementById('blacklist-reason-other');
+      modal.style.display = 'flex';
+      reasonSelect.value = '';
+      reasonOther.value = '';
+      reasonOther.style.display = 'none';
+
+      // 選擇「其他」時顯示輸入框
+      reasonSelect.onchange = function() {
+        if (reasonSelect.value === '其他') {
+          reasonOther.style.display = 'block';
+        } else {
+          reasonOther.style.display = 'none';
+        }
+      };
+
+      // 取消按鈕
+      document.getElementById('blacklist-cancel-btn').onclick = function() {
+        modal.style.display = 'none';
+      };
+
+      // 確認按鈕
+      document.getElementById('blacklist-confirm-btn').onclick = async function() {
+        let reason = reasonSelect.value;
+        if (reason === '其他') {
+          reason = reasonOther.value.trim();
+        }
+        if (!reason) {
+          alert('請選擇或輸入理由');
+          return;
+        }
+        // 取得 member_id, blocked_member_id
+        const urlParams = new URLSearchParams(window.location.search);
+        const member_id = urlParams.get('member_id');
+        const blocked_member_id = user;
+        if (!member_id || !blocked_member_id) {
+          console.log('member_id:', member_id, 'blocked_member_id:', blocked_member_id);
+          alert('缺少必要資訊，請重新登入');
+          return;
+        }
+        // 呼叫 API
+        try {
+          const res = await fetch('/api/members/blacklist/block', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ member_id, blocked_member_id, reason })
+          });
+          const data = await res.json();
+          if (res.ok) {
+            // 取得 userName（從 participants 陣列找 name）
+            let userName = '這位參加者';
+            if (window.participantsArr && Array.isArray(window.participantsArr)) {
+              const userObj = window.participantsArr.find(p => p.user_id === blocked_member_id);
+              if (userObj && userObj.name) userName = userObj.name;
+            }
+            alert('已成功將「' + userName + '」加入黑名單！');
+            modal.style.display = 'none';
+          } else {
+            alert(data.error || '加入黑名單失敗');
+          }
+        } catch (e) {
+          alert('網路錯誤，請稍後再試');
+        }
+      };
+    };
   }
 }
 

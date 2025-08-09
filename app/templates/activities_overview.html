@@ -793,7 +793,7 @@
           let statusText = '';
           if (deadline && now <= deadline) {
             if (act.current_participants !== undefined && act.max_participants !== undefined && act.current_participants >= act.max_participants) {
-              statusText = '額滿候補';
+              statusText = '已額滿';
             } else {
               statusText = '開放報名';
             }

@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>活動點名</title>
   <style>
+    .save-reminder {
+      color: #d9534f;
+      font-size: 15px;
+      text-align: center;
+      margin-bottom: 8px;
+      font-weight: bold;
+      display: none;
+    }
     html, body {
       height: auto;
       margin: 0;
@@ -167,6 +175,7 @@
 
   <!-- 白卡片內容 -->
   <div class="container">
+  <div id="save-reminder" class="save-reminder">有尚未儲存的點名變更，請記得儲存！</div>
     <div id="participants"></div>
 
     <div class="summary">
@@ -180,11 +189,10 @@
   </div>
 
 <script>
-  const activityStartTime = new Date("2025-08-05T14:00:00");
-  const activityEndTime = new Date("2025-08-05T20:00:00");
-  const graceMinutesBefore = 10;
-  const graceMinutesAfter = 10;
-  const lockHoursAfterEnd = 2;
+  // 取得 activity_id 參數
+  const urlParams = new URLSearchParams(window.location.search);
+  const activityId = urlParams.get("activity_id");
+  const memberId = urlParams.get("member_id");
 
   const avatarSVG = `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
@@ -192,52 +200,17 @@
     </svg>
   `;
 
-  const participants = [
-    { id: 1, name: "張小明", status: "unmarked", time: null },
-    { id: 2, name: "李美麗", status: "unmarked", time: null },
-    { id: 3, name: "王大仁", status: "unmarked", time: null },
-    { id: 4, name: "陳大華", status: "unmarked", time: null },
-    { id: 5, name: "林小芳", status: "unmarked", time: null },
-    { id: 6, name: "吳志強", status: "unmarked", time: null },
-    { id: 7, name: "周佩玲", status: "unmarked", time: null },
-    { id: 8, name: "黃冠宇", status: "unmarked", time: null },
-    { id: 9, name: "李冠廷", status: "unmarked", time: null },
-    { id: 10, name: "張雅雯", status: "unmarked", time: null }
-  ];
+  let joinedParticipants = [];
+  let lastSavedState = [];
 
   function renderList() {
-    // 超過可編輯時間 → 將所有未點名改成缺席
-    if (!canEdit()) {
-      participants.forEach(p => {
-        if (p.status === 'unmarked') {
-          p.status = 'absent';
-        }
-      });
-    }
-
     const container = document.getElementById('participants');
     container.innerHTML = '';
-
-    participants.forEach(p => {
+    joinedParticipants.forEach((p, idx) => {
       const card = document.createElement('div');
       card.className = 'participant-card';
-
-      let statusText = '';
-      let btnHtml = '';
-
-      if (p.status === 'on_time') {
-        statusText = `狀態：準時 ✅ (${p.time})`;
-        btnHtml = canEdit() ? `<button class="btn btn-cancel" onclick="cancel(${p.id})">取消</button>` : '';
-      } else if (p.status === 'late') {
-        statusText = `狀態：遲到 ⚠️ (${p.time})`;
-        btnHtml = canEdit() ? `<button class="btn btn-cancel" onclick="cancel(${p.id})">取消</button>` : '';
-      } else if (p.status === 'absent') {
-        statusText = `狀態：缺席 ❌`;
-      } else {
-        statusText = '未點名';
-        btnHtml = canEdit() ? `<button class="btn btn-arrive" onclick="mark(${p.id})">到</button>` : '';
-      }
-
+      card.style.cursor = 'pointer';
+      const statusText = p.is_checked_in ? '狀態：已到 ✅' : '狀態：未到';
       card.innerHTML = `
         <div class="info">
           <div class="avatar">${avatarSVG}</div>
@@ -246,55 +219,73 @@
             <div class="status">${statusText}</div>
           </div>
         </div>
-        ${btnHtml}
       `;
+      card.onclick = function() {
+        joinedParticipants[idx].is_checked_in = !joinedParticipants[idx].is_checked_in;
+        checkUnsaved();
+        renderList();
+      };
       container.appendChild(card);
     });
-
     updateSummary();
   }
 
-  function canEdit() {
-    const now = new Date();
-    return now <= new Date(activityEndTime.getTime() + lockHoursAfterEnd * 60 * 60 * 1000);
-  }
-
-  function mark(id) {
-    const p = participants.find(x => x.id === id);
-    const now = new Date();
-    const timeStr = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
-
-    const earlyThreshold = new Date(activityStartTime.getTime() - graceMinutesBefore * 60000);
-    const lateThreshold = new Date(activityStartTime.getTime() + graceMinutesAfter * 60000);
-
-    if (now >= earlyThreshold && now <= lateThreshold) {
-      p.status = 'on_time';
-    } else {
-      p.status = 'late';
-    }
-    p.time = timeStr;
-    renderList();
-  }
-
-  function cancel(id) {
-    const p = participants.find(x => x.id === id);
-    p.status = 'unmarked';
-    p.time = null;
-    renderList();
+  function checkUnsaved() {
+    // 比較目前狀態與上次儲存狀態
+    const changed = joinedParticipants.some((p, i) => {
+      return !lastSavedState[i] || p.is_checked_in !== lastSavedState[i].is_checked_in;
+    });
+    document.getElementById('save-reminder').style.display = changed ? 'block' : 'none';
   }
 
   function updateSummary() {
-    document.getElementById('onTimeCount').textContent = participants.filter(p => p.status === 'on_time').length;
-    document.getElementById('lateCount').textContent = participants.filter(p => p.status === 'late').length;
-    document.getElementById('absentCount').textContent = participants.filter(p => p.status === 'absent').length;
-    document.getElementById('notMarkedCount').textContent = participants.filter(p => p.status === 'unmarked').length;
+    document.getElementById('onTimeCount').textContent = joinedParticipants.filter(p => p.is_checked_in).length;
+    document.getElementById('lateCount').textContent = 0;
+    document.getElementById('absentCount').textContent = 0;
+    document.getElementById('notMarkedCount').textContent = joinedParticipants.filter(p => !p.is_checked_in).length;
   }
+
 
   function saveAttendance() {
-    alert('已儲存點名（可隨時回來補點名）');
+    if (!activityId) return;
+    fetch('/api/activities/attendance', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        activity_id: activityId,
+        participants: joinedParticipants.map(p => ({
+          member_id: p.member_id,
+          is_checked_in: p.is_checked_in ? 1 : 0
+        }))
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      alert('已儲存點名（可隨時回來補點名）');
+      // 儲存後更新 lastSavedState
+      lastSavedState = joinedParticipants.map(p => ({
+        member_id: p.member_id,
+        is_checked_in: p.is_checked_in
+      }));
+      checkUnsaved();
+    });
   }
 
-  renderList();
+  // 取得參加者資料
+  if (activityId) {
+    fetch(`/api/activities/participants?activity_id=${activityId}`)
+      .then(res => res.json())
+      .then(data => {
+        joinedParticipants = data.joined_participants || [];
+        // 初始化 lastSavedState
+        lastSavedState = joinedParticipants.map(p => ({
+          member_id: p.member_id,
+          is_checked_in: p.is_checked_in
+        }));
+        renderList();
+        checkUnsaved();
+      });
+  }
 
   function redirectToMemberView() {
     window.history.back();

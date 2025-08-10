@@ -312,7 +312,7 @@
                     <circle cx="12" cy="12" r="10" />
                     <path d="M8 12l3 3l5-5" />
                     </svg>
-                    <span style="margin-left: 4px;">出 席 率：92%</span>
+                    <span id="attendance-rate" style="margin-left: 4px;">出 席 率：</span>
                 </div>
                 <div class="review-date">
                     <div style="width: 0.5px;"></div>
@@ -448,6 +448,8 @@
                 // 更新平均星等和總評價數量
                 document.querySelector("#participant-section .score").textContent = data.average_rating.toFixed(1);
                 document.querySelector("#participant-section .count").textContent = `/ ${data.total_reviews}則評論`;
+                const attendanceRate = data.attendance_rate_percent !== null && data.attendance_rate_percent !== undefined ? data.attendance_rate_percent + '%' : '無資料';
+                document.getElementById('attendance-rate').textContent = `出 席 率：${attendanceRate}`;
             })
             .catch(error => console.error("獲取評論統計資料失敗：", error));
 

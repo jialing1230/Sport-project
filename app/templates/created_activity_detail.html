@@ -434,56 +434,6 @@
                 stroke-linejoin="round"></path>
         </svg>
       </div>
-      <div class="right-section">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 48 48"
-          width="30"
-          height="30"
-        >
-          <path
-            d="M24 30 V14"
-            stroke="#1B3A6E"
-            stroke-width="3"
-            fill="none"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          ></path>
-          <path
-            d="M16 22 L24 14 L32 22"
-            stroke="#1B3A6E"
-            stroke-width="3"
-            fill="none"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          ></path>
-          <path
-            d="M10 30 V36 A4 4 0 0 0 14 40 H34 A4 4 0 0 0 38 36 V30"
-            stroke="#1B3A6E"
-            stroke-width="3"
-            fill="none"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          ></path>
-        </svg>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          width="24"
-          height="24"
-          class="heart-icon"
-        >
-          <path
-            class="heart-path"
-            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-            stroke="#f8a9b3"
-            stroke-width="2"
-            fill="none"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          ></path>
-        </svg>
-      </div>
     </div>
     <div class="container">
       <section id="activity-info" class="info-box"></section>
@@ -565,8 +515,8 @@
 		  if (now > signupDeadline) {
 			statusText = "報名截止";
 			statusClass = "badge-full";
-		  } else if ((detail.current_participants + participant.pending_participants.length) >= detail.max_participants) {
-			statusText = "額滿候補";
+		  } else if (detail.current_participants>= detail.max_participants) {
+			statusText = "已額滿";
 			statusClass = "badge-full";
 		  } else {
 			statusText = "開放報名";
@@ -636,7 +586,7 @@
 				  : `${detail.venue_fee} 元`}
 				<span style="margin: 0 4px; vertical-align: baseline;">|</span>
 				<span class="activity-type-label" id="activity-type">
-				  ${detail.activity_type === '一般活動' ? '一般活動' : detail.activity_type === '訓練課程' ? '訓練課程' : '活動'}
+                  ${(detail.type === 'class' || detail.type === 'muti_class') ? '訓練課程' : '一般活動'}
 				</span>
 			  </span>
 			</div>
@@ -720,9 +670,9 @@
 			  btn.textContent = `待審核（${participant.pending_participants.length}）`;
 			  btn.classList.remove("disabled");
 			  btn.disabled = false;
-			  btn.onclick = function() {
-				window.location.href = `/review_participants?activity_id=${activityId}`;
-			  };
+              btn.onclick = function() {
+                window.location.href = `/participation?activity_id=${activityId}&member_id=${memberId}`;
+              };
 			}
 			// 狀態2: 準備中（報名截止後~活動開始前10分鐘）
 			else if (now >= signupDeadline && now < startTime - 10*60*1000) {
@@ -740,7 +690,7 @@
 			  btn.classList.remove("disabled");
 			  btn.disabled = false;
 			  btn.onclick = function() {
-				window.location.href = `/attendance?activity_id=${activityId}`;
+				window.location.href = `/attendance?activity_id=${activityId}&member_id=${memberId}`;
 			  };
 			}
 			// 狀態4: 已結束2小時內（還能補點名）
@@ -750,7 +700,7 @@
 			  btn.classList.remove("disabled");
 			  btn.disabled = false;
 			  btn.onclick = function() {
-				window.location.href = `/attendance?activity_id=${activityId}`;
+				window.location.href = `/attendance?activity_id=${activityId}&member_id=${memberId}`;
 			  };
 			}
 			// 狀態5: 已結束超過2小時（顯示待評價/已評價）
@@ -761,7 +711,7 @@
 				btn.classList.remove("disabled");
 				btn.disabled = false;
 				btn.onclick = function() {
-				  window.location.href = `/evaluate?activity_id=${activityId}`;
+				  window.location.href = `/evaluate?activity_id=${activityId}&member_id=${memberId}`;
 				};
 			  } else {
 				btn.style.display = "block";

@@ -312,7 +312,7 @@
                     <circle cx="12" cy="12" r="10" />
                     <path d="M8 12l3 3l5-5" />
                     </svg>
-                    <span style="margin-left: 4px;">出 席 率：92%</span>
+                    <span id="attendance-rate" style="margin-left: 4px;">出 席 率：</span>
                 </div>
                 <div class="review-date">
                     <div style="width: 0.5px;"></div>
@@ -347,22 +347,6 @@
                     </svg>
                     <span class="score" style="vertical-align: middle;"></span>
                     <span class="count" style="vertical-align: middle;"></span>
-                </div>
-                <div class="review-attendance">
-                    <div style="width: 0.5px;"></div>
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="20"
-                        fill="none"
-                        stroke="#2c4975"
-                        stroke-width="2"
-                        viewBox="0 0 24 24"
-                        style="margin-right: 2px;">
-                    <circle cx="12" cy="12" r="10" />
-                    <path d="M8 12l3 3l5-5" />
-                    </svg>
-                    <span style="margin-left: 4px;">出 席 率：92%</span>
                 </div>
                 <div class="review-date">
                     <div style="width: 0.5px;"></div>
@@ -448,6 +432,8 @@
                 // 更新平均星等和總評價數量
                 document.querySelector("#participant-section .score").textContent = data.average_rating.toFixed(1);
                 document.querySelector("#participant-section .count").textContent = `/ ${data.total_reviews}則評論`;
+                const attendanceRate = data.attendance_rate_percent !== null && data.attendance_rate_percent !== undefined ? data.attendance_rate_percent + '%' : '無資料';
+                document.getElementById('attendance-rate').textContent = `出 席 率：${attendanceRate}`;
             })
             .catch(error => console.error("獲取評論統計資料失敗：", error));
 

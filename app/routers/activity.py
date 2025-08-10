@@ -352,6 +352,10 @@ def activity_details_page():
 def joined_activity_detail_page():
     return render_template("joined_activity_detail.html")
 
+@activity_bp.route("/created_details_page", methods=["GET"])
+def created_activity_detail_page():
+    return render_template("created_activity_detail.html")
+
 @activity_bp.route("/joined", methods=["GET"])
 def list_joined_activities():
     member_id = request.args.get("member_id")
@@ -422,7 +426,8 @@ def get_activity_participants():
                 {
                     "member_id": p.member_id,
                     "name": p.member.name,
-                    "has_review": getattr(p, "has_review", False)
+                    "has_review": getattr(p, "has_review", False),
+                    "is_checked_in": p.is_checked_in,
                 }
                 for p in joined_participants
             ],
@@ -811,4 +816,39 @@ def get_user_activity_stats():
             "most_common_sport": most_common_sport,
             "most_common_sport_count": most_common_sport_count
         }), 200
+    
+@activity_bp.route("/attendance", methods=["POST"])
+def update_attendance():
+    data = request.get_json()
+    activity_id = data.get("activity_id")
+    participants = data.get("participants", [])
+    if not activity_id or not isinstance(participants, list):
+        return jsonify({"error": "缺少必要參數"}), 400
+
+    with get_db() as db:
+        checked_in_member_ids = []
+        for p in participants:
+            member_id = p.get("member_id")
+            is_checked_in = p.get("is_checked_in", 0)
+            if not member_id:
+                continue
+            join = db.query(ActivityJoin).filter_by(activity_id=activity_id, member_id=member_id).first()
+            if join:
+                join.is_checked_in = bool(is_checked_in)
+                if bool(is_checked_in):
+                    checked_in_member_ids.append(member_id)
+        # 發送通知給每位已簽到的參加者
+        activity = db.query(Activity).filter_by(activity_id=activity_id).first()
+        if activity and checked_in_member_ids:
+            from app.models.notification import Notification
+            for member_id in checked_in_member_ids:
+                content = f"您已成功簽到活動「{activity.title}」。"
+                notification = Notification(
+                    member_id=member_id,
+                    title="活動簽到成功通知",
+                    content=content
+                )
+                db.add(notification)
+        db.commit()
+    return jsonify({"message": "點名狀態已更新，已通知簽到者"}), 200
 

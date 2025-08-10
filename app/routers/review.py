@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, render_template
-from datetime import datetime  # ✅ 加這行
+from datetime import datetime 
 from app.database import get_db
 from app.models.user_review import UserReview
 from app.models.review_template import ReviewTemplate
@@ -7,7 +7,7 @@ from app.models.activity import Activity
 from app.models.activity_join import ActivityJoin
 from app.models.activity_review import ActivityReview  # 新增匯入
 from app.models.member import Member
-from flask import render_template
+
 
 review_bp = Blueprint("review", __name__)
 
@@ -20,11 +20,29 @@ def get_review_statistics():
         # 獲取該使用者的所有評論
         reviews = db.query(UserReview).filter(UserReview.target_member_id == target_member_id).all()
 
+        # 出席率統計
+        from app.models.activity_join import ActivityJoin
+        from app.models.activity import Activity
+        join_query = (
+            db.query(ActivityJoin)
+            .join(Activity, ActivityJoin.activity_id == Activity.activity_id)
+            .filter(
+                ActivityJoin.member_id == target_member_id,
+                ActivityJoin.status == "joined",
+                Activity.status == "close"
+            )
+        )
+        total_joined = join_query.count()
+        checked_in_count = join_query.filter(ActivityJoin.is_checked_in).count() if total_joined > 0 else 0
+        attendance_rate = round(checked_in_count / total_joined, 2) if total_joined > 0 else None
+        attendance_rate_percent = int(attendance_rate * 100) if attendance_rate is not None else None
+
         if not reviews:
             return jsonify({
                 "total_reviews": 0,
                 "average_rating": 0,
-                "common_templates": []
+                "common_templates": [],
+                "attendance_rate_percent": attendance_rate_percent
             })
 
         # 計算評論數量和平均評分
@@ -50,7 +68,9 @@ def get_review_statistics():
         return jsonify({
             "total_reviews": total_reviews,
             "average_rating": average_rating,
-            "common_templates": common_templates
+            "common_templates": common_templates,
+            "attendance_rate": attendance_rate,
+            "attendance_rate_percent": attendance_rate_percent
         })
 
 

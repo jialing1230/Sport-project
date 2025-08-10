@@ -352,6 +352,10 @@ def activity_details_page():
 def joined_activity_detail_page():
     return render_template("joined_activity_detail.html")
 
+@activity_bp.route("/created_details_page", methods=["GET"])
+def created_activity_detail_page():
+    return render_template("created_activity_detail.html")
+
 @activity_bp.route("/joined", methods=["GET"])
 def list_joined_activities():
     member_id = request.args.get("member_id")

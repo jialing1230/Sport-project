@@ -562,10 +562,25 @@
       }
 
       Promise.all([
-      fetch(`/api/activities/details?activity_id=${activityId}`).then(res => res.json()),
-      fetch(`/api/activities/participants?activity_id=${activityId}`).then(res => res.json())
-    ])
-    .then(([detail, participant]) => {
+        fetch(`/api/activities/details?activity_id=${activityId}`).then(res => res.json()),
+        fetch(`/api/activities/participants?activity_id=${activityId}`).then(res => res.json())
+      ])
+      .then(async ([detail, participant]) => {
+        // 取得發起人黑名單
+        let isBlocked = false;
+        if (memberId && participant.organizer && participant.organizer.member_id) {
+          try {
+            const blacklistRes = await fetch(`/api/members/blacklist?member_id=${participant.organizer.member_id}`);
+            if (blacklistRes.ok) {
+              const blacklist = await blacklistRes.json();
+              if (Array.isArray(blacklist)) {
+                isBlocked = blacklist.some(b => String(b.blocked_member_id) === String(memberId));
+              }
+            }
+          } catch (e) {
+            // ignore blacklist error
+          }
+        }
       console.log("🧪 活動類型 =", detail.activity_type, "｜type =", detail.type);
       console.log("🧪 課表長度 =", detail.course_schedules?.length);
       console.log("🧪 課表內容 =", detail.course_schedules);
@@ -590,6 +605,11 @@
         joinBtn.classList.add("disabled");
         joinBtn.style.backgroundColor = "#ccc";
         joinBtn.disabled = true;
+      } else if (isBlocked) {
+        joinBtn.textContent = "禁止參加";
+        joinBtn.classList.add("disabled");
+        joinBtn.style.backgroundColor = "#ccc";
+        joinBtn.disabled = true;
       } else if (isJoined) {
         joinBtn.textContent = "已參加";
         joinBtn.classList.add("disabled");
@@ -600,7 +620,7 @@
         joinBtn.classList.add("disabled");
         joinBtn.style.backgroundColor = "#ccc";
         joinBtn.disabled = true;
-      }else if (!isFull && hasDeadline) {
+      } else if (!isFull && hasDeadline) {
         joinBtn.textContent = "我要報名";
         joinBtn.classList.remove("disabled");
         joinBtn.style.backgroundColor = "#81d3e1";

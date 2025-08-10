@@ -253,6 +253,7 @@ def list_activities():
                 "registration_deadline": a.registration_deadline.isoformat() if a.registration_deadline else None,
                 "current_participants": a.current_participants,
                 "max_participants": a.max_participants,
+                "status": a.status
             })
     return jsonify(result), 200
 
@@ -591,7 +592,13 @@ def join_activity():
          # 檢查是否為活動的發起人
         if activity.organizer_id == member_id:
             return jsonify({"error": "主辦人無法申請參加自己的活動"}), 403
-        
+
+        # 檢查是否在主辦人的黑名單中
+        from app.models.blacklist import Blacklist
+        blacklisted = db.query(Blacklist).filter_by(member_id=activity.organizer_id, blocked_member_id=member_id).first()
+        if blacklisted:
+            return jsonify({"error": "您已被主辦人加入黑名單，無法參加此活動"}), 403
+
         # 只有 open 或 deadline 狀態允許報名，其他狀態一律拒絕
         if activity.status not in ["open", "deadline"]:
             return jsonify({"error": "報名已截止，無法申請參加"}), 403

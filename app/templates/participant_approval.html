@@ -164,7 +164,7 @@
       <path d="M228,128a12,12,0,0,1-12,12H69l51.52,51.51a12,12,0,0,1-17,17l-72-72a12,12,0,0,1,0-17l72-72a12,12,0,0,1,17,17L69,116H216A12,12,0,0,1,228,128Z"/>
     </svg>
     <div class="header-center">
-      <img src="logo.png" alt="logo">
+      <img src="/static/logo.png" alt="logo">
       <div class="header-title">參加者審核</div>
     </div>
   </div>
@@ -200,13 +200,8 @@
     `;
 
     // 假資料
-    const participants = [
-      { id: 1, name: "吳志強", status: "pending", viewed: false, attendance: "94%", rating: "★★★★☆", records: ["7/1 籃球｜出席", "7/8 跑步｜出席", "7/11 桌球｜未出席"] },
-      { id: 2, name: "周佩玲", status: "pending", viewed: false, attendance: "85%", rating: "★★★☆☆", records: ["7/2 羽球｜未出席", "7/6 跑步｜出席"] },
-      { id: 3, name: "黃冠宇", status: "pending", viewed: false, attendance: "100%", rating: "★★★★★", records: ["7/4 羽球｜出席", "7/7 籃球｜出席"] },
-      { id: 4, name: "李冠廷", status: "pending", viewed: false, attendance: "90%", rating: "★★★★☆", records: ["7/3 游泳｜出席", "7/8 跑步｜未出席"] },
-      { id: 5, name: "張雅雯", status: "pending", viewed: false, attendance: "92%", rating: "★★★★☆", records: ["7/5 籃球｜出席", "7/9 桌球｜出席"] }
-    ];
+  let participants = [];
+  let activityId = null;
 
     let currentUserId = null;
 
@@ -216,9 +211,14 @@
       const p = participants.find(x => x.id === id);
       document.getElementById("modalAvatar").innerHTML = avatarSVG;
       document.getElementById("modalName").textContent = p.name;
-      document.getElementById("modalAttendance").textContent = p.attendance;
-      document.getElementById("modalRating").textContent = p.rating;
-      document.getElementById("modalRecords").innerHTML = p.records.map(r => `<div>${r}</div>`).join('');
+      // 直接寫假資料
+      document.getElementById("modalAttendance").textContent = "90%";
+      document.getElementById("modalRating").textContent = "★★★★☆";
+      document.getElementById("modalRecords").innerHTML = [
+        "8/1 籃球｜出席",
+        "8/3 跑步｜未出席",
+        "8/5 羽球｜出席"
+      ].map(r => `<div>${r}</div>`).join('');
       document.getElementById("modalBg").style.display = "";
     }
 
@@ -234,30 +234,67 @@
     }
 
     // 通過/拒絕審核（要先看過詳細才可按）
-    function approve(id) {
+    async function approve(id) {
       const p = participants.find(x => x.id === id);
       if (!p.viewed) return;
-      p.status = "approved";
-      renderList();
+      // 呼叫後端API
+      try {
+        const res = await fetch(`/api/activities/update_status`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            activity_id: activityId,
+            member_id: p.member_id,
+            status: "joined"
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          p.status = "approved";
+          renderList();
+        } else {
+          alert(data.error || "審核失敗");
+        }
+      } catch (e) {
+        alert("伺服器錯誤");
+      }
     }
-    function reject(id) {
+    async function reject(id) {
       const p = participants.find(x => x.id === id);
       if (!p.viewed) return;
-      p.status = "rejected";
-      renderList();
+      try {
+        const res = await fetch(`/api/activities/update_status`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            activity_id: activityId,
+            member_id: p.member_id,
+            status: "reject"
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          p.status = "rejected";
+          renderList();
+        } else {
+          alert(data.error || "審核失敗");
+        }
+      } catch (e) {
+        alert("伺服器錯誤");
+      }
     }
 
     function renderList() {
       const container = document.getElementById('participants');
       container.innerHTML = '';
-      participants.forEach(p => {
+      participants.forEach((p, idx) => {
         const card = document.createElement('div');
         card.className = 'participant-card';
         let statusText = "";
         let btnHtml = "";
-        if (p.status === "approved") {
+        if (p.status === "approved" || p.status === "joined") {
           statusText = '<span style="color:var(--approve-color);font-weight:bold">已通過</span>';
-        } else if (p.status === "rejected") {
+        } else if (p.status === "rejected" || p.status === "reject") {
           statusText = '<span style="color:var(--reject-color);font-weight:bold">已拒絕</span>';
         } else {
           statusText = '<span style="color:#b3b3b3;">待審核</span>';
@@ -286,7 +323,53 @@
     }
 
     // 頁面初始化
-    renderList();
+    // 取得 URL 參數 activity_id
+    function getQueryParam(name) {
+      const url = new URL(window.location.href);
+      return url.searchParams.get(name);
+    }
+
+    async function fetchParticipants() {
+      activityId = getQueryParam('activity_id');
+      if (!activityId) {
+        alert('缺少 activity_id');
+        return;
+      }
+      try {
+        const res = await fetch(`/api/activities/participants?activity_id=${activityId}`);
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.error || '取得參加者失敗');
+          return;
+        }
+        // 將 joined 也加入 participants，狀態為 joined
+        let idx = 1;
+        const joined = (data.joined_participants || []).map((p) => ({
+          ...p,
+          id: idx++,
+          status: 'joined',
+          viewed: true, // 已通過的預設已檢視
+          attendance: '-',
+          rating: '-',
+          records: []
+        }));
+        const pending = (data.pending_participants || []).map((p) => ({
+          ...p,
+          id: idx++,
+          status: 'pending',
+          viewed: false,
+          attendance: '-',
+          rating: '-',
+          records: []
+        }));
+        participants = [...joined, ...pending];
+        renderList();
+      } catch (e) {
+        alert('伺服器錯誤');
+      }
+    }
+
+    fetchParticipants();
   </script>
 </body>
 </html>

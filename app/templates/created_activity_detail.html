@@ -670,9 +670,9 @@
 			  btn.textContent = `待審核（${participant.pending_participants.length}）`;
 			  btn.classList.remove("disabled");
 			  btn.disabled = false;
-			  btn.onclick = function() {
-				window.location.href = `/review_participants?activity_id=${activityId}`;
-			  };
+              btn.onclick = function() {
+                window.location.href = `/participation?activity_id=${activityId}&member_id=${memberId}`;
+              };
 			}
 			// 狀態2: 準備中（報名截止後~活動開始前10分鐘）
 			else if (now >= signupDeadline && now < startTime - 10*60*1000) {

@@ -153,6 +153,22 @@ def create_app():
         return render_template("notice.html", member_id=member_id)
 
 
+    @app.route("/attendance")
+    def attendance_page():
+        member_id = request.args.get("member_id")
+        activity_id = request.args.get("activity_id")
+        return render_template("attendance_check.html", member_id=member_id, activity_id=activity_id)
+
+    @app.route("/participation")
+    def participation_page():
+        member_id = request.args.get("member_id")
+        activity_id = request.args.get("activity_id")
+        return render_template("participant_approval.html", member_id=member_id, activity_id=activity_id)
+
+
+    
+
+
     start_scheduler()  # 啟動排程
     return app
 

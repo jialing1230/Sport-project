@@ -690,7 +690,7 @@
 			  btn.classList.remove("disabled");
 			  btn.disabled = false;
 			  btn.onclick = function() {
-				window.location.href = `/attendance?activity_id=${activityId}`;
+				window.location.href = `/attendance?activity_id=${activityId}&member_id=${memberId}`;
 			  };
 			}
 			// 狀態4: 已結束2小時內（還能補點名）
@@ -700,7 +700,7 @@
 			  btn.classList.remove("disabled");
 			  btn.disabled = false;
 			  btn.onclick = function() {
-				window.location.href = `/attendance?activity_id=${activityId}`;
+				window.location.href = `/attendance?activity_id=${activityId}&member_id=${memberId}`;
 			  };
 			}
 			// 狀態5: 已結束超過2小時（顯示待評價/已評價）
@@ -711,7 +711,7 @@
 				btn.classList.remove("disabled");
 				btn.disabled = false;
 				btn.onclick = function() {
-				  window.location.href = `/evaluate?activity_id=${activityId}`;
+				  window.location.href = `/evaluate?activity_id=${activityId}&member_id=${memberId}`;
 				};
 			  } else {
 				btn.style.display = "block";

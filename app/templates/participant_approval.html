@@ -189,6 +189,7 @@
   </div>
   <div class="modal-row">常見評價：</div>
   <div id="modalTemplates" style="font-size:14px;color:#666;"></div>
+  <div class="modal-row" id="modalAttendance" style="font-size:14px;color:#666;"></div>
   <button class="modal-btn" onclick="closeModal()">關閉</button>
       </div>
     </div>
@@ -242,10 +243,14 @@
           }else{
             document.getElementById("modalTemplates").innerHTML = '<div>無</div>';
           }
+          // 出席率
+          let att = (data.attendance_rate_percent !== null && data.attendance_rate_percent !== undefined) ? data.attendance_rate_percent + '%' : '無';
+          document.getElementById("modalAttendance").innerHTML = `出席率：${att}`;
         }).catch(()=>{
           document.getElementById("modalRating").textContent = '-';
           document.getElementById("modalStars").innerHTML = renderStars(0);
           document.getElementById("modalTemplates").innerHTML = '<div>無</div>';
+          document.getElementById("modalAttendance").innerHTML = '出席率：無';
         });
 
     // 星星渲染函式

@@ -209,7 +209,7 @@
     function showUserDetail(id) {
       currentUserId = id;
       const p = participants.find(x => x.id === id);
-      document.getElementById("modalAvatar").innerHTML = avatarSVG;
+      document.getElementById("modalAvatar").innerHTML = `<img src="/static/avatars/${p.member_id}.png" alt="${p.name}" title="${p.name}" onerror="this.onerror=null;this.src='/static/avatars/default.jpg'" style="width:54px;height:54px;border-radius:50%;object-fit:cover;" />`;
       document.getElementById("modalName").textContent = p.name;
       // 直接寫假資料
       document.getElementById("modalAttendance").textContent = "90%";
@@ -307,7 +307,9 @@
         }
         card.innerHTML = `
           <div class="info">
-            <div class="avatar" onclick="showUserDetail(${p.id})">${avatarSVG}</div>
+            <div class="avatar" onclick="showUserDetail(${p.id})">
+              <img src="/static/avatars/${p.member_id}.png" alt="${p.name}" title="${p.name}" onerror="this.onerror=null;this.src='/static/avatars/default.jpg'" style="width:48px;height:48px;border-radius:50%;object-fit:cover;" />
+            </div>
             <div>
               <div class="name" onclick="showUserDetail(${p.id})">${p.name}</div>
               <div class="status">${statusText}</div>

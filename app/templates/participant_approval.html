@@ -178,14 +178,18 @@
   <div id="modalBg" style="display:none">
     <div class="modal-bg">
       <div class="modal">
-        <button class="modal-close" onclick="closeModal()">&times;</button>
-        <div class="modal-avatar" id="modalAvatar"></div>
-        <div class="modal-title" id="modalName"></div>
-        <div class="modal-row">出席率：<span id="modalAttendance"></span></div>
-        <div class="modal-row">評價星等：<span id="modalRating"></span></div>
-        <div class="modal-row">最近活動紀錄：</div>
-        <div id="modalRecords" style="font-size:14px;color:#666;"></div>
-        <button class="modal-btn" onclick="closeModal()">關閉</button>
+  <button class="modal-close" onclick="closeModal()">&times;</button>
+  <div class="modal-avatar" id="modalAvatar"></div>
+  <div class="modal-title" id="modalName"></div>
+  <div class="modal-row">自我介紹：</div>
+  <div id="modalPublic" style="font-size:14px;color:#666;margin-bottom:8px;text-align:left;"></div>
+  <div class="modal-row" style="display:flex;align-items:center;justify-content:center;gap:8px;">評價星等：
+    <span id="modalStars" style="display:flex;align-items:center;"></span>
+    <span id="modalRating" style="font-size:15px;color:#888;margin-left:2px;"></span>
+  </div>
+  <div class="modal-row">常見評價：</div>
+  <div id="modalTemplates" style="font-size:14px;color:#666;"></div>
+  <button class="modal-btn" onclick="closeModal()">關閉</button>
       </div>
     </div>
   </div>
@@ -211,14 +215,47 @@
       const p = participants.find(x => x.id === id);
       document.getElementById("modalAvatar").innerHTML = `<img src="/static/avatars/${p.member_id}.png" alt="${p.name}" title="${p.name}" onerror="this.onerror=null;this.src='/static/avatars/default.jpg'" style="width:54px;height:54px;border-radius:50%;object-fit:cover;" />`;
       document.getElementById("modalName").textContent = p.name;
-      // 直接寫假資料
-      document.getElementById("modalAttendance").textContent = "90%";
-      document.getElementById("modalRating").textContent = "★★★★☆";
-      document.getElementById("modalRecords").innerHTML = [
-        "8/1 籃球｜出席",
-        "8/3 跑步｜未出席",
-        "8/5 羽球｜出席"
-      ].map(r => `<div>${r}</div>`).join('');
+      // 清空欄位
+      document.getElementById("modalPublic").innerHTML = '載入中...';
+  document.getElementById("modalRating").textContent = '-';
+  document.getElementById("modalStars").innerHTML = renderStars(0);
+      document.getElementById("modalTemplates").innerHTML = '';
+      // 取得公開資料
+      fetch(`/api/members/${p.member_id}`)
+        .then(r => r.json())
+        .then(data => {
+          let html = '';
+          if(data.public_intro) html += data.public_intro;
+          document.getElementById("modalPublic").innerHTML = html || '無';
+        }).catch(()=>{
+          document.getElementById("modalPublic").innerHTML = '無';
+        });
+      // 取得評價統計
+      fetch(`/reviews/statistics?target_member_id=${p.member_id}`)
+        .then(r => r.json())
+        .then(data => {
+          let avg = data.average_rating ? data.average_rating : 0;
+          document.getElementById("modalRating").textContent = avg ? avg.toFixed(2) : '-';
+          document.getElementById("modalStars").innerHTML = renderStars(avg);
+          if(data.common_templates && data.common_templates.length>0){
+            document.getElementById("modalTemplates").innerHTML = data.common_templates.map(t => t.template).join('、');
+          }else{
+            document.getElementById("modalTemplates").innerHTML = '<div>無</div>';
+          }
+        }).catch(()=>{
+          document.getElementById("modalRating").textContent = '-';
+          document.getElementById("modalStars").innerHTML = renderStars(0);
+          document.getElementById("modalTemplates").innerHTML = '<div>無</div>';
+        });
+
+    // 星星渲染函式
+    function renderStars(score) {
+  let html = '';
+  let full = Math.floor(score);
+  for(let i=0;i<full;i++) html += '<span style="color:#FFD700;font-size:22px;display:inline-block;width:22px;">★</span>';
+  for(let i=full;i<5;i++) html += '<span style="color:#ccc;font-size:22px;display:inline-block;width:22px;">★</span>';
+  return html;
+    }
       document.getElementById("modalBg").style.display = "";
     }
 

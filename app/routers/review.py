@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, render_template
-from datetime import datetime  # ✅ 加這行
+from datetime import datetime 
 from app.database import get_db
 from app.models.user_review import UserReview
 from app.models.review_template import ReviewTemplate
@@ -7,7 +7,7 @@ from app.models.activity import Activity
 from app.models.activity_join import ActivityJoin
 from app.models.activity_review import ActivityReview  # 新增匯入
 from app.models.member import Member
-from flask import render_template
+
 
 review_bp = Blueprint("review", __name__)
 

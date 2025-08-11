@@ -513,10 +513,23 @@ def block_member():
 
 @member_bp.route("/<string:member_id>/public-intro", methods=["POST"])
 def update_public_intro(member_id):
+    import re
+
+    def is_valid_facebook(url):
+        # 支援 https://www.facebook.com/xxx 或 https://facebook.com/xxx
+        return bool(url) and re.match(r"^https?://(www\.)?facebook\.com/[A-Za-z0-9_.-]+/?$", url)
+
+    def is_valid_instagram(url):
+        # 支援 https://www.instagram.com/xxx 或 https://instagram.com/xxx
+        return bool(url) and re.match(r"^https?://(www\.)?instagram\.com/[A-Za-z0-9_.-]+/?$", url)
+
     data = request.get_json() or {}
-    public_intro = data.get("public_intro")
-    fb_link = data.get("fb_link") or data.get("facebook_url")
-    ig_link = data.get("ig_link") or data.get("instagram_url")
+    public_intro = data.get("public_intro") if "public_intro" in data else None
+    fb_link = data.get("fb_link") if "fb_link" in data else data.get("facebook_url") if "facebook_url" in data else None
+    ig_link = data.get("ig_link") if "ig_link" in data else data.get("instagram_url") if "instagram_url" in data else None
+
+
+    # public_intro 必須有提供（即使是空字串也可）
     if public_intro is None:
         return jsonify({"error": "缺少自我介紹內容"}), 400
 
@@ -525,10 +538,21 @@ def update_public_intro(member_id):
         if not member:
             return jsonify({"error": "找不到該會員"}), 404
         member.public_intro = public_intro
+        # 若有提供 facebook/ig 欄位（即使是空字串），就更新
         if fb_link is not None:
-            member.facebook_url = fb_link
+            if fb_link == "":
+                member.facebook_url = None
+            else:
+                if not is_valid_facebook(fb_link):
+                    return jsonify({"error": "Facebook 連結格式錯誤，請輸入 https://www.facebook.com/用戶名"}), 400
+                member.facebook_url = fb_link
         if ig_link is not None:
-            member.instagram_url = ig_link
+            if ig_link == "":
+                member.instagram_url = None
+            else:
+                if not is_valid_instagram(ig_link):
+                    return jsonify({"error": "Instagram 連結格式錯誤，請輸入 https://www.instagram.com/用戶名"}), 400
+                member.instagram_url = ig_link
         member.updated_at = datetime.utcnow()
         try:
             db.commit()

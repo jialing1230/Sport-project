@@ -421,6 +421,7 @@ def get_activity_participants():
             "organizer": {
                 "member_id": activity.organizer_id,
                 "name": activity.organizer.name,
+                "has_review": activity.has_review
             },
             "joined_participants": [
                 {

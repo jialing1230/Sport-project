@@ -658,73 +658,76 @@
 			});
 		  }
 
-		  // 主辦人專用功能按鈕（會根據狀態自動切換）
-		  const btn = document.getElementById("organizer-btn");
-		  btn.style.display = "none"; // 預設不顯示
-		  const isOrganizer = String(detail.organizer_id) === String(memberId);
+          // 主辦人專用功能按鈕（會根據狀態自動切換）
+          const btn = document.getElementById("organizer-btn");
+          btn.style.display = "none"; // 預設不顯示
+          const isOrganizer = String(detail.organizer_id) === String(memberId);
 
-		  if (isOrganizer) {
-			// 狀態1: 審核階段（報名截止前）
-			if (now < signupDeadline) {
-			  btn.style.display = "block";
-			  btn.textContent = `待審核（${participant.pending_participants.length}）`;
-			  btn.classList.remove("disabled");
-			  btn.disabled = false;
+          // 判斷主辦人 has_review 狀態
+          const organizerHasReview = participant.organizer && participant.organizer.has_review === true;
+
+          if (isOrganizer) {
+            // 狀態1: 審核階段（報名截止前）
+            if (now < signupDeadline) {
+              btn.style.display = "block";
+              btn.textContent = `待審核（${participant.pending_participants.length}）`;
+              btn.classList.remove("disabled");
+              btn.disabled = false;
               btn.onclick = function() {
                 window.location.href = `/participation?activity_id=${activityId}&member_id=${memberId}`;
               };
-			}
-			// 狀態2: 準備中（報名截止後~活動開始前10分鐘）
-			else if (now >= signupDeadline && now < startTime - 10*60*1000) {
-			  btn.style.display = "block";
-			  btn.textContent = "開始點名";
-			  btn.classList.add("disabled");
-			  btn.disabled = true; // 尚未到可以點名時
-			  btn.onclick = null;
-			}
-			// 狀態3: 活動開始前10分鐘~活動結束（可以點名／補點名）
-			else if (now >= startTime - 10*60*1000 && now <= endTime) {
-			  btn.style.display = "block";
-			  const checkedIn = detail.attendance_started; // 後端請記得回傳
-			  btn.textContent = checkedIn ? "補點名" : "開始點名";
-			  btn.classList.remove("disabled");
-			  btn.disabled = false;
-			  btn.onclick = function() {
-				window.location.href = `/attendance?activity_id=${activityId}&member_id=${memberId}`;
-			  };
-			}
-			// 狀態4: 已結束2小時內（還能補點名）
-			else if (now > endTime && now <= new Date(endTime.getTime() + 2*60*60*1000)) {
-			  btn.style.display = "block";
-			  btn.textContent = "補點名";
-			  btn.classList.remove("disabled");
-			  btn.disabled = false;
-			  btn.onclick = function() {
-				window.location.href = `/attendance?activity_id=${activityId}&member_id=${memberId}`;
-			  };
-			}
-			// 狀態5: 已結束超過2小時（顯示待評價/已評價）
-			else if (now > new Date(endTime.getTime() + 2*60*60*1000)) {
-			  if (!detail.is_reviewed) {
-				btn.style.display = "block";
-				btn.textContent = "待評價";
-				btn.classList.remove("disabled");
-				btn.disabled = false;
-				btn.onclick = function() {
-				  window.location.href = `/evaluate?activity_id=${activityId}&member_id=${memberId}`;
-				};
-			  } else {
-				btn.style.display = "block";
-				btn.textContent = "已評價";
-				btn.classList.add("disabled");
-				btn.disabled = true;
-				btn.onclick = null;
-			  }
-			}
-		  } else {
-			// 不是主辦人這頁按鈕不顯示
-			btn.style.display = "none";
-		  }
+            }
+            // 狀態2: 準備中（報名截止後~活動開始前10分鐘）
+            else if (now >= signupDeadline && now < startTime - 10*60*1000) {
+              btn.style.display = "block";
+              btn.textContent = "開始點名";
+              btn.classList.add("disabled");
+              btn.disabled = true; // 尚未到可以點名時
+              btn.onclick = null;
+            }
+            // 狀態3: 活動開始前10分鐘~活動結束（可以點名／補點名）
+            else if (now >= startTime - 10*60*1000 && now <= endTime) {
+              btn.style.display = "block";
+              const checkedIn = detail.attendance_started; // 後端請記得回傳
+              btn.textContent = checkedIn ? "補點名" : "開始點名";
+              btn.classList.remove("disabled");
+              btn.disabled = false;
+              btn.onclick = function() {
+                window.location.href = `/attendance?activity_id=${activityId}&member_id=${memberId}`;
+              };
+            }
+            // 狀態4: 已結束2小時內（還能補點名）
+            else if (now > endTime && now <= new Date(endTime.getTime() + 2*60*60*1000)) {
+              btn.style.display = "block";
+              btn.textContent = "補點名";
+              btn.classList.remove("disabled");
+              btn.disabled = false;
+              btn.onclick = function() {
+                window.location.href = `/attendance?activity_id=${activityId}&member_id=${memberId}`;
+              };
+            }
+            // 狀態5: 已結束超過2小時（顯示待評價/已評價）
+            else if (now > new Date(endTime.getTime() + 2*60*60*1000)) {
+              if (organizerHasReview) {
+                btn.style.display = "block";
+                btn.textContent = "已評價";
+                btn.classList.add("disabled");
+                btn.disabled = true;
+                btn.onclick = null;
+              } else {
+                btn.style.display = "block";
+                btn.textContent = "待評價";
+                btn.classList.remove("disabled");
+                btn.disabled = false;
+                btn.onclick = function() {
+                  window.location.href = `/evaluate?activity_id=${activityId}&member_id=${memberId}`;
+                };
+              }
+            }
+          } else {
+            // 不是主辦人這頁按鈕不顯示
+            btn.style.display = "none";
+          }
 
 		  // 補：課程表收合/展開（照原本設計）
 		  const toggleBtn = document.getElementById("toggle-schedule");

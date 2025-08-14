@@ -2,6 +2,8 @@
 import os
 from flask import Blueprint, request, jsonify, current_app
 from datetime import datetime
+import re
+import random
 from sqlalchemy.exc import IntegrityError
 from app.database import get_db
 from app.models.member import Member
@@ -102,6 +104,7 @@ def get_member(member_id):
             "public_intro": u.public_intro,
             "facebook_url": u.facebook_url,
             "instagram_url": u.instagram_url,
+            "phone": u.phone,
 
         }
 
@@ -590,6 +593,51 @@ def mark_notification_read(notification_id):
         notification.is_read = True
         db.commit()
     return jsonify({"message": "已標記為已讀"}), 200
+
+
+# 驗證碼暫存（正式請用 Redis）
+phone_code_store = {}
+
+def is_valid_tw_phone(phone: str) -> bool:
+    """台灣手機格式驗證：09開頭，共10碼"""
+    return bool(re.fullmatch(r"09\d{8}", phone))
+
+@member_bp.route("/phone/send-code", methods=["POST"])
+def send_phone_code():
+    data = request.get_json() or {}
+    phone = data.get("phone", "")
+    if not is_valid_tw_phone(phone):
+        return jsonify({"error": "手機格式錯誤"}), 400
+    code = str(random.randint(100000, 999999))
+    phone_code_store[phone] = code
+    print(f"手機驗證碼：{code}")  # 顯示於 cmd
+    # 不真實發送簡訊，直接回傳成功
+    return jsonify({"message": "驗證碼已產生", "phone": phone, "code": code}), 200
+
+@member_bp.route("/phone/verify", methods=["POST"])
+def verify_phone_code():
+    data = request.get_json() or {}
+    phone = data.get("phone", "")
+    code = data.get("code", "")
+    if not is_valid_tw_phone(phone):
+        return jsonify({"error": "手機格式錯誤"}), 400
+    real_code = phone_code_store.get(phone)
+    if not real_code:
+        return jsonify({"error": "請先取得驗證碼"}), 400
+    if code != real_code:
+        return jsonify({"error": "驗證碼錯誤"}), 400
+    # 驗證通過，寫入 member 表 phone 欄位
+    member_id = data.get("member_id")
+    if not member_id:
+        return jsonify({"error": "缺少 member_id"}), 400
+    with get_db() as db:
+        member = db.query(Member).get(member_id)
+        if not member:
+            return jsonify({"error": "找不到會員"}), 404
+        member.phone = phone
+        db.commit()
+    phone_code_store.pop(phone)
+    return jsonify({"message": "手機驗證成功"}), 200
 
 
 

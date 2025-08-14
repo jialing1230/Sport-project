@@ -189,8 +189,8 @@
           <button id="sendCode" class="btn btn-primary">發送驗證碼</button>
         </div>
         <div id="sendStatus" class="status"></div>
-        <div>輸入收到的驗證碼</div>
-        <div class="field">
+        <div id="codeTitle">輸入收到的驗證碼</div>
+        <div class="field" id="codeField">
           <input id="code" class="form-input" type="text" placeholder="6位數驗證碼" inputmode="numeric" pattern="[0-9]*" maxlength="6" />
           <button id="verifyCode" class="btn btn-primary">驗證</button>
         </div>
@@ -207,6 +207,9 @@
       const codeInput = document.getElementById('code');
       const sendStatus = document.getElementById('sendStatus');
       const verifyStatus = document.getElementById('verifyStatus');
+  const codeTitle = document.getElementById('codeTitle');
+  const codeField = document.getElementById('codeField');
+  const verifyStatusField = document.getElementById('verifyStatus');
 
       let countdownTimer = null;
       let countdownSeconds = 0;
@@ -227,8 +230,14 @@
       function startCountdown() {
         countdownSeconds = 60;
         sendBtn.disabled = true;
-        
         function updateCountdown() {
+          // 新增判斷：已驗證狀態直接停止倒數
+          if (sendBtn.disabled) {
+            sendBtn.textContent = '已驗證';
+            sendBtn.style.background = '#ccc';
+            countdownTimer = null;
+            return;
+          }
           if (countdownSeconds > 0) {
             sendBtn.textContent = `重新發送 (${countdownSeconds}s)`;
             countdownSeconds--;
@@ -239,9 +248,38 @@
             countdownTimer = null;
           }
         }
-        
         updateCountdown();
       }
+
+      // 取得 member_id
+      function getQueryParam(name) {
+        const url = new URL(window.location.href);
+        return url.searchParams.get(name);
+      }
+      const member_id = getQueryParam('member_id');
+
+      // 初始化頁面：查詢會員資料
+      async function initPhoneVerification() {
+        if (!member_id) return;
+        try {
+          const res = await fetch(`/api/members/${member_id}`);
+          const data = await res.json();
+          if (data.phone) {
+            // 已驗證
+            phoneInput.value = data.phone;
+            phoneInput.disabled = true;
+            sendBtn.textContent = '已驗證';
+            sendBtn.disabled = true;
+            sendBtn.style.background = '#ccc';
+            codeTitle.style.display = 'none';
+            codeField.style.display = 'none';
+            verifyStatusField.style.display = 'none';
+          }
+        } catch (e) {
+          // 可加錯誤提示
+        }
+      }
+      initPhoneVerification();
 
       sendBtn.onclick = async () => {
         setStatus(sendStatus, '');
@@ -251,9 +289,9 @@
           setStatus(sendStatus, '請輸入 09 開頭的 10 碼手機號碼', true);
           return;
         }
-        
+        if (sendBtn.disabled) return; // 新增：已驗證狀態不執行
         try {
-          const res = await fetch('/api/auth/send-sms-code', {
+          const res = await fetch('/api/members/phone/send-code', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ phone })
@@ -261,7 +299,9 @@
           const data = await res.json();
           if (!res.ok) throw new Error(data.error || '發送失敗');
           setStatus(sendStatus, '驗證碼已發送，請查收簡訊');
-          startCountdown();
+          if (!sendBtn.disabled) {
+            startCountdown(); // 只有未驗證狀態才倒數
+          }
         } catch (e) {
           setStatus(sendStatus, e.message || '發送失敗', true);
         }
@@ -282,20 +322,39 @@
         }
         verifyBtn.disabled = true;
         try {
-          const res = await fetch('/api/auth/verify-sms', {
+          // 從網址 query string 取得 member_id
+          function getQueryParam(name) {
+            const url = new URL(window.location.href);
+            return url.searchParams.get(name);
+          }
+          const member_id = getQueryParam('member_id');
+          const res = await fetch('/api/members/phone/verify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ phone, code })
+            body: JSON.stringify({ phone, code, member_id })
           });
           const data = await res.json();
           if (!res.ok) throw new Error(data.error || '驗證失敗');
           setStatus(verifyStatus, '驗證成功');
+          phoneInput.disabled = true;
+          sendBtn.textContent = '已驗證';
+          sendBtn.disabled = true;
+          sendBtn.style.background = '#ccc';
+          codeTitle.style.display = 'none';
+          codeField.style.display = 'none';
+          verifyStatusField.style.display = 'none';
+          // 停止倒數計時
+          if (typeof countdownTimer !== 'undefined' && countdownTimer) {
+            clearTimeout(countdownTimer);
+            countdownTimer = null;
+          }
         } catch (e) {
           setStatus(verifyStatus, e.message || '驗證失敗', true);
         } finally {
           verifyBtn.disabled = false;
         }
       };
+
     </script>
   </body>
-</html> 
+</html>

@@ -213,7 +213,15 @@
       const statusText = p.is_checked_in ? '狀態：已到 ✅' : '狀態：未到';
       card.innerHTML = `
         <div class="info">
-          <div class="avatar">${avatarSVG}</div>
+          <div class="avatar">
+            <img
+              id="avatarImage"
+              src="/static/avatars/${p.member_id}.png"
+              alt="會員頭像"
+              onerror="this.src='/static/avatars/default.jpg';"
+              style="width: 48px; height: 48px; border-radius: 50%;"
+            />
+          </div>
           <div>
             <div class="name">${p.name}</div>
             <div class="status">${statusText}</div>

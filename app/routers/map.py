@@ -47,13 +47,18 @@ def home_page():
 from datetime import datetime
 @map_bp.route("/api/map/active-markers", methods=["GET"])
 def get_active_markers():
+    activity_type = request.args.get("type")
+
     with get_db() as db:
-        activities = (
+        query = (
             db.query(Activity)
             .filter(Activity.status != "close", Activity.end_time > datetime.now())
-            .join(SportType)
-            .all()
         )
+
+        if activity_type and activity_type != "all":
+            query = query.filter(Activity.type == activity_type)
+
+        activities = query.join(SportType).all()
 
         result = []
         for a in activities:
@@ -78,27 +83,31 @@ def get_active_markers():
 @map_bp.route("/api/map/markers/by-county", methods=["GET"])
 def get_markers_by_county():
     county = request.args.get("county")
+    activity_type = request.args.get("type")
 
-    # 若使用者選擇 all，則沿用原本的 get_active_markers()
     if county == "all":
         return get_active_markers()
 
-    # 若找不到該縣市邊界資料，回傳空陣列
     bounds = county_bounds.get(county)
     if not bounds:
         return jsonify([]), 200
 
     with get_db() as db:
+        filters = [
+            Activity.status != "close",
+            Activity.end_time > datetime.now(),
+            Activity.location_lat >= bounds["min_lat"],
+            Activity.location_lat <= bounds["max_lat"],
+            Activity.location_lng >= bounds["min_lng"],
+            Activity.location_lng <= bounds["max_lng"],
+        ]
+
+        if activity_type and activity_type != "all":
+            filters.append(Activity.type == activity_type)
+
         activities = (
             db.query(Activity)
-            .filter(
-                Activity.status != "close",
-                Activity.end_time > datetime.now(),
-                Activity.location_lat >= bounds["min_lat"],
-                Activity.location_lat <= bounds["max_lat"],
-                Activity.location_lng >= bounds["min_lng"],
-                Activity.location_lng <= bounds["max_lng"],
-            )
+            .filter(*filters)
             .join(SportType)
             .all()
         )

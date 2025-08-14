@@ -466,7 +466,6 @@
           transition: transform 0.2s ease;
         }
 
-
        .top-panel {
           background-color: #ffffff;
           box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12);
@@ -495,7 +494,7 @@
           background-color: white;
           border: 1px solid #ccc;
           z-index: 100;
-          width: 100px;
+          width: 90px;
           padding: 8px 0;
           border-radius: 8px;
           box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
@@ -520,6 +519,41 @@
         .county-option:hover {
           background-color: #f0f0f0;
           }
+
+        
+       .activity-dropdown {
+          position: absolute;
+          top: 100%;
+          left: 32.5%;
+          background-color: white;
+          border: 1px solid #ccc;
+          z-index: 100;
+          width: 90px;
+          padding: 8px 0;
+          border-radius: 8px;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+          transform: translateX(-50%);
+        }
+        
+        .activity-dropdown.hidden {
+          display: none;
+        }
+        
+        .activity-list {
+          list-style: none;
+          margin: 0;
+          padding: 0;
+        }
+        
+        .activity-option {
+          padding: 4.5px 10px;
+          font-size: 12px;
+          cursor: pointer;
+        }
+        
+        .activity-option:hover {
+          background-color: #f0f0f0;
+        }
     </style>
     
   </head>
@@ -572,7 +606,6 @@
         <span class="nav-label">切換清單</span>
       </a>
 
-
         <button onclick="goToNews()" class="menu-button only-label" style="background: none; border: none; cursor: pointer; display: inline-flex; align-items: center;">
           <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="#1b3a6e" viewBox="0 0 256 256">
             <path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128ZM40,72H216a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16ZM216,184H40a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16Z"></path>
@@ -585,7 +618,6 @@
       </div>
       </div>
     </div>
-
 
     <div class="filter-bar">
       <div class="container filter-buttons">
@@ -625,6 +657,14 @@
             <span class="label">活動類型</span>
             <span class="arrow"></span>
         </button>
+        <!-- 下拉選單放這裡！不要放在 button 裡面 -->
+        <div class="activity-dropdown hidden">
+          <ul class="activity-list">
+            <li class="activity-option" data-activity="all">活動類型</li>
+            <li class="activity-option" data-activity="activity">一般活動</li>
+            <li class="activity-option" data-activity="class">訓練課程</li>
+          </ul>
+        </div>
         <button class="filter-btn" data-type="sport">
             <span class="label">運動類型</span>
             <span class="arrow"></span>
@@ -681,7 +721,6 @@
         </button>
       </div>
 
-
     <script>
       let map;
 let markers = [];
@@ -693,21 +732,49 @@ function initMap() {
     center: center,
   });
 
-  loadMarkers("all"); // 初始載入所有標記
+  loadMarkers("all"); // 🆕 初始載入所有標記
+
+  // 🆕 加上活動類型篩選邏輯
+  const activityBtn = document.querySelector('.filter-btn[data-type="activity"]');
+  const activityDropdown = document.querySelector('.activity-dropdown');
+  const activityOptions = document.querySelectorAll('.activity-option');
+
+  let selectedActivityType = "all"; // 🆕 加一個全域變數來記錄
+
+  activityBtn.addEventListener('click', () => {
+    activityDropdown.classList.toggle('hidden');
+  });
+
+  activityOptions.forEach(option => {
+    option.addEventListener('click', () => {
+      const activityType = option.dataset.activity;
+      const activityText = option.textContent;
+
+      activityBtn.querySelector('.label').textContent = activityText;
+      activityDropdown.classList.add('hidden');
+      selectedActivityType = activityType; // 🆕 儲存目前選擇的活動類型
+
+      // 重新載入標記時，加上目前選擇的縣市
+      const currentCounty = countyBtn.querySelector('.label').textContent;
+      const countyToSend = currentCounty === "所有縣市" ? "all" : currentCounty;
+
+      loadMarkers(countyToSend, selectedActivityType);
+    });
+  });
 }
 
 // 🆕 新增這個函式
-function loadMarkers(county) {
-  // 清除舊有 marker
+function loadMarkers(county, activityType = "all") {
+  // 清除舊有標記
   markers.forEach(marker => marker.setMap(null));
   markers = [];
 
-  const url = `/api/map/markers/by-county?county=${county}`;
+  const url = `/api/map/markers/by-county?county=${county}&type=${activityType}`;
   fetch(url)
     .then(response => response.json())
     .then(data => {
       data.forEach(activity => {
-        let iconUrl =
+        const iconUrl =
           activity.type === "class"
             ? "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
             : "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
@@ -725,17 +792,25 @@ function loadMarkers(county) {
         const typeLabel = activity.type === "class" ? "訓練課程" : "一般活動";
 
         const content = `
-          <div class="map-info-card">
-            <div class="title">${activity.title}</div>
-            <div><span class="label">活動類型：</span><span class="value">${typeLabel}</span></div>
-            <div><span class="label">運動類型：</span><span class="value">${activity.sport_type}</span></div>
-            <div><span class="label">開始時間：</span><span class="value">${new Date(activity.start_time).toLocaleString("zh-TW")}</span></div>
-            <div><span class="label">結束時間：</span><span class="value">${new Date(activity.end_time).toLocaleString("zh-TW")}</span></div>
-            <div><span class="label">運動地點：</span><span class="value">${activity.location_name}</span></div>
-            <div><span class="label">目前狀態：</span><span class="value">${activity.status === "open" ? "開放報名" : activity.status}</span></div>
-            <div><span class="label">參加人數：</span><span class="value">${activity.current_participants}/${activity.max_participants}</span></div>
-          </div>
-        `;
+  <div class="map-info-card">
+    <div class="title">${activity.title}</div>
+    <div><span class="label">活動類型：</span><span class="value">${typeLabel}</span></div>
+    <div><span class="label">運動類型：</span><span class="value">${activity.sport_type}</span></div>
+    <div><span class="label">開始時間：</span><span class="value">${new Date(activity.start_time).toLocaleString("zh-TW")}</span></div>
+    <div><span class="label">結束時間：</span><span class="value">${new Date(activity.end_time).toLocaleString("zh-TW")}</span></div>
+    <div><span class="label">運動地點：</span><span class="value">${activity.location_name}</span></div>
+    <div><span class="label">目前狀態：</span><span class="value">${activity.status === "open" ? "開放報名" : activity.status}</span></div>
+    <div><span class="label">參加人數：</span><span class="value">${activity.current_participants}/${activity.max_participants}</span></div>
+    
+    <div><span class="label">場地資訊：</span><br>
+      <img src="https://maps.googleapis.com/maps/api/streetview?size=300x150&location=${encodeURIComponent(activity.location_name)}&key={{ api_key }}" alt="街景圖片" style="margin-top: 8px; width: 100%; border-radius: 8px;" />
+      <br>
+      <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(activity.location_name)}" target="_blank">
+        https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(activity.location_name)}
+      </a>
+    </div>
+  </div>
+`;
 
         const infoWindow = new google.maps.InfoWindow({
           content: content,
@@ -745,7 +820,7 @@ function loadMarkers(county) {
           infoWindow.open(map, marker);
         });
 
-        markers.push(marker); // 加入到陣列
+        markers.push(marker);
       });
     })
     .catch(error => {
@@ -884,3 +959,5 @@ if (countyName === 'all') {
       </script>
   </body>
 </html>
+
+

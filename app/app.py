@@ -165,6 +165,10 @@ def create_app():
         activity_id = request.args.get("activity_id")
         return render_template("participant_approval.html", member_id=member_id, activity_id=activity_id)
 
+    @app.route("/phone_verification")
+    def phone_verification_page():
+        member_id = request.args.get("member_id")
+        return render_template("phone_verification.html", member_id=member_id)
 
     
 

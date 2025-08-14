@@ -39,7 +39,7 @@ def upgrade() -> None:
     sa.Column('public_intro', sa.String(length=500), nullable=True, comment='公開介紹'),
     sa.Column('facebook_url', sa.String(length=255), nullable=True, comment='Facebook 連結'),
     sa.Column('instagram_url', sa.String(length=255), nullable=True, comment='Instagram 連結'),
-    
+    sa.Column('phone', sa.String(length=20), nullable=True, comment='手機號碼'),
     
     sa.PrimaryKeyConstraint('member_id'),
     sa.UniqueConstraint('email')

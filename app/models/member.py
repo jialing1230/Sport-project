@@ -22,6 +22,7 @@ class Member(Base):
     public_intro = Column(String(500), nullable=True, comment="公開介紹")
     facebook_url = Column(String(255), nullable=True, comment="Facebook 連結")
     instagram_url = Column(String(255), nullable=True, comment="Instagram 連結")
+    phone = Column(String(20), nullable=True, comment="手機號碼")
 
     sport_preferences = relationship("SportPreference", back_populates="member")
     activities = relationship("Activity", back_populates="organizer")

@@ -540,7 +540,7 @@
           <circle cx="12" cy="12" r="10" />
           <path d="M8 12l3 3l5-5" />
           </svg>
-          <span class="item-text">登入方式管理</span>
+          <span class="item-text">手機驗證</span>
         </span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -772,9 +772,9 @@
 
     document.getElementById("loginMethodBtn").addEventListener("click", function () {
       if (memberId) {
-        window.location.href = `/login_methods?member_id=${memberId}`;
+        window.location.href = `/phone_verification?member_id=${memberId}`;
       } else {
-        window.location.href = "/login_methods";
+        window.location.href = "/phone_verification";
       }
     });
 

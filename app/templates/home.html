@@ -554,6 +554,31 @@
         .activity-option:hover {
           background-color: #f0f0f0;
         }
+
+        #title-search-container {
+  display: none;
+  align-items: center;
+  margin-left: 8px;
+}
+#title-search-input {
+  height: 32px;
+  border-radius: 20px;
+  padding: 0 10px;
+  border: 1px solid #ccc;
+}
+#title-search-btn {
+  height: 32px;
+  padding: 0 10px;
+  margin-left: 6px;
+  background-color: #005BAC;
+  color: white;
+  border: none;
+  border-radius: 16px;
+}
+
+        .title-search-container.hidden {
+          display: none;
+        }
     </style>
     
   </head>
@@ -669,18 +694,22 @@
             <span class="label">運動類型</span>
             <span class="arrow"></span>
         </button>
-        <button class="filter-btn" data-type="time">
-            <span class="label">時段</span>
-            <span class="arrow"></span>
+        <button class="filter-btn" id="title-btn" data-type="title">
+          <span class="label">活動名稱</span>
+          <span class="icon">
+            <i class="fas fa-search"></i> <!-- 這是 Font Awesome 的搜尋 icon，如果你用 SVG 請用對應格式 -->
+          </span>
         </button>
-        <button class="filter-btn" data-type="gender">
-            <span class="label">性別</span>
-            <span class="arrow"></span>
-        </button>
-        <button class="filter-btn" data-type="level">
-            <span class="label">等級</span>
-            <span class="arrow"></span>
-        </button>
+        <div id="title-search-container" style="display: none; margin-left: 8px;">
+          <input
+            id="title-search-input"
+            type="text"
+            placeholder="輸入活動名稱"
+            style="height: 32px; border-radius: 20px; padding: 0 10px; border: 1px solid #ccc;"
+          />
+          <button id="title-search-btn" style="height: 32px; padding: 0 10px;">搜尋</button>
+        </div>
+        </div>
       </div>
     </div>
     </div>
@@ -738,6 +767,10 @@ function initMap() {
 document.querySelector('.search-icon').addEventListener('click', searchAddress);
 
   loadMarkers("all"); // 🆕 初始載入所有標記
+  document.getElementById("title-search-btn").addEventListener("click", searchByTitle);
+document.getElementById("title-search-input").addEventListener("keypress", function (e) {
+  if (e.key === "Enter") searchByTitle();
+});
   const searchIcon = document.querySelector(".search-box .search-icon");
 if (searchIcon) {
   searchIcon.addEventListener("click", searchAddress);
@@ -1025,6 +1058,86 @@ if (countyName === 'all') {
     }
   });
 }
+function searchByTitle() {
+  const input = document.getElementById("title-search-input");
+  const keyword = input.value.trim();
+
+  if (!keyword) {
+    alert("請輸入活動名稱");
+    return;
+  }
+
+  fetch("/api/map/active-markers")
+    .then((res) => res.json())
+    .then((data) => {
+      const found = data.find((activity) => activity.title.includes(keyword));
+      if (!found) {
+        alert("找不到相關活動");
+        return;
+      }
+
+      const markerLatLng = {
+        lat: parseFloat(found.location_lat),
+        lng: parseFloat(found.location_lng),
+      };
+
+      map.setCenter(markerLatLng);
+      map.setZoom(17);
+
+      const infoContent = `
+        <div class="map-info-card">
+          <div class="title">${found.title}</div>
+          <div><span class="label">活動類型：</span><span class="value">${found.type === "class" ? "訓練課程" : "一般活動"}</span></div>
+          <div><span class="label">運動類型：</span><span class="value">${found.sport_type}</span></div>
+          <div><span class="label">開始時間：</span><span class="value">${new Date(found.start_time).toLocaleString("zh-TW")}</span></div>
+          <div><span class="label">結束時間：</span><span class="value">${new Date(found.end_time).toLocaleString("zh-TW")}</span></div>
+          <div><span class="label">運動地點：</span><span class="value">${found.location_name}</span></div>
+          <div><span class="label">目前狀態：</span><span class="value">${found.status === "open" ? "開放報名" : found.status}</span></div>
+          <div><span class="label">參加人數：</span><span class="value">${found.current_participants}/${found.max_participants}</span></div>
+          <div><span class="label">場地資訊：</span>
+            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(found.location_name)}" target="_blank">
+              Google 地圖連結
+            </a><br>
+            <img src="https://maps.googleapis.com/maps/api/streetview?size=300x150&location=${encodeURIComponent(found.location_name)}&key={{ api_key }}" 
+              style="margin-top: 8px; width: 100%; border-radius: 8px;" alt="街景圖片"/>
+          </div>
+        </div>
+      `;
+
+      const infoWindow = new google.maps.InfoWindow({
+        content: infoContent,
+      });
+
+      const tempMarker = new google.maps.Marker({
+        position: markerLatLng,
+        map: map,
+        icon: "http://maps.google.com/mapfiles/ms/icons/purple-dot.png",
+      });
+
+      infoWindow.open(map, tempMarker);
+
+      google.maps.event.addListenerOnce(infoWindow, "closeclick", () => {
+        tempMarker.setMap(null);
+        input.value = "";
+        map.setCenter({ lat: 25.033964, lng: 121.562321 });
+        map.setZoom(15);
+        document.getElementById('title-search-input').value = '';
+        document.getElementById('title-search-container').style.display = 'none';
+      });
+    });
+}
+
+document.querySelector('[data-type="title"]').addEventListener('click', () => {
+  const container = document.getElementById('title-search-container');
+  container.style.display = (container.style.display === 'none') ? 'flex' : 'none';
+});
+
+// 點擊 InfoWindow 的叉叉後隱藏搜尋欄
+google.maps.event.addListener(map, 'click', () => {
+  const container = document.getElementById('title-search-container');
+  document.getElementById('title-search-input').value = '';
+  container.style.display = 'none';
+});
       </script>
   </body>
 </html>

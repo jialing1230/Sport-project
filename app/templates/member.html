@@ -68,7 +68,7 @@
       max-height: 90px;             /* ✅ 根據需要調整最大高度 */
       border-radius: 50%;        /* ✅ 修改：確保是圓形 */
       overflow: hidden;
-      border: noneE;
+      border: none;
     }
 
     .avatar-wrapper img {
@@ -98,11 +98,13 @@
     }
 
     .quick-actions {
-      display: flex;
-      justify-content: space-around;
-      margin: 24px 0;
-      
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr)); /* 三欄 */
+      gap: 16px;
+      margin: 24px auto;
+      max-width: 90%;  /* 讓卡片群和 profile 對齊左右留白 */
     }
+
 
     .action {
       display: flex;
@@ -112,7 +114,7 @@
       background-color: #f5f6f7;
       padding: 12px;
       border-radius: 12px;
-      width: 28%;
+      width: 100%;
       text-align: center;
       font-size: 18px;
       font-weight: bold;       /* 文字粗體 */
@@ -263,26 +265,22 @@
       min-width: 0; /* 防止右側撐爆，尤其搜尋框有 max-width 時 */
     }
 
+    /* 取代原本的手機版規則 */
     @media (max-width: 480px) {
       .profile {
-      flex-direction: column-reverse;
-      align-items: center;
-      text-align: center;
-      }
-
-      .avatar-wrapper {
-        margin-bottom: 12px;
-      }
-
-      .quick-actions {
-        flex-direction: column;
+        /* 和桌機一樣維持橫排 */
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
         gap: 12px;
+        text-align: left;
       }
-
-      .action {
-        width: 100%;
-      }
+      .avatar-wrapper { max-height: 72px; margin: 0; }
+      .username { font-size: 24px; }
+      .streak { font-size: 13px; }
+      /* quick-actions 不再改成直向，保持橫排三格（第 2 步會改成 Grid）*/
     }
+
 
     .modal {
       display: none;
@@ -362,6 +360,19 @@
       background-color: #f8a9b3;
       border: none;
       color: white;
+    }
+    @media (max-width: 480px) {
+      /* 調整方框內容比例 */
+      .action {
+        font-size: 14px;          /* 文字小一點 */
+        padding: 8px;             /* 內距縮小 */
+      }
+
+      .action svg {
+        width: 24px;              /* 圖示變小 */
+        height: 24px;
+        margin-bottom: 2px;       /* 圖示和文字的間距 */
+      }
     }
 
   </style>
@@ -469,22 +480,7 @@
 
       <div class="item" id="editPreferenceBtn">
         <span class="item-left">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            fill="none"
-            stroke="#1B3A6E"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            viewBox="0 0 24 24"
-            style="margin-right: 2px;">
-            <circle cx="12" cy="12" r="10"/>
-            <path d="M10 3a20 20 0 0 1 5 18"/>
-            <path d="M4 17 C 8 13, 16 13, 20 17"/>
-            <path d="M4 7 C 12 12, 16 12, 20 7"/>
-          </svg>
+         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#1b3a6e" viewBox="0 0 256 256"><path d="M83.19,174.4a8,8,0,0,0,11.21-1.6,52,52,0,0,1,83.2,0,8,8,0,1,0,12.8-9.6A67.88,67.88,0,0,0,163,141.51a40,40,0,1,0-53.94,0A67.88,67.88,0,0,0,81.6,163.2,8,8,0,0,0,83.19,174.4ZM112,112a24,24,0,1,1,24,24A24,24,0,0,1,112,112Zm96-88H64A16,16,0,0,0,48,40V64H32a8,8,0,0,0,0,16H48v40H32a8,8,0,0,0,0,16H48v40H32a8,8,0,0,0,0,16H48v24a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V40A16,16,0,0,0,208,24Zm0,192H64V40H208Z"></path></svg>
           <span class="item-text">編輯公開資料</span>
         </span>
         <svg

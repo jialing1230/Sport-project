@@ -48,32 +48,72 @@
         }
 
 
+        /* 讓 tab 區塊長得像膠囊 segmented control */
         .tab-switch {
-            display: flex;
-            justify-content: center;
-            background-color: #fff;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        position: relative;                 /* 讓底片能絕對定位 */
+        display: flex;
+        gap: 6px;                           /* 兩顆按鈕的間距 */
+        justify-content: center;
+        max-width: 320px;                   /* 集中視覺焦點 */
+        margin: 10px auto 12px;             /* 和上方標題留一點距離 */
+        padding: 6px;                       /* 膠囊內側留白 */
+        border: 1px solid #e6eef5;
+        border-radius: 999px;
+        background: #ffffff;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.04);
         }
 
+        /* 背後的「高亮底片」；預設在左邊（參加人） */
+        .tab-switch::before {
+        content: "";
+        position: absolute;
+        top: 6px;
+        left: 6px;
+        width: calc(50% - 6px);             /* 兩半分 */
+        height: calc(100% - 12px);
+        border-radius: 999px;
+        background: linear-gradient(180deg, #81d3e1, #66c4d6);
+        box-shadow: 0 6px 14px rgba(129,211,225,0.30);
+        transition: transform .25s ease;    /* 滑動動畫 */
+        z-index: 0;                         /* 在文字下方 */
+        }
+
+        /* 當右邊（發起人）是 active，就把底片滑到右邊 */
+        /* 只用 CSS :has()，不改你的 JS/HTML */
+        .tab-switch:has(#tab-organizer.active)::before {
+        transform: translateX(100%);
+        }
+
+        /* 兩顆按鈕的共同樣式（不再用底線） */
         .tab-btn {
-            flex: 1;
-            padding: 12px 0;
-            text-align: center;
-            font-weight: bold;
-            font-size: 16px;
-            color: #2c4975;
-            background: none;
-            border: none;
-            border-bottom: 3px solid transparent;
-            cursor: pointer;
-            transition: all 0.2s ease;
+        position: relative;
+        z-index: 1;                         /* 文字在底片上層 */
+        flex: 1;
+        padding: 10px 0;
+        text-align: center;
+        font-weight: 700;
+        font-size: 15px;
+        letter-spacing: .5px;
+        color: #5a7aa0;                     /* 未選中：中性藍灰 */
+        background: transparent;
+        border: none;                       /* 移除底線 */
+        border-radius: 999px;               /* 膠囊外型 */
+        cursor: pointer;
+        transition: color .2s ease, transform .05s ease;
         }
 
-        .tab-btn.active {
-            border-bottom: 3px solid #81d3e1;
-            color: #81d3e1;
-            background-color: #f9fcfe;
+        .tab-btn:active { transform: scale(.98); }
+
+        /* 選中時只改文字顏色（底片由 ::before 負責） */
+        .tab-btn.active { color: #ffffff; }
+
+        /* 小尺寸微調 */
+        @media (max-width: 400px) {
+        .tab-switch { max-width: 280px; }
+        .tab-btn { font-size: 14px; }
         }
+
+
 
         .arrow-icon {
             fill: #2c4975;

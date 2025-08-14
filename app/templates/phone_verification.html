@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>手機認證</title>
+    <link rel="manifest" href="/static/manifest.json" />
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          .register("/static/service-worker.js")
+          .then(() => console.log("Service Worker Registered"))
+          .catch((error) =>
+            console.error("Service Worker Registration Failed:", error)
+          );
+      }
+    </script>
+    <style>
+      * {
+        box-sizing: border-box;
+        font-family: 'Noto Sans TC', sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background-color: #f4f4f4;
+        color: #2c4975;
+      }
+
+      .header {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 10px 30px;
+        background-color: #fff;
+        box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        height: 70px;
+      }
+
+      .left-section {
+        position: relative;
+        z-index: 2;
+      }
+
+      .left-section svg {
+        width: 24px;
+        height: 24px;
+        fill: #81d3e1;
+        cursor: pointer;
+        transition: fill 0.3s ease;
+      }
+
+      .navbar-title {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        font-weight: bold;
+        font-size: 20px;
+        color: #2c4975;
+      }
+
+      .navbar-title img {
+        height: 40px;
+        margin-right: 5px;
+        margin-top: 3px;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 0 16px;
+      }
+
+      .card {
+        position: relative;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+
+      .field {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+        align-items: center;
+      }
+
+      .form-input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+        color: #2c4975;
+      }
+
+      .btn {
+        height: 40px;
+        padding: 0 16px;
+        border: none;
+        border-radius: 4px;
+        font-weight: 700;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      .btn-primary {
+        color: #fff;
+        background-color: #81d3e1;
+        transition: 0.2s ease;
+      }
+
+      .btn-primary:hover {
+        background-color: #2c4975;
+        transform: translateY(-1px);
+      }
+
+      .hint {
+        margin-top: 8px;
+        font-size: 13px;
+        color: #5a7aa0;
+      }
+
+      .status {
+        margin-top: 10px;
+        font-size: 14px;
+      }
+
+      .status.success { color: #1b9e77; }
+      .status.error { color: #d9534f; }
+
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      @media (max-width: 480px) {
+        .navbar-title { font-size: 18px; }
+        .card { padding: 12px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div class="left-section">
+        <svg
+          id="back-button"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          width="24"
+          height="24"
+        >
+          <path
+            d="M15 19l-7-7 7-7"
+            stroke="#81d3e1"
+            stroke-width="2"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          ></path>
+          <path
+            d="M8 12h14"
+            stroke="#81d3e1"
+            stroke-width="2"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          ></path>
+        </svg>
+      </div>
+      <div class="navbar-title">
+        <img src="/static/logo.png" alt="Logo" />
+        手機認證
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="card">
+        <div>輸入手機號碼</div>
+        <div class="field">
+          <input id="phone" class="form-input" type="tel" placeholder="例：0912345678" inputmode="numeric" pattern="09[0-9]{8}" maxlength="10" autocomplete="tel" />
+          <button id="sendCode" class="btn btn-primary">發送驗證碼</button>
+        </div>
+        <div id="sendStatus" class="status"></div>
+        <div>輸入收到的驗證碼</div>
+        <div class="field">
+          <input id="code" class="form-input" type="text" placeholder="6位數驗證碼" inputmode="numeric" pattern="[0-9]*" maxlength="6" />
+          <button id="verifyCode" class="btn btn-primary">驗證</button>
+        </div>
+        <div id="verifyStatus" class="status"></div>
+      </div>
+    </div>
+
+    <script>
+      document.getElementById('back-button').onclick = () => history.back();
+
+      const sendBtn = document.getElementById('sendCode');
+      const verifyBtn = document.getElementById('verifyCode');
+      const phoneInput = document.getElementById('phone');
+      const codeInput = document.getElementById('code');
+      const sendStatus = document.getElementById('sendStatus');
+      const verifyStatus = document.getElementById('verifyStatus');
+
+      let countdownTimer = null;
+      let countdownSeconds = 0;
+
+      function setStatus(el, text, isError) {
+        el.textContent = text || '';
+        el.className = 'status ' + (isError ? 'error' : 'success');
+      }
+
+      function normalizeLocalPhone(p) {
+        return (p || '').replace(/\D/g, '');
+      }
+
+      function isValidLocalPhone(p) {
+        return /^09\d{8}$/.test(p);
+      }
+
+      function startCountdown() {
+        countdownSeconds = 60;
+        sendBtn.disabled = true;
+        
+        function updateCountdown() {
+          if (countdownSeconds > 0) {
+            sendBtn.textContent = `重新發送 (${countdownSeconds}s)`;
+            countdownSeconds--;
+            countdownTimer = setTimeout(updateCountdown, 1000);
+          } else {
+            sendBtn.textContent = '發送驗證碼';
+            sendBtn.disabled = false;
+            countdownTimer = null;
+          }
+        }
+        
+        updateCountdown();
+      }
+
+      sendBtn.onclick = async () => {
+        setStatus(sendStatus, '');
+        const raw = phoneInput.value.trim();
+        const phone = normalizeLocalPhone(raw);
+        if (!isValidLocalPhone(phone)) {
+          setStatus(sendStatus, '請輸入 09 開頭的 10 碼手機號碼', true);
+          return;
+        }
+        
+        try {
+          const res = await fetch('/api/auth/send-sms-code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || '發送失敗');
+          setStatus(sendStatus, '驗證碼已發送，請查收簡訊');
+          startCountdown();
+        } catch (e) {
+          setStatus(sendStatus, e.message || '發送失敗', true);
+        }
+      };
+
+      verifyBtn.onclick = async () => {
+        setStatus(verifyStatus, '');
+        const raw = phoneInput.value.trim();
+        const phone = normalizeLocalPhone(raw);
+        const code = codeInput.value.trim();
+        if (!isValidLocalPhone(phone)) {
+          setStatus(verifyStatus, '請輸入手機號碼', true);
+          return;
+        }
+        if (!/^\d{6}$/.test(code)) {
+          setStatus(verifyStatus, '請輸入 6 位數驗證碼', true);
+          return;
+        }
+        verifyBtn.disabled = true;
+        try {
+          const res = await fetch('/api/auth/verify-sms', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone, code })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || '驗證失敗');
+          setStatus(verifyStatus, '驗證成功');
+        } catch (e) {
+          setStatus(verifyStatus, e.message || '驗證失敗', true);
+        } finally {
+          verifyBtn.disabled = false;
+        }
+      };
+    </script>
+  </body>
+</html> 

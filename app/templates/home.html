@@ -569,7 +569,7 @@
         <!-- 📱 手機版用搜尋 icon -->
         <button class="mobile-search-button" onclick="handleMobileSearch()">
           <div class="icon-wrapper">
-          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <svg id="search-icon-main" class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <path
               d="M15.8 15.8L21 21M18 10.5C18 14.64 14.64 18 10.5 18C6.36 18 3 14.64 3 10.5C3 6.36 6.36 3 10.5 3C14.64 3 18 6.36 18 10.5Z"
               fill="none"
@@ -596,7 +596,7 @@
               stroke-linejoin="round"
             />
           </svg>
-          <input type="text" placeholder="搜尋地點或活動名稱" />
+          <input type="text" placeholder="搜尋地點" />
           
         </div>
       <a href="/overview" class="overview-button only-label" id="overview-link" style="display: inline-flex; align-items: center;">
@@ -725,14 +725,24 @@
       let map;
 let markers = [];
 
+let searchMarker = null;
+let searchInfoWindow = null;
+
 function initMap() {
   const center = { lat: 25.033964, lng: 121.562321 };
   map = new google.maps.Map(document.getElementById("map"), {
     zoom: 15,
     center: center,
   });
+    // 綁定搜尋圖示（SVG）的點擊事件
+document.querySelector('.search-icon').addEventListener('click', searchAddress);
 
   loadMarkers("all"); // 🆕 初始載入所有標記
+  const searchIcon = document.querySelector(".search-box .search-icon");
+if (searchIcon) {
+  searchIcon.addEventListener("click", searchAddress);
+}
+
 
   // 🆕 加上活動類型篩選邏輯
   const activityBtn = document.querySelector('.filter-btn[data-type="activity"]');
@@ -802,12 +812,14 @@ function loadMarkers(county, activityType = "all") {
     <div><span class="label">目前狀態：</span><span class="value">${activity.status === "open" ? "開放報名" : activity.status}</span></div>
     <div><span class="label">參加人數：</span><span class="value">${activity.current_participants}/${activity.max_participants}</span></div>
     
-    <div><span class="label">場地資訊：</span><br>
-      <img src="https://maps.googleapis.com/maps/api/streetview?size=300x150&location=${encodeURIComponent(activity.location_name)}&key={{ api_key }}" alt="街景圖片" style="margin-top: 8px; width: 100%; border-radius: 8px;" />
-      <br>
+    <div><span class="label">場地資訊：</span>
       <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(activity.location_name)}" target="_blank">
         https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(activity.location_name)}
       </a>
+      <br>
+      <img src="https://maps.googleapis.com/maps/api/streetview?size=300x150&location=${encodeURIComponent(activity.location_name)}&key={{ api_key }}" alt="街景圖片" style="margin-top: 8px; width: 100%; border-radius: 8px;" />
+      <br>
+      
     </div>
   </div>
 `;
@@ -956,6 +968,63 @@ if (countyName === 'all') {
 }
         });
       });
+      function searchAddress() {
+  const input = document.querySelector('.search-box input');
+  const address = input.value;
+
+  if (!address) {
+    alert("請輸入地址");
+    return;
+  }
+
+  const geocoder = new google.maps.Geocoder();
+
+  geocoder.geocode({ address: address }, (results, status) => {
+    if (status === "OK") {
+      const location = results[0].geometry.location;
+
+      if (searchMarker) searchMarker.setMap(null);
+      if (searchInfoWindow) searchInfoWindow.close();
+
+      searchMarker = new google.maps.Marker({
+        map: map,
+        position: location,
+        icon: "http://maps.google.com/mapfiles/ms/icons/green-dot.png",
+      });
+
+      const infoWindowContent = `
+        <div class="map-info-card">
+          <div class="title">${address}</div>
+          <img src="https://maps.googleapis.com/maps/api/streetview?size=300x150&location=${encodeURIComponent(
+            address
+          )}&key={{ api_key }}" alt="街景圖片" style="margin-top: 8px; width: 100%; border-radius: 8px;" />
+        </div>
+      `;
+
+      searchInfoWindow = new google.maps.InfoWindow({
+        content: infoWindowContent,
+      });
+
+      searchInfoWindow.open(map, searchMarker);
+      map.setCenter(location);
+      map.setZoom(17);
+
+      google.maps.event.addListenerOnce(searchInfoWindow, "closeclick", () => {
+        if (searchMarker) {
+          searchMarker.setMap(null);
+          searchMarker = null;
+        }
+        searchInfoWindow.close();
+        searchInfoWindow = null;
+        input.value = "";
+        map.setCenter({ lat: 25.033964, lng: 121.562321 });
+        map.setZoom(15);
+      });
+    } else {
+      alert("找不到地址：" + status);
+    }
+  });
+}
       </script>
   </body>
 </html>

@@ -764,7 +764,8 @@
         }
       };
 
-      let activities = [];
+  let activities = [];
+  let filteredActivities = [];
 
       function renderActivities(list) {
         const container = document.getElementById("activityList");
@@ -936,7 +937,7 @@
         const timeOption = document.getElementById("searchTimeOption").value;
         const level = document.getElementById("searchLevel").value;
 
-        const filtered = activities.filter(
+        const filtered = filteredActivities.filter(
           (act) =>
             (city === "" || (act.location_name && act.location_name.toLowerCase().includes(city.toLowerCase()))) &&
             (activityType === "" || (act.activity_type && act.activity_type === activityType)) &&
@@ -1034,7 +1035,8 @@
                 }
                 return true;
               });
-              renderActivities(filtered);
+              filteredActivities = filtered;
+              renderActivities(filteredActivities);
             })
             .catch((err) => {
               console.error("載入錯誤", err);

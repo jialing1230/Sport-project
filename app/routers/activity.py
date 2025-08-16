@@ -253,7 +253,9 @@ def list_activities():
                 "registration_deadline": a.registration_deadline.isoformat() if a.registration_deadline else None,
                 "current_participants": a.current_participants,
                 "max_participants": a.max_participants,
-                "status": a.status
+                "status": a.status,
+                "gender": a.gender,
+                "age_range": a.age_range
             })
     return jsonify(result), 200
 

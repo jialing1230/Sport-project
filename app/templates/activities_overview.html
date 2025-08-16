@@ -583,7 +583,7 @@
                       stroke-linejoin="round"
                     />
                   </svg>
-                <input type="text" placeholder="搜尋地點或活動名稱" />
+                <input type="text" id="searchTitle" placeholder="搜尋活動名稱" />
               </div>
              <span class="desktop-map" id="mapSwitchBtn">切換地圖</span>
               <span class="desktop-menu">選單</span>
@@ -679,14 +679,7 @@
                     </select>
                     <span class="arrow"></span>
                   </div>
-                  <div class="select-wrapper">
-                    <select id="searchGender">
-                      <option value="">性別</option>
-                      <option value="男">男</option>
-                      <option value="女">女</option>
-                    </select>
-                    <span class="arrow"></span>
-                  </div>
+
                   <div class="select-wrapper">
                     <select id="searchLevel">
                       <option value="">等級</option>
@@ -709,6 +702,7 @@
       </div>
     </div>
 
+    
     <div class="bottom-nav">
       <!-- 地圖 -->
       <button class="bottom-item  active">
@@ -770,7 +764,8 @@
         }
       };
 
-      let activities = [];
+  let activities = [];
+  let filteredActivities = [];
 
       function renderActivities(list) {
         const container = document.getElementById("activityList");
@@ -940,10 +935,10 @@
         const activityType = document.getElementById("searchActivityType").value;
         const type = document.getElementById("searchType").value.toLowerCase();
         const timeOption = document.getElementById("searchTimeOption").value;
-        const gender = document.getElementById("searchGender").value;
         const level = document.getElementById("searchLevel").value;
+        const titleKeyword = document.getElementById("searchTitle") ? document.getElementById("searchTitle").value.trim().toLowerCase() : "";
 
-        const filtered = activities.filter(
+        const filtered = filteredActivities.filter(
           (act) =>
             (city === "" || (act.location_name && act.location_name.toLowerCase().includes(city.toLowerCase()))) &&
             (activityType === "" || (act.activity_type && act.activity_type === activityType)) &&
@@ -968,55 +963,98 @@
               return true;
             })()
             && (function() {
-              if (gender === '') return true;
-              if (act.gender === undefined || act.gender === '' || act.gender === '不限') return true;
-              return act.gender === gender;
-            })()
-            && (function() {
               if (level === '') return true;
               return act.level === level;
             })()
+            && (titleKeyword === "" || (act.title && act.title.toLowerCase().includes(titleKeyword)))
         );
 
         renderActivities(filtered);
       }
 
-      fetch("/api/activities")
-        .then((res) => res.json())
-        .then((data) => {
-          activities = data.map((a) => ({
-            activity_id: a.activity_id,
-            title: a.title || "",
-            sport_type: a.sport_name || "",
-            level: a.level || "",
-            organizer_name: a.organizer_name || "",
-            start_time: a.start_time || a.time,
-            end_time: a.end_time || a.time,
-            location_name: a.location_name || a.location,
-            type: a.type, // 新增 type 屬性
-            course_schedules: a.course_schedules || [], // 新增 course_schedules 屬性
-            venue_fee: a.venue_fee || 0, // 新增 venue_fee 屬性
-            activity_type: a.activity_type || "一般活動", // 新增 activity_type 屬性
-            registration_deadline: a.registration_deadline, // 新增 registration_deadline 屬性
-            current_participants: a.current_participants, // 新增 current_participants 屬性
-            max_participants: a.max_participants, // 新增 max_participants 屬性
-            gender: a.gender || "不限", // 新增 gender 屬性
-          }));
-          renderActivities(activities);
-        })
-        .catch((err) => {
-          console.error("載入錯誤", err);
-          document.getElementById("activityList").innerHTML =
-            `<div class="error-message">無法載入活動資料，請稍後再試。</div>`;
+      // 先取得會員資料
+      fetch(`/api/members/${memberId}`)
+        .then(res => res.json())
+        .then(member => {
+          // gender正規化
+          if (member.gender === '男') member.gender = '男性';
+          if (member.gender === '女') member.gender = '女性';
+          // 取得活動資料
+          fetch("/api/activities")
+            .then((res) => res.json())
+            .then((data) => {
+              // 計算年齡
+              let userAge = null;
+              if (member.birthdate) {
+                const birth = new Date(member.birthdate);
+                const today = new Date();
+                userAge = today.getFullYear() - birth.getFullYear();
+                if (today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())) {
+                  userAge--;
+                }
+              }
+              // 過濾活動
+              activities = data.map((a) => ({
+                activity_id: a.activity_id,
+                title: a.title || "",
+                sport_type: a.sport_name || "",
+                level: a.level || "",
+                organizer_name: a.organizer_name || "",
+                start_time: a.start_time || a.time,
+                end_time: a.end_time || a.time,
+                location_name: a.location_name || a.location,
+                type: a.type,
+                course_schedules: a.course_schedules || [],
+                venue_fee: a.venue_fee || 0,
+                activity_type: a.activity_type || "一般活動",
+                registration_deadline: a.registration_deadline,
+                current_participants: a.current_participants,
+                max_participants: a.max_participants,
+                gender: a.gender || "不限",
+                age_range: a.age_range || null,
+              }));
+              // 根據會員年齡與性別過濾
+              let filtered = activities.filter(act => {
+                // 性別
+                console.log('[活動性別過濾] member.gender:', member.gender, '| act.gender:', act.gender);
+                if (act.gender && act.gender !== "不限" && member.gender && act.gender !== member.gender) {
+                  console.warn('[性別不符] member.gender:', member.gender, '| act.gender:', act.gender);
+                  return false;
+                }
+                // 年齡
+                if (act.age_range && userAge !== null) {
+                  const ageRange = act.age_range.split('-');
+                  if (ageRange.length === 2) {
+                    const min = parseInt(ageRange[0], 10);
+                    const max = parseInt(ageRange[1], 10);
+                    const inRange = userAge >= min && userAge <= max;
+                    console.log('[活動年齡過濾] userAge:', userAge, '| age_range:', act.age_range, '| min:', min, '| max:', max, '| inRange:', inRange);
+                    if (!inRange) {
+                      console.warn('[年齡不符] userAge:', userAge, '| age_range:', act.age_range);
+                      return false;
+                    }
+                  }
+                }
+                return true;
+              });
+              filteredActivities = filtered;
+              renderActivities(filteredActivities);
+            })
+            .catch((err) => {
+              console.error("載入錯誤", err);
+              document.getElementById("activityList").innerHTML =
+                `<div class="error-message">無法載入活動資料，請稍後再試。</div>`;
+            });
         });
 
-      // document.getElementById("searchBtn").addEventListener("click", filterActivities);
       document.getElementById("searchCity").addEventListener("change", filterActivities);
       document.getElementById("searchActivityType").addEventListener("change", filterActivities);
       document.getElementById("searchType").addEventListener("change", filterActivities);
       document.getElementById("searchTimeOption").addEventListener("change", filterActivities);
-      document.getElementById("searchGender").addEventListener("change", filterActivities);
       document.getElementById("searchLevel").addEventListener("change", filterActivities);
+      if (document.getElementById("searchTitle")) {
+        document.getElementById("searchTitle").addEventListener("input", filterActivities);
+      }
 
       function goToActivity() {
         if (memberId) {

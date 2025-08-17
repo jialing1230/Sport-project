@@ -29,16 +29,21 @@
         }
 
         .header {
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            padding: 10px 30px;
-            background-color: #fff;
-            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            height: 70px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 10px 30px;
+        background-color: #fff;
+        box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        height: 70px;
         }
+        body { padding-top: 90px; }
 
         .back-button {
             background: none;
@@ -48,20 +53,23 @@
         }
 
 
-        /* 讓 tab 區塊長得像膠囊 segmented control */
         .tab-switch {
-        position: relative;                 /* 讓底片能絕對定位 */
+        position: relative;
         display: flex;
-        gap: 6px;                           /* 兩顆按鈕的間距 */
+        gap: 6px;
         justify-content: center;
-        max-width: 320px;                   /* 集中視覺焦點 */
-        margin: 10px auto 12px;             /* 和上方標題留一點距離 */
-        padding: 6px;                       /* 膠囊內側留白 */
+        max-width: 360px;            /* 桌機稍寬 */
+        margin: 0 auto 20px;         /* 🔹上距離交給 .container 的 padding，這裡只留下距離 */
+        padding: 6px;
         border: 1px solid #e6eef5;
         border-radius: 999px;
         background: #ffffff;
         box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+        z-index: 1;
+        
         }
+
+
 
         /* 背後的「高亮底片」；預設在左邊（參加人） */
         .tab-switch::before {
@@ -94,7 +102,7 @@
         font-weight: 700;
         font-size: 15px;
         letter-spacing: .5px;
-        color: #5a7aa0;                     /* 未選中：中性藍灰 */
+        color: #2c4975;                     /* 未選中：中性藍灰 */
         background: transparent;
         border: none;                       /* 移除底線 */
         border-radius: 999px;               /* 膠囊外型 */
@@ -137,6 +145,15 @@
             transition: fill 0.3s ease;
         }
 
+        .left-section svg path {
+            stroke: #2c4975!important;
+            transition: stroke 0.3s ease;
+        }
+
+        .left-section svg:hover path {
+            stroke: #81d3e1 !important;
+        }
+
         .navbar-title {
             position: absolute;
             left: 50%;
@@ -155,44 +172,70 @@
         }
 
         .container {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 0 16px;
+        /* 讓容器永遠比螢幕窄一點：兩側各 24px 邊溝（桌機預設） */
+        width: min(500px, calc(100% - 48px));  /* 48 = 24*2 */
+        max-width: 500px;
+        margin: 0 auto;                   /* 置中 */
+        padding: 24px 24px 36px;          /* 內容內距（不是邊溝） */
+        background: #fff;
+        min-height: calc(100vh - 70px);   /* 扣掉 header */
+        position: relative;
+        z-index: 0;
         }
+
+
+        /* 讓白底往上延伸，把 tab 的背景也變白（不改 HTML） */
+        .container::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: -90px;              /* 覆蓋到 tab 的高度（可微調 -60 ~ -80） */
+        height: 110px;            /* 覆蓋範圍：tab 高度 + 一點緩衝（可微調） */
+        background: #fff;
+        z-index: -1;             /* 放到最底層，只做背景 */
+        pointer-events: none;
+        }
+
 
         .review-card {
             position: relative;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-            padding: 16px;
-            margin-bottom: 16px;
-            overflow: hidden; /* 保證線不會超出卡片 */
-        }
+            /* 在白底上就不需要卡片樣式 */
+            background: transparent;
+            border-radius: 0;
+            box-shadow: none;
+            /* 不要額外留白，交由 .container 控制整體間距 */
+            padding: 0;
+            margin: 0;
 
-        .review-card::before {
-            content: "";
-            position: absolute;
-            top: 16px;
-            bottom: 16px;
-            left: 40%;
-            width: 1.5px;
-            background-color: #81d3e1; /* 淺藍色 */
-            transform: translateX(0);
-            z-index: 0; /* 放在背景，不會擋到文字 */
+            /* 讓內容可以用 order 控制上下順序 */
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
         .review-card .right-label {
-            position: absolute;
-            top: 16px;
-            left: calc(40% + 16px); /* 線右邊留 10px 間距 */
+            /* 取消絕對定位，回到正常文流 */
+            position: static;
+            top: auto;
+            left: auto;
+
+            /* 放到最後（在 flex 裡用 order 控制）*/
+            order: 99;
+
+            /* 做一條水平分隔線 */
+            border-top: 1px solid #e6eef5;
+            padding-top: 15px;
+            margin-top: 8px;
+
             font-size: 16px;
             font-weight: bold;
             color: #2c4975;
         }
 
+
         .badge-group {
-            margin-top: 8px;
+            margin-top: 15px;
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
@@ -212,13 +255,14 @@
             font-size: 16px;
             font-weight: bold;
             margin-bottom: 6px;
+            margin-top: 2px;
         }
 
         .review-stars {
             display: flex;
             align-items: flex-end;
             gap: 6px;
-            margin-bottom: 6px;
+            margin-bottom: 2px;
         }
         .review-stars .score {
             font-size: 30px;
@@ -240,8 +284,8 @@
             font-size: 14px;
             font-weight: bold;
             color: #2c4975;
-            margin-top: 4px;
-            line-height: 2;
+            margin-top: 2px;
+            line-height: 1.6;
         }
         .review-date {
             display: flex;
@@ -250,8 +294,8 @@
             font-size: 14px;
             font-weight: bold;
             color: #2c4975;
-            margin-top: 4px;
-            line-height: 2;
+            margin-top: 2px;
+            line-height: 1.6;
         }
 
         .rating-text {
@@ -282,6 +326,58 @@
             padding: 12px;
         }
         }
+        /* <= 768px：兩側各 18px 邊溝 */
+        @media (max-width: 768px) {
+        .container {
+            width: min(800px, calc(100% - 36px));  /* 36 = 18*2 */
+            padding: 20px 18px 28px;               /* 內容內距也一起略縮 */
+        }
+        .tab-switch {
+            max-width: 320px;
+            margin: 0 auto 18px;
+        }
+        }
+
+        /* <= 480px：兩側各 14px 邊溝 */
+        @media (max-width: 480px) {
+        .container {
+            width: min(800px, calc(100% - 28px));  /* 28 = 14*2 */
+            padding: 16px 14px 24px;
+        }
+        .tab-switch {
+            max-width: 280px;
+            margin: 0 auto 16px;
+        }
+        }
+        /* 1) 縮小「Tab 自己」的下邊距 */
+        .header + .tab-switch {
+        margin-bottom: 5px !important;   /* 原本約 20 → 改 10 */
+        }
+
+        /* 2) 縮小「Tab 底下 .container」的上內距 */
+        .tab-switch + .container {
+        padding-top: 10px !important;     /* 原本 16/24 → 改 10（視覺會明顯靠近） */
+        }
+        /* 進場動畫 */
+        @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(8px); }
+        to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 預設隱藏兩個區塊 */
+        #participant-section,
+        #organizer-section {
+        display: none;
+        }
+
+        /* 顯示中的區塊：block + 動畫 */
+        #participant-section.active,
+        #organizer-section.active {
+        display: block;
+        animation: fadeUp .28s ease both;
+        }
+
+
     </style>
   </head>
   <body>
@@ -339,7 +435,7 @@
                     <span class="count" style="vertical-align: middle;"></span>
                 </div>
                 <div class="review-attendance">
-                    <div style="width: 0.5px;"></div>
+               
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="20"
@@ -348,7 +444,8 @@
                         stroke="#2c4975"
                         stroke-width="2"
                         viewBox="0 0 24 24"
-                        style="margin-right: 2px;">
+                        style="margin-right: 2px;
+                        transform: translateX(4px);">
                     <circle cx="12" cy="12" r="10" />
                     <path d="M8 12l3 3l5-5" />
                     </svg>
@@ -364,7 +461,7 @@
                         stroke-width="2"
                         stroke-linecap="round"
                         stroke-linejoin="round"
-                        style="vertical-align: middle; margin-right: 6px;">
+                        style="vertical-align: middle; margin-right: 6px;transform: translateX(4px);">
                         <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
                         <line x1="16" y1="2" x2="16" y2="6"/>
                         <line x1="8" y1="2" x2="8" y2="6"/>
@@ -398,7 +495,7 @@
                         stroke-width="2"
                         stroke-linecap="round"
                         stroke-linejoin="round"
-                        style="vertical-align: middle; margin-right: 6px;">
+                        style="vertical-align: middle; margin-right: 6px; transform: translateX(4px);">
                         <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
                         <line x1="16" y1="2" x2="16" y2="6"/>
                         <line x1="8" y1="2" x2="8" y2="6"/>
@@ -417,21 +514,24 @@
         const tabOrganizer = document.getElementById("tab-organizer");
         const sectionParticipant = document.getElementById("participant-section");
         const sectionOrganizer = document.getElementById("organizer-section");
-        sectionOrganizer.style.display = "none";
+       
 
         tabParticipant.onclick = () => {
             tabParticipant.classList.add("active");
             tabOrganizer.classList.remove("active");
-            sectionParticipant.style.display = "block";
-            sectionOrganizer.style.display = "none";
+            sectionParticipant.classList.add("active");
+            sectionOrganizer.classList.remove("active");
+     
         };
 
         tabOrganizer.onclick = () => {
             tabOrganizer.classList.add("active");
             tabParticipant.classList.remove("active");
-            sectionParticipant.style.display = "none";
-            sectionOrganizer.style.display = "block";
+            sectionOrganizer.classList.add("active");
+            sectionParticipant.classList.remove("active");
         };
+        sectionParticipant.classList.add("active");
+        sectionOrganizer.classList.remove("active");
 
         // 從網址中提取 member_id
         const urlParams = new URLSearchParams(window.location.search);

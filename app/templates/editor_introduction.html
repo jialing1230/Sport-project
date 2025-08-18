@@ -15,15 +15,40 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>編輯自我介紹</title>
-        <style>
+       <style>
             body {
             font-family: Arial, sans-serif;
             margin: 0;
-            background-color: #f5f5f5;
+            background-color: #f5f5f5;  /* 灰底 */
             color: #2c4975;
-        }
+            }
 
-        .header {
+            :root {
+            --page-max: 500px;   /* 內容最大寬 */
+            --gutter: 16px;      /* 左右內距 */
+            --deep-blue: #2c4975;
+            }
+
+            /* 讓頁面高度撐滿視窗（header 固定，上方不動） */
+            main {
+            min-height: calc(100vh - 64px); /* 64px 可視需求微調 */
+            display: block;
+            }
+
+            /* 中央內容容器：限制寬度、置中、左右保留灰底 */
+            .container {
+            /* 讓白底永遠比畫面窄一點 → 左右各留 16px 灰邊 */
+            width: min(500px, calc(100% - 32px));
+            margin: 0 auto;                 
+            padding: 0 var(--gutter) 24px;  /* 內容內距 */
+            box-sizing: border-box;
+            background: #fff;               
+            min-height: calc(100vh - 64px); /* header 高度仍用 64px */
+            }
+
+
+            /* Header 區域 */
+            .header {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -35,24 +60,25 @@
             z-index: 1000;
             position: sticky;
             top: 0;
-        }
+            }
 
-        .left-section {
+            .left-section {
             display: flex;
             justify-content: flex-start;
             align-items: center;
             padding: 10px;
-        }
+            }
 
-        .left-section svg {
-            width: 24px;
-            height: 24px;
-            fill: var(--deep-blue); /* 注意這個變數在此未定義，可換成實際顏色 */
-            cursor: pointer;
-            transition: fill 0.3s ease;
-        }
+            .left-section svg path {
+            stroke: #2c4975;                 /* 預設深藍 */
+            transition: stroke 0.3s ease;    /* 過渡順暢 */
+            }
 
-        .navbar-title {
+            .left-section svg:hover path {
+            stroke: #81d3e1;                 /* hover 淺藍 */
+            }
+
+            .navbar-title {
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
@@ -61,53 +87,69 @@
             font-weight: bold;
             font-size: 20px;
             color: #2c4975;
-        }
+            }
 
-        .navbar-title img {
+            .navbar-title img {
             height: 40px;
             margin-right: 5px;
             margin-top: 3px;
-        }
-        .info-box {
+            }
+
+            /* ===== 單一卡片樣式 ===== */
+            .card {
             background: #fff;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 30px auto 20px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-        }
-        .info-box h3 {
-            margin-top: 0px;
-            margin-bottom: 8px;
+            border-radius: 0;   /* 上下要貼滿，就不要圓角 */
+            box-shadow: none;  /* 可以保留或拿掉，看你要不要卡片感 */
+            padding: 20px 4px 4px 4px;
+            margin: 0;         /* 上下取消留白 */
+            min-height: calc(100vh - 64px); /* 撐滿除掉 header 的整個高度 */
+            }
+
+            /* 卡片內標題 */
+            .section-title {
+            margin: 0 0 12px;
             color: #81d3e1;
-        }
-        .info-box p {
-            margin: 5px 0;
-        }
-        .info-box p strong {
-            color: #2c4975;
-            font-weight: bold;
-        }
-        .info-box p span {
-            color: #2c4975;
-        }
-        textarea {
+            font-weight: 700;
+            font-size: 18px;
+            }
+
+            /* 卡片分隔線 */
+            .card-divider {
+            border: none;
+            height: 1px;
+            background: rgba(0,0,0,0.08);
+            margin: 20px 0;
+            }
+
+            /* 表單欄位 */
+            .field {
+            margin-top: 12px;
+            }
+            .field label {
+            display:block;
+            margin-bottom:4px;
+            color: var(--deep-blue);
+            }
+            .field input[type="url"],
+            textarea {
             width: 100%;
             padding: 10px;
             font-size: 14px;
             border-radius: 6px;
             border: 1px solid #ccc;
+            box-sizing: border-box;
             resize: vertical;
-            box-sizing: border-box;  /* ✅ 加這行就不會超出 .info-box */
-        }
-        .photo-gallery {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
+            }
 
-        .upload-label {
-            width: 100px;
+            /* 照片上傳區 */
+            .photo-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); 
+            gap: 12px;
+            }
+
+            .upload-label {
+            width: 100%;
             height: 120px;
             background-color: #e0e0e0;
             border: 2px dashed #ccc;
@@ -119,39 +161,32 @@
             position: relative;
             transition: border-color 0.3s ease;
             flex-shrink: 0;
-        }
+            aspect-ratio: 5 / 6;   /* 維持 100x120 的比例 */
+            max-width: 120px;      /* 避免桌機太大被拉太寬 */
+            }
 
-        .upload-label:hover {
-            border-color: #81d3e1;
-        }
+            .upload-label:hover { border-color: #81d3e1; }
+            .plus-icon { font-size: 32px; color: #aaa; }
 
-        .plus-icon {
-            font-size: 32px;
-            color: #aaa;
-        }
-
-        .photo-item {
+            .photo-item {
             position: relative;
-            width: 100px;
+            width: 100%;
             height: 120px;
             border-radius: 8px;
             overflow: hidden;
             flex-shrink: 0;
-        }
-
-        .photo-item img {
+            aspect-ratio: 5 / 6;   /* 維持 100x120 的比例 */
+            max-width: 120px;      /* 避免桌機太大被拉太寬 */
+            }
+            .photo-item img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             cursor: pointer;
             border: 1px solid #ccc;
-        }
-
-        .photo-item input {
-            display: none;
-        }
-
-        .delete-btn {
+            }
+            .photo-item input { display: none; }
+            .delete-btn {
             position: absolute;
             top: 4px;
             right: 4px;
@@ -166,9 +201,15 @@
             line-height: 18px;
             text-align: center;
             padding-left: 4px;
-        }
+            }
 
-        </style>
+            /* 動作列（儲存按鈕） */
+            .actions {
+            text-align: center;
+            margin: 20px 0 8px;
+            }
+            </style>
+
     </head>
     <body>
         <div class="header">
@@ -198,30 +239,47 @@
                 自我介紹
             </div>
         </div>
-            <div class="info-box">
-                <h3>關於我</h3>
-                <textarea id="bio-input" rows="6" placeholder="請輸入自我介紹..."></textarea>
-                <div style="margin-top: 16px;">
-                    <label for="fb-link" style="display:block;margin-bottom:4px;">Facebook 連結</label>
-                    <input id="fb-link" type="url" placeholder="https://facebook.com/yourprofile" style="width:100%;padding:8px;border-radius:6px;border:1px solid #ccc;box-sizing:border-box;">
-                </div>
-                <div style="margin-top: 12px;">
-                    <label for="ig-link" style="display:block;margin-bottom:4px;">Instagram 連結</label>
-                    <input id="ig-link" type="url" placeholder="https://instagram.com/yourprofile" style="width:100%;padding:8px;border-radius:6px;border:1px solid #ccc;box-sizing:border-box;">
-                </div>
+        <main class="container">
+        <section class="card">
+
+            <!-- 關於我 -->
+            <h3 class="section-title">關於我</h3>
+            <textarea id="bio-input" rows="6" placeholder="請輸入自我介紹..."></textarea>
+
+            <div style="margin-top: 16px;">
+            <label for="fb-link" style="display:block;margin-bottom:4px;">Facebook 連結</label>
+            <input id="fb-link" type="url" placeholder="https://facebook.com/yourprofile"
+                    style="width:100%;padding:8px;border-radius:6px;border:1px solid #ccc;box-sizing:border-box;">
             </div>
-            <div class="info-box">
-                <h3>個人照片</h3>
-                <div id="photo-gallery" class="photo-gallery">
-                    <label for="photo-upload" class="upload-label">
-                        <span class="plus-icon">+</span>
-                    </label>
-                    <input type="file" id="photo-upload" accept="image/*" style="display: none;" multiple />
-                </div>
+
+            <div style="margin-top: 12px;">
+            <label for="ig-link" style="display:block;margin-bottom:4px;">Instagram 連結</label>
+            <input id="ig-link" type="url" placeholder="https://instagram.com/yourprofile"
+                    style="width:100%;padding:8px;border-radius:6px;border:1px solid #ccc;box-sizing:border-box;">
             </div>
-            <div style="text-align: center; margin-top: 20px;">
-                <button onclick="saveBio()" style="width: 200px; padding: 10px; background-color: #81d3e1; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">儲存</button>
+
+            <!-- 分隔線：用 hr 而不是 div -->
+            <hr class="card-divider">
+
+            <!-- 個人照片 -->
+            <h3 class="section-title">個人照片</h3>
+            <div id="photo-gallery" class="photo-gallery">
+            <label for="photo-upload" class="upload-label">
+                <span class="plus-icon">+</span>
+            </label>
+            <input type="file" id="photo-upload" accept="image/*" style="display:none;" multiple />
             </div>
+
+            <!-- 儲存按鈕放卡片底部 -->
+            <div class="actions">
+            <button onclick="saveBio()" style="width: 200px; padding: 10px; background-color: #81d3e1; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer;">
+                儲存
+            </button>
+            </div>
+
+        </section>
+        </main>
+
         <script>
             document.getElementById("back-button").addEventListener("click", function() {
                 window.history.back();

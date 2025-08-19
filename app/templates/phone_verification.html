@@ -24,12 +24,24 @@
       }
 
       body {
-        background-color: #f4f4f4;
+        background-color: #f4f4f4;   /* 左右灰底 */
         color: #2c4975;
+        padding-top: var(--header-h);/* ← 騰出固定 header 的高度 */
+        min-height: 100dvh;          /* 保底高度 */
+      }
+
+      :root{
+        --header-h: 70px;   /* header 高度（和你的 .header 一致） */
+        --page-max: 500px;  /* 版心最大寬，和其他頁一致 */
+        --gutter: 16px;     /* 左右內距 */
+        --side-gap: 16px;    /* ← 新增：左右要露出的灰底寬度 */
       }
 
       .header {
-        position: relative;
+        position: fixed;             /* ← 從 relative 改成 fixed */
+        top: 0;
+        left: 0;
+        right: 0;
         display: flex;
         align-items: center;
         justify-content: flex-start;
@@ -37,7 +49,7 @@
         background-color: #fff;
         box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
         z-index: 1000;
-        height: 70px;
+        height: var(--header-h);     /* ← 用變數統一高度 */
       }
 
       .left-section {
@@ -70,46 +82,56 @@
         margin-top: 3px;
       }
 
-      .container {
-        max-width: 800px;
-        margin: 20px auto;
-        padding: 0 16px;
-      }
+      .container{
+        /* 關鍵：不讓它滿版，手機也強制留左右灰 */
+        width: min(100% - 2 * var(--side-gap), var(--page-max));
+        margin: 0 auto;
 
-      .card {
-        position: relative;
+        /* 下面維持原本白底版心設定 */
+        padding: 5px var(--gutter) 24px;
         background: #fff;
-        border-radius: 10px;
+        min-height: calc(100dvh - var(--header-h));
+        /* 可選：想要卡片感就開啟
+        border-radius: 12px;
         box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-        padding: 16px;
-        margin-bottom: 16px;
+        */
       }
 
-      .field {
-        display: flex;
-        gap: 8px;
-        margin-top: 12px;
-        align-items: center;
+      .container > div:first-child,
+      #codeTitle {
+        font-weight: 700;   /* 粗體 */
+        margin-top: 20px;
       }
 
-      .form-input {
-        flex: 1;
+      .field{
+        display: grid;                 /* ← 改用 grid */
+        grid-template-columns: 1fr 120px;  /* 左：自動撐滿；右：固定按鈕寬 */
+        gap: 15px;
+        align-items: center;           /* 垂直置中對齊 */
+        margin-top: 10px;
+      }
+
+      .form-input{
+        width: 100%;       /* ← 吃滿左欄 */
+        min-width: 0;      /* 防止內容把欄位撐爆 */
         padding: 10px;
         border: 1px solid #ccc;
-        border-radius: 4px;
+        border-radius: 6px;
         font-size: 16px;
         color: #2c4975;
       }
 
-      .btn {
-        height: 40px;
-        padding: 0 16px;
+      .btn{
+        height: 44px;          /* 與輸入框視覺接近 */
+        padding: 0 12px;       /* 固定寬由 grid 控制，不靠 padding 撐寬 */
         border: none;
-        border-radius: 4px;
+        border-radius: 8px;    /* 與 input 的 6px 稍微呼應 */
         font-weight: 700;
         cursor: pointer;
         white-space: nowrap;
+        font-size: 16px;   /* ← 新增這行 */
       }
+
 
       .btn-primary {
         color: #fff;
@@ -119,7 +141,6 @@
 
       .btn-primary:hover {
         background-color: #2c4975;
-        transform: translateY(-1px);
       }
 
       .hint {
@@ -182,7 +203,6 @@
     </div>
 
     <div class="container">
-      <div class="card">
         <div>輸入手機號碼</div>
         <div class="field">
           <input id="phone" class="form-input" type="tel" placeholder="例：0912345678" inputmode="numeric" pattern="09[0-9]{8}" maxlength="10" autocomplete="tel" />
@@ -192,10 +212,9 @@
         <div id="codeTitle">輸入收到的驗證碼</div>
         <div class="field" id="codeField">
           <input id="code" class="form-input" type="text" placeholder="6位數驗證碼" inputmode="numeric" pattern="[0-9]*" maxlength="6" />
-          <button id="verifyCode" class="btn btn-primary">驗證</button>
+          <button id="verifyCode" class="btn btn-primary">驗　　　證</button>
         </div>
         <div id="verifyStatus" class="status"></div>
-      </div>
     </div>
 
     <script>
@@ -233,7 +252,7 @@
         function updateCountdown() {
           // 新增判斷：已驗證狀態直接停止倒數
           if (sendBtn.disabled) {
-            sendBtn.textContent = '已驗證';
+            sendBtn.textContent = '已　驗　證';
             sendBtn.style.background = '#ccc';
             countdownTimer = null;
             return;
@@ -268,7 +287,7 @@
             // 已驗證
             phoneInput.value = data.phone;
             phoneInput.disabled = true;
-            sendBtn.textContent = '已驗證';
+            sendBtn.textContent = '已　驗　證';
             sendBtn.disabled = true;
             sendBtn.style.background = '#ccc';
             codeTitle.style.display = 'none';
@@ -337,7 +356,7 @@
           if (!res.ok) throw new Error(data.error || '驗證失敗');
           setStatus(verifyStatus, '驗證成功');
           phoneInput.disabled = true;
-          sendBtn.textContent = '已驗證';
+          sendBtn.textContent = '已　驗　證';
           sendBtn.disabled = true;
           sendBtn.style.background = '#ccc';
           codeTitle.style.display = 'none';

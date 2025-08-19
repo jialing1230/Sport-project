@@ -16,544 +16,342 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>活動總覽</title>
     <style>
-      body {
+
+      html, body {
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+      /* 統一上方列高度（桌機/手機一致） */
+      :root { 
+        --nav-top-h: 56px;   /* 想更高或更低改這裡，例如 60px */
+        --nav-x: 12px;       /* 左右內距，可自訂 */
+      }
+      /* ===== 基本樣式 ===== */
+      body{
         font-family: Arial, sans-serif;
         background-color: #f5f5f5;
         color: #2c4975;
         padding: 0;
         margin: 0;
       }
-      .navbar {
+
+      /* ===== 導覽列（整體） ===== */
+      .navbar{
         width: 100%;
         background-color: #fff;
         box-shadow: 0 2px 8px rgba(0,0,0,0.06);
         position: sticky;
         top: 0;
         z-index: 100;
-        
-      }
-      .navbar-inner {
-        margin: 0 0px;
-        padding: 0 0px;
-        display: flex;
-        flex-direction: column; 
-        width: 100%;
-        box-sizing: border-box;
-      }
-      .navbar-title {
-        font-size: 20px;
-        color: var(--deep-blue); /* 或你想自訂的顏色 */
-        white-space: nowrap;     /* ✅ 不換行 */
-        margin-top: -5px; /* 負值往上移，正值往下 */
-        margin-left: 8px; /* 距離 logo */
       }
 
-      .navbar-icons svg {
-        width: 20px;
-        height: 20px;
-        cursor: pointer;
-        fill: #2c4975;
-        transition: fill 0.2s;
-        vertical-align: middle;
-      }
-      .navbar-icons svg:hover {
-        fill: #81d3e1;
-      }
-      .top-bar {
-        display: flex;
-        align-items: center;
-        margin-bottom: 20px;
-      }
-      .back-btn {
-        background-color: #81d3e1;
-        border: none;
-        color: white;
-        padding: 6px 12px;
-        border-radius: 4px;
-        font-weight: bold;
-        cursor: pointer;
-        margin-right: auto;
-      }
-      h1 {
-        text-align: center;
-        margin-bottom: 28px;
-        font-size: 28px;
-        flex: 1;
-      }
-      .label {
-        color: #2c4975;
-        font-weight: 1000;
-      }
-      .value {
-        color: #000;
-      }
-
-      .filter-bar-inner {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 0 250px 0 0px;
-        box-sizing: border-box;
-        overflow-x: auto;   /* 只留這個就好 */
-        scrollbar-width: none;      /* Firefox */
-        -ms-overflow-style: none;   /* IE 10+
-        
-      }
-        .filter-bar-inner::-webkit-scrollbar {
-        display: none;              /* Chrome/Safari/Edge */
-      }
-      .filters {
-        display: flex;
-        flex-wrap: nowrap;
-        gap: 8px;
-      }
-      .filters .fake-padding {
-        width: 65px;
-        flex: 0 0 auto;
-        pointer-events: none; /* 不會影響互動 */
-      }
-      .filters::-webkit-scrollbar {
-        display: none;
-      }
-
-      .navbar-inner .filters {
-        display: flex;
-        flex-wrap: nowrap; /* ❗ 一行內排滿，不換行 */
-        justify-content: center;
-        gap: 6px;
-      }
-      .navbar-inner .filters input{
-        height: 28px;
-        padding: 2px 10px;
-        padding-right: 26px;  /* 給箭頭空間 */
-        border: 1px solid #2c4975;
-        border-radius: 12px;
-        font-size: 14px;
-        font-weight: 500;
-        color: #2c4975;
-        background-color: #ffffff;
-        appearance: none;
-        text-align: center;
-        cursor: pointer;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%232c4975'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 8px center;
-        background-size: 8px 6px;
-      }
-      .navbar-inner .filters button {
-        padding: 6px 10px;
-        background-color: #81d3e1;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        font-size: 15px;
-        cursor: pointer;
-      }
-      .navbar-inner .filters select:hover,
-      .navbar-inner .filters select:focus {
-        outline: none;
-        box-shadow: none;
-      }
-
-
-      .activity-list {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 24px;
-        max-width: 1100px;
-        margin: 0 auto;
-        margin-top: 18px;
-      }
-
-      @media (max-width: 767px) {
-        .navbar-inner {
-          flex-wrap: wrap;
-        }
-        .navbar-logo {
-          display: flex;
-          align-items: center;
-        }
-        .navbar-icons {
-          order: 2;
-        }
-        
-        .filter-bar-outer {
-          order: 3;
-          flex: 1 1 100%;
-          margin: 8px 0 0;
-          background-color: #ffffff;
-        }
-        .activity-list {
-          grid-template-columns: repeat(2, 1fr);
-        }
-      }
-
-      @media (max-width: 767px) {
-        .filter-bar-inner {
-          overflow-x: auto;  /* 只要這一行負責水平卷軸 */
-        }
-        .filters {
-          flex-wrap: nowrap;
-          gap: 8px;
-        }
-        .activity-list {
-          grid-template-columns: 1fr;
-        }
-      }
-        .navbar-logo {
-          display: flex;
-          align-items: center;
-        }
-      .activity-card {
-        background: white;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        padding: 15px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-      }
-      .activity-card:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        transform: translateY(-2px);
-        transition: box-shadow 0.3s ease, transform 0.3s ease;
-      }
-      .activity-title {
-        font-size: 18px;
-        font-weight: bold;
-        margin-bottom: 10px;
-      }
-      .activity-info {
-        font-size: 14px;
-        margin: 4px 0;
-        color: #444;
-      }
-      .center-message {
-        grid-column: 1 / -1;
-        text-align: center;
-        color: #999;
-        font-weight: bold;
-      }
-      .error-message {
-        color: red;
-        text-align: center;
-        font-weight: bold;
-      }
-      .main-content {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 20px 40px;
-        margin-bottom: 80px;
-      }
-      .activity-type-label {
-        display: inline-block;
-        border-radius: 5px;
-        padding: 2px 9px 4px 9px;
-        font-size: 14px;
-        font-weight: bold;
-        border: 1.5px solid #2c4975;
-        color: #2c4975;
-        background: #fff;
-        vertical-align: middle;
-        margin-left: 2px;
-        margin-top: -5px;
-      }
-      .activity-type-label.training-course {
-        background: #2c4975;
-        color: #fff;
-        border: 1.5px solid #2c4975;
-      }
-      .activity-title-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: stretch;
-      }
-      .activity-title {
-        font-size: 22px;
-        font-weight: bold;
-        margin: 0;
-        line-height: 1.2;
-        flex: 1 1 0;
-      }
-      .status-badge {
-        font-size: 16px;
-        padding: 2px 32px;
-        border-radius: 10px;
-        font-weight: bold;
-        color: white;
-        background: #f8a9b3;
-        margin-left: 10px;
-        line-height: 1.2;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: auto;
-        min-width: 0;
-        flex: none;
-      }
-      .time-dash {
-        display: inline-block;
-        position: relative;
-        top: -1px;
-        font-size: 1.1em;
-        line-height: 1;
-      }
-
-      .bottom-nav {
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        height: 60px;
-        background-color: #fff;
-        border-top: 1px solid #ccc;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        overflow: hidden;
-        box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
-        z-index: 101;
-      }
-
-      .bottom-item {
-        flex: 1;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        overflow: hidden;
-        text-decoration: none;
-        transition: transform 0.2s ease;
-        z-index: 1;
-        border: none;
-        outline: none;
-        background-color: #ffffff;
-        cursor: pointer;
-      }
-
-      .bottom-item svg {
-        fill: #2c4975;
-        transition: fill 0.3s ease, transform 0.3s ease;
-        width: 26px;
-        height: 28px;
-        position: relative;
-      }
-
-      .bottom-item.active svg {
-        fill: #64bcd0;
-        transform: translateY(0px);
-      }
-
-      .item-label {
-        font-size: 12px;
-        color: #2c4975;
-        height: 0;
-        overflow: hidden;
-        opacity: 0;
-        transition: all 0.3s ease;
-      }
-
-      .bottom-item.active .item-label {
-        height: 16px;
-        opacity: 1;
-        margin-top: 0px;
-        color: #64bcd0;
-      }
-
-      .ripple {
-        position: absolute;
-        border-radius: 50%;
-        background-color: rgba(129, 211, 225, 0.35);
-        transform: scale(0);
-        animation: ripple-animation 0.9s cubic-bezier(0.4, 0, 0.2, 1);
-        pointer-events: none;
-        z-index: 0;
-      }
-
-      @keyframes ripple-animation {
-        to {
-          transform: scale(2.5);
-          opacity: 0;
-        }
-      }
-      .select-wrapper {
-        position: relative;
-        display: inline-block;
-        border: 1px solid #2c4975;
-        border-radius: 10px;
+      .navbar-inner{
         margin: 0;
         padding: 0;
-        background-color: white;
-        flex: 0 0 auto;
-      }
-
-      .select-wrapper select {
-        border: none;
-        font-size: 14px;
-        font-weight: 500;
-        color: #2c4975;
-        padding: 4px 24px 4px 12px;
-        border-radius: 10px;
-        background: transparent;
-        appearance: none;
-        height: 24px;
+        display: flex;
+        flex-direction: column;
         width: 100%;
-        text-align: center;
-        text-align-last: center; /* ✅ IE/Edge/Chrome 支援選中的文字也置中 */
-        cursor: pointer;
+        box-sizing: border-box;
       }
 
-      .select-wrapper .arrow {
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        width: 0;
-        height: 0;
-        pointer-events: none;
-        transform: translateY(-50%);
-        border-left: 5px solid transparent;
-        border-right: 5px solid transparent;
-        border-top: 5px solid #2c4975;
-      }
-      .select-wrapper.city,
-      .select-wrapper.type,
-      .select-wrapper.sport {
-        width: 92px;
-      }
-
-      .select-wrapper.time,
-      .select-wrapper.gender,
-      .select-wrapper.level {
-        width: 70px;
-      }
+      /* 上層：logo + 桌機/手機 icon 區 */
       .navbar-top {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        flex-wrap: wrap;
-        max-width: 1400px;                  /* ✅ 與 .navbar-inner 一致 */
-        margin: 0 auto;                     /* ✅ 水平置中 */
+        flex-wrap: nowrap;                 /* ✅ 不換行，避免撐高 */
+        max-width: 1400px;
+        margin: 0 auto;
         box-sizing: border-box;
         width: 100%;
-        padding-left: 8px;                 /* ✅ 左右 padding 放這邊 */
-        padding-right: 0px;
-        padding-top: 12px;
-        padding-bottom: 15px;
+
+        height: var(--nav-top-h);          /* ✅ 用變數統一高度 */
+        padding: 0 var(--nav-x);           /* ✅ 左右一致，無上下 padding */
       }
 
-      .navbar-bottom {
-        margin-top: -6px;
-        padding-top: 0px;
+      .navbar-logo{ display:flex; align-items:center; }
+      .navbar-logo img { 
+        max-height: calc(var(--nav-top-h) - 16px); /* 上下留 8px 緩衝 */
+        height: auto;
+        display: block; 
+      }
+      .navbar-title{
+        font-size:20px;
+        color:#2c4975;
+        white-space:nowrap;
+        margin: 0;
+        line-height: 1;
+      }
+
+      /* 桌機 icon/文字 */
+      .desktop-icons{ display:flex; align-items:center; gap:30px; margin: 0 !important; }
+      .desktop-search{
+        height:30px; padding:0 10px; border-radius:16px; border:1px solid #2c4975;
+        font-size:14px; color:#2c4975;
+      }
+      .desktop-map, .desktop-menu{
+        font-size:14px; font-weight:bold; color:#2c4975; cursor:pointer;
+      }
+      .desktop-map:hover, .desktop-menu:hover{ color:#81d3e1; }
+
+      /* 手機 icon 列（預設先隱藏，交由 RWD 顯示） */
+      .mobile-icons{ display:none; margin: 0 !important;}
+
+      /* 搜尋盒（桌機顯示） */
+      .search-box{
+        display:flex; align-items:center; background-color:#fff; border-radius:6px;
+        padding:7px 16px; max-width:240px; box-shadow:0 0 4px rgba(0,0,0,0.08);
+        margin-right:-4px; transition: box-shadow .2s, border-color .2s; gap:8px;
+      }
+      .search-icon{ width:22px; height:22px; color:#2c4975; stroke:currentColor; transition: color .2s, stroke .2s; }
+      .search-box input{ border:none; background:transparent; outline:none; color:#2c4975; font-size:16px; flex:1; padding-left:4px; }
+      .search-box input::placeholder{ color:#2c4975; opacity:.6; font-size:14px; }
+      .search-box:hover .search-icon,
+      .search-box:focus-within .search-icon{ color:#64bcd0; stroke:#64bcd0; }
+
+      /* 下層：篩選列外層 */
+      .navbar-bottom{
+        margin-top: 12px;
+        padding-top: 0;
         padding-bottom: 10px;
-       
-      }
-      nav,
-      .navbar-bottom {
-        background-color: #ffffff;
+        background-color: #fff;
         box-shadow: none;
+        border-bottom: 1px solid rgba(0,0,0,0.06); /* ← 新增底線 */
       }
 
 
-      /* 桌機版：顯示搜尋框和文字 */
-      @media (min-width: 901px) {
-        .desktop-icons {
-          display: flex;
-          align-items: center;
-          gap: 30px;
-          margin-right: 18px;
-          margin-bottom: 4px;
-        }
-        .desktop-search {
-          height: 30px;
-          padding: 0 10px;
-          border-radius: 16px;
-          border: 1px solid #2c4975;
-          font-size: 14px;
-          color: #2c4975;
-        }
-        .desktop-map {
-          font-size: 14px;
-          font-weight: bold;
-          color: #2c4975;
-          cursor: pointer;
-          margin-right: 2px
-        }
-        .desktop-menu {
-          font-size: 14px;
-          font-weight: bold;
-          color: #2c4975;
-          cursor: pointer;
-        }
-        .desktop-map:hover, .desktop-menu:hover {
-          color: #81d3e1;
-        }
-        .mobile-icons {
-          display: none;
-        }
+      /* ===== 篩選列 ===== */
+      .filter-bar-outer{ width:100%; }
+      .filter-bar-inner{
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 12px;                 /* ← 統一左右 12px，拿掉 250px */
+        box-sizing: border-box;
+        overflow-x: auto;
+        scrollbar-width: none;           /* Firefox */
+        -ms-overflow-style: none;        /* IE 10+ */
+        cursor: grab;
       }
+      /* 隱藏 WebKit 捲軸（Chrome/Safari/Edge） */
+      .filter-bar-inner::-webkit-scrollbar{ display:none; }
 
-      /* 手機版：只顯示三個 icon */
-      @media (max-width: 900px) {
-        .desktop-icons {
-          display: none;
-        }
-        .mobile-icons {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 0 20px; /* ✅ 新增：左右間距 */
-          margin-top: -10px; /* ✅ 新增：與上方 logo 留空 */
-          margin-right: -20px
-        }
-      }
-      .search-box {
+      .filter-bar-inner.dragging { cursor: grabbing; }
+
+      .filters{
         display: flex;
-        align-items: center;
-        background-color: #ffffff;
-        border-radius: 6px;
-        padding: 7px 16px;
-        max-width: 240px;
-        box-shadow: 0 0 4px rgba(0, 0, 0, 0.08);
-        margin-right: -4px;
-        transition: box-shadow 0.2s, border-color 0.2s;
+        flex-wrap: nowrap;
         gap: 8px;
       }
-      .search-icon {
-        width: 22px;
-        height: 22px;
-        color: #2c4975;
-        stroke: currentColor;
-        transition: color 0.2s, stroke 0.2s;
+      .filters .fake-padding{
+        display: none !important;
       }
-      .search-box input {
-        border: none;
-        background: transparent;
-        outline: none;
-        color: #2c4975;
-        font-size: 16px;
-        flex: 1;
-        padding-left: 4px;
+
+      /* 自訂下拉樣式（外框） */
+      .select-wrapper{
+        position:relative; display:inline-block;
+        border:1px solid #2c4975; border-radius:10px;
+        margin:0; padding:0; background-color:#fff; flex:0 0 auto;
       }
-      .search-box input::placeholder {
-        color: #2c4975;
-        opacity: 0.6;
-        font-size: 14px;
+      .select-wrapper select{
+        border:none; font-size:14px; font-weight:500; color:#2c4975;
+        padding:4px 24px 4px 12px; border-radius:10px; background:transparent;
+        appearance:none; height:24px; width:100%; text-align:center; text-align-last:center; cursor:pointer;
       }
-      .search-box:hover .search-icon,
-      .search-box:focus-within .search-icon {
-        color: #64bcd0;
-        stroke: #64bcd0;
+      .select-wrapper .arrow{
+        position:absolute; right:10px; top:50%; transform:translateY(-50%);
+        width:0; height:0; pointer-events:none;
+        border-left:5px solid transparent; border-right:5px solid transparent; border-top:5px solid #2c4975;
       }
-      @media (max-width: 768px) {
-        .search-box {
-          display: none !important;
+      .select-wrapper:focus-within{ box-shadow:0 0 0 2px rgba(100,188,208,.15); }
+      .select-wrapper select:focus{ outline:none; }
+
+      /* 固定寬度（桌機用） */
+      .select-wrapper.city, .select-wrapper.type, .select-wrapper.sport{ width:92px; }
+      .select-wrapper.time, .select-wrapper.gender, .select-wrapper.level{ width:70px; }
+
+      /* ===== 活動清單與卡片 ===== */
+      .main-content{ max-width:1400px; margin:0 auto; padding:20px 40px; margin-bottom:80px; }
+
+      .activity-list{
+        display:grid;
+        grid-template-columns:repeat(3, 1fr);
+        gap:24px;
+        max-width:1100px;
+        margin:0 auto;
+        margin-top:18px;
+      }
+
+      .activity-card{
+        background:#fff; border:1px solid #ddd; border-radius:10px; padding:15px;
+        box-shadow:0 2px 8px rgba(0,0,0,.05);
+        transition: box-shadow .3s ease, transform .3s ease;
+      }
+      .activity-card:hover{ box-shadow:0 4px 12px rgba(0,0,0,.15); transform: translateY(-2px); }
+
+      .activity-title{ font-size:18px; font-weight:bold; margin-bottom:10px; }
+      .activity-info{ font-size:14px; margin:4px 0; color:#444; }
+
+      .center-message{ grid-column:1 / -1; text-align:center; color:#999; font-weight:bold; }
+      .error-message{ color:red; text-align:center; font-weight:bold; }
+
+      .activity-title-row{ display:flex; justify-content:space-between; align-items:stretch; }
+      .activity-title{ font-size:22px; font-weight:bold; margin:0; line-height:1.2; flex:1 1 0; }
+
+      .status-badge{
+        font-size:16px; padding:2px 32px; border-radius:10px; font-weight:bold; color:#fff;
+        background:#f8a9b3; margin-left:10px; line-height:1.2; display:inline-flex; align-items:center; justify-content:center;
+        width:auto; min-width:0; flex:none;
+      }
+
+      /* ===== 底部導覽 ===== */
+      .bottom-nav{
+        display:flex; justify-content:space-around; align-items:center;
+        height:60px; background-color:#fff; border-top:1px solid #ccc;
+        position:fixed; bottom:0; left:0; right:0; overflow:hidden;
+        box-shadow:0 -2px 6px rgba(0,0,0,.05); z-index:101;
+      }
+      .bottom-item{
+        flex:1; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;
+        position:relative; overflow:hidden; text-decoration:none; transition:transform .2s ease;
+        z-index:1; border:none; outline:none; background-color:#fff; cursor:pointer;
+      }
+      .bottom-item svg{ fill:#2c4975; transition: fill .3s ease, transform .3s ease; width:26px; height:28px; position:relative; }
+      .bottom-item.active svg{ fill:#64bcd0; transform: translateY(0); }
+      .item-label{ font-size:12px; color:#2c4975; height:0; overflow:hidden; opacity:0; transition: all .3s ease; }
+      .bottom-item.active .item-label{ height:16px; opacity:1; margin-top:0; color:#64bcd0; }
+
+      .ripple{
+        position:absolute; border-radius:50%; background-color:rgba(129,211,225,.35);
+        transform: scale(0); animation: ripple-animation .9s cubic-bezier(.4,0,.2,1); pointer-events:none; z-index:0;
+      }
+      @keyframes ripple-animation{ to{ transform:scale(2.5); opacity:0; } }
+
+      /* ===== 公用效果 ===== */
+      .fade-out{ transition: opacity .4s cubic-bezier(.4,0,.2,1); opacity:0; }
+
+      /* =========================================================
+        RWD：手機 / 平板（<= 900px）
+        ========================================================= */
+      @media (max-width: 600px){
+        /* 桌機區塊關掉 */
+        .desktop-icons{ display:none; }
+
+        /* 手機 icon 列靠右 */
+        .navbar-logo{ flex:1; }   /* 左邊 Logo/標題吃掉剩餘空間 */
+        .mobile-icons{
+          display:flex;
+          align-items:center;
+          gap:14px;
+          margin:0;
+          padding:0 2px;
+        }
+        .mobile-icons svg{
+          width:24px;
+          height:24px;
+        }
+
+        /* 標題列間距更緊湊 */
+        .navbar-top{ gap:8px; }
+
+
+        /* 篩選列外層縮左右 padding，加底線分隔 */
+        .filter-bar-outer{
+          padding:0 8px;
+          background-color:#fff;
+        }
+        .navbar-bottom{
+          border-bottom:1px solid rgba(0,0,0,0.06); /* 新增底線 */
+        }
+
+        /* 篩選列本體：取消桌機大 padding，啟用慣性捲動 */
+        .filter-bar-inner{
+          padding:0 8px;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        .filters{
+          flex-wrap:nowrap;
+          gap:8px;
+        }
+        .filters .fake-padding{ display:none; }
+        /* 新增：移除左右緩衝空白 */
+        .filters::before,
+        .filters::after{
+          content:none;           /* 或 content:""; flex-basis:0; */
+          flex: 0 0 0;
+        }
+        /* 手機下拉按鈕尺寸稍大，方便點擊 */
+        .select-wrapper{ min-width:84px; }
+        .select-wrapper.city,
+        .select-wrapper.type,
+        .select-wrapper.sport,
+        .select-wrapper.time,
+        .select-wrapper.gender,
+        .select-wrapper.level{ width:auto; }
+        .select-wrapper select{
+          height:24px;
+          font-size:14px;
+          padding:4px 24px 4px 10px;
+        }
+
+        /* 活動清單：單欄 */
+        .activity-list{
+          grid-template-columns:1fr;
+          gap:16px;
+        }
+
+        /* 手機 main-content 不要 40px padding，避免橫向捲軸 */
+        .main-content{
+          padding:16px;
+        }
+
+        /* 手機隱藏桌機的搜尋框 */
+        .search-box{ display:none !important; }
+      }
+
+
+      /* =========================================================
+        RWD：桌機（>= 901px）
+        ========================================================= */
+      @media (min-width: 601px){
+        /* 保留桌機右側 250px 內縮空間（避免與右側桌機文字撞位） */
+        .filter-bar-inner{
+          padding: 0 12px;          /* 與全域一致 */
+          max-width: 1400px;
+          margin: 0 auto;
+          display: flex;            /* 讓裡面那個 form 可以被置中 */
+          justify-content: center;  /* 置中整個表單 */
+          overflow: visible;        /* 取消橫向捲動，才能真正置中 */
+        }
+          #navbarFilters{
+          display: inline-flex;     /* 變成行內彈性盒，寬 = 內容寬 */
+          flex-wrap: nowrap;
+          margin: 0 auto;       /* 置中！ */
+          gap: 8px;
+        }
+        .navbar-top{
+          max-width:1400px;
+          margin:0 auto;
+        }
+
+        .navbar-inner .filters{
+          justify-content:center; gap:6px;
+        }
+
+        .filters {
+          justify-content: center; /* ✅ 讓內部項目置中 */
+          gap: 8px;
+        }
+
+        /* 活動清單：3 欄 */
+        .activity-list{ grid-template-columns: repeat(3, 1fr); }
+
+        .filters::before,
+        .filters::after{
+          content: "";
+          flex: 0 0 12px;                  /* ← 左右各 12px 緩衝 */
         }
       }
-      .fade-out {
-        transition: opacity 0.4s cubic-bezier(0.4,0,0.2,1);
-        opacity: 0;
-      }
-
-
 
     </style>
   </head>
@@ -563,7 +361,7 @@
           <!-- ✅ 上層：品牌 + icon/文字 -->
           <div class="navbar-top">
             <div class="navbar-logo">
-              <img src="/static/logo.png" alt="logo" style="height:42px;margin-right:0px;" />
+              <img src="/static/logo.png" alt="logo" />
               <span class="navbar-title">SportMatch</span>
             </div>
             <!-- 桌機版 -->
@@ -615,7 +413,6 @@
             <div class="filter-bar-outer">
               <div class="filter-bar-inner">
                 <form class="filters" id="navbarFilters">
-                  <div class="fake-padding"></div>
                   <div class="select-wrapper">
                     <select id="searchCity">
                       <option value="">所有縣市</option>
@@ -1176,19 +973,67 @@
 
         observer.observe(document.getElementById('activityList'), { childList: true });
       });
-        // Shift + 滾輪 左右滾動功能
-      document.querySelectorAll('.filter-bar-inner').forEach(container => {
-        container.addEventListener('wheel', function (e) {
-          if (e.shiftKey) {
-            e.preventDefault();
-            container.scrollLeft += e.deltaY;
+      // 篩選列：順滑橫向捲動（含慣性），滑鼠/觸控板皆可
+      document.querySelectorAll('.filter-bar-inner').forEach(el => {
+        let vx = 0;          // 目前速度
+        let rafId = null;    // 動畫 id
+
+        function step() {
+          el.scrollLeft += vx;
+          vx *= 0.92;                        // 摩擦力（0.90~0.95 越小越快停）
+          if (Math.abs(vx) > 0.3) {
+            rafId = requestAnimationFrame(step);
+          } else {
+            rafId = null;
+            vx = 0;
           }
-        });
+        }
+
+        el.addEventListener('wheel', (e) => {
+          // 觸控板會有 deltaX；一般滑鼠只有 deltaY，轉成水平
+          const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+
+          e.preventDefault();                // 阻止預設垂直捲
+          vx += delta;                       // 疊加速度（越滾越快）
+          if (!rafId) step();                // 啟動動畫循環
+        }, { passive: false });
       });
+
       document.getElementById("mapSwitchBtn").onclick = function() {
         document.body.classList.add("fade-out");
         setTimeout(goToPage, 400); // 0.4秒後導頁
       };
+      // 篩選列：滑鼠拖曳左右捲，避開表單元件
+      document.querySelectorAll('.filter-bar-inner').forEach(el => {
+        let isDown = false;
+        let startX = 0;
+        let startLeft = 0;
+
+        const isInteractive = (node) =>
+          node.closest('select, option, .select-wrapper, button, input, textarea, label, a');
+
+        el.addEventListener('mousedown', (e) => {
+          // 只接受左鍵，且不在互動元素上
+          if (e.button !== 0 || isInteractive(e.target)) return;
+
+          isDown = true;
+          startX = e.pageX;
+          startLeft = el.scrollLeft;
+          el.classList.add('dragging');
+          e.preventDefault(); // 避免選字
+        });
+
+        window.addEventListener('mousemove', (e) => {
+          if (!isDown) return;
+          const dx = e.pageX - startX;
+          el.scrollLeft = startLeft - dx;
+        });
+
+        window.addEventListener('mouseup', () => {
+          isDown = false;
+          el.classList.remove('dragging');
+        });
+      });
 
 
     </script>

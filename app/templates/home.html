@@ -490,7 +490,7 @@
         .county-dropdown {
           position: absolute;
           top: 100%;
-          left: 24%;
+          left: 28.9%;
           background-color: white;
           border: 1px solid #ccc;
           z-index: 100;
@@ -524,7 +524,7 @@
        .activity-dropdown {
           position: absolute;
           top: 100%;
-          left: 32.5%;
+          left: 37.45%;
           background-color: white;
           border: 1px solid #ccc;
           z-index: 100;
@@ -555,29 +555,43 @@
           background-color: #f0f0f0;
         }
 
+        /* 外層容器左右排列按鈕與搜尋欄 */
+        .filter-bar-wrapper {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: nowrap;
+        }
+        
+        /* 左側按鈕區固定寬度不被壓縮 */
+        .filter-buttons {
+          display: flex;
+          gap: 8px;
+          flex-shrink: 0;
+        }
+        /* 右側搜尋欄推到右邊 */
         #title-search-container {
-  display: none;
-  align-items: center;
-  margin-left: 8px;
-}
-#title-search-input {
-  height: 32px;
-  border-radius: 20px;
-  padding: 0 10px;
-  border: 1px solid #ccc;
-}
-#title-search-btn {
-  height: 32px;
-  padding: 0 10px;
-  margin-left: 6px;
-  background-color: #005BAC;
-  color: white;
-  border: none;
-  border-radius: 16px;
-}
-
-        .title-search-container.hidden {
-          display: none;
+          display: flex;
+          align-items: center;
+          margin-left: 8px; /* 👈 這就是讓按鈕和搜尋欄位「不要黏在一起」的關鍵 */
+          gap: 8px;
+        }
+        
+        #title-search-input {
+          height: 24px;             /* ✅ 原本是 32px，改小一點 */
+          border-radius: 14px;      /* ✅ 原本是 20px，變得不那麼圓 */
+          padding: 0 8px;           /* ✅ 左右內距也稍微縮小 */
+          border: 1px solid #ccc;
+          font-size: 12px;          /* ✅ 可選：讓文字也稍小一點，更精緻 */
+        }
+        
+        #title-search-btn {
+          height: 24px;
+          padding: 0 8px;
+          background-color: #005BAC;
+          color: white;
+          border: none;
+          border-radius: 14px;
         }
     </style>
     
@@ -645,71 +659,82 @@
     </div>
 
     <div class="filter-bar">
-      <div class="container filter-buttons">
-        <button class="filter-btn" data-type="county">
+      <div class="filter-bar-wrapper" style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 10px;">
+    
+        <!-- 所有縣市 -->
+        <div class="filter-group">
+          <button class="filter-btn" data-type="county">
             <span class="label">所有縣市</span>
-            <span class="arrow"></span>
+            <span class="arrow" style="position: relative; top: -2.5px;"></span>
           </button>
-            <div class="county-dropdown hidden">
-              <ul class="county-list">
-                <li class="county-option" data-county="all">所有縣市</li>
-                <li class="county-option" data-county="台北市">台北市</li>
-                <li class="county-option" data-county="新北市">新北市</li>
-                <li class="county-option" data-county="基隆市">基隆市</li>
-                <li class="county-option" data-county="桃園市">桃園市</li>
-                <li class="county-option" data-county="新竹市">新竹市</li>
-                <li class="county-option" data-county="新竹縣">新竹縣</li>
-                <li class="county-option" data-county="苗栗縣">苗栗縣</li>
-                <li class="county-option" data-county="台中市">台中市</li>
-                <li class="county-option" data-county="彰化縣">彰化縣</li>
-                <li class="county-option" data-county="南投縣">南投縣</li>
-                <li class="county-option" data-county="雲林縣">雲林縣</li>
-                <li class="county-option" data-county="嘉義市">嘉義市</li>
-                <li class="county-option" data-county="嘉義縣">嘉義縣</li>
-                <li class="county-option" data-county="台南市">台南市</li>
-                <li class="county-option" data-county="高雄市">高雄市</li>
-                <li class="county-option" data-county="屏東縣">屏東縣</li>
-                <li class="county-option" data-county="宜蘭縣">宜蘭縣</li>
-                <li class="county-option" data-county="花蓮縣">花蓮縣</li>
-                <li class="county-option" data-county="台東縣">台東縣</li>
-                <li class="county-option" data-county="澎湖縣">澎湖縣</li>
-                <li class="county-option" data-county="金門縣">金門縣</li>
-                <li class="county-option" data-county="連江縣">連江縣</li>
-              </ul>
-            </div>
-          </button>
-        <button class="filter-btn" data-type="activity">
+          <div class="county-dropdown hidden">
+            <ul class="county-list">
+              <li class="county-option" data-county="all">所有縣市</li>
+              <li class="county-option" data-county="台北市">台北市</li>
+              <li class="county-option" data-county="新北市">新北市</li>
+              <li class="county-option" data-county="基隆市">基隆市</li>
+              <li class="county-option" data-county="桃園市">桃園市</li>
+              <li class="county-option" data-county="新竹市">新竹市</li>
+              <li class="county-option" data-county="新竹縣">新竹縣</li>
+              <li class="county-option" data-county="苗栗縣">苗栗縣</li>
+              <li class="county-option" data-county="台中市">台中市</li>
+              <li class="county-option" data-county="彰化縣">彰化縣</li>
+              <li class="county-option" data-county="南投縣">南投縣</li>
+              <li class="county-option" data-county="雲林縣">雲林縣</li>
+              <li class="county-option" data-county="嘉義市">嘉義市</li>
+              <li class="county-option" data-county="嘉義縣">嘉義縣</li>
+              <li class="county-option" data-county="台南市">台南市</li>
+              <li class="county-option" data-county="高雄市">高雄市</li>
+              <li class="county-option" data-county="屏東縣">屏東縣</li>
+              <li class="county-option" data-county="台東縣">台東縣</li>
+              <li class="county-option" data-county="花蓮縣">花蓮縣</li>
+              <li class="county-option" data-county="宜蘭縣">宜蘭縣</li>
+              <li class="county-option" data-county="澎湖縣">澎湖縣</li>
+              <li class="county-option" data-county="金門縣">金門縣</li>
+              <li class="county-option" data-county="連江縣">連江縣</li>
+            </ul>
+          </div>
+        </div>
+    
+        <!-- 活動類型 -->
+        <div class="filter-group">
+          <button class="filter-btn" data-type="activity">
             <span class="label">活動類型</span>
             <span class="arrow"></span>
-        </button>
-        <!-- 下拉選單放這裡！不要放在 button 裡面 -->
-        <div class="activity-dropdown hidden">
-          <ul class="activity-list">
-            <li class="activity-option" data-activity="all">活動類型</li>
-            <li class="activity-option" data-activity="activity">一般活動</li>
-            <li class="activity-option" data-activity="class">訓練課程</li>
-          </ul>
+          </button>
+          <div class="activity-dropdown hidden">
+            <ul class="activity-list">
+              <li class="activity-option" data-activity="all">活動類型</li>
+              <li class="activity-option" data-activity="activity">一般活動</li>
+              <li class="activity-option" data-activity="class">訓練課程</li>
+            </ul>
+          </div>
         </div>
-        <button class="filter-btn" data-type="sport">
+    
+        <!-- 運動類型（僅按鈕） -->
+        <div class="filter-group">
+          <button class="filter-btn" data-type="sport">
             <span class="label">運動類型</span>
             <span class="arrow"></span>
-        </button>
-        <button class="filter-btn" id="title-btn" data-type="title">
-          <span class="label">活動名稱</span>
-          <span class="icon">
-            <i class="fas fa-search"></i> <!-- 這是 Font Awesome 的搜尋 icon，如果你用 SVG 請用對應格式 -->
-          </span>
-        </button>
-        <div id="title-search-container" style="display: none; margin-left: 8px;">
-          <input
-            id="title-search-input"
-            type="text"
-            placeholder="輸入活動名稱"
-            style="height: 32px; border-radius: 20px; padding: 0 10px; border: 1px solid #ccc;"
-          />
-          <button id="title-search-btn" style="height: 32px; padding: 0 10px;">搜尋</button>
+          </button>
         </div>
+    
+        <!-- 活動名稱＋搜尋欄 -->
+         <div class="filter-group" style="display: flex; align-items: center;">
+          <button class="filter-btn" id="title-btn" data-type="title">
+            <span class="label">活動名稱</span>
+            <i class="fas fa-search" style="margin-left: 0px;"></i>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+          </button>
+          <div class="filter-title-search" style="margin-left: 5px;">
+            <input id="title-search-input" type="text" placeholder="輸入活動名稱">
+            <button id="title-search-btn">搜尋</button>
+          </div>
         </div>
+    
+      </div>
+    </div>
+      </div>
       </div>
     </div>
     </div>

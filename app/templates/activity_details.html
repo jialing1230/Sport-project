@@ -554,6 +554,7 @@
       const memberId = urlParams.get("member_id");
 
       let joinStatus = "";  // ✅ 這行是新增的：用來記錄使用者的報名狀態
+      let isUserPending = false;  // ✅ 新增：記錄使用者是否處於「待審核」狀態
 
       if (!activityId) {
         document.querySelector(".container").innerHTML =
@@ -597,6 +598,8 @@
       // 報名狀態（假設 API 有回傳 participant.joined_ids 陣列，裡面有 memberId 代表已報名）
       const isJoined = participant.joined_participants.some(p => String(p.member_id) === String(memberId));
       const isPending = participant.pending_participants.some(p => String(p.member_id) === String(memberId));
+      isUserPending = isPending;   // ✅ 把判斷結果存到外層變數
+
 
       const joinBtn = document.getElementById("join-btn");
       // 先判斷是否為發起人
@@ -616,15 +619,17 @@
         joinBtn.style.backgroundColor = "#ccc";
         joinBtn.disabled = true;
       } else if (isPending) {
-        joinBtn.textContent = "審核中";
-        joinBtn.classList.add("disabled");
-        joinBtn.style.backgroundColor = "#ccc";
-        joinBtn.disabled = true;
+        joinBtn.textContent = "取消報名";
+        joinBtn.classList.remove("disabled");
+        joinBtn.classList.add("btn-pink");  // 粉紅底
+        joinBtn.style.backgroundColor = ""; // 交給 .btn-pink 控制
+        joinBtn.disabled = false;
       } else if (!isFull && hasDeadline) {
         joinBtn.textContent = "我要報名";
         joinBtn.classList.remove("disabled");
         joinBtn.style.backgroundColor = "#81d3e1";
         joinBtn.disabled = false;
+        joinStatus = "pending";
       } else {
         // 報名截止或其他狀況
         joinBtn.textContent = "報名截止";
@@ -848,43 +853,88 @@
 
 
 
-          document.getElementById("join-btn").onclick = () => {
-            if (!memberId) {
-              alert("請先登入或提供 member_id 才能參加活動！");
-              return;
-            }
-            
-            console.log("狀態：", joinStatus);  // ✅ 放在這裡
+        document.getElementById("join-btn").onclick = () => {
+          if (!memberId) {
+            alert("請先登入或提供 member_id 才能參加活動！");
+            return;
+          }
 
-            fetch("/api/activities/join", {
+          // ➤ 新增：若目前是「待審核」狀態，走取消報名流程
+          if (isUserPending) {
+            const ok = confirm("確定要取消這筆待審核的報名嗎？");
+            if (!ok) return;
+
+            // ※ 這裡的 API 路徑依你後端而定，若不同請改成你的取消端點
+            fetch("/api/activities/cancel", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ member_id: memberId, activity_id: activityId, status: joinStatus }),
+              body: JSON.stringify({ member_id: memberId, activity_id: activityId })
             })
-              .then((res) => res.json())
-              .then((result) => {
-                const btn = document.getElementById("join-btn");
-
-                if (!result.error) {
-                  if (joinStatus === "waiting") {
-                    alert("已加入候補名單，若有空位將依序遞補");
-                    btn.textContent = "已候補";
-                  } else {
-                    alert("報名成功，等待發起人審核");
-                    btn.textContent = "審核中";
-                  }
-                  btn.disabled = true;
-                  btn.classList.add("disabled");
-                  btn.style.backgroundColor = "#ccc";
-                } else if (result.error.includes("已參加") || result.error.includes("申請過")) {
-                  btn.textContent = "審核中";
-                  btn.disabled = true;
-                  btn.classList.add("disabled");
-                  btn.style.backgroundColor = "#ccc";
+              .then(res => res.json())
+              .then(result => {
+                if (result && !result.error) {
+                  alert("已取消報名。");
+                  // 邏輯：取消後可重新報名（若未截止且未額滿）
+                  // 這裡不重新計算 hasDeadline/isFull，直接把按鈕切回「我要報名」並允許點擊
+                  const btn = document.getElementById("join-btn");
+                  btn.textContent = "我要報名";
+                  btn.classList.remove("disabled", "btn-pink");
+                  btn.disabled = false;
+                  btn.style.backgroundColor = "#81d3e1";
+                  // 狀態重置
+                  isUserPending = false;
+                  joinStatus = ""; // 你後續若要用 pending/waiting 再依條件設定
+                } else {
+                  alert(result?.error || "取消失敗，請稍後再試！");
                 }
               })
-              .catch((err) => alert("參加活動失敗，請稍後再試！"));
-          };
+              .catch(() => alert("取消失敗，請稍後再試！"));
+            return; // ← 記得結束，不要往下跑 join 流程
+          }
+
+          // ➤ 原本的「我要報名 / 候補」流程（保留你的 join 寫法）
+          console.log("狀態：", joinStatus);
+
+          fetch("/api/activities/join", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ member_id: memberId, activity_id: activityId, status: joinStatus }),
+          })
+            .then((res) => res.json())
+            .then((result) => {
+              const btn = document.getElementById("join-btn");
+
+              if (!result.error) {
+                if (joinStatus === "waiting") {
+                  alert("已加入候補名單，若有空位將依序遞補");
+                  btn.textContent = "已候補";
+                } else {
+                  alert("報名成功，等待發起人審核");
+                  btn.textContent = "取消報名";          // ✨ 立刻切成可取消
+                  btn.classList.remove("disabled");
+                  btn.classList.add("btn-pink");
+                  btn.disabled = false;
+                  btn.style.backgroundColor = "";
+                  isUserPending = true;                  // ✨ 標記進入「待審核，可取消」狀態
+                  return;                                // 別往下套用灰底
+                }
+                btn.disabled = true;
+                btn.classList.add("disabled");
+                btn.style.backgroundColor = "#ccc";
+              } else if (result.error.includes("已參加") || result.error.includes("申請過")) {
+                // 如果後端回覆已在 pending，切成可取消
+                alert("您已送出申請，進入待審核。");
+                btn.textContent = "取消報名";
+                btn.classList.remove("disabled");
+                btn.classList.add("btn-pink");
+                btn.disabled = false;
+                btn.style.backgroundColor = "";
+                isUserPending = true;
+              }
+            })
+            .catch((err) => alert("參加活動失敗，請稍後再試！"));
+};
+
             // 🔁 課程表收合/展開邏輯
                 const toggleBtn = document.getElementById("toggle-schedule");
                 const scheduleContent = document.getElementById("schedule-content");

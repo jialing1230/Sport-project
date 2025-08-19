@@ -42,6 +42,7 @@
             justify-content: flex-start;
             align-items: center;
             padding: 10px;
+            margin-left: -10px;
         }
 
         .left-section svg {
@@ -59,7 +60,7 @@
             display: flex;
             align-items: center;
             font-weight: bold;
-            font-size: 20px;
+            font-size: 16px;
             color: #2c4975;
         }
 
@@ -92,16 +93,18 @@
 
         .activity-card {
             background: white;
-            border: 1px solid #ddd;
             border-radius: 10px;
             padding: 15px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1), 
+                        0 1px 2px rgba(0,0,0,0.06);
+            transition: box-shadow 0.3s ease;
         }
         .activity-card:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            transform: translateY(-2px);
-            transition: box-shadow 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1), 
+                        0 2px 4px rgba(0,0,0,0.06);
         }
+
+
         .activity-title-row {
             display: flex;
             justify-content: space-between;
@@ -167,7 +170,7 @@
             transition: background-color 0.2s ease;
         }
         .unblock-btn:hover {
-            background-color: #f38d9e;
+            background-color: #c93c4e;
         }
         </style>
     </head>

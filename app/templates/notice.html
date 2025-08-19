@@ -23,18 +23,32 @@
             color: #2c4975;
         }
 
+        *,
+        *::before,
+        *::after {
+          box-sizing: border-box; /* 內距與邊框不再把寬度撐爆 */
+        }
+
+        html, body {
+          width: 100%;
+          overflow-x: hidden;      /* 保險：禁止水平滾動 */
+        }
+
         .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 30px;
-            background-color: #fff;
-            flex-wrap: wrap;
-            gap: 16px;
-            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            position: sticky;
-            top: 0;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 10px 16px;
+          background-color: #fff;
+          box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
+          z-index: 1000;
+          position: fixed;   /* ← 改這裡 (原本 sticky 改成 fixed) */
+          top: 0;
+          left: 0;
+          right: 0;
+          width: 100%;
+          max-width: 100vw;
+          box-sizing: border-box;
         }
 
         .left-section {
@@ -47,20 +61,31 @@
         .left-section svg {
             width: 24px;
             height: 24px;
-            fill: var(--deep-blue); /* 注意這個變數在此未定義，可換成實際顏色 */
             cursor: pointer;
             transition: fill 0.3s ease;
         }
+        .left-section svg path {
+          stroke: #2c4975;             /* 原本深藍 */
+          transition: stroke 0.3s ease;
+        }
+
+        .left-section svg:hover path {
+          stroke: #81d3e1;             /* 淺藍 */
+        }
 
         .navbar-title {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            align-items: center;
-            font-weight: bold;
-            font-size: 20px;
-            color: #2c4975;
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          align-items: center;
+          font-weight: bold;
+          font-size: 20px;
+          color: #2c4975;
+          max-width: calc(100vw - 32px); /* ← 扣掉左右 padding 避免超寬 */
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         .navbar-title img {
@@ -69,23 +94,38 @@
             margin-top: 3px;
         }
         .notifications-container {
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center; /* 讓子項置中 */
-            background-color: #f5f5f5;
+          /* 內容不要被 header 蓋到 */
+          padding: 80px 16px 60px;
+
+          /* 直向排版 */
+          display: flex;
+          flex-direction: column;
+          align-items: stretch;   /* ← 讓子元素撐滿容器寬 */
+
+          /* 灰底顯示兩側留白 */
+          background-color: #f5f5f5;
+
+          /* 手機：會是 100%；桌機：最多 500px，並置中 */
+          width: 100%;
+          max-width: 500px;
+          margin: 0 auto;
+
+          /* 不讓 padding 撐破寬度 */
+          box-sizing: border-box;
         }
 
+
         .notification-item {
-            width: 100%;
-            max-width: 500px; /* ✅ 限制最大寬度 */
-            background-color: #fff;
-            border-radius: 10px;
-            padding: 15px 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            border-left: 5px solid #81d3e1;
+          width: 100%;              /* ← 跟著上層容器走 */
+          background-color: #fff;
+          border-radius: 10px;
+          padding: 15px 20px;
+          margin-bottom: 15px;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+          border-left: 5px solid #81d3e1;
+          position: relative;       /* 讓紅點絕對定位時以它為基準 */
         }
+
 
         .notification-time {
             font-size: 12px;
@@ -121,11 +161,13 @@
           position: fixed;
           bottom: 0;
           left: 0;
-          width: 100%;
-          overflow: hidden;
+          right: 0;          /* ← 用 left+right 取代 width:100% 更穩 */
+          /* 刪除：width: 100%; */
+          overflow: hidden;  /* ← 防子元素陰影溢出 */
           z-index: 1000;
           box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
         }
+
         .bottom-item {
           flex: 1;
           height: 100%;
@@ -142,13 +184,15 @@
           outline: none;
           background-color: #ffffff;
         }
+
         .bottom-item svg {
+          width: 26px !important;
+          height: 28px !important;
           fill: #2c4975;
           transition: fill 0.9s ease, transform 0.9s ease;
-          width: 26px;
-          height: 28px;
           position: relative;
         }
+
         .bottom-item.active svg {
           fill: #64bcd0;
           transform: translateY(0px);
@@ -182,6 +226,14 @@
             opacity: 0;
           }
         }
+        
+        @media (max-width: 480px) {
+            .header {
+                padding: 10px 12px;   /* 手機左右更小一點 */
+                gap: 8px;             /* 避免過度撐開 */
+            }
+        }
+
         </style>
     </head>
     <body>

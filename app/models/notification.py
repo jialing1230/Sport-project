@@ -11,6 +11,7 @@ class Notification(Base):
     title = Column(String(128), nullable=False, comment='通知標題')
     content = Column(Text, nullable=False, comment='通知內容')
     is_read = Column(Boolean, default=False, nullable=False, comment='是否已讀')
+    url = Column(String(256), nullable=True, comment='通知連結')
 
     def taipei_now():
         return datetime.utcnow() + timedelta(hours=8)

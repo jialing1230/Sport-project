@@ -470,19 +470,45 @@ def cancel_participation():
         # 只有 joined 狀態才更新 current_participants
         should_update_count = activity_join.status == "joined"
         db.delete(activity_join)
+        # 清空該會員所有已參加活動通知的 url（joined_details_page）
+        from app.models.notification import Notification as NotifyModel
+        joined_url = f"http://127.0.0.1:5002/api/activities/joined_details_page?id={activity_id}&member_id={member_id}"
+        notify_to_update = db.query(NotifyModel).filter_by(member_id=member_id, url=joined_url).all()
+        for notify in notify_to_update:
+            notify.url = ""
         if should_update_count and activity and activity.current_participants > 0:
             activity.current_participants -= 1
 
         # 新增通知給主辦人
         from app.models.notification import Notification
         if organizer_id:
-            content = f"{member_name} 取消參加您的活動：{activity.title if activity else ''}"
-            notification = Notification(
-                member_id=organizer_id,
-                title="參加者取消活動通知",
-                content=content
-            )
-            db.add(notification)
+                if activity_join.status == "joined":
+                    title = "參加者取消活動通知"
+                    content = f"{member_name} 取消參加您的活動：{activity.title if activity else ''}"
+                elif activity_join.status == "pending":
+                    title = "參加者取消報名通知"
+                    content = f"{member_name} 取消報名您的活動：{activity.title if activity else ''}"
+                else:
+                    title = "參加者取消活動通知"
+                    content = f"{member_name} 取消參加您的活動：{activity.title if activity else ''}"
+                url = f"http://127.0.0.1:5002/api/activities/created_details_page?id={activity_id}&member_id={organizer_id}"
+                notification = Notification(
+                    member_id=organizer_id,
+                    title=title,
+                    content=content,
+                    url=url
+                )
+                db.add(notification)
+
+            # 新增通知給參加者自己，導向一般詳情頁（已非參加狀態）
+                if activity:
+                    self_notify = Notification(
+                        member_id=member_id,
+                        title="您已取消參加活動",
+                        content=f"您已成功取消參加活動「{activity.title}」。",
+                        url=f"http://127.0.0.1:5002/api/activities/details_page?id={activity_id}&member_id={member_id}"
+                    )
+                    db.add(self_notify)
 
         # 通知所有 waiting 狀態的人有名額釋出
         if activity:
@@ -491,7 +517,8 @@ def cancel_participation():
                 wait_notify = Notification(
                     member_id=w.member_id,
                     title="活動釋出名額通知",
-                    content=f"您曾報名的活動「{activity.title}」有名額釋出，歡迎立即報名參加！"
+                    content=f"您曾報名的活動「{activity.title}」有名額釋出，歡迎立即報名參加！",
+                    url=f"http://127.0.0.1:5002/api/activities/details_page?id={activity_id}&member_id={w.member_id}"
                 )
                 db.add(wait_notify)
 
@@ -539,6 +566,7 @@ def update_participant_status():
                     # 更新活動的 current_participants
                     activity.current_participants += 1
                     notify_content = f"您申請參加的活動「{activity.title}」已通過審核，歡迎參加！"
+                    notify_url = f"http://127.0.0.1:5002/api/activities/joined_details_page?id={activity_id}&member_id={member_id}"
 
                     # 若通過後人數已達上限，處理剩餘 pending
                     if activity.current_participants >= activity.max_participants:
@@ -554,13 +582,15 @@ def update_participant_status():
                             wait_notify = Notification(
                                 member_id=p.member_id,
                                 title="活動額滿通知",
-                                content=f"您申請參加的活動「{activity.title}」因名額已滿，歡迎下次再度報名，有興趣請多關注本活動動態。"
+                                content=f"您申請參加的活動「{activity.title}」因名額已滿，歡迎下次再度報名，有興趣請多關注本活動動態。",
+                                url=f"http://127.0.0.1:5002/api/activities/details_page?id={activity_id}&member_id={p.member_id}"
                             )
                             db.add(wait_notify)
             elif new_status == "reject" and participant.status == "pending":
                 activity = db.query(Activity).filter(Activity.activity_id == activity_id).first()
                 if activity:
                     notify_content = f"您申請參加的活動「{activity.title}」未通過審核，請留意其他活動。"
+                    notify_url = f"http://127.0.0.1:5002/api/activities/overview?member_id={member_id}"
 
             participant.status = new_status
 
@@ -570,7 +600,8 @@ def update_participant_status():
                 notification = Notification(
                     member_id=member_id,
                     title=notify_title,
-                    content=notify_content
+                    content=notify_content,
+                    url=notify_url if 'notify_url' in locals() else None
                 )
                 db.add(notification)
 
@@ -642,7 +673,8 @@ def join_activity():
         notification = Notification(
             member_id=activity.organizer_id,
             title="活動參加申請通知",
-            content=content
+            content=content,
+            url=f"http://127.0.0.1:5002/api/activities/created_details_page?id={activity_id}&member_id={activity.organizer_id}"
         )
         db.add(notification)
 

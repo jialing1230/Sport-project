@@ -291,32 +291,33 @@
                 list.innerHTML = '<div style="color:#888;text-align:center;margin-top:40px;">目前沒有通知</div>';
                 return;
             }
-            notifications.forEach(n => {
-                const item = document.createElement("div");
-                item.className = "notification-item";
-                // 小紅點
-                const redDot = n.is_read === false ? '<span class="red-dot"></span>' : '';
-                item.innerHTML = `
-                    <div style="position:relative;">
-                        <div class="notification-time">${formatTime(n.created_at)}</div>
-                        ${redDot}
-                    </div>
-                    <div class="notification-message">${n.content}</div>
-                `;
-                // 點擊設為已讀
-                item.style.cursor = "pointer";
-                item.addEventListener("click", function() {
-                    if (n.is_read === false) {
-                        fetch(`/api/members/notifications/${n.id}/read`, { method: "PATCH" })
-                            .then(res => res.json())
-                            .then(() => {
-                                n.is_read = true;
-                                renderNotifications(notifications);
-                            });
-                    }
-                });
-                list.appendChild(item);
-            });
+      notifications.forEach(n => {
+        const item = document.createElement("div");
+        item.className = "notification-item";
+        const redDot = n.is_read === false ? '<span class="red-dot"></span>' : '';
+        item.innerHTML = `
+          <div style="position:relative;">
+            <div class="notification-time">${formatTime(n.created_at)}</div>
+            ${redDot}
+          </div>
+          <div class="notification-message">${n.content}</div>
+        `;
+        item.style.cursor = "pointer";
+        item.addEventListener("click", function() {
+          if (n.is_read === false) {
+            fetch(`/api/members/notifications/${n.id}/read`, { method: "PATCH" })
+              .then(res => res.json())
+              .then(() => {
+                n.is_read = true;
+                renderNotifications(notifications);
+              });
+          }
+          if (n.url) {
+            window.location.href = n.url;
+          }
+        });
+        list.appendChild(item);
+      });
         }
 
         document.addEventListener("DOMContentLoaded", function() {

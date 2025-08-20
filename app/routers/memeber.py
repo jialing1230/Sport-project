@@ -577,7 +577,8 @@ def get_member_notifications(member_id):
                 "title": n.title,
                 "content": n.content,
                 "is_read": n.is_read,
-                "created_at": n.created_at.isoformat() if n.created_at else None
+                "created_at": n.created_at.isoformat() if n.created_at else None,
+                "url": n.url
             }
             for n in notifications
         ]

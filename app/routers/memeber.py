@@ -610,9 +610,23 @@ def send_phone_code():
         return jsonify({"error": "手機格式錯誤"}), 400
     code = str(random.randint(100000, 999999))
     phone_code_store[phone] = code
-    print(f"手機驗證碼：{code}")  # 顯示於 cmd
-    # 不真實發送簡訊，直接回傳成功
-    return jsonify({"message": "驗證碼已產生", "phone": phone, "code": code}), 200
+    # 發送 Twilio 驗證碼簡訊
+    try:
+        from twilio.rest import Client
+        import os
+        from dotenv import load_dotenv
+        load_dotenv()
+        client = Client(os.environ["TWILIO_ACCOUNT_SID"], os.environ["TWILIO_AUTH_TOKEN"])
+        tw_phone = f"+886{phone[1:]}"
+        msg = client.messages.create(
+            from_="+19109948442",
+            to=tw_phone,
+            body=f"您的驗證碼是：{code}"
+        )
+        print(f"Twilio message SID: {msg.sid}")
+    except Exception as e:
+        print(f"Twilio SMS 發送失敗: {e}")
+    return jsonify({"message": "驗證碼已發送", "phone": phone}), 200
 
 @member_bp.route("/phone/verify", methods=["POST"])
 def verify_phone_code():

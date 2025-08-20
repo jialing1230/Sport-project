@@ -467,11 +467,10 @@ def cancel_participation():
         activity = db.query(Activity).filter_by(activity_id=activity_id).first()
         organizer_id = activity.organizer_id if activity else None
 
-        # 刪除參加記錄
+        # 只有 joined 狀態才更新 current_participants
+        should_update_count = activity_join.status == "joined"
         db.delete(activity_join)
-
-        # 更新活動的 current_participants
-        if activity and activity.current_participants > 0:
+        if should_update_count and activity and activity.current_participants > 0:
             activity.current_participants -= 1
 
         # 新增通知給主辦人

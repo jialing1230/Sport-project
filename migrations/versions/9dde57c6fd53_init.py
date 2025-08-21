@@ -245,6 +245,7 @@ def upgrade() -> None:
         sa.Column('content', sa.Text(), nullable=False, comment='通知內容'),
         sa.Column('is_read', sa.Boolean(), nullable=False, server_default=sa.sql.expression.false(), comment='是否已讀'),
         sa.Column('created_at', sa.DateTime(), nullable=False, default=sa.func.now()),
+        sa.Column('url', sa.String(length=256), nullable=True, comment='通知連結'),
         sa.ForeignKeyConstraint(['member_id'], ['members.member_id']),
     )
     op.create_index('ix_notifications_id', 'notifications', ['id'], unique=False)

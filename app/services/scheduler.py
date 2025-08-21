@@ -61,13 +61,20 @@ def notify_upcoming_activities():
             participants = db.query(ActivityJoin).filter_by(activity_id=activity.activity_id, status="joined").all()
             for participant in participants:
                 joined_url = f"/api/activities/joined_details_page?id={activity.activity_id}&member_id={participant.member_id}"
-                notify = Notification(
+                # 檢查是否已發送過同樣通知
+                exists = db.query(Notification).filter_by(
                     member_id=participant.member_id,
                     title="活動即將開始提醒",
-                    content=f"您參加的活動「{activity.title}」將於兩小時後開始，請記得準時參加並向發起人簽到！",
                     url=joined_url
-                )
-                db.add(notify)
+                ).first()
+                if not exists:
+                    notify = Notification(
+                        member_id=participant.member_id,
+                        title="活動即將開始提醒",
+                        content=f"您參加的活動「{activity.title}」將於兩小時後開始，請記得準時參加並向發起人簽到！",
+                        url=joined_url
+                    )
+                    db.add(notify)
         db.commit()
 
 def start_scheduler():

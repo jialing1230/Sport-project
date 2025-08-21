@@ -564,6 +564,31 @@
         background-color: #d97c89;
       }
 
+      .badge-verified{
+        display:inline-flex;
+        align-items:center;
+        gap:4px;
+        font-size:13px;
+        font-weight:700;
+        color:#176b45;
+        background:#e7f6ef;
+        border:1px solid #bfe8d5;
+        padding:2px 10px 2px 6px;
+        border-radius:999px;
+        vertical-align:middle;
+      }
+      .badge-verified svg{ width:14px; height:14px; }
+
+      .name-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;   /* 名字和徽章之間的距離 */
+      }
+
+      .name-row h3 {
+        margin: 0;  /* 去掉預設間距，避免往下掉 */
+      }
+
 
     </style>
   </head>
@@ -609,7 +634,18 @@
           };
         </script>
         </div>
-        <h3></h3>
+        <div class="name-row">
+          <h3 id="memberName"></h3>
+          <span id="phoneVerifiedBadge" class="badge-verified" hidden>
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M12 3l7 3v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3z" stroke="#176b45" stroke-width="1.6"/>
+              <path d="M8.5 12.5l2.5 2.5 4.5-5" stroke="#176b45" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            手機驗證
+          </span>
+        </div>
+
+
         <h2>自我介紹</h2>
         <p></p>
       </div>
@@ -751,8 +787,17 @@
       }
 
       // 更新 name 和公開介紹到頁面
-      document.querySelector(".info-box h3").textContent = memberData.name;
+      document.getElementById("memberName").textContent = memberData.name;
       document.querySelector(".info-box p").textContent = memberData.public_intro;
+
+      // 判斷是否顯示手機驗證徽章
+      const badge = document.getElementById("phoneVerifiedBadge");
+      if (memberData.phone || memberData.phone_verified) {
+        badge.hidden = false;   // 顯示徽章
+      } else {
+        badge.hidden = true;    // 沒驗證就隱藏
+      }
+
 
       // 更新社群連結到「關於我」卡片
       const fbLink = memberData.fb_link || memberData.facebook_url || "";

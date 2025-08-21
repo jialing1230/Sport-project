@@ -154,6 +154,23 @@
       position: absolute;
       right: 18px; top: 14px; font-size: 22px; color: #bbb; cursor: pointer; background: none; border: none;
     }
+
+    /* ✅ 手機驗證徽章 */
+    .verify-badge{
+      display:inline-flex; align-items:center; gap:6px;
+      font-size:13px; font-weight:700; color:#176b45;
+      background:#e7f6ef; border:1px solid #bfe8d5;
+      padding:4px 8px; border-radius:999px;
+    }
+
+    .verify-badge svg{ width:16px; height:16px; }
+
+    /* 放在名稱下方、置中顯示的那一列 */
+    .verify-line{
+      margin: 6px 0 4px 0;
+      display:flex; justify-content:center;
+    }
+
   </style>
 </head>
 <body>
@@ -181,6 +198,16 @@
   <button class="modal-close" onclick="closeModal()">&times;</button>
   <div class="modal-avatar" id="modalAvatar"></div>
   <div class="modal-title" id="modalName"></div>
+  <!-- ✅ 新增：名稱與自我介紹之間的驗證徽章列 -->
+  <div id="modalVerify" class="verify-line" hidden>
+    <span class="verify-badge" title="此用戶已完成手機驗證">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M12 3l7 3v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3z" stroke="#176b45" stroke-width="1.6"/>
+        <path d="M8.5 12.5l2.5 2.5 4.5-5" stroke="#176b45" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      手機驗證
+    </span>
+  </div>
   <div class="modal-row">自我介紹：</div>
   <div id="modalPublic" style="font-size:14px;color:#666;margin-bottom:8px;text-align:left;"></div>
   <div class="modal-row" style="display:flex;align-items:center;justify-content:center;gap:8px;">評價星等：
@@ -218,9 +245,14 @@
       document.getElementById("modalName").textContent = p.name;
       // 清空欄位
       document.getElementById("modalPublic").innerHTML = '載入中...';
-  document.getElementById("modalRating").textContent = '-';
-  document.getElementById("modalStars").innerHTML = renderStars(0);
+      document.getElementById("modalRating").textContent = '-';
+      document.getElementById("modalStars").innerHTML = renderStars(0);
       document.getElementById("modalTemplates").innerHTML = '';
+
+      // ★ 新增：先把「手機驗證」列關掉
+      const verifyRow = document.getElementById("modalVerify");
+      if (verifyRow) verifyRow.hidden = true;
+
       // 取得公開資料
       fetch(`/api/members/${p.member_id}`)
         .then(r => r.json())
@@ -246,7 +278,12 @@
           // 出席率
           let att = (data.attendance_rate_percent !== null && data.attendance_rate_percent !== undefined) ? data.attendance_rate_percent + '%' : '無';
           document.getElementById("modalAttendance").innerHTML = `出席率：${att}`;
-        }).catch(()=>{
+          // ★ 新增：顯示「手機驗證」徽章
+          // 建議未來後端提供 phone_verified；目前先相容：有 phone 也視為已驗證
+          const isVerified = !!(data.phone_verified !== undefined ? data.phone_verified : data.phone);
+          if (verifyRow) verifyRow.hidden = !isVerified;
+        })
+        .catch(()=>{
           document.getElementById("modalRating").textContent = '-';
           document.getElementById("modalStars").innerHTML = renderStars(0);
           document.getElementById("modalTemplates").innerHTML = '<div>無</div>';

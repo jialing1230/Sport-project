@@ -40,9 +40,11 @@
         width: 100%;
         background-color: #fff;
         box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        position: sticky;
+        position: fixed;   /* ← 原本 sticky 改成 fixed */
         top: 0;
-        z-index: 100;
+        left: 0;
+        right: 0;
+        z-index: 1000;     /* 高一點，蓋過內容 */
       }
 
       .navbar-inner{
@@ -170,7 +172,7 @@
       .select-wrapper.time, .select-wrapper.gender, .select-wrapper.level{ width:70px; }
 
       /* ===== 活動清單與卡片 ===== */
-      .main-content{ max-width:1400px; margin:0 auto; padding:20px 40px; margin-bottom:80px; }
+      .main-content{ max-width:1400px; margin:0 auto; padding:20px 40px; margin-bottom:80px; padding-top: 60px;}
 
       .activity-list{
         display:grid;
@@ -178,7 +180,6 @@
         gap:24px;
         max-width:1100px;
         margin:0 auto;
-        margin-top:18px;
       }
 
       .activity-card{
@@ -237,7 +238,7 @@
         .desktop-icons{ display:none; }
 
         /* 手機 icon 列靠右 */
-        .navbar-logo{ flex:1; }   /* 左邊 Logo/標題吃掉剩餘空間 */
+        navbar-logo { flex: 1 1 auto; min-width: 0; display:flex; align-items:center; gap:8px; }
         .mobile-icons{
           display:flex;
           align-items:center;
@@ -248,8 +249,22 @@
         .mobile-icons svg{
           width:24px;
           height:24px;
+          color: #2c4975;
+          transition: color .25s ease;         /* 溫和變化 */
+          -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
+          cursor: pointer;  
+        }
+        @media (hover:hover){
+          .mobile-icons svg:hover{ color:#81d3e1; }
         }
 
+        /* 觸控按住（手機） */
+        .mobile-icons svg:active{ color:#81d3e1; }
+
+        /* 鍵盤可見焦點（可有可無，無障礙友善） */
+        .mobile-icons svg:focus-visible{ outline:none; color:#81d3e1; }
+       
         /* 標題列間距更緊湊 */
         .navbar-top{ gap:8px; }
 
@@ -308,6 +323,38 @@
         /* 手機隱藏桌機的搜尋框 */
         .search-box{ display:none !important; }
       }
+      #mobileSearchInline {
+        flex: 0 1 auto;
+        width: 100%;
+        max-width: 50vw;
+        height: 32px;
+        border: none;
+        border-radius: 6px;
+        padding: 0 12px;
+        font-size: 15px;
+        color: #2c4975;
+        outline: none;
+        background: #fff;
+        box-shadow: 0 0px 4px rgba(0,0,0,0.15);
+        box-sizing: border-box;
+
+        opacity: 0;
+        visibility: hidden;                   /* 初始隱藏 */
+        transition: opacity 0.3s ease;        /* ✅ 平滑淡入淡出 */
+      }
+
+      #mobileSearchInline.show {
+        opacity: 1;
+        visibility: visible;                  /* 顯示時可點 */
+      }
+
+
+      #mobileSearchInline::placeholder {
+        color: #2c4975;
+        opacity: .55;
+      }
+
+
 
 
       /* =========================================================
@@ -352,6 +399,8 @@
           flex: 0 0 12px;                  /* ← 左右各 12px 緩衝 */
         }
       }
+      #nav-spacer { height: 0; }
+
 
     </style>
   </head>
@@ -362,7 +411,9 @@
           <div class="navbar-top">
             <div class="navbar-logo">
               <img src="/static/logo.png" alt="logo" />
-              <span class="navbar-title">SportMatch</span>
+              <span class="navbar-title" id="brandTitle">SportMatch</span>
+                <!-- ✅ 手機就地伸展的搜尋輸入框（預設縮起來） -->
+                <input id="mobileSearchInline" type="text" placeholder="搜尋活動名稱" autocomplete="off" />
             </div>
             <!-- 桌機版 -->
             <div class="navbar-icons desktop-icons">
@@ -388,22 +439,24 @@
             </div>
             <!-- 手機版 -->
             <div class="navbar-icons mobile-icons">
-              <!-- 搜尋 -->
-              <svg viewBox="0 0 24 24" width="24" height="24">
-                <circle cx="10" cy="10" r="7" stroke="#2c4975" stroke-width="2" fill="none"/>
-                <line x1="15.95" y1="15.95" x2="21" y2="21" stroke="#2c4975" stroke-width="2" stroke-linecap="round"/>
-              </svg>
+                
+              
+                <!-- 搜尋 -->
+              <svg id="mobileSearchBtn" viewBox="0 0 24 24" width="24" height="24">
+                  <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="2" fill="none"/>
+                  <line x1="15.95" y1="15.95" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
               <!-- 地圖（保留功能） -->
               <svg id="backBtn" viewBox="0 0 24 24" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M2.5 20V5.5C2.5 5.22 2.72 5 3 5l5.5 2.75L15 3l6 3c.28 0 .5.22.5.5v15c0 .28-.22.5-.5.5l-6-3-6.5 3.5-5.5-2.75c-.28 0-.5-.22-.5-.5Z" stroke="#2C4975" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                <path d="M8.5 7.75V21.5" stroke="#2C4975" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                <path d="M15 3V19" stroke="#2C4975" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                <path d="M2.5 20V5.5C2.5 5.22 2.72 5 3 5l5.5 2.75L15 3l6 3c.28 0 .5.22.5.5v15c0 .28-.22.5-.5.5l-6-3-6.5 3.5-5.5-2.75c-.28 0-.5-.22-.5-.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                <path d="M8.5 7.75V21.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                <path d="M15 3V19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
               </svg>
               <!-- 選單 -->
               <svg viewBox="0 0 24 24" width="24" height="24">
-                <line x1="3" y1="6" x2="21" y2="6" stroke="#2c4975" stroke-width="2" stroke-linecap="round"/>
-                <line x1="3" y1="12" x2="21" y2="12" stroke="#2c4975" stroke-width="2" stroke-linecap="round"/>
-                <line x1="3" y1="18" x2="21" y2="18" stroke="#2c4975" stroke-width="2" stroke-linecap="round"/>
+                <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <line x1="3" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <line x1="3" y1="18" x2="21" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
             </div>
           </div>
@@ -492,6 +545,7 @@
           </div>
         </div>
       </nav>
+      <div id="nav-spacer"></div>
 
     <div class="main-content">
       <div class="activity-list" id="activityList">
@@ -1035,6 +1089,115 @@
         });
       });
 
+      // === 手機版：就地伸縮搜尋欄（淡入淡出 + 修正二次點擊閃爍） ===
+      (function(){
+        const btn = document.getElementById('mobileSearchBtn');   // 🔍
+        const brand = document.getElementById('brandTitle');      // <span id="brandTitle">SportMatch</span>
+        const input = document.getElementById('mobileSearchInline');
+        const desktopInput = document.getElementById('searchTitle');
+
+        if (!btn || !brand || !input) return;
+
+        const FADE_MS = 300;           // 必須與 CSS transition 時間一致
+        let suppressBlur = false;      // 防止點🔍造成的 blur 觸發收起
+
+        function openSearch() {
+          // 顯示輸入框（先讓它可見，再開啟淡入）
+          input.style.visibility = 'visible';
+          brand.style.display = 'none';
+          if (desktopInput) input.value = desktopInput.value || '';
+
+          // 下一幀再加 .show，讓 opacity 能動畫
+          requestAnimationFrame(() => {
+            input.classList.add('show');
+            setTimeout(() => input.focus(), 0);
+          });
+        }
+
+        function closeSearch({clearValue = true} = {}) {
+          // 淡出：先移除 .show，等 opacity 動畫結束後再隱藏 visibility & 還原品牌
+          input.classList.remove('show');
+
+          // 一次性 transitionend 監聽（只關心 opacity）
+          const onFadeOutEnd = (e) => {
+            if (e.propertyName !== 'opacity') return;
+            input.style.visibility = 'hidden';
+            brand.style.display = 'inline';
+            input.removeEventListener('transitionend', onFadeOutEnd);
+          };
+          input.addEventListener('transitionend', onFadeOutEnd);
+
+          // 若不放心某些瀏覽器的 transitionend，備援 setTimeout
+          setTimeout(() => {
+            input.style.visibility = 'hidden';
+            brand.style.display = 'inline';
+          }, FADE_MS + 20);
+
+          if (clearValue) {
+            input.value = '';
+            if (desktopInput) desktopInput.value = '';
+            if (typeof filterActivities === 'function') filterActivities();
+          }
+        }
+
+        // 比 click 早觸發，避免先 blur
+        btn.addEventListener('pointerdown', () => { suppressBlur = true; });
+
+        // 點🔍 → toggle 開/關
+        btn.addEventListener('click', () => {
+          const isOpen = input.classList.contains('show');
+          if (isOpen) closeSearch({clearValue: true});
+          else openSearch();
+
+          // 本輪事件結束後再解除，確保 blur 被忽略
+          setTimeout(() => { suppressBlur = false; }, 0);
+        });
+
+        // 即時同步到桌機欄位並篩選
+        input.addEventListener('input', () => {
+          if (desktopInput) desktopInput.value = input.value;
+          if (typeof filterActivities === 'function') filterActivities();
+        });
+
+        // Enter 觸發篩選並收起（保留關鍵字）
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' && typeof filterActivities === 'function') {
+            filterActivities();
+            input.blur(); // 讓鍵盤收起
+          }
+        });
+
+        // 不是因為按🔍造成的 blur，且內容為空 → 收起（清空動作在 closeSearch 裡會做）
+        input.addEventListener('blur', () => {
+          if (suppressBlur) return;
+          if (input.value.trim() === '') {
+            closeSearch({clearValue: true});
+          }
+        });
+      })();
+
+      (function () {
+        const nav    = document.querySelector('.navbar');
+        const spacer = document.getElementById('nav-spacer');
+
+        if (!nav || !spacer) return;
+
+        function setNavSpacer() {
+          // 讀取實際高度（含上下邊距/陰影以外）
+          spacer.style.height = nav.offsetHeight + 'px';
+        }
+
+        // 初始 & 視窗尺寸變更時更新
+        window.addEventListener('load', setNavSpacer);
+        window.addEventListener('resize', setNavSpacer);
+
+        // 若 navbar 內容高度有變（例如篩選列折行/RWD），也更新
+        const mo = new MutationObserver(setNavSpacer);
+        mo.observe(nav, { childList: true, subtree: true, attributes: true });
+
+        // 若有字型載入造成高度改變，再保險更新一次
+        setTimeout(setNavSpacer, 0);
+      })();
 
     </script>
   </body>

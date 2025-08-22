@@ -172,23 +172,18 @@
       .select-wrapper.time, .select-wrapper.gender, .select-wrapper.level{ width:70px; }
 
       /* ===== 活動清單與卡片 ===== */
-      .main-content{ max-width:1400px; margin:0 auto; padding:20px 40px; margin-bottom:80px; padding-top: 60px;}
+      .main-content{ max-width:1480px; margin:0 auto; padding:20px 40px; margin-bottom:80px; padding-top: 20px;}
 
-      .activity-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 24px;
-        justify-content: center;  /* 卡片置中 */
-        max-width: 1100px;        /* 整體寬度上限，可依需求調整 */
-        margin: 0 auto;
-      }
 
       .activity-card{
         background:#fff; border-radius:10px; padding:15px;
         box-shadow:0 2px 8px rgba(0,0,0,.05);
         transition: box-shadow .3s ease, transform .3s ease;
-        width: 320px;   /* 👈 固定卡片寬度 */
-        flex: 0 0 auto; /* 避免自動伸縮 */
+
+        /* ✅ 固定卡片寬度，不被拉伸 */
+        width: 340px;
+        flex: 0 0 340px;
+        box-sizing: border-box;
       }
       .activity-card:hover{ box-shadow:0 4px 12px rgba(0,0,0,.15);}
 
@@ -232,6 +227,9 @@
 
       /* ===== 公用效果 ===== */
       .fade-out{ transition: opacity .4s cubic-bezier(.4,0,.2,1); opacity:0; }
+
+      .activity-card a{ display:block; max-width:100%; }
+      .activity-card svg, .activity-card img{ max-width:100%; height:auto; }
 
       /* =========================================================
         RWD：手機 / 平板（<= 900px）
@@ -314,20 +312,21 @@
 
         /* 活動清單：單欄 */
         .activity-list{
-          grid-template-columns:1fr;
-          gap:16px;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 16px;
+          justify-content: center;
+          padding-inline: 12px;
         }
 
-        /* 手機 main-content 不要 40px padding，避免橫向捲軸 */
-        .main-content{
-          padding:16px;
-        }
+
 
         /* 手機隱藏桌機的搜尋框 */
         .search-box{ display:none !important; }
         .activity-card {
-        width: 280px;   /* 👈 固定寬度，不再用 1fr */
+        width: 320px;   /* 👈 固定寬度，不再用 1fr */
         flex: 0 0 auto;
+        box-sizing: border-box;
         }
       }
       #mobileSearchInline {
@@ -365,7 +364,7 @@
 
 
       /* =========================================================
-        RWD：桌機（>= 901px）
+        RWD：桌機（>= 601px）
         ========================================================= */
       @media (min-width: 601px){
         /* 保留桌機右側 250px 內縮空間（避免與右側桌機文字撞位） */
@@ -399,10 +398,15 @@
 
         /* 活動清單：3 欄 */
         .activity-list{
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-          gap: 24px;
+          display: flex !important;   /* ✅ 回到 flex 排列 */
+          flex-wrap: wrap;
+          gap: 40px;
           justify-content: center;
+          max-width: 1480px;
+          margin: 0 auto;
+
+          /* ✅ 保險：清掉任何殘留的 grid 設定 */
+          grid-template-columns: unset !important;
         }
 
         .filters::before,
@@ -411,7 +415,9 @@
           flex: 0 0 12px;                  /* ← 左右各 12px 緩衝 */
         }
         .activity-card {
-          width: 280px;
+          width: 340px !important;
+          flex: 0 0 340px !important;
+          box-sizing: border-box;
         }
       }
       #nav-spacer { height: 0; }
@@ -682,21 +688,19 @@
 
             timeStr = `
               <div class="activity-info" style="display: flex; align-items: flex-start; color: #2c4975;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256">
-                <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"></path>
-              </svg>
-                  <circle cx="12" cy="12" r="10" stroke="#2c4975" stroke-width="2" fill="none"/>
-                  <path d="M12 7v5l3 3" stroke="#2c4975" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256" style="margin-right:8px; vertical-align:middle;">
+                  <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"></path>
                 </svg>
                 <span class="value" style="color: #2c4975; margin-left: 6px;">第一次上課：${first.getMonth() + 1}/${first.getDate()}（${weekdayFirst}）${startTime}～${endTime}</span>
               </div>
               <div class="activity-info" style="display: flex; align-items: flex-start; color: #2c4975;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 256 256" fill="#2c4975" style="vertical-align: middle; margin-top: 2px;  margin-right: 8px">
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 256 256" fill="#2c4975" style="vertical-align: middle; margin-top: 2px; margin-right: 8px">
                   <path d="M208,28H188V24a12,12,0,0,0-24,0v4H92V24a12,12,0,0,0-24,0v4H48A20,20,0,0,0,28,48V208a20,20,0,0,0,20,20H208a20,20,0,0,0,20-20V48A20,20,0,0,0,208,28ZM68,52a12,12,0,0,0,24,0h72a12,12,0,0,0,24,0h16V76H52V52ZM52,204V100H204V204Zm112-52a12,12,0,0,1-12,12H104a12,12,0,0,1,0-24h48A12,12,0,0,1,164,152Z"/>
                 </svg>
                 <span class="value" style="color: #2c4975; margin-left: 6px;">固定課程：每週${daysUsed.join("、")}｜${startTime}～${endTime}（共 ${total} 堂）</span>
               </div>
             `;
+
           } else {
             const start = new Date(act.start_time);
             const end = new Date(act.end_time);

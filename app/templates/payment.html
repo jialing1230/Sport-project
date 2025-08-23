@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <link rel="manifest" href="/static/manifest.json" />
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          .register("/static/service-worker.js")
+          .then(() => console.log("Service Worker Registered"))
+          .catch((error) =>
+            console.error("Service Worker Registration Failed:", error)
+          );
+      }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>課程月費付款</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        color: #333;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+
+      .container {
+        position: relative;
+        max-width: 900px;
+        min-width: 320px;
+        width: 100%;
+        margin: 0 auto;
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 30px;
+        overflow: hidden;
+        min-height: 500px;
+      }
+
+      .payment-form {
+        flex: 1 1 500px;
+        z-index: 1;
+      }
+
+      .payment-summary {
+        flex: 1 1 300px;
+        background-color: #f9f9f9;
+        padding: 25px;
+        border-radius: 8px;
+        border: 1px solid #e0e0e0;
+        height: fit-content;
+      }
+
+      .title-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 30px;
+      }
+
+      .logo-inline {
+        width: 50px;
+        height: 50px;
+        object-fit: contain;
+        border-radius: 50%;
+      }
+
+      h1 {
+        color: #2c4975;
+        white-space: nowrap;
+        font-size: 24px;
+        margin: 0;
+      }
+
+      .form-row {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 20px;
+      }
+
+      .form-label {
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #2c4975;
+        white-space: nowrap;
+      }
+
+      .form-input {
+        padding: 12px;
+        width: 100%;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+        transition: border-color 0.2s ease;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: #81d3e1;
+        box-shadow: 0 0 0 2px rgba(129, 211, 225, 0.2);
+      }
+
+      .card-row {
+        display: flex;
+        gap: 10px;
+      }
+
+      .card-row .form-input {
+        flex: 1;
+      }
+
+      .subscription-plan-group {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+
+      .subscription-plan {
+        flex: 1;
+        min-width: 150px;
+        padding: 20px 15px;
+        background-color: #f9f9f9;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: center;
+        font-size: 14px;
+        user-select: none;
+        position: relative;
+      }
+
+      .subscription-plan:hover {
+        background-color: #eaf3fa;
+        border-color: #81d3e1;
+      }
+
+      .subscription-plan input {
+        display: none;
+      }
+
+      .subscription-plan:has(input:checked) {
+        background-color: #81d3e1;
+        border-color: #2c4975;
+        color: white;
+        font-weight: bold;
+      }
+
+      .subscription-plan:active {
+        transform: scale(0.98);
+      }
+
+      .plan-price {
+        font-size: 24px;
+        font-weight: bold;
+        margin: 10px 0 5px 0;
+        white-space: nowrap;
+      }
+
+      .plan-period {
+        font-size: 12px;
+        opacity: 0.8;
+      }
+
+      .plan-savings {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background-color: #ff6b6b;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: bold;
+      }
+
+      .summary-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      .summary-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+        font-weight: bold;
+        font-size: 18px;
+        color: #2c4975;
+      }
+
+      .summary-label {
+        color: #666;
+      }
+
+      .summary-value {
+        font-weight: bold;
+        color: #333;
+      }
+
+             .btn-primary {
+         padding: 12px 20px;
+         font-size: 16px;
+         border: none;
+         border-radius: 4px;
+         cursor: pointer;
+         color: white;
+         transition: 0.2s ease;
+         white-space: nowrap;
+         background-color: #f8a9b3;
+         width: 100%;
+         margin-top: 20px;
+         font-weight: bold;
+       }
+
+               .btn-primary:hover {
+          background-color: #e695a0;
+          transform: translateY(-1px);
+        }
+
+      .btn-primary:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .security-notice {
+        background-color: #e8f5e8;
+        border: 1px solid #4caf50;
+        border-radius: 4px;
+        padding: 15px;
+        margin-top: 20px;
+        font-size: 14px;
+        color: #2e7d32;
+      }
+
+      .security-notice::before {
+        content: "🔒 ";
+        margin-right: 5px;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          flex-direction: column;
+          padding: 20px;
+        }
+        
+        .payment-summary {
+          order: -1;
+        }
+        
+        .title-row {
+          gap: 8px;
+          margin-bottom: 20px;
+        }
+        
+        h1 {
+          font-size: 20px;
+        }
+        
+        .form-row {
+          margin-bottom: 15px;
+        }
+        
+        .form-label {
+          font-size: 14px;
+        }
+        
+        .form-input {
+          font-size: 14px;
+          padding: 10px;
+        }
+        
+        .btn-primary {
+          font-size: 15px;
+          padding: 10px 0;
+        }
+        
+        .subscription-plan-group {
+          flex-direction: column;
+          gap: 10px;
+        }
+        
+        .card-row {
+          flex-direction: column;
+          gap: 10px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .container {
+          padding: 15px;
+        }
+        
+        h1 {
+          font-size: 18px;
+        }
+        
+        .payment-summary {
+          padding: 20px;
+        }
+        
+        .subscription-plan {
+          min-width: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="payment-form">
+        <div class="title-row">
+          <img
+            src="{{ url_for('static', filename='logo.png') }}"
+            alt="Logo"
+            class="logo-inline"
+          />
+          <h1>課程月費付款</h1>
+        </div>
+
+        <form id="paymentForm">
+          <div class="form-row">
+            <label class="form-label">月費方案</label>
+            <div class="subscription-plan-group">
+              <div class="subscription-plan">
+                <input type="radio" name="subscriptionPlan" value="monthly" id="monthly" checked>
+                <label for="monthly">
+                  <div>月費</div>
+                  <div class="plan-price">NT$ 1,200</div>
+                  <div class="plan-period">每月</div>
+                </label>
+              </div>
+              <div class="subscription-plan">
+                <input type="radio" name="subscriptionPlan" value="quarterly" id="quarterly">
+                <label for="quarterly">
+                  <div>季費</div>
+                  <div class="plan-price">NT$ 3,200</div>
+                  <div class="plan-period">每季</div>
+                  <div class="plan-savings">省 NT$ 400</div>
+                </label>
+              </div>
+              <div class="subscription-plan">
+                <input type="radio" name="subscriptionPlan" value="yearly" id="yearly">
+                <label for="yearly">
+                  <div>年費</div>
+                  <div class="plan-price">NT$ 12,000</div>
+                  <div class="plan-period">每年</div>
+                  <div class="plan-savings">省 NT$ 2,400</div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label for="cardNumber" class="form-label">卡號</label>
+            <input
+              type="text"
+              id="cardNumber"
+              name="cardNumber"
+              class="form-input"
+              placeholder="1234 5678 9012 3456"
+              maxlength="19"
+              required
+            />
+          </div>
+
+          <div class="form-row">
+            <label for="cardHolder" class="form-label">持卡人姓名</label>
+            <input
+              type="text"
+              id="cardHolder"
+              name="cardHolder"
+              class="form-input"
+              placeholder="請輸入持卡人姓名"
+              required
+            />
+          </div>
+
+          <div class="form-row">
+            <label class="form-label">有效期限</label>
+            <div class="card-row">
+              <input
+                type="text"
+                id="expiryMonth"
+                name="expiryMonth"
+                class="form-input"
+                placeholder="MM"
+                maxlength="2"
+                required
+              />
+              <span style="display: flex; align-items: center; font-size: 18px; color: #666;">/</span>
+              <input
+                type="text"
+                id="expiryYear"
+                name="expiryYear"
+                class="form-input"
+                placeholder="YY"
+                maxlength="2"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label for="cvv" class="form-label">安全碼</label>
+            <input
+              type="text"
+              id="cvv"
+              name="cvv"
+              class="form-input"
+              placeholder="123"
+              maxlength="4"
+              required
+            />
+          </div>
+
+          <div class="form-row">
+            <button type="submit" class="btn-primary" id="submitBtn">確認付款</button>
+          </div>
+
+          <div class="security-notice">
+            您的付款資訊將透過SSL加密傳輸，確保交易安全。月費將於每月自動扣款。
+          </div>
+        </form>
+      </div>
+
+      <div class="payment-summary">
+        <h3 style="color: #2c4975; margin-top: 0; margin-bottom: 20px;">付款摘要</h3>
+        
+        <div class="summary-item">
+          <span class="summary-label">選擇方案</span>
+          <span class="summary-value" id="selectedPlan">月費</span>
+        </div>
+        
+        <div class="summary-item">
+          <span class="summary-label">方案費用</span>
+          <span class="summary-value" id="planFee">NT$ 1,200</span>
+        </div>
+        
+        <div class="summary-item">
+          <span class="summary-label">手續費</span>
+          <span class="summary-value" id="serviceFee">NT$ 30</span>
+        </div>
+        
+        <div class="summary-item">
+          <span class="summary-label">優惠折扣</span>
+          <span class="summary-value" id="discount">NT$ 0</span>
+        </div>
+        
+        <div class="summary-item">
+          <span class="summary-label">總計</span>
+          <span class="summary-value" id="totalAmount">NT$ 1,230</span>
+        </div>
+        
+        <div style="margin-top: 20px; padding: 15px; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; font-size: 13px; color: #856404;">
+          <strong>注意事項：</strong><br>
+          • 月費將於每月自動扣款<br>
+          • 可隨時取消訂閱<br>
+          • 課程開始前7天可申請退款
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // 卡號格式化
+      document.getElementById('cardNumber').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\s/g, '').replace(/\D/g, '');
+        let formattedValue = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+        e.target.value = formattedValue;
+      });
+
+      // 月份限制
+      document.getElementById('expiryMonth').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value > 12) value = 12;
+        if (value < 1) value = '';
+        e.target.value = value;
+      });
+
+      // 年份限制
+      document.getElementById('expiryYear').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length === 2) {
+          let currentYear = new Date().getFullYear().toString().slice(-2);
+          if (value < currentYear) {
+            e.target.value = currentYear;
+          }
+        }
+      });
+
+      // CVV 只允許數字
+      document.getElementById('cvv').addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/\D/g, '');
+      });
+
+      // 月費方案選擇
+      document.querySelectorAll('.subscription-plan').forEach(plan => {
+        plan.addEventListener('click', function() {
+          const radio = this.querySelector('input[type="radio"]');
+          radio.checked = true;
+          updateSummary();
+        });
+      });
+
+      // 更新付款摘要
+      function updateSummary() {
+        const selectedPlan = document.querySelector('input[name="subscriptionPlan"]:checked').value;
+        const planData = {
+          monthly: { name: '月費', fee: 1200, discount: 0 },
+          quarterly: { name: '季費', fee: 3200, discount: 400 },
+          yearly: { name: '年費', fee: 12000, discount: 2400 }
+        };
+        
+        const plan = planData[selectedPlan];
+        const serviceFee = 30;
+        const total = plan.fee + serviceFee - plan.discount;
+        
+        document.getElementById('selectedPlan').textContent = plan.name;
+        document.getElementById('planFee').textContent = `NT$ ${plan.fee.toLocaleString()}`;
+        document.getElementById('serviceFee').textContent = `NT$ ${serviceFee}`;
+        document.getElementById('discount').textContent = `NT$ ${plan.discount}`;
+        document.getElementById('totalAmount').textContent = `NT$ ${total.toLocaleString()}`;
+      }
+
+      // 表單提交
+      document.getElementById('paymentForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const submitBtn = document.getElementById('submitBtn');
+        const originalText = submitBtn.textContent;
+        
+        // 基本驗證
+        const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+        const cardHolder = document.getElementById('cardHolder').value.trim();
+        const expiryMonth = document.getElementById('expiryMonth').value;
+        const expiryYear = document.getElementById('expiryYear').value;
+        const cvv = document.getElementById('cvv').value;
+        
+        if (!cardNumber || cardNumber.length < 16) {
+          alert('請輸入有效的卡號');
+          return;
+        }
+        
+        if (!cardHolder) {
+          alert('請輸入持卡人姓名');
+          return;
+        }
+        
+        if (!expiryMonth || !expiryYear) {
+          alert('請輸入有效期限');
+          return;
+        }
+        
+        if (!cvv || cvv.length < 3) {
+          alert('請輸入安全碼');
+          return;
+        }
+        
+        // 顯示處理中狀態
+        submitBtn.textContent = '處理中...';
+        submitBtn.disabled = true;
+        
+        try {
+          // 這裡可以加入實際的付款API調用
+          // 模擬API調用延遲
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          
+          // 獲取選擇的方案和金額
+          const selectedPlan = document.querySelector('input[name="subscriptionPlan"]:checked').value;
+          const planData = {
+            monthly: { name: '月費方案', fee: 1200, discount: 0 },
+            quarterly: { name: '季費方案', fee: 3200, discount: 400 },
+            yearly: { name: '年費方案', fee: 12000, discount: 2400 }
+          };
+          const plan = planData[selectedPlan];
+          const serviceFee = 30;
+          const total = plan.fee + serviceFee - plan.discount;
+          
+          // 模擬成功付款
+          alert('付款成功！您的月費訂閱已啟用。');
+          
+          // 導向成功頁面，並傳遞參數
+          window.location.href = `/payment-success?plan=${encodeURIComponent(plan.name)}&amount=${total.toLocaleString()}`;
+          
+        } catch (error) {
+          alert('付款失敗，請稍後再試');
+          submitBtn.textContent = originalText;
+          submitBtn.disabled = false;
+        }
+      });
+
+      // 頁面載入時執行
+      updateSummary();
+    </script>
+  </body>
+</html>

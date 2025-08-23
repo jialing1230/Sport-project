@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <link rel="manifest" href="/static/manifest.json" />
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          .register("/static/service-worker.js")
+          .then(() => console.log("Service Worker Registered"))
+          .catch((error) =>
+            console.error("Service Worker Registration Failed:", error)
+          );
+      }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>付款成功</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        color: #333;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+
+      .container {
+        position: relative;
+        max-width: 600px;
+        min-width: 320px;
+        width: 100%;
+        margin: 0 auto;
+        background-color: #fff;
+        padding: 40px 30px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+
+      .success-icon {
+        width: 80px;
+        height: 80px;
+        background-color: #4caf50;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 30px;
+        font-size: 40px;
+        color: white;
+      }
+
+      .title-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 30px;
+      }
+
+      .logo-inline {
+        width: 50px;
+        height: 50px;
+        object-fit: contain;
+        border-radius: 50%;
+      }
+
+      h1 {
+        color: #2c4975;
+        white-space: nowrap;
+        font-size: 24px;
+        margin: 0;
+      }
+
+      .success-title {
+        color: #4caf50;
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 20px;
+      }
+
+      .success-message {
+        color: #666;
+        font-size: 16px;
+        line-height: 1.6;
+        margin-bottom: 30px;
+      }
+
+      .order-details {
+        background-color: #f9f9f9;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 25px;
+        margin-bottom: 30px;
+        text-align: left;
+      }
+
+      .order-details h3 {
+        color: #2c4975;
+        margin-top: 0;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .detail-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        font-size: 14px;
+      }
+
+      .detail-item:last-child {
+        margin-bottom: 0;
+        padding-top: 12px;
+        border-top: 1px solid #e0e0e0;
+        font-weight: bold;
+        font-size: 16px;
+        color: #2c4975;
+      }
+
+      .detail-label {
+        color: #666;
+      }
+
+      .detail-value {
+        color: #333;
+        font-weight: bold;
+      }
+
+             .btn-primary {
+         padding: 12px 30px;
+         font-size: 16px;
+         border: none;
+         border-radius: 4px;
+         cursor: pointer;
+         color: white;
+         transition: 0.2s ease;
+         white-space: nowrap;
+         background-color: #f8a9b3;
+         font-weight: bold;
+         text-decoration: none;
+         display: inline-block;
+         margin: 0 10px;
+       }
+
+               .btn-primary:hover {
+          background-color: #e695a0;
+          transform: translateY(-1px);
+        }
+
+      .btn-secondary {
+        padding: 12px 30px;
+        font-size: 16px;
+        border: 2px solid #81d3e1;
+        border-radius: 4px;
+        cursor: pointer;
+        color: #81d3e1;
+        transition: 0.2s ease;
+        white-space: nowrap;
+        background-color: transparent;
+        font-weight: bold;
+        text-decoration: none;
+        display: inline-block;
+        margin: 0 10px;
+      }
+
+      .btn-secondary:hover {
+        background-color: #81d3e1;
+        color: white;
+        transform: translateY(-1px);
+      }
+
+      .notice {
+        background-color: #e8f5e8;
+        border: 1px solid #4caf50;
+        border-radius: 4px;
+        padding: 15px;
+        margin-top: 20px;
+        font-size: 14px;
+        color: #2e7d32;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 30px 20px;
+        }
+        
+        .success-title {
+          font-size: 24px;
+        }
+        
+        .success-message {
+          font-size: 15px;
+        }
+        
+        .btn-primary,
+        .btn-secondary {
+          display: block;
+          margin: 10px 0;
+          text-align: center;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .container {
+          padding: 20px 15px;
+        }
+        
+        .success-title {
+          font-size: 22px;
+        }
+        
+        .success-message {
+          font-size: 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="success-icon">✓</div>
+      
+
+      <div class="success-title">恭喜您！付款成功</div>
+      
+      <div class="success-message">
+        您的月費訂閱已成功啟用，我們已發送確認信至您的信箱。<br>
+        感謝您選擇我們的服務！
+      </div>
+
+      <div class="order-details">
+        <h3>訂閱詳情</h3>
+        <div class="detail-item">
+          <span class="detail-label">訂閱方案</span>
+          <span class="detail-value" id="subscriptionPlan">月費方案</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">付款金額</span>
+          <span class="detail-value" id="paymentAmount">NT$ 1,230</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">訂閱狀態</span>
+          <span class="detail-value" style="color: #4caf50;">已啟用</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">下次扣款日期</span>
+          <span class="detail-value" id="nextPaymentDate">2024-02-15</span>
+        </div>
+      </div>
+
+      <div>
+        <a href="/home" class="btn-primary">返回首頁</a>
+        <a href="/member" class="btn-secondary">查看會員中心</a>
+      </div>
+
+      <div class="notice">
+        <strong>重要提醒：</strong><br>
+        • 月費將於每月自動扣款<br>
+        • 您可以在會員中心管理訂閱設定<br>
+        • 如有任何問題，請聯繫客服
+      </div>
+    </div>
+
+    <script>
+      // 從URL參數獲取訂閱資訊
+      function loadSubscriptionInfo() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const plan = urlParams.get('plan');
+        const amount = urlParams.get('amount');
+        
+        if (plan) {
+          document.getElementById('subscriptionPlan').textContent = plan;
+        }
+        
+        if (amount) {
+          document.getElementById('paymentAmount').textContent = `NT$ ${amount}`;
+        }
+        
+        // 計算下次扣款日期（一個月後）
+        const nextPayment = new Date();
+        nextPayment.setMonth(nextPayment.getMonth() + 1);
+        const nextPaymentStr = nextPayment.toISOString().split('T')[0];
+        document.getElementById('nextPaymentDate').textContent = nextPaymentStr;
+      }
+
+      // 頁面載入時執行
+      loadSubscriptionInfo();
+    </script>
+  </body>
+</html>

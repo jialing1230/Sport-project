@@ -792,10 +792,10 @@
 
       // 判斷是否顯示手機驗證徽章
       const badge = document.getElementById("phoneVerifiedBadge");
-      if (memberData.phone || memberData.phone_verified) {
-        badge.hidden = false;   // 顯示徽章
+      if (memberData.phone) {
+        badge.style.display = "inline-flex";
       } else {
-        badge.hidden = true;    // 沒驗證就隱藏
+        badge.style.display = "none";
       }
 
 

@@ -250,8 +250,8 @@
         countdownSeconds = 60;
         sendBtn.disabled = true;
         function updateCountdown() {
-          // 新增判斷：已驗證狀態直接停止倒數
-          if (sendBtn.disabled) {
+          // 只有驗證通過後才顯示『已驗證』
+          if (sendBtn.classList.contains('verified')) {
             sendBtn.textContent = '已　驗　證';
             sendBtn.style.background = '#ccc';
             countdownTimer = null;
@@ -359,6 +359,7 @@
           sendBtn.textContent = '已　驗　證';
           sendBtn.disabled = true;
           sendBtn.style.background = '#ccc';
+          sendBtn.classList.add('verified');
           codeTitle.style.display = 'none';
           codeField.style.display = 'none';
           verifyStatusField.style.display = 'none';

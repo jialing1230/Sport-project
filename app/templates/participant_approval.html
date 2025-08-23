@@ -260,6 +260,13 @@
           let html = '';
           if(data.public_intro) html += data.public_intro;
           document.getElementById("modalPublic").innerHTML = html || '無';
+           // ★ 新增：顯示「手機驗證」徽章（直接操作 display 屬性）
+          const badge = document.getElementById("modalVerify");
+          if (data.phone) {
+            badge.style.display = "flex";
+          } else {
+            badge.style.display = "none";
+          }
         }).catch(()=>{
           document.getElementById("modalPublic").innerHTML = '無';
         });
@@ -278,10 +285,6 @@
           // 出席率
           let att = (data.attendance_rate_percent !== null && data.attendance_rate_percent !== undefined) ? data.attendance_rate_percent + '%' : '無';
           document.getElementById("modalAttendance").innerHTML = `出席率：${att}`;
-          // ★ 新增：顯示「手機驗證」徽章
-          // 建議未來後端提供 phone_verified；目前先相容：有 phone 也視為已驗證
-          const isVerified = !!(data.phone_verified !== undefined ? data.phone_verified : data.phone);
-          if (verifyRow) verifyRow.hidden = !isVerified;
         })
         .catch(()=>{
           document.getElementById("modalRating").textContent = '-';

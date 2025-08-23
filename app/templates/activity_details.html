@@ -102,7 +102,7 @@
         display: flex;
         justify-content: flex-start;
         align-items: center;
-        padding: 10px;
+        
       }
 
       .left-section svg {
@@ -134,7 +134,7 @@
       }
 
       .title-text {
-        font-size: 30px;
+        font-size: 28px;
         font-weight: bold;
         margin: 0;
         color: #2c4975;
@@ -497,7 +497,25 @@
       background: #d8d8d8;
     }
 
+    .back-arrow-path {
+      stroke: #2c4975;              /* 預設深藍 */
+      transition: stroke 0.3s ease; /* 溫順過渡 */
+    }
 
+    .left-section svg:hover .back-arrow-path {
+      stroke: #81d3e1;              /* hover 淺藍 */
+    }
+
+    /* 頁面離場（往右滑出去） */
+    .page-exit {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    .page-exit-active {
+      transform: translateX(100%);
+      opacity: 0;
+      transition: all 0.4s ease; /* 動畫時間 0.4 秒 */
+    }
 
 
     </style>
@@ -512,13 +530,13 @@
           width="24"
           height="24">
             <path d="M15 19l-7-7 7-7"
-                  stroke= #81d3e1
+                  class="back-arrow-path"
                   stroke-width="2"
                   fill="none"
                   stroke-linecap="round"
                   stroke-linejoin="round"></path>
             <path d="M8 12h14"
-                  stroke="#81d3e1"
+                  class="back-arrow-path"
                   stroke-width="2"
                   fill="none"
                   stroke-linecap="round"
@@ -586,14 +604,25 @@
     </div>
 
     <script>
-      document.getElementById("back-button").onclick = () => {
-        const referrer = document.referrer;
-        if (referrer) {
-          location.href = referrer;
-        } else {
-          alert("無法獲取上一頁的網址！");
-        }
+      document.getElementById("back-button").onclick = (e) => {
+        e.preventDefault();
+        const body = document.body;
+        body.classList.add("page-exit");          // 設定初始狀態
+        requestAnimationFrame(() => {
+          body.classList.add("page-exit-active"); // 啟動動畫
+        });
+
+        // 動畫結束後再切頁
+        setTimeout(() => {
+          const referrer = document.referrer;
+          if (referrer) {
+            location.href = referrer;
+          } else {
+            alert("無法獲取上一頁的網址！");
+          }
+        }, 400); // 時間要跟 CSS transition 一致
       };
+
 
       const urlParams = new URLSearchParams(window.location.search);
       const activityId = urlParams.get("id");

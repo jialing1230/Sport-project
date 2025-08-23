@@ -431,10 +431,43 @@
         font-size: 13px;
         
       }
+      /* === 整頁右側滑入效果 === */
+      .page-slide-in {
+        animation: slideInFromRight .4s cubic-bezier(.4,0,.2,1);
+      }
+
+      @keyframes slideInFromRight {
+        from {
+          transform: translateX(100%);
+          opacity: 0.6;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      /* 右側滑入的全螢幕遮罩，不影響版面與 fixed 元素 */
+      .page-slide-veil{
+        position: fixed;
+        inset: 0;                    /* top:0; right:0; bottom:0; left:0 */
+        background: #fff;            /* 依你的頁面底色調整；現在用白色 */
+        transform: translateX(100%); /* 一開始在右側螢幕外 */
+        transition: transform .38s cubic-bezier(.4,0,.2,1), opacity .38s;
+        opacity: 1;
+        z-index: 4000;               /* 蓋過 navbar / bottom-nav */
+        pointer-events: none;        /* 常態不擋點擊 */
+        will-change: transform;
+      }
+      .page-slide-veil.show{
+        pointer-events: auto;        /* 動畫中避免誤點 */
+        transform: translateX(0);    /* 從右邊滑入覆蓋整個畫面 */
+      }
 
     </style>
   </head>
   <body>
+    <!-- 右側滑入遮罩：平常不可見，點卡片時才滑入 -->
+      <div id="pageSlideVeil" class="page-slide-veil" aria-hidden="true"></div>
       <nav class="navbar">
         <div class="navbar-inner">
           <!-- ✅ 上層：品牌 + icon/文字 -->
@@ -1235,6 +1268,31 @@
         // 若有字型載入造成高度改變，再保險更新一次
         setTimeout(setNavSpacer, 0);
       })();
+
+      // 活動卡：右側滑入（用固定遮罩，不碰 <body>，不影響 fixed 導覽列）
+      (function(){
+        const list = document.getElementById('activityList');
+        const veil = document.getElementById('pageSlideVeil');
+        if(!list || !veil) return;
+
+        list.addEventListener('click', (e)=>{
+          const a = e.target.closest('.activity-card a');
+          if(!a) return;
+
+          // 新分頁行為維持原樣
+          if (e.button === 1 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+          e.preventDefault();
+
+          // 顯示遮罩並右側滑入
+          veil.classList.add('show');
+
+          // 與 CSS transition 時間對齊（.38s → 380ms）
+          const DELAY = 380;
+          setTimeout(()=>{ window.location.href = a.href; }, DELAY);
+        });
+      })();
+
 
     </script>
   </body>

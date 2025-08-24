@@ -16,6 +16,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>我的活動</title>
     <style>
+      /* 讓 padding 不會把元素撐爆寬度，避免出現水平卷軸 */
+      *, *::before, *::after { box-sizing: border-box; }
+
       :root {
         --primary-color: #64bcd0;
         --text-color: #2c4975;
@@ -24,8 +27,13 @@
         --bg-color: #f5f5f5;
         --tab-bg: #ffffff;
         --word-color: black;
+        --header-h: 66px;   /* tabs-container 64px + divider 2px */
+        --bottom-h: 60px;   /* 你的 bottom-nav 高度 */
       }
-
+      html, body{
+        height: 100%;
+        overflow: hidden;              /* 鎖住整頁卷軸，只讓內容區滾 */
+      }
       body {
         margin: 0;
         font-family: Arial, sans-serif;
@@ -36,8 +44,9 @@
 
       .tabs-wrapper {
         background-color: var(--tab-bg);
-        position: relative;
-        z-index: 10;
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        z-index: 1200;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08); /* ⭐ tabs區域增加微陰影 */
       }
 
@@ -113,14 +122,16 @@
         border-radius: 2px;
       }
 
+      /* 手機：左右只留 12px */
       .tab-content {
-        padding: 20px 20px;
+        padding: 16px 18px;
         font-size: 24px;
         text-align: center;
         font-weight: 600;
         line-height: 1.8;
         letter-spacing: 0.5px;
       }
+
 
       /* FAB按鈕 */
       .fab {
@@ -159,40 +170,35 @@
         transform: scale(0.95); /* ⭐點擊時微縮小 */
       }
 
+      /* 手機：卡片撐滿欄寬、不再有額外左右留白 */
       .activity-card-container {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        grid-template-columns: 1fr;
         gap: 20px;
         justify-content: center;
-        justify-items: center;     
-        padding: 20px;
-      }
-
-      /* 桌面尺寸固定三欄 */
-      @media (min-width: 1024px) {
-        .activity-card-container {
-          grid-template-columns: repeat(3, 1fr);
-        }
-      }
-
-      @media (max-width: 1200px) {
-        .activity-card {
-          transform: scale(0.9);
-        }
+        justify-items: stretch;   /* <- 關鍵：撐滿 */
+        padding: 0;               /* <- 避免和 .tab-content 雙重 padding */
+        margin: 0 auto;
+        width: 100%;
       }
 
       .activity-card {
         background-color: #fff;
         border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        /* 初始陰影保持輕一些 */
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
         width: 100%;
-        max-width: 300px;
         padding: 20px;
         font-size: 16px;
         color: var(--text-color);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        /* 只做陰影的過渡 */
+        transition: box-shadow 0.25s ease;
         position: relative;
+        box-sizing: border-box;
+        min-height: 220px;
+        height: auto;         /* ← 避免被拉到跟整列一樣高 */
       }
+
 
       .label {
         color: var(--text-color);
@@ -210,11 +216,10 @@
         margin-right: 10px; /* 與按鈕保持間距 */
       }
 
-
       .activity-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* ⭐ 輕微加深陰影 */
       }
+
 
       .activity-card h3 {
         font-size: 24px;
@@ -678,8 +683,21 @@
           opacity: 0;
         }
       }
-      #tabContents {
-        padding-bottom: 80px; /* ✅ 預留導覽列高度空間 */
+      /* 中間內容區：用整個視窗剩餘高度，自己滾動 */
+      #tabContents{
+        position: fixed;
+        top: var(--header-h);
+        left: 0; right: 0;
+        bottom: var(--bottom-h);
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;  /* iOS 慣性滾動 */
+        background: var(--bg-color);
+        /* 如果你有左右內距控制，留著原本的 .tab-content 規則即可 */
+      }
+      /* iPhone 瀏海安全區（可選） */
+      @supports(padding:max(0px)){
+        #tabContents{ bottom: calc(var(--bottom-h) + env(safe-area-inset-bottom)); }
+        .bottom-nav{ padding-bottom: env(safe-area-inset-bottom); }
       }
       #activityTypeModal {
         display: none;
@@ -848,6 +866,69 @@
         font-weight: normal;
         padding: 0;
         background: none;
+      }
+      @media (min-width: 768px) {
+        .tab-content { padding: 20px 16px; }
+        .activity-card-container { gap: 24px; }
+      }
+
+      /* 桌機版（1024px 以上）四欄 + 容器加寬 */
+      @media (min-width: 1024px) {
+        /* 容器：控制左右灰底 + 整體寬度 */
+        .tab-content {
+          max-width: min(1600px, 100% - 64px); /* ← 最大 1600px，左右各 32px 灰邊 */
+          margin: 0 auto;                      /* ← 置中 */
+          padding: 20px 0;                     /* ← 上下間距 */
+        }
+
+        /* 卡片容器：固定四欄，卡片距離調整 */
+        .activity-card-container {
+          grid-template-columns: repeat(4, 1fr);  /* ← 固定四欄 */
+          gap: 32px;                               /* ← 卡片之間距離（想更緊就改小一點） */
+          padding: 0 8px;                          /* ← 裡面再給一點緩衝 */
+        }
+
+        /* 卡片撐滿欄位 */
+        .activity-card,
+        .add-activity-card {
+          width: 100%;
+          max-width: none;
+        }
+      }
+
+
+
+
+      /* ⭐ 1440px 以上顯示四欄（340px 卡片 + 20px 間距剛好） */
+      @media (min-width: 1440px) {
+        .activity-card-container {
+          grid-template-columns: repeat(4, 1fr);
+          max-width: 1600px;      /* 4*340 + 3*20 = 1420，讓整排置中好看 */
+          margin: 0 auto;         /* 置中容器 */
+        }
+
+      }
+      /* 讓新增卡片與活動卡片同框架 */
+      .add-activity-card {
+        border: 2px dashed var(--primary-color);
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 220px;    /* 跟一般卡片一致 */
+        box-shadow: none;     /* 拿掉陰影 */
+        cursor: pointer;
+        height: auto;      /* ← 由內容決定高度 */
+        align-self: start; /* ← 即使整列很高，＋卡片自己維持正常高度 */
+
+      }
+
+      /* ＋符號樣式 */
+      .add-activity-card .plus-sign {
+        font-size: 48px;
+        font-weight: bold;
+        color: var(--primary-color);
+        line-height: 1;
       }
 
     </style>
@@ -1035,15 +1116,9 @@
           const addActivityCard = document.createElement("div");
           addActivityCard.className = "activity-card add-activity-card";
           addActivityCard.onclick = openActivityTypeModal;
-          addActivityCard.style.border = "2px dashed var(--primary-color)";
-          addActivityCard.style.backgroundColor = "transparent";
-          addActivityCard.style.display = "flex";
-          addActivityCard.style.justifyContent = "center";
-          addActivityCard.style.alignItems = "center";
-         
-          addActivityCard.innerHTML = `
-            <h3 style="text-align: center; font-size: 48px; color: var(--primary-color);">＋</h3>
-          `;
+          addActivityCard.innerHTML = '<span class="plus-sign">＋</span>';
+
+
           cardContainer.appendChild(addActivityCard);
 
           if (data.length === 0) {

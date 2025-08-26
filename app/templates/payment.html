@@ -594,9 +594,16 @@
           
           // 模擬成功付款
           alert('付款成功！您的月費訂閱已啟用。');
-          
-          // 導向成功頁面，並傳遞參數
-          window.location.href = `/payment-success?plan=${encodeURIComponent(plan.name)}&amount=${total.toLocaleString()}`;
+          // 取得 member_id 並導向成功頁面
+          const urlParams = new URLSearchParams(window.location.search);
+          const memberId = urlParams.get('member_id');
+          const planParam = encodeURIComponent(plan.name);
+          const amountParam = total.toLocaleString();
+          let nextUrl = `/payment_success?plan=${planParam}&amount=${amountParam}`;
+          if (memberId) {
+            nextUrl += `&member_id=${memberId}`;
+          }
+          window.location.href = nextUrl;
           
         } catch (error) {
           alert('付款失敗，請稍後再試');

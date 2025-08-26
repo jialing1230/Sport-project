@@ -257,8 +257,8 @@
       </div>
 
       <div>
-        <a href="/home" class="btn-primary">返回首頁</a>
-        <a href="/member" class="btn-secondary">查看會員中心</a>
+  <a id="homeBtn" href="#" class="btn-primary">返回首頁</a>
+  <a id="memberBtn" href="#" class="btn-secondary">查看會員中心</a>
       </div>
 
       <div class="notice">
@@ -270,25 +270,35 @@
     </div>
 
     <script>
-      // 從URL參數獲取訂閱資訊
+      // 從URL參數獲取訂閱資訊與 member_id
       function loadSubscriptionInfo() {
         const urlParams = new URLSearchParams(window.location.search);
         const plan = urlParams.get('plan');
         const amount = urlParams.get('amount');
-        
+        const memberId = urlParams.get('member_id');
+
         if (plan) {
           document.getElementById('subscriptionPlan').textContent = plan;
         }
-        
+
         if (amount) {
           document.getElementById('paymentAmount').textContent = `NT$ ${amount}`;
         }
-        
+
         // 計算下次扣款日期（一個月後）
         const nextPayment = new Date();
         nextPayment.setMonth(nextPayment.getMonth() + 1);
         const nextPaymentStr = nextPayment.toISOString().split('T')[0];
         document.getElementById('nextPaymentDate').textContent = nextPaymentStr;
+
+        // 設定按鈕連結
+        if (memberId) {
+          document.getElementById('homeBtn').href = `/home?member_id=${memberId}`;
+          document.getElementById('memberBtn').href = `/member_view?member_id=${memberId}`;
+        } else {
+          document.getElementById('homeBtn').href = "/home";
+          document.getElementById('memberBtn').href = "/member";
+        }
       }
 
       // 頁面載入時執行

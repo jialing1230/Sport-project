@@ -554,6 +554,34 @@
         </svg>
       </div>
 
+      <div class="item" id="paymentBtn">
+        <span class="item-left">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            fill="none"
+            stroke="#1B3A6E"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            style="margin-right: 2px;">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M8 12l3 3l5-5" />
+          </svg>
+          <span class="item-text">訂閱付款</span>
+        </span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          fill="none"
+          stroke="#2c4975"
+          stroke-width="2"
+          viewBox="0 0 24 24">
+        <path d="M9 6l6 6-6 6"/>
+        </svg>
+      </div>
+
       <div class="item" id="blacklistBtn">
         <span class="item-left">
           <svg
@@ -775,6 +803,14 @@
         window.location.href = `/phone_verification?member_id=${memberId}`;
       } else {
         window.location.href = "/phone_verification";
+      }
+    });
+
+    document.getElementById("paymentBtn").addEventListener("click", function () {
+      if (memberId) {
+        window.location.href = `/payment?member_id=${memberId}`;
+      } else {
+        window.location.href = "/payment";
       }
     });
 

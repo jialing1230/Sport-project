@@ -169,6 +169,19 @@ def create_app():
     def phone_verification_page():
         member_id = request.args.get("member_id")
         return render_template("phone_verification.html", member_id=member_id)
+    
+    @app.route("/payment")
+    def payment_page():
+        member_id = request.args.get("member_id")
+        return render_template("payment.html", member_id=member_id)
+
+    @app.route("/payment_success")
+    def payment_success_page():
+        member_id = request.args.get("member_id")
+        return render_template("payment_success.html", member_id=member_id)
+
+
+
 
     
 

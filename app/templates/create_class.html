@@ -655,6 +655,29 @@
         
         
     <script>
+        // 當第一次上課時間改變時，自動填入每堂課開始時間並勾選對應每週上課日
+  document.addEventListener('DOMContentLoaded', function() {
+    const firstTimeInput = document.querySelector('input[name="firstTime"]');
+    const startTimeInput = document.querySelector('input[name="every_startTime"]');
+    const weekdayInputs = document.querySelectorAll('input[name="weekdays"]');
+    if (firstTimeInput) {
+      firstTimeInput.addEventListener('change', function() {
+        const val = firstTimeInput.value;
+        if (!val) return;
+        const date = new Date(val);
+        if (isNaN(date)) return;
+        // 自動填入時間
+        const hhmm = val.split('T')[1]?.slice(0,5);
+        if (hhmm && startTimeInput) startTimeInput.value = hhmm;
+        // 自動勾選星期
+        const weekdayMap = { 0: '日', 1: '一', 2: '二', 3: '三', 4: '四', 5: '五', 6: '六' };
+        const day = date.getDay();
+        weekdayInputs.forEach(input => {
+          input.checked = (input.value === weekdayMap[day]);
+        });
+      });
+    }
+  });
 	  let scheduleList = []; // 存目前課表的陣列
       const sportRadios = document.querySelectorAll('input[name="sport"]');
       const otherSportRow = document.getElementById("other-sport-row");
@@ -992,8 +1015,26 @@
 			return;
 		  }
 
-		  const weekdayMap = { "日": 0, "一": 1, "二": 2, "三": 3, "四": 4, "五": 5, "六": 6 };
-		  const targetWeekdays = weekdays.map(w => weekdayMap[w]);
+      const weekdayMap = { "日": 0, "一": 1, "二": 2, "三": 3, "四": 4, "五": 5, "六": 6 };
+      const targetWeekdays = weekdays.map(w => weekdayMap[w]);
+
+      // 檢查第一次上課時間的星期是否有選到
+      const firstDay = firstDate.getDay();
+      if (!targetWeekdays.includes(firstDay)) {
+        alert("第一次上課時間的星期必須包含在每週上課日中！");
+        return;
+      }
+      // 檢查第一次上課時間的時間部分是否等於每堂課開始時間
+      const firstTimeStr = firstDate.toTimeString().slice(0,5); // HH:MM
+      if (firstTimeStr !== startTime) {
+        alert("每堂課開始時間必須等於第一次上課時間的時間部分！");
+        return;
+      }
+      // 檢查每堂課結束時間必須晚於開始時間
+      if (startTime >= endTime) {
+        alert("每堂課結束時間必須晚於開始時間！");
+        return;
+      }
 
 		  let date = new Date(firstDate);
 		  while (scheduleList.length < totalCount) {

@@ -11,6 +11,11 @@
         --deep-blue: #2c4975;
         --text-color: #444;
         --bg-color: #f5f5f5;
+        --avatar-size: 48px;      /* ← 頭像直徑（調大調小都靠它） */
+        --avatar-col-gap: 20px;   /* ← 同一排頭像之間的水平間距（中間間距） */
+        --avatar-row-gap: 12px;   /* ← 每一排與下一排的垂直間距 */
+        --container-max: 500px;   /* 和 .container 的 max-width 一致 */
+        --page-xpad: 20px;        /* 和 body 的左右 padding 一致 */
       }
 
       body {
@@ -67,7 +72,7 @@
       /* ✅ 新增白底置中容器樣式 */
       .container {
         background-color: #ffffff;
-        max-width: 500px;
+        max-width: var(--container-max);  /* ← 用變數 */
         margin: 0px auto;
         padding: 0px 24px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -166,6 +171,8 @@
 
 
 	  .avatar-block {
+      position: relative;
+      min-width: var(--avatar-size);
 		  display: flex;
 		  flex-direction: column;
 		  align-items: center;
@@ -176,13 +183,19 @@
       position: relative;
       display: inline-block;  /* 或 block，隨你需求 */
     }	  
-		.avatar-svg svg {
-		  width: 56px;
-		  height: 56px;
-		}
+    .avatar-svg svg,
+    .avatar-svg img {
+      width: var(--avatar-size);
+      height: var(--avatar-size);
+      display: block;  
+    }
 		.avatar-name {
-		  font-size: 13px;
-		}
+      max-width: var(--avatar-size);
+      margin-top: 6px;            /* 視覺間距 */
+      font-size: 13px;
+      overflow-wrap: anywhere;    /* 名字太長就換行，不把版面撐爆 */
+      text-align: center;
+    }
 
 		.feedback-output {
 			width: 100%;
@@ -234,7 +247,7 @@
 		  width: 100%;
 		  margin: 36px 0 0 0;
 		  border-radius: 8px;
-		  height: 46px;
+		  height: 42px;
 		  box-shadow: 0 2px 10px rgba(252,167,167,0.08);
 		  letter-spacing: 2px;
 		  cursor: pointer;
@@ -254,19 +267,21 @@
     }
     .avatar-row {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 12px 25px;
-      padding: 8px 6px 0px 6px;
-      box-sizing: border-box;
+      /* 以前是固定 5 欄 → 改成自動填滿、寬度不夠就自動掉到下一排 */
+      grid-template-columns: repeat(auto-fit, minmax(var(--avatar-size), 1fr));
+      /* 上下間距、左右間距：用 clamp 縮小時自動收斂，避免擠爆 */
+      gap: var(--avatar-row-gap) clamp(12px, 5vw, var(--avatar-col-gap));
+      padding: 8px 6px 0 0px;
       width: 100%;
-      margin: 0 auto;
+      box-sizing: border-box;
     }
+
     .avatar-done-icon {
       position: absolute;
       right: 0;    /* 改成0 */
       bottom: 0;   /* 改成0 */
-      width: 22px;
-      height: 22px;
+      width: 15px;
+      height: 15px;
       background: #fff;
       border-radius: 50%;
       display: flex;
@@ -279,9 +294,7 @@
       display: none; /* 預設隱藏，填完才顯示 */
     }
 
-    .avatar-block {
-      position: relative;
-    }
+
     .fade-out {
       opacity: 0;
       transition: opacity 0.2s;
@@ -303,14 +316,78 @@
       transition: opacity 0.2s;
       display: inline-block;
     }
-.blacklist-btn:hover {
-  background: #c93c4e;
-  box-shadow: 0 2px 10px rgba(241,91,91,0.16);
+    .blacklist-btn:hover {
+      background: #c93c4e;
+      box-shadow: 0 2px 10px rgba(241,91,91,0.16);
 
-  transition: all 0.17s;
-}
+      transition: all 0.17s;
+    }
+    /* 批次列黑彈窗 */
+   /* 跟 .container 一樣：桌機最多 500px，手機吃滿遮罩剩下的寬度 */
+    .blk-card{
+      background:#fff;
+      border-radius:8px;
+      width: 100%;                  /* 先吃滿遮罩 */
+      max-width: 500px;             /* 和 .container 的 max-width 一致 */
+      /* 若你用變數，改成：max-width: var(--container-max); */
+      padding:24px;
+      box-shadow:0 10px 30px rgba(0,0,0,.2);
+      box-sizing: border-box;
+      overflow-x: hidden;           /* 防止內部元素把卡片撐出橫向捲軸 */
+    }
 
+    .blk-title       { color:#2c4975; font-size:18px; font-weight:500; margin-bottom:6px; }
+    .blk-sub         { color:#64bcd0; margin-bottom:12px; font-weight:bold; font-size:14px; }
+    .blk-list        { max-height:46vh; overflow:auto; padding-right:4px; margin-bottom:14px; overflow-x:hidden; }
+    .blk-row         { display:grid; grid-template-columns:24px 1fr 260px; gap:12px; align-items:center; padding:12px 0; border-bottom:1px solid #eee; }
+    .blk-name        { color:#2c4975; font-weight:600; }
+    .blk-fields      { display:flex; gap:8px; }
+    .blk-reason,
+    .blk-other       { padding:6px 8px; font-size:14px; border:1px solid #ddd; border-radius:6px; }
+    .blk-actions     { display:flex; justify-content:flex-end; gap:10px; }
+    .btn             { padding:8px 16px; border:none; border-radius:8px; font-size:15px; }
+    .btn-ghost       { background:#eee; }
+    .btn-danger      { background:#f15b5b; color:#fff; opacity:.5; } /* 會被 JS 切換 disabled 狀態 */
 
+    /* 把 480px 改成 600px（或 640px，看你需求） */
+    @media (max-width: 600px){
+      .blk-row{
+        grid-template-columns: 24px 1fr;   /* 兩欄：勾選 + 名字 */
+        align-items: flex-start;
+      }
+      .blk-name{ margin-top: 2px; }
+
+      /* 理由欄改放下一行、吃滿寬 */
+      .blk-fields{
+        grid-column: 2 / -1;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+        width: 100%;
+      }
+
+      .blk-reason,
+      .blk-other{
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;               /* 防止 select 的最小寬撐爆 */
+      }
+    }
+
+    /* 清單本身只允許縱向捲動 */
+    .blk-list{
+      max-height:46vh;
+      overflow-y:auto;
+      overflow-x:hidden;
+    }
+
+    /* 讓遮罩本身留出和頁面一樣的左右 20px 內距 */
+    #bulk-blacklist-modal{
+      padding: 0 20px;           /* = 和 body 的左右 padding 一致 */
+      box-sizing: border-box;
+    }
+
+    html, body { max-width: 100%; overflow-x: hidden; }
 
     </style>
   </head>
@@ -366,7 +443,20 @@
 	</div>
 </div>
 	</div>
-	
+	<!-- 批次黑名單彈窗（送出評價後才會出現） -->
+  <div id="bulk-blacklist-modal" style="display:none; position:fixed; z-index:9999; inset:0; background:rgba(0,0,0,.35); align-items:center; justify-content:center;">
+    <div class="blk-card">
+      <div class="blk-title">評價已送出！</div>
+      <div class="blk-sub">你給了以下參加者 1 星，是否將他們列入黑名單？</div>
+      <div id="bulk-blacklist-list" class="blk-list"></div>
+      <div class="blk-actions">
+        <button id="bulk-blacklist-skip" class="btn btn-ghost">跳過</button>
+        <button id="bulk-blacklist-confirm" class="btn btn-danger" disabled>確認列入黑名單</button>
+      </div>
+    </div>
+  </div>
+
+
     <!-- ✅ 白底內容容器結束 -->
 
     <script>
@@ -609,10 +699,20 @@ document.querySelector('.submit-evaluation-btn').addEventListener('click', () =>
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(userPayloads)
     })
-  ]).then(() => {
+ /* ]).then(() => {
     alert('評價已送出！');
     window.location.href = `/activity?member_id=${encodeURIComponent(currentUserId)}`;
-  }).catch(err => {
+  }).catch(err => {*/
+    ]).then(() => {
+    // 檢查是否有人被評 1 星；有的話 → 彈出批次列黑彈窗
+      const oneStarUsers = getOneStarUsers();
+      if (oneStarUsers.length === 0) {
+        alert('評價已送出！');
+        window.location.href = `/activity?member_id=${encodeURIComponent(currentUserId)}`;
+      } else {
+        showBulkBlacklistModal(oneStarUsers);
+      }
+    }).catch(err => {
     console.error(err);
     alert('送出失敗，請稍後再試');
   });
@@ -711,11 +811,205 @@ function initAvatarClickEvents() {
     });
   });
 }
+      // 取得所有被評 1 星的參加者（提供給批次黑名單用）
+      function getOneStarUsers() {
+        const result = [];
+        // selectedUserStarsMap: Map<userId, stars>
+        selectedUserStarsMap.forEach((stars, userId) => {
+          if (stars === 1) {
+            // 從參加者名單找名字（找不到就給個簡單的 fallback）
+            let name = '';
+            if (Array.isArray(participantsArr)) {
+              const hit = participantsArr.find(p => String(p.user_id) === String(userId));
+              name = hit?.name || '';
+            }
+            result.push({ user_id: userId, name: name || `User ${userId}` });
+          }
+        });
+        return result;
+      }
+
+    function showBulkBlacklistModal(oneStarUsers) {
+      const modal = document.getElementById('bulk-blacklist-modal');
+      const listWrap = document.getElementById('bulk-blacklist-list');
+      const btnSkip = document.getElementById('bulk-blacklist-skip');
+      const btnConfirm = document.getElementById('bulk-blacklist-confirm');
+
+      // 工具：檢查單列是否有效（若勾選→必填理由；理由=其他→必填文字）
+      const rowIsValid = (uid) => {
+        const cb = listWrap.querySelector(`.blk-check[data-user="${uid}"]`);
+        if (!cb || !cb.checked) return true; // 沒勾選就不檢查
+        const sel = listWrap.querySelector(`.blk-reason[data-user="${uid}"]`);
+        const other = listWrap.querySelector(`.blk-other[data-user="${uid}"]`);
+        if (!sel || !sel.value) return false;
+        if (sel.value === '其他' && !(other?.value || '').trim()) return false;
+        return true;
+      };
+
+      // 檢查勾選與理由是否完整，並控制按鈕與紅框提示
+      const updateConfirmState = () => {
+        const checks = Array.from(listWrap.querySelectorAll('.blk-check'));
+        const checkedUids = checks.filter(c => c.checked).map(c => c.dataset.user);
+
+        // 邊框先還原
+        listWrap.querySelectorAll('.blk-reason').forEach(el => el.style.borderColor = '#ddd');
+        listWrap.querySelectorAll('.blk-other').forEach(el => el.style.borderColor = '#ddd');
+
+        let allValid = checkedUids.length > 0;   // ← 必須至少勾 1 位
+
+        // 只檢查「有勾選」的人；未勾不檢查（也不會讓按鈕可按）
+        for (const uid of checkedUids) {
+          const sel = listWrap.querySelector(`.blk-reason[data-user="${uid}"]`);
+          const other = listWrap.querySelector(`.blk-other[data-user="${uid}"]`);
+          const invalid = !rowIsValid(uid); // 勾了就必選理由；選「其他」還要填字
+
+          // 紅框提示
+          sel.style.borderColor = invalid ? '#f15b5b' : '#ddd';
+          if (sel.value === '其他') {
+            other.style.borderColor = invalid ? '#f15b5b' : '#ddd';
+          } else {
+            other.style.borderColor = '#ddd';
+          }
+          if (invalid) allValid = false;
+        }
+
+        // 控制按鈕
+        btnConfirm.disabled = !allValid;
+        btnConfirm.style.opacity = allValid ? '1' : '.5';
+        btnConfirm.style.cursor = allValid ? 'pointer' : 'not-allowed';
+      };
+
+
+
+      // 產生清單
+      listWrap.innerHTML = '';
+      oneStarUsers.forEach(u => {
+        const row = document.createElement('div');
+        row.className = 'blk-row';
+        row.dataset.userId = u.user_id;
+        row.innerHTML = `
+          <input type="checkbox" class="blk-check" data-user="${u.user_id}" style="width:18px; height:18px; accent-color:#2c4975;">
+          <div class="blk-name">${u.name || ('User ' + u.user_id)}</div>
+          <div class="blk-fields">
+            <select class="blk-reason" data-user="${u.user_id}">
+              <option value="">請選擇理由</option>
+              <option value="惡意言語或騷擾">惡意言語或騷擾</option>
+              <option value="違反活動規則">違反活動規則</option>
+              <option value="放鳥/未到場">放鳥/未到場</option>
+              <option value="其他">其他</option>
+            </select>
+            <input class="blk-other" data-user="${u.user_id}" placeholder="請輸入其他理由..." style="display:none;">
+          </div>
+        `;
+
+
+        listWrap.appendChild(row);
+
+        // ↓↓↓ 就在這裡抓到「這一列」的元件
+        const cb    = row.querySelector('.blk-check');
+        const sel   = row.querySelector('.blk-reason');
+        const other = row.querySelector('.blk-other');
+
+        // 先把理由欄位鎖住；只有勾選該列才啟用
+        const setEnabled = (on) => {
+          sel.disabled   = !on;
+          other.disabled = !on;
+          sel.style.opacity   = on ? '1' : '.6';
+          other.style.opacity = on ? '1' : '.6';
+          if (!on) {                 // 取消勾選時順便清空回復
+            sel.value = '';
+            other.value = '';
+            other.style.display = 'none';
+            sel.style.borderColor = '#ddd';
+            other.style.borderColor = '#ddd';
+          }
+        };
+        setEnabled(cb.checked);       // 初始：未勾選 → 鎖住
+
+        // 勾/取消勾 → 開關欄位 + 更新按鈕狀態
+        cb.addEventListener('change', () => {
+          setEnabled(cb.checked);
+          updateConfirmState();
+        });
+
+        // 選「其他」時顯示輸入框；否則收起並清空
+        sel.addEventListener('change', () => {
+          if (sel.value === '其他') {
+            other.style.display = 'inline-block';
+          } else {
+            other.style.display = 'none';
+            other.value = '';
+          }
+          updateConfirmState();
+        });
+
+        // 其他理由輸入 → 更新按鈕狀態
+        other.addEventListener('input', updateConfirmState);
+      });
+
+
+      // 初始化按鈕狀態
+      updateConfirmState();
+
+      // 顯示彈窗
+      modal.style.display = 'flex';
+
+      // 跳過：直接結束流程
+      btnSkip.onclick = () => {
+        modal.style.display = 'none';
+        alert('評價已送出！');
+        window.location.href = `/activity?member_id=${encodeURIComponent(currentUserId)}`;
+      };
+
+      // 確認列黑（保險：再檢查一次）
+      btnConfirm.onclick = async () => {
+        if (btnConfirm.disabled) return; // 保險線
+        const checks = Array.from(listWrap.querySelectorAll('.blk-check')).filter(c => c.checked);
+
+        const payloads = [];
+        for (const c of checks) {
+          const uid = c.dataset.user;
+          const sel = listWrap.querySelector(`.blk-reason[data-user="${uid}"]`);
+          const other = listWrap.querySelector(`.blk-other[data-user="${uid}"]`);
+          let reason = sel.value;
+          if (!reason) { updateConfirmState(); return; }
+          if (reason === '其他') {
+            const text = (other.value || '').trim();
+            if (!text) { updateConfirmState(); return; }
+            reason = text;
+          }
+          payloads.push({ member_id: currentUserId, blocked_member_id: uid, reason });
+        }
+
+        btnConfirm.disabled = true; btnSkip.disabled = true;
+        try {
+          await Promise.all(payloads.map(p =>
+            fetch('/api/members/blacklist/block', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(p)
+            })
+          ));
+          modal.style.display = 'none';
+          alert('評價與黑名單處理完成！');
+          window.location.href = `/activity?member_id=${encodeURIComponent(currentUserId)}`;
+        } catch (e) {
+          console.error(e);
+          alert('黑名單送出失敗，請稍後再試（評價已送出）');
+          modal.style.display = 'none';
+          window.location.href = `/activity?member_id=${encodeURIComponent(currentUserId)}`;
+        } finally {
+          btnConfirm.disabled = false; btnSkip.disabled = false;
+          updateConfirmState();
+        }
+      };
+    }
+
 
 
   function initUserStars(user, userName) {
     const userStars = document.querySelectorAll("#user-stars .star");
-    const blacklistBtn = document.querySelector("#user-stars .blacklist-btn");
+    // const blacklistBtn = document.querySelector("#user-stars .blacklist-btn");
     let selectedUserStars = selectedUserStarsMap.get(user) || 0;
 
     // 預設顯示
@@ -734,13 +1028,13 @@ function initAvatarClickEvents() {
         });
 
         // 只有 1 星顯示按鈕，其餘隱藏
-        if (blacklistBtn) {
+       /* if (blacklistBtn) {
           if (selectedUserStars === 1) {
             blacklistBtn.style.display = 'inline-block';
           } else {
             blacklistBtn.style.display = 'none';
           }
-        }
+        }*/
 
         if (selectedUserStars > 0) {
           loadUserTagsByStars(selectedUserStars, "user-tags");
@@ -749,7 +1043,7 @@ function initAvatarClickEvents() {
     });
 
   // 進入時如果預選就是1星，也要顯示
-  if (blacklistBtn) {
+  /*if (blacklistBtn) {
     blacklistBtn.style.display = (selectedUserStars === 1) ? 'inline-block' : 'none';
 
     // 綁定按下後彈出理由 modal
@@ -820,7 +1114,7 @@ function initAvatarClickEvents() {
         }
       };
     };
-  }
+  }*/
 }
 
 

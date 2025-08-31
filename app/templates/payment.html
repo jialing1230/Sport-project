@@ -25,11 +25,54 @@
         background-color: #f4f4f4;
         color: #333;
         margin: 0;
-        padding: 20px;
+        padding: 0;
+      }
+
+      .header {
         display: flex;
-        justify-content: center;
         align-items: center;
-        min-height: 100vh;
+        justify-content: space-between;
+        padding: 10px 30px;
+        background-color: #fff;
+        flex-wrap: wrap;
+        gap: 16px;
+        box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        position: sticky;
+        top: 0;
+      }
+
+      .left-section {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        padding: 10px;
+        margin-left: -10px;
+      }
+
+      .left-section svg {
+        width: 24px;
+        height: 24px;
+        fill: #81d3e1;
+        cursor: pointer;
+        transition: fill 0.3s ease;
+      }
+
+      .navbar-title {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        font-weight: bold;
+        font-size: 16px;
+        color: #2c4975;
+      }
+
+      .navbar-title img {
+        height: 40px;
+        margin-right: 5px;
+        margin-top: 3px;
       }
 
       .container {
@@ -37,7 +80,7 @@
         max-width: 900px;
         min-width: 320px;
         width: 100%;
-        margin: 0 auto;
+        margin: 20px auto;
         background-color: #fff;
         padding: 30px;
         border-radius: 8px;
@@ -251,7 +294,6 @@
       }
 
       .security-notice::before {
-        content: "🔒 ";
         margin-right: 5px;
       }
 
@@ -320,19 +362,111 @@
           min-width: auto;
         }
       }
+
+      /* Modal styles */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        animation: fadeIn 0.3s ease-in-out;
+      }
+
+      .modal-content {
+        background-color: #fff;
+        margin: 15% auto;
+        padding: 30px;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 400px;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        animation: slideIn 0.3s ease-out;
+      }
+
+      .modal-title {
+        color: #2c4975;
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 15px;
+      }
+
+      .modal-message {
+        color: #333;
+        font-size: 16px;
+        line-height: 1.5;
+        margin-bottom: 25px;
+      }
+
+      .modal-btn {
+        background-color: #f8a9b3;
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+      }
+
+      .modal-btn:hover {
+        background-color: #e695a0;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      @keyframes slideIn {
+        from { 
+          opacity: 0;
+          transform: translateY(-50px);
+        }
+        to { 
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
     </style>
   </head>
   <body>
+    <div class="header">
+      <div class="left-section">
+        <svg
+          id="back-button" 
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          width="24"
+          height="24">
+          <path d="M15 19l-7-7 7-7"
+            stroke="#81d3e1"
+            stroke-width="2"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path>
+          <path d="M8 12h14"
+            stroke="#81d3e1"
+            stroke-width="2"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path>
+        </svg>
+      </div>
+      <div class="navbar-title">
+        <img src="/static/logo.png" alt="Logo" />
+        課程月費付款
+      </div>
+    </div>
+
     <div class="container">
       <div class="payment-form">
-        <div class="title-row">
-          <img
-            src="{{ url_for('static', filename='logo.png') }}"
-            alt="Logo"
-            class="logo-inline"
-          />
-          <h1>課程月費付款</h1>
-        </div>
+
 
         <form id="paymentForm">
           <div class="form-row">
@@ -342,7 +476,7 @@
                 <input type="radio" name="subscriptionPlan" value="monthly" id="monthly" checked>
                 <label for="monthly">
                   <div>月費</div>
-                  <div class="plan-price">NT$ 1,200</div>
+                  <div class="plan-price">NT$ 200</div>
                   <div class="plan-period">每月</div>
                 </label>
               </div>
@@ -350,18 +484,18 @@
                 <input type="radio" name="subscriptionPlan" value="quarterly" id="quarterly">
                 <label for="quarterly">
                   <div>季費</div>
-                  <div class="plan-price">NT$ 3,200</div>
+                  <div class="plan-price">NT$ 400</div>
                   <div class="plan-period">每季</div>
-                  <div class="plan-savings">省 NT$ 400</div>
+                  <div class="plan-savings">省 NT$ 200</div>
                 </label>
               </div>
               <div class="subscription-plan">
                 <input type="radio" name="subscriptionPlan" value="yearly" id="yearly">
                 <label for="yearly">
                   <div>年費</div>
-                  <div class="plan-price">NT$ 12,000</div>
+                  <div class="plan-price">NT$ 1,600</div>
                   <div class="plan-period">每年</div>
-                  <div class="plan-savings">省 NT$ 2,400</div>
+                  <div class="plan-savings">省 NT$ 800</div>
                 </label>
               </div>
             </div>
@@ -435,7 +569,7 @@
           </div>
 
           <div class="security-notice">
-            您的付款資訊將透過SSL加密傳輸，確保交易安全。月費將於每月自動扣款。
+            您的付款資訊將透過SSL加密傳輸，確保交易安全。
           </div>
         </form>
       </div>
@@ -450,13 +584,9 @@
         
         <div class="summary-item">
           <span class="summary-label">方案費用</span>
-          <span class="summary-value" id="planFee">NT$ 1,200</span>
+          <span class="summary-value" id="planFee">NT$ 200</span>
         </div>
         
-        <div class="summary-item">
-          <span class="summary-label">手續費</span>
-          <span class="summary-value" id="serviceFee">NT$ 30</span>
-        </div>
         
         <div class="summary-item">
           <span class="summary-label">優惠折扣</span>
@@ -465,7 +595,7 @@
         
         <div class="summary-item">
           <span class="summary-label">總計</span>
-          <span class="summary-value" id="totalAmount">NT$ 1,230</span>
+          <span class="summary-value" id="totalAmount">NT$ 200</span>
         </div>
         
         <div style="margin-top: 20px; padding: 15px; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; font-size: 13px; color: #856404;">
@@ -474,6 +604,15 @@
           • 可隨時取消訂閱<br>
           • 課程開始前7天可申請退款
         </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="infoModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-title">課程月費方案</div>
+        <div class="modal-message">加入課程月費可享有無限次數發起課程的功能</div>
+        <button class="modal-btn" onclick="closeModal()">我知道了</button>
       </div>
     </div>
 
@@ -522,18 +661,16 @@
       function updateSummary() {
         const selectedPlan = document.querySelector('input[name="subscriptionPlan"]:checked').value;
         const planData = {
-          monthly: { name: '月費', fee: 1200, discount: 0 },
-          quarterly: { name: '季費', fee: 3200, discount: 400 },
-          yearly: { name: '年費', fee: 12000, discount: 2400 }
+          monthly: { name: '月費', fee: 200, discount: 0 },
+          quarterly: { name: '季費', fee: 600, discount: 200 },
+          yearly: { name: '年費', fee: 2400, discount: 800 }
         };
         
         const plan = planData[selectedPlan];
-        const serviceFee = 30;
-        const total = plan.fee + serviceFee - plan.discount;
+        const total = plan.fee - plan.discount;
         
         document.getElementById('selectedPlan').textContent = plan.name;
         document.getElementById('planFee').textContent = `NT$ ${plan.fee.toLocaleString()}`;
-        document.getElementById('serviceFee').textContent = `NT$ ${serviceFee}`;
         document.getElementById('discount').textContent = `NT$ ${plan.discount}`;
         document.getElementById('totalAmount').textContent = `NT$ ${total.toLocaleString()}`;
       }
@@ -584,13 +721,12 @@
           // 獲取選擇的方案和金額
           const selectedPlan = document.querySelector('input[name="subscriptionPlan"]:checked').value;
           const planData = {
-            monthly: { name: '月費方案', fee: 1200, discount: 0 },
-            quarterly: { name: '季費方案', fee: 3200, discount: 400 },
-            yearly: { name: '年費方案', fee: 12000, discount: 2400 }
+            monthly: { name: '月費方案', fee: 200, discount: 0 },
+                      quarterly: { name: '季費方案', fee: 600, discount: 200 },
+                      yearly: { name: '年費方案', fee: 2400, discount: 800 }
           };
           const plan = planData[selectedPlan];
-          const serviceFee = 30;
-          const total = plan.fee + serviceFee - plan.discount;
+          const total = plan.fee - plan.discount;
           
           // 模擬成功付款
           alert('付款成功！您的月費訂閱已啟用。');
@@ -614,6 +750,38 @@
 
       // 頁面載入時執行
       updateSummary();
+      
+      // 顯示資訊彈窗
+      showModal();
+      
+      // 顯示彈窗函數
+      function showModal() {
+        document.getElementById('infoModal').style.display = 'block';
+      }
+      
+      // 關閉彈窗函數
+      function closeModal() {
+        document.getElementById('infoModal').style.display = 'none';
+      }
+      
+      // 點擊彈窗外部關閉
+      window.onclick = function(event) {
+        const modal = document.getElementById('infoModal');
+        if (event.target === modal) {
+          modal.style.display = 'none';
+        }
+      }
+
+      // 返回按鈕功能
+      document.getElementById("back-button").addEventListener("click", function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const memberId = urlParams.get("member_id");
+        if (memberId) {
+          window.location.href = `/member_view?member_id=${memberId}`;
+        } else {
+          window.history.back();
+        }
+      });
     </script>
   </body>
 </html>

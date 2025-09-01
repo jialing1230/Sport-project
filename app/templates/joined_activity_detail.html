@@ -82,11 +82,6 @@
         cursor: not-allowed;
         pointer-events: none;
       }
-      @media screen and (max-width: 600px) {
-        .container {
-          padding: 10px;
-        }
-      }
 
       /* 讓 header sticky */
       .header {
@@ -146,9 +141,9 @@
       }
 
       .status-badge {
-        font-size: 20px;
-        padding: 4px 10px;
-        border-radius: 10px;
+        font-size: 18px;
+        padding: 2px 10px 3px 10px;
+        border-radius: 8px;
         font-weight: bold;
         white-space: nowrap;
         color: white;
@@ -159,7 +154,7 @@
       }
 
       .badge-full {
-        background-color: #81d3e1; /* 淡藍 */
+        background-color: #f8a9b3; /* 淡藍 */
       }
 
       .section-divider {
@@ -419,6 +414,81 @@
         color: white;
         font-weight: bold;
       }
+
+            @media screen and (max-width: 600px) {
+        .container {
+          padding: 16px;
+        }
+        .bottom-center {
+          justify-content: space-between !important; /* 左右分開 */
+          gap: 0 !important;                        /* 拿掉桌機的大間距 */
+          padding: 0 16px !important;               /* 左右留 16px 內距 */
+          width: 100% !important;                   /* 撐滿寬度，space-between 才有效 */
+          box-sizing: border-box;
+        }
+
+        .bottom-text {
+          max-width: 65%; 
+          white-space: normal;
+          margin-left: 10px;   /* ← 左邊多留 16px 距離 */
+          overflow: hidden;
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          text-overflow: ellipsis;
+        }
+        .bottom-text div {
+          margin-bottom: 2px;              /* 行距更緊湊 */
+        }
+      }
+
+      .participants-container {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      .organizer-block {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .participants-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+
+      .participant {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 64px;
+      }
+
+      .participant .avatar-box {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin-bottom: 4px;
+      }
+
+      .participant-name {
+        font-size: 14px;
+        color: #2c4975;
+        text-align: center;
+      }
+
+      .divider {
+        width: 1px;
+        background-color: #ccc;
+        height: 50px;        /* 跟頭像一樣高 */
+        margin: 8px -5px 0;      /* 左右留點間距 */
+        
+      }
+
+
   </style>
 </head>
 <body>
@@ -534,13 +604,45 @@
 
   <script>
   document.getElementById("back-button").onclick = () => {
-    const referrer = document.referrer;
-    if (referrer) {
-    location.href = referrer;
-    } else {
-    alert("無法獲取上一頁的網址！");
+    // 直接從網址讀 member_id（避免依賴外部變數）
+    const params = new URLSearchParams(location.search);
+    const mid = params.get("member_id");
+
+    // 保底：一定回「我的活動 → 我參加的活動」
+    const fallback = `/activity${mid ? `?member_id=${mid}&tab=joined` : `?tab=joined`}`;
+
+    // 1) 若有瀏覽歷史，優先用 history.back()（可保留列表捲動位置）
+    if (history.length > 1) {
+      history.back();
+      return;
     }
+
+    // 2) 沒歷史但有 referrer → 同網域就回去；若 referrer 是 /activity 但沒有 tab=joined，改帶你到 joined
+    const ref = document.referrer;
+    if (ref) {
+      try {
+        const u = new URL(ref);
+        const sameOrigin = u.origin === location.origin;
+
+        if (sameOrigin && u.pathname === "/activity") {
+          const tab = u.searchParams.get("tab");
+          location.href = (tab === "joined") ? ref : fallback;
+        } else {
+          location.href = sameOrigin ? ref : fallback;
+        }
+        return;
+      } catch {
+        // referrer 解析失敗 → 走保底
+        location.href = fallback;
+        return;
+      }
+    }
+
+    // 3) 沒歷史也沒 referrer → 走保底
+    location.href = fallback;
   };
+
+
 
   const urlParams = new URLSearchParams(window.location.search);
   const activityId = urlParams.get("id");
@@ -914,27 +1016,42 @@
           const organizer = data.organizer;
           const joined = data.joined_participants;
 
-          let html = `<h3>參與人員</h3>`;
-          html += `<div style="display: flex; flex-wrap: wrap; gap: 12px;">`;
-          // 主辦人頭貼
-          html += `
-  <div class="avatar-box">
-    <img src="/static/avatars/${organizer.member_id}.png"
-      alt="${organizer.name}"
-      title="${organizer.name}"
-      onerror="this.onerror=null;this.src='/static/avatars/default.jpg'">
-  </div>
-`;
-          // 參加者頭貼
-          html += joined.map(p => `
-  <div class="avatar-box">
-    <img src="/static/avatars/${p.member_id}.png"
-      alt="${p.name}"
-      title="${p.name}"
-      onerror="this.onerror=null;this.src='/static/avatars/default.jpg'">
-  </div>
-`).join("");
-          html += `</div>`;
+      let html = `<h3>參與人員</h3>`;
+
+      // 外層容器：分成 左（主辦人）、中（分隔線）、右（參加者）
+      html += `
+        <div class="participants-container">
+          <div class="organizer-block">
+            <div class="participant organizer">
+              <div class="avatar-box">
+                <img src="/static/avatars/${organizer.member_id}.png"
+                  alt="${organizer.name}"
+                  title="${organizer.name}"
+                  onerror="this.onerror=null;this.src='/static/avatars/default.jpg'">
+              </div>
+              <div class="participant-name">${organizer.name}</div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="participants-list">
+            ${joined.map(p => `
+              <div class="participant">
+                <div class="avatar-box">
+                  <img src="/static/avatars/${p.member_id}.png"
+                    alt="${p.name}"
+                    title="${p.name}"
+                    onerror="this.onerror=null;this.src='/static/avatars/default.jpg'">
+                </div>
+                <div class="participant-name">${p.name}</div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `;
+
+
 
           document.getElementById("participants").innerHTML = html;
         });

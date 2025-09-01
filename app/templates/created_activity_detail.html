@@ -139,7 +139,7 @@
       .status-badge {
         font-size: 16px;
         padding: 3px 10px;
-        border-radius: 10px;
+        border-radius: 8px;
         font-weight: bold;
         white-space: nowrap;
         color: white;
@@ -385,46 +385,55 @@
         grid-template-columns: max-content 1fr; /* 左：自適應發起人寬；右：佔滿剩餘 */
         column-gap: var(--gap);                 /* 兩欄之間的「縫隙」 */
         align-items: start;
+        overflow: hidden;
       }
 
       /* 發起人：與右欄同高對齊，右邊畫一條在「縫隙正中央」的線 */
       #participants .organizer-col{
         position: relative;
         display: flex;
-        justify-content: center;
+        justify-content: flex-start;  /* ← 改成靠左 */
         align-items: flex-start;
+        padding-right: 12px;          /* 給分隔線位置 */
       }
       #participants .organizer-col::after{
-        content: "";
-        position: absolute;
-        right: calc(var(--gap) / -2); /* 放在兩欄 gap 的正中央，寬度變化也會跟著居中 */
-        top: 50%;
-        transform: translateY(-50%);
-        width: 1px;
-        height: 48px;                 /* 和你的頭像高度一樣；要更長就改這裡 */
-        background: #e0e7ef;
+        content:"";
+        position:absolute;
+        right:0;            /* 不再用負位移 */
+        top:8px;            /* 想再下來就加大 */
+        width:1px;
+        height:48px;        /* 跟頭像同高 */
+        background:#e0e7ef;
       }
 
+
       /* 參加者：右欄用 Grid 等分，左右留白一致，且不會跑到發起人下方 */
+      /* 參加者：真正靠左、可換行、不超框 */
       #participants .members-col{
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(var(--cell-min), 1fr));
+        display: flex !important;
+        flex-wrap: wrap;
         gap: var(--gap);
-        justify-items: center;
-        align-content: start;
+        justify-content: flex-start;   /* ← 靠左 */
+        align-items: flex-start;
+        max-width: 100%;
+        box-sizing: border-box;
       }
+
 
       /* 每個人的卡片（頭像 + 名字） */
       #participants .avatar-with-name{
         display: flex;
         flex-direction: column;
-        align-items: center;
-        width: var(--cell-min);       /* 與 Grid 最小寬同步 */
+        align-items: center;     /* 想全部靠左就改成 flex-start */
+        width: var(--cell-min);  /* = 64px */
+        flex: 0 0 auto;          /* 不被 flex 拉寬 */
         margin-top: 4px;
       }
+
+      
       #participants .avatar-name{
-        margin-top: 4px;
-        font-size: 13px;
+        margin-top: 5px;
+        font-size: 14px;
         color: #2c4975;
         white-space: nowrap;
         text-align: center;
@@ -456,12 +465,12 @@
       /* 右側按鈕：固定寬度（高度保持原本 padding 12px） */
       .bottom-nav .btn{
         width: 110px;            /* ← 只調寬度；要再小就改這裡，例如 96px */
-        padding: 10px 0;         /* 垂直 12px 保持高度，左右 0 不影響寬度 */
+        padding: 10px 2px;         /* 垂直 12px 保持高度，左右 0 不影響寬度 */
         font-size: 16px;
         border-radius: 8px;
         white-space: nowrap;
         background-color: #81d3e1; /* 淺藍維持 */
-        margin: 0 8px 0 16px;
+        margin: 0 8px 0 8px;
       }
 
       /* 手機時一樣對齊 info-box（手機 .info-box padding=15px，這裡已一致） */
@@ -486,6 +495,21 @@
         }
       }
 
+      #organizer-btn {
+        display: inline-flex;       /* 改成彈性盒子 */
+        align-items: center;        /* 垂直置中 */
+        justify-content: center;    /* 水平置中 */
+        padding: 8px 14px;          /* 左右保持 16px 邊距 */
+        min-width: 110px;           /* 四個字看起來舒適 */
+        box-sizing: border-box;
+        font-weight: bold;
+      }
+
+      /* 專門調整括號數字的間距 */
+      #organizer-btn span.count {
+        font-weight: bold;
+        margin-left: -8px;           /* 在括號前補一點空間 */
+      }
 
 
 
@@ -549,7 +573,7 @@
           <div id="participant-status">人數：</div>
           <div id="signup-deadline">報名截止：</div>
         </div>
-        <button class="btn" id="organizer-btn" style="min-width: 80px;">功能按鈕</button>
+        <button class="btn" id="organizer-btn" style="min-width: 100px;">功能按鈕</button>
       </div>
     </div>
 
@@ -592,16 +616,25 @@
 		  const pad = n => String(n).padStart(2, "0");
 		  const days = ["日", "一", "二", "三", "四", "五", "六"];
 
-		  if (now > signupDeadline) {
-			statusText = "報名截止";
-			statusClass = "badge-full";
-		  } else if (detail.current_participants>= detail.max_participants) {
-			statusText = "已額滿";
-			statusClass = "badge-full";
-		  } else {
-			statusText = "開放報名";
-			statusClass = "badge-open";
-		  }
+      // 若後端有時沒給 registration_deadline，可把截止視為開始前一刻
+      const effectiveSignupDeadline = isNaN(signupDeadline) ? startTime : signupDeadline;
+
+      // 狀態優先序：已結束 > 進行中 > 準備中 > 審核階段
+      if (now >= endTime) {
+        statusText = "已結束";
+        statusClass = "badge-open";
+      } else if (now >= startTime && now < endTime) {
+        statusText = "進行中";
+        statusClass = "badge-open";
+      } else if (now >= effectiveSignupDeadline && now < startTime) {
+        statusText = "準備中";        // 報名截止「那一刻」起算為準備中
+        statusClass = "badge-open";
+      } else {
+        statusText = "審核階段";      // 報名截止前，一律顯示審核階段
+        statusClass = "badge-open";
+      }
+
+
 
 		  // 活動基本內容
 		  document.getElementById("activity-info").innerHTML = `
@@ -734,7 +767,8 @@
             // 狀態1: 審核階段（報名截止前）
             if (now < signupDeadline) {
               btn.style.display = "block";
-              btn.textContent = `待審核（${participant.pending_participants.length}）`;
+              btn.innerHTML = `待審核<span class="count">（${participant.pending_participants.length}）</span>`;
+
               btn.classList.remove("disabled");
               btn.disabled = false;
               btn.onclick = function() {

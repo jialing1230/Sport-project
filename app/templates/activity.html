@@ -1241,7 +1241,7 @@
                     activity.type === 'class'
                       ? '訓練課程｜單堂'
                       : (activity.type === 'muti_class'
-                          ? `訓練課程｜共${activity.class_count ?? '?'}堂`
+                          ? `訓練課程｜共${activity.count ?? '?'}堂`
                           : '一般活動'
                         )
                   }
@@ -1332,7 +1332,7 @@
               activity.type === 'class'
                 ? '訓練課程｜單堂'
                 : (activity.type === 'muti_class'
-                    ? `訓練課程｜共${activity.class_count ?? '?'}堂`
+                    ? `訓練課程｜共${activity.count ?? '?'}堂`
                     : '一般活動'
                   )
             }

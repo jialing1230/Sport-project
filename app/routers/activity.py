@@ -269,7 +269,7 @@ def list_my_activities():
         activities = db.query(Activity).filter(Activity.organizer_id == member_id).join(SportType).join(Member, Member.member_id == Activity.organizer_id).all()
         result = []
         for a in activities:
-            result.append({
+            activity_dict = {
                 "activity_id": a.activity_id,
                 "title": a.title,
                 "start_time": a.start_time.isoformat() if a.start_time else None,
@@ -285,7 +285,12 @@ def list_my_activities():
                 "organizer": {
                     "name": a.organizer.name if a.organizer else "未知"
                 }
-            })
+            }
+            # 若為多堂課，查詢堂數
+            if hasattr(a, 'type') and a.type == 'muti_class':
+                count = db.query(CourseSchedule).filter(CourseSchedule.activity_id == a.activity_id).count()
+                activity_dict["count"] = count
+            result.append(activity_dict)
     return jsonify(result), 200
 
 @activity_bp.route("/details", methods=["GET"])
@@ -375,7 +380,7 @@ def list_joined_activities():
         )
         result = []
         for a in joined_activities:
-            result.append({
+            activity_dict = {
                 "activity_id": a.activity_id,
                 "title": a.title,
                 "start_time": a.start_time.isoformat() if a.start_time else None,
@@ -388,9 +393,14 @@ def list_joined_activities():
                 "venue_fee": float(a.venue_fee) if a.venue_fee else None,
                 "type": a.type,
                 "organizer": {
-                "name": a.organizer.name if a.organizer else "未知"
+                    "name": a.organizer.name if a.organizer else "未知"
                 }
-            })
+            }
+            # 若為多堂課，查詢堂數
+            if hasattr(a, 'type') and a.type == 'muti_class':
+                count = db.query(CourseSchedule).filter(CourseSchedule.activity_id == a.activity_id).count()
+                activity_dict["count"] = count
+            result.append(activity_dict)
     return jsonify(result), 200
 
 @activity_bp.route("/participants", methods=["GET"])

@@ -829,7 +829,7 @@
         font-weight: bold;
         letter-spacing: 1px;
         padding: 7px 10px 4px 10px;   /* ↑ top 多一點 ↓ bottom 少一點 */
-        border-radius: 10px;
+        border-radius: 8px;
         color: white;
         background-color: #fda7a8;
         line-height: 1;
@@ -1197,22 +1197,31 @@
           data.forEach((activity) => {
             const card = document.createElement("div");
             card.className = "activity-card";
+            const now = new Date();
+            const signupDeadline = new Date(activity.registration_deadline);
+            const startTime = new Date(activity.start_time);
+            const endTime = new Date(activity.end_time);
+
+            let statusText = "審核階段"; // 預設
+            if (now < signupDeadline) {
+              statusText = "審核階段";
+            } else if (now >= signupDeadline && now < startTime) {
+              statusText = "準備中";
+            } else if (now >= startTime && now <= endTime) {
+              statusText = "進行中";
+            } else if (now > endTime) {
+              statusText = "已結束";
+            }
+
             card.innerHTML = `
               <div class="custom-card-header">
                 <h3 class="custom-card-title">${activity.title}</h3>
-                <span class="status-badge ${
-                  activity.status === 'open' ? 'status-open' :
-                  activity.status === 'deadline' ? 'status-deadline' :
-                  'status-close'
-                }">
-                  ${
-                    activity.status === 'close' ? '已結束' :
-                    activity.status === 'deadline' ? '報名截止' :
-                    activity.status === 'open' ? '開放報名' :
-                    '進行中'
-                  }
+                <span class="status-badge" style="background-color:#fda7a8;">
+                  ${statusText}
                 </span>
               </div>
+            
+
 
                <p class="custom-card-info">
                 ${activity.sport_name} ｜ ${activity.level ? activity.level : '等級'} ｜ 由 ${activity.organizer.name || '未知'} 發起
@@ -1291,21 +1300,25 @@
           data.forEach((activity) => {
             const card = document.createElement("div");
             card.className = "activity-card";
+            const now = new Date();
+            const signupDeadline = new Date(activity.registration_deadline);
+            const startTime = new Date(activity.start_time);
+            const endTime = new Date(activity.end_time);
+
+            let statusText = "已報名"; // 預設 → 代表已審核通過
+            if (now < signupDeadline) {
+              statusText = "已報名";
+            } else if (now >= signupDeadline && now < startTime) {
+              statusText = "準備中";
+            } else if (now >= startTime && now <= endTime) {
+              statusText = "進行中";
+            } else if (now > endTime) {
+              statusText = "已結束";
+            }
             card.innerHTML = `
         <div class="custom-card-header">
             <h3 class="custom-card-title">${activity.title}</h3>
-            <span class="status-badge ${
-              activity.status === 'open' ? 'status-open' :
-              activity.status === 'deadline' ? 'status-deadline' :
-              'status-close'
-            }">
-              ${
-                activity.status === 'close' ? '已結束' :
-                activity.status === 'deadline' ? '報名截止' :
-                activity.status === 'open' ? '開放報名' :
-                '進行中'
-              }
-            </span>
+            <span class="status-badge">${statusText}</span>
           </div>
           <p class="custom-card-info">
             ${activity.sport_name} ｜ ${activity.level ? activity.level : '等級'} ｜ 由 ${activity.organizer.name || '未知'} 發起

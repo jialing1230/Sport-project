@@ -23,6 +23,7 @@ class Member(Base):
     facebook_url = Column(String(255), nullable=True, comment="Facebook 連結")
     instagram_url = Column(String(255), nullable=True, comment="Instagram 連結")
     phone = Column(String(20), nullable=True, comment="手機號碼")
+    is_subscribed = Column(Boolean, default=False, nullable=False, comment="是否訂閱")
 
     sport_preferences = relationship("SportPreference", back_populates="member")
     activities = relationship("Activity", back_populates="organizer")
@@ -42,6 +43,7 @@ class Member(Base):
     blacklist_received = relationship("Blacklist", foreign_keys="Blacklist.blocked_member_id", back_populates="blocked_member")
     photos = relationship("Photo", back_populates="member")
     notifications = relationship("Notification", back_populates="member")
+    subscriptions = relationship("Subscription", back_populates="member")
 
 # 避免循環引用，於檔案結尾再 import Notification
 from app.models.notification import Notification

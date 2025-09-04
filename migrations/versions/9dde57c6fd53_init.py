@@ -40,6 +40,7 @@ def upgrade() -> None:
     sa.Column('facebook_url', sa.String(length=255), nullable=True, comment='Facebook 連結'),
     sa.Column('instagram_url', sa.String(length=255), nullable=True, comment='Instagram 連結'),
     sa.Column('phone', sa.String(length=20), nullable=True, comment='手機號碼'),
+    sa.Column('is_subscribed', sa.Boolean(), nullable=False, server_default="0", comment='是否訂閱'),
     
     sa.PrimaryKeyConstraint('member_id'),
     sa.UniqueConstraint('email')
@@ -249,6 +250,18 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(['member_id'], ['members.member_id']),
     )
     op.create_index('ix_notifications_id', 'notifications', ['id'], unique=False)
+
+    op.create_table(
+        'subscriptions',
+        sa.Column('id', sa.Integer(), primary_key=True, autoincrement=True),
+        sa.Column('member_id', sa.String(length=36), nullable=False, index=True),
+        sa.Column('subscribed_at', sa.DateTime(), nullable=False),
+        sa.Column('expire_at', sa.DateTime(), nullable=True, comment='到期日'),
+        sa.Column('plan', sa.String(length=50), nullable=True, comment='訂閱方案'),
+        sa.Column('amount', sa.Integer(), nullable=True, comment='收取金額'),
+        sa.Column('is_active', sa.Boolean(), nullable=False, server_default="1", comment='是否有效訂閱'),
+        sa.ForeignKeyConstraint(['member_id'], ['members.member_id']),
+    )
     # ### end Alembic commands ###
 
 

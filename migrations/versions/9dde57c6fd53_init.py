@@ -40,6 +40,7 @@ def upgrade() -> None:
     sa.Column('facebook_url', sa.String(length=255), nullable=True, comment='Facebook 連結'),
     sa.Column('instagram_url', sa.String(length=255), nullable=True, comment='Instagram 連結'),
     sa.Column('phone', sa.String(length=20), nullable=True, comment='手機號碼'),
+    sa.Column('is_subscribed', sa.Boolean(), nullable=False, server_default="0", comment='是否訂閱'),
     
     sa.PrimaryKeyConstraint('member_id'),
     sa.UniqueConstraint('email')

@@ -23,6 +23,7 @@ class Member(Base):
     facebook_url = Column(String(255), nullable=True, comment="Facebook 連結")
     instagram_url = Column(String(255), nullable=True, comment="Instagram 連結")
     phone = Column(String(20), nullable=True, comment="手機號碼")
+    is_subscribed = Column(Boolean, default=False, nullable=False, comment="是否訂閱")
 
     sport_preferences = relationship("SportPreference", back_populates="member")
     activities = relationship("Activity", back_populates="organizer")

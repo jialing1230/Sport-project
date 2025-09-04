@@ -1070,60 +1070,84 @@ function searchByTitle() {
   fetch("/api/map/active-markers")
     .then((res) => res.json())
     .then((data) => {
-      const found = data.find((activity) => activity.title.includes(keyword));
-      if (!found) {
-        alert("找不到相關活動");
-        return;
-      }
+      const matches = data.filter((activity) =>
+        activity.title.includes(keyword)
+      );
 
-      const markerLatLng = {
-        lat: parseFloat(found.location_lat),
-        lng: parseFloat(found.location_lng),
-      };
+      if (matches.length === 0) {
+  alert("找不到相關活動");
+  return;
+}
 
-      map.setCenter(markerLatLng);
-      map.setZoom(17);
+// ✅ 加上這段條件判斷
+if (matches.length === 1) {
+  const lat = parseFloat(matches[0].location_lat);
+  const lng = parseFloat(matches[0].location_lng);
+  map.setCenter({ lat, lng });
+  map.setZoom(17);
+  showInfoWindowForSingleMatch(matches[0]);
+} else {
+  map.setCenter({ lat: 23.6978, lng: 120.9605 });
+  map.setZoom(7);
+}
 
-      const infoContent = `
-        <div class="map-info-card">
-          <div class="title">${found.title}</div>
-          <div><span class="label">活動類型：</span><span class="value">${found.type === "class" ? "訓練課程" : "一般活動"}</span></div>
-          <div><span class="label">運動類型：</span><span class="value">${found.sport_type}</span></div>
-          <div><span class="label">開始時間：</span><span class="value">${new Date(found.start_time).toLocaleString("zh-TW")}</span></div>
-          <div><span class="label">結束時間：</span><span class="value">${new Date(found.end_time).toLocaleString("zh-TW")}</span></div>
-          <div><span class="label">運動地點：</span><span class="value">${found.location_name}</span></div>
-          <div><span class="label">目前狀態：</span><span class="value">${found.status === "open" ? "開放報名" : found.status}</span></div>
-          <div><span class="label">參加人數：</span><span class="value">${found.current_participants}/${found.max_participants}</span></div>
-          <div><span class="label">場地資訊：</span>
-            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(found.location_name)}" target="_blank">
-              Google 地圖連結
-            </a><br>
-            <img src="https://maps.googleapis.com/maps/api/streetview?size=300x150&location=${encodeURIComponent(found.location_name)}&key={{ api_key }}" 
-              style="margin-top: 8px; width: 100%; border-radius: 8px;" alt="街景圖片"/>
+      // 清除目前所有標點
+      markers.forEach((marker) => marker.setMap(null));
+      markers = [];
+
+      // 縮放到全台灣範圍
+      map.setCenter({ lat: 23.6978, lng: 120.9605 });
+      map.setZoom(7);
+
+      // 每筆符合的活動都建立 marker 和 infoWindow
+      matches.forEach((activity) => {
+        const markerLatLng = {
+          lat: parseFloat(activity.location_lat),
+          lng: parseFloat(activity.location_lng),
+        };
+
+        const marker = new google.maps.Marker({
+          position: markerLatLng,
+          map: map,
+          icon:
+            activity.type === "class"
+              ? "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+              : "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
+        });
+
+        const infoContent = `
+          <div class="map-info-card">
+            <div class="title">${activity.title}</div>
+            <div><span class="label">活動類型：</span><span class="value">${activity.type === "class" ? "訓練課程" : "一般活動"}</span></div>
+            <div><span class="label">運動類型：</span><span class="value">${activity.sport_type}</span></div>
+            <div><span class="label">開始時間：</span><span class="value">${new Date(activity.start_time).toLocaleString("zh-TW")}</span></div>
+            <div><span class="label">結束時間：</span><span class="value">${new Date(activity.end_time).toLocaleString("zh-TW")}</span></div>
+            <div><span class="label">運動地點：</span><span class="value">${activity.location_name}</span></div>
+            <div><span class="label">目前狀態：</span><span class="value">${activity.status === "open" ? "開放報名" : activity.status}</span></div>
+            <div><span class="label">參加人數：</span><span class="value">${activity.current_participants}/${activity.max_participants}</span></div>
+            <div><span class="label">場地資訊：</span>
+              <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(activity.location_name)}" target="_blank">Google 地圖連結</a>
+              <br>
+              <img src="https://maps.googleapis.com/maps/api/streetview?size=300x150&location=${encodeURIComponent(
+                activity.location_name
+              )}&key={{ api_key }}" alt="街景圖片" style="margin-top: 8px; width: 100%; border-radius: 8px;" />
+            </div>
           </div>
-        </div>
-      `;
+        `;
 
-      const infoWindow = new google.maps.InfoWindow({
-        content: infoContent,
+        const infoWindow = new google.maps.InfoWindow({
+          content: infoContent,
+        });
+
+        marker.addListener("click", () => {
+          infoWindow.open(map, marker);
+        });
+
+        markers.push(marker);
       });
-
-      const tempMarker = new google.maps.Marker({
-        position: markerLatLng,
-        map: map,
-        icon: "http://maps.google.com/mapfiles/ms/icons/purple-dot.png",
-      });
-
-      infoWindow.open(map, tempMarker);
-
-      google.maps.event.addListenerOnce(infoWindow, "closeclick", () => {
-        tempMarker.setMap(null);
-        input.value = "";
-        map.setCenter({ lat: 25.033964, lng: 121.562321 });
-        map.setZoom(15);
-        document.getElementById('title-search-input').value = '';
-        document.getElementById('title-search-container').style.display = 'none';
-      });
+    })
+    .catch((err) => {
+      console.error("活動搜尋錯誤：", err);
     });
 }
 

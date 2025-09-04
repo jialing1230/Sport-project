@@ -14,6 +14,7 @@ from .review_template import ReviewTemplate
 from .activity_favorite import ActivityFavorite
 from .photo import Photo
 from .blacklist import Blacklist
+from .subscription import Subscription
 
 __all__ = [
     "PreferenceSport",
@@ -31,5 +32,6 @@ __all__ = [
     "ReviewTemplate",
     "ActivityFavorite",
     "Blacklist",
-    "Photo"
+    "Photo",
+    "Subscription"
 ]

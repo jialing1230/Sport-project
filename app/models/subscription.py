@@ -4,7 +4,7 @@ from app.database import Base
 
 class Subscription(Base):
     __tablename__ = "subscriptions"
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, index=True)
     member_id = Column(String(36), ForeignKey("members.member_id"), nullable=False, index=True)
     subscribed_at = Column(DateTime, nullable=False)
     expire_at = Column(DateTime, nullable=True, comment="到期日")

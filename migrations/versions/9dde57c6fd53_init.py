@@ -72,6 +72,7 @@ def upgrade() -> None:
     sa.Column('status', sa.String(length=50), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('has_review', sa.Boolean(), nullable=True),
+    sa.Column('is_discounted', sa.Boolean(), nullable=False, server_default="0", comment='是否參與優惠活動'),
     sa.Column('target_identity', sa.String(length=50), nullable=True),
     sa.Column('gender', sa.String(length=10), nullable=True),
     sa.Column('age_range', sa.String(length=20), nullable=True),

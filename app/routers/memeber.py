@@ -654,6 +654,60 @@ def verify_phone_code():
     phone_code_store.pop(phone)
     return jsonify({"message": "手機驗證成功"}), 200
 
+# 訂閱方案 API
+@member_bp.route("/<string:member_id>/subscribe", methods=["POST"])
+def subscribe_plan(member_id):
+    """會員購買訂閱方案（月/季/年），寫入 subscriptions 並更新 member.is_subscribed=1"""
+    data = request.get_json() or {}
+    plan = data.get("plan")  # 'month', 'season', 'year'
+    amount = data.get("amount")
+    expire_at = data.get("expire_at")  # ISO 格式字串
+    if plan not in ("month", "season", "year"):
+        return jsonify({"error": "方案類型錯誤，必須為 month/season/year"}), 400
+    if not amount or not expire_at:
+        return jsonify({"error": "缺少金額或到期日"}), 400
+
+    from datetime import datetime, timezone, timedelta
+    import zoneinfo
+    with get_db() as db:
+        member = db.query(Member).get(member_id)
+        if not member:
+            return jsonify({"error": "找不到會員"}), 404
+
+        # 禁止重複訂閱
+        if member.is_subscribed:
+            return jsonify({"error": "會員已訂閱，請勿重複購買"}), 400
+
+        # 新增訂閱紀錄
+        from app.models.subscription import Subscription
+        try:
+            expire_dt = datetime.fromisoformat(expire_at)
+        except Exception:
+            return jsonify({"error": "expire_at 格式錯誤，請用 ISO 格式"}), 400
+
+        # 設定台灣時區
+        try:
+            tz = zoneinfo.ZoneInfo("Asia/Taipei")
+        except Exception:
+            tz = timezone(timedelta(hours=8))  # 備用
+        now_tw = datetime.now(tz)
+        sub = Subscription(
+            member_id=member_id,
+            plan=plan,
+            amount=amount,
+            expire_at=expire_dt,
+            is_active=True,
+            subscribed_at=now_tw,
+        )
+        db.add(sub)
+        db.flush()  # 讓 sub.id 可用
+        sub_id = sub.id  # 先存起來，避免 detached instance
+        # 更新會員訂閱狀態
+        member.is_subscribed = True
+        db.commit()
+    return jsonify({"message": "訂閱成功", "subscription_id": sub_id}), 201
+# app/routers/member.py
+
 
 
 

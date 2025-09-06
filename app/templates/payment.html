@@ -721,18 +721,48 @@
           // 獲取選擇的方案和金額
           const selectedPlan = document.querySelector('input[name="subscriptionPlan"]:checked').value;
           const planData = {
-            monthly: { name: '月費方案', fee: 200, discount: 0 },
-                      quarterly: { name: '季費方案', fee: 600, discount: 200 },
-                      yearly: { name: '年費方案', fee: 2400, discount: 800 }
+            monthly: { name: '月費方案', fee: 200, discount: 0, api: 'month', months: 1 },
+            quarterly: { name: '季費方案', fee: 600, discount: 200, api: 'season', months: 3 },
+            yearly: { name: '年費方案', fee: 2400, discount: 800, api: 'year', months: 12 }
           };
           const plan = planData[selectedPlan];
           const total = plan.fee - plan.discount;
-          
-          // 模擬成功付款
-          alert('付款成功！您的月費訂閱已啟用。');
-          // 取得 member_id 並導向成功頁面
+          // 取得 member_id
+          // 一律從網址參數取得 member_id
           const urlParams = new URLSearchParams(window.location.search);
-          const memberId = urlParams.get('member_id');
+          let memberId = urlParams.get('member_id');
+          if (!memberId) {
+            // 嘗試從 hash 或其他方式取得（可擴充）
+            alert('找不到會員資訊，請重新登入');
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+            return;
+          }
+          // 計算到期日
+          const now = new Date();
+          let expire = new Date(now);
+          expire.setMonth(expire.getMonth() + plan.months);
+          // 若跨年自動修正
+          if (expire.getDate() !== now.getDate()) {
+            expire.setDate(0);
+          }
+          const expireAt = expire.toISOString();
+          // 呼叫訂閱API
+          const resp = await fetch(`/api/members/${memberId}/subscribe`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              plan: plan.api,
+              amount: total,
+              expire_at: expireAt
+            })
+          });
+          if (!resp.ok) {
+            const err = await resp.json();
+            throw new Error(err.error || '訂閱失敗');
+          }
+          alert('付款成功！您的訂閱已啟用。');
+          // 導向成功頁
           const planParam = encodeURIComponent(plan.name);
           const amountParam = total.toLocaleString();
           let nextUrl = `/payment_success?plan=${planParam}&amount=${amountParam}`;
@@ -742,7 +772,7 @@
           window.location.href = nextUrl;
           
         } catch (error) {
-          alert('付款失敗，請稍後再試');
+          alert('付款失敗：' + (error.message || '請稍後再試'));
           submitBtn.textContent = originalText;
           submitBtn.disabled = false;
         }

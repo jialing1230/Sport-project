@@ -556,28 +556,43 @@
         }
 
         #title-search-container {
-  display: none;
-  align-items: center;
-  margin-left: 8px;
-}
-#title-search-input {
-  height: 32px;
-  border-radius: 20px;
-  padding: 0 10px;
-  border: 1px solid #ccc;
-}
-#title-search-btn {
-  height: 32px;
-  padding: 0 10px;
-  margin-left: 6px;
-  background-color: #005BAC;
-  color: white;
-  border: none;
-  border-radius: 16px;
-}
+          display: none;
+          align-items: center;
+          margin-left: 8px;
+        }
+
+        #title-search-input {
+          height: 32px;
+          border-radius: 20px;
+          padding: 0 10px;
+          border: 1px solid #ccc;
+        }
+
+        #title-search-btn {
+          height: 32px;
+          padding: 0 10px;
+          margin-left: 6px;
+          background-color: #005BAC;
+          color: white;
+          border: none;
+          border-radius: 16px;
+        }
 
         .title-search-container.hidden {
           display: none;
+        }
+        .clear-filter-btn {
+          padding: 6px 12px;
+          margin-left: 8px;
+          background-color: #ccc;
+          color: #2c4975;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+
+        .clear-filter-btn:hover {
+          background-color: #bbb;
         }
     </style>
     
@@ -646,7 +661,7 @@
 
     <div class="filter-bar">
       <div class="container filter-buttons">
-        <button class="filter-btn" data-type="county">
+        <button class="filter-btn" data-type="county" id="county-btn">
             <span class="label">所有縣市</span>
             <span class="arrow"></span>
           </button>
@@ -678,7 +693,7 @@
               </ul>
             </div>
           </button>
-        <button class="filter-btn" data-type="activity">
+        <button class="filter-btn" data-type="activity" id="activity-btn">
             <span class="label">活動類型</span>
             <span class="arrow"></span>
         </button>
@@ -690,7 +705,7 @@
             <li class="activity-option" data-activity="class">訓練課程</li>
           </ul>
         </div>
-        <button class="filter-btn" data-type="sport">
+        <button class="filter-btn" data-type="sport" id="sport-btn">
             <span class="label">運動類型</span>
             <span class="arrow"></span>
         </button>
@@ -709,6 +724,8 @@
           />
           <button id="title-search-btn" style="height: 32px; padding: 0 10px;">搜尋</button>
         </div>
+      <!-- ✅ 移出來放在外層（同一個父層 `.filter-buttons` 中） -->
+      <button id="clear-filter-btn" class="clear-filter-btn">清除篩選條件</button>
         </div>
       </div>
     </div>
@@ -752,10 +769,11 @@
 
     <script>
       let map;
-let markers = [];
-
-let searchMarker = null;
-let searchInfoWindow = null;
+      let markers = [];
+      let openInfoWindows = [];
+      
+      let searchMarker = null;
+      let searchInfoWindow = null;
 
 function initMap() {
   const center = { lat: 25.033964, lng: 121.562321 };
@@ -862,8 +880,8 @@ function loadMarkers(county, activityType = "all") {
         });
 
         marker.addListener("click", () => {
-          infoWindow.open(map, marker);
-        });
+          openInfoWindows.push(infoWindow);  // ⬅️ 加這行
+          infoWindow.open(map, marker);});
 
         markers.push(marker);
       });
@@ -1140,6 +1158,7 @@ if (matches.length === 1) {
         });
 
         marker.addListener("click", () => {
+          openInfoWindows.push(infoWindow);  // ⬅️ 加這行
           infoWindow.open(map, marker);
         });
 
@@ -1163,6 +1182,42 @@ google.maps.event.addListener(map, 'click', () => {
   container.style.display = 'none';
 });
       </script>
+      <script>
+      document.getElementById("clear-filter-btn").addEventListener("click", () => {
+        console.log("觸發清除篩選條件，地圖物件為：", map);
+      
+        // 1. 清除所有篩選與搜尋欄
+        document.querySelector("#county-btn .label").innerText = "所有縣市";
+        document.querySelector("#activity-btn .label").innerText = "活動類型";
+        document.querySelector("#sport-btn .label").innerText = "運動類型";
+        document.querySelector("#title-btn .label").innerText = "活動名稱";
+        document.getElementById("title-search-container").style.display = "none";
+        document.getElementById("title-search-input").value = "";
+      
+        // 2. 清除地圖上的所有標記
+        markers.forEach((m) => m.setMap(null));
+        markers = [];
+      
+        // 3. 關閉所有 infoWindow（包含單筆搜尋與多筆 marker 開啟的）
+        if (searchMarker) {
+          searchMarker.setMap(null);
+          searchMarker = null;
+        }
+        if (searchInfoWindow) {
+          searchInfoWindow.close();
+          searchInfoWindow = null;
+        }
+        openInfoWindows.forEach(w => w.close());
+        openInfoWindows = [];
+      
+        // 4. 重設地圖位置與 zoom
+        map.setCenter({ lat: 25.033964, lng: 121.562321 });
+        map.setZoom(15);
+      
+        // 5. 載入所有活動標記
+        loadMarkers("all", "all");
+      });
+</script>
   </body>
 </html>
 

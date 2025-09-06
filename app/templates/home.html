@@ -596,6 +596,7 @@
         .clear-filter-btn:hover {
           background-color: #bbb;
         }
+<<<<<<< HEAD
 
         .dropdown {
           position: absolute;
@@ -650,6 +651,8 @@
         #time-dropdown .time-option:hover {
           background-color: #f0f0f0;
         }
+=======
+>>>>>>> c3a6552 (清除篩選條件功能)
     </style>
     
   </head>
@@ -761,6 +764,7 @@
             <li class="activity-option" data-activity="class">訓練課程</li>
           </ul>
         </div>
+<<<<<<< HEAD
         <!-- 時段按鈕 -->
 <button id="time-btn" class="filter-btn">
   <span class="label">時段</span>
@@ -774,6 +778,12 @@
   <li class="time-option" data-time="afternoon">下午</li>
   <li class="time-option" data-time="evening">晚上</li>
 </ul>
+=======
+        <button class="filter-btn" data-type="sport" id="sport-btn">
+            <span class="label">運動類型</span>
+            <span class="arrow"></span>
+        </button>
+>>>>>>> c3a6552 (清除篩選條件功能)
         <button class="filter-btn" id="title-btn" data-type="title">
           <span class="label">活動名稱</span>
           <span class="icon">
@@ -838,11 +848,15 @@
       let openInfoWindows = [];
       
       let searchMarker = null;
+<<<<<<< HEAD
       let searchInfoWindow = null; 
       
       let selectedCounty = "all";
       let selectedActivityType = "all";
       let selectedTime = "all";
+=======
+      let searchInfoWindow = null;
+>>>>>>> c3a6552 (清除篩選條件功能)
 
 function initMap() {
   const center = { lat: 25.033964, lng: 121.562321 };
@@ -1284,7 +1298,11 @@ google.maps.event.addListener(map, 'click', () => {
         // 1. 清除所有篩選與搜尋欄
         document.querySelector("#county-btn .label").innerText = "所有縣市";
         document.querySelector("#activity-btn .label").innerText = "活動類型";
+<<<<<<< HEAD
         document.querySelector("#time-btn .label").innerText = "時段";
+=======
+        document.querySelector("#sport-btn .label").innerText = "運動類型";
+>>>>>>> c3a6552 (清除篩選條件功能)
         document.querySelector("#title-btn .label").innerText = "活動名稱";
         document.getElementById("title-search-container").style.display = "none";
         document.getElementById("title-search-input").value = "";
@@ -1310,7 +1328,11 @@ google.maps.event.addListener(map, 'click', () => {
         map.setZoom(15);
       
         // 5. 載入所有活動標記
+<<<<<<< HEAD
         loadMarkers("all", "all", "all");
+=======
+        loadMarkers("all", "all");
+>>>>>>> c3a6552 (清除篩選條件功能)
       });
 </script>
   </body>

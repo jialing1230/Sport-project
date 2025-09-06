@@ -305,6 +305,32 @@
 		.btn-generate:active {
 		  transform: scale(0.96);
 		}
+    /* === 付費會員優惠 Switch === */
+    .discount-toggle {
+      display: flex; align-items: center; gap: 10px; margin-top: 12px;
+    }
+    .discount-toggle .row-title { min-width: 180px; color:#2c4975; font-weight:600; }
+
+    .switch {
+      --on:#2c4975;           /* 開：深藍 */
+      --off:#cfd8e3;          /* 關底色 */
+      --knob:#ffffff;
+      width: 46px; height: 26px; border-radius: 999px; position: relative;
+      background: var(--off); border: 0; cursor: pointer; padding: 0;
+      transition: background .2s ease;
+    }
+    .switch .knob {
+      position: absolute; top: 3px; left: 3px; width: 20px; height: 20px;
+      background: var(--knob); border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,.2);
+      transition: transform .2s ease;
+    }
+    .switch.is-on { background: #81d3e1; }          /* 開啟時底色（淡藍） */
+    .switch.is-on .knob { transform: translateX(20px); }
+    .switch:focus-visible { outline: 2px solid #64bcd0; outline-offset: 2px; }
+
+    /* 停用（非付費發起人時） */
+    .switch.is-disabled { opacity:.5; cursor:not-allowed; }
+    .hint { font-size: 13px; color:#6b7280; }
 
 
     </style>
@@ -408,6 +434,19 @@
       <label class="form-label">費用NTD（每位學員）</label>
       <input type="number" name="venue_fee" placeholder="請輸入每位學員費用" step="0.01" min="0" required />
     </div>
+    <!-- 【新增】單堂課：是否提供付費會員優惠 -->
+    <div class="form-row discount-toggle">
+      <label class="row-title">是否提供付費會員優惠</label>
+
+      <button type="button" id="allowDiscountSwitchSingle" class="switch" aria-pressed="false" aria-label="是否提供付費會員優惠（單堂）">
+        <span class="knob"></span>
+      </button>
+
+      <span id="allowDiscountTextSingle" class="hint">關閉（不提供優惠）</span>
+      <!-- 送後端的值：0/1 -->
+      <input type="hidden" name="allow_discount_single" id="allow_discount_single" value="0">
+    </div>
+
     <div class="form-row">
       <label class="form-label">報名截止日期</label>
       <input type="datetime-local" name="registration_deadline" required />
@@ -566,6 +605,19 @@
       <label class="form-label">費用NTD（每位學員）</label>
       <input type="number" name="multi_venue_fee" placeholder="請輸入每位學員費用" step="0.01" min="0" required />
     </div>
+    <!-- 【新增】多堂課：是否提供付費會員優惠 -->
+    <div class="form-row discount-toggle">
+      <label class="row-title">是否提供付費會員優惠</label>
+
+      <button type="button" id="allowDiscountSwitchMulti" class="switch" aria-pressed="false" aria-label="是否提供付費會員優惠（多堂）">
+        <span class="knob"></span>
+      </button>
+
+      <span id="allowDiscountTextMulti" class="hint">關閉（不提供優惠）</span>
+      <!-- 送後端的值：0/1 -->
+      <input type="hidden" name="allow_discount_multi" id="allow_discount_multi" value="0">
+    </div>
+
     <div class="form-row">
       <label class="form-label">報名截止日期</label>
       <input type="datetime-local" name="multi_registration_deadline" required />
@@ -655,6 +707,33 @@
         
         
     <script>
+        function setupDiscountSwitch(switchId, hiddenId, hintId){
+        const btn = document.getElementById(switchId);
+        const hidden = document.getElementById(hiddenId);
+        const hint = document.getElementById(hintId);
+        if(!btn || !hidden) return; // 沒有該顆就略過（避免報錯）
+
+        function render(isOn){
+          btn.classList.toggle('is-on', isOn);
+          btn.setAttribute('aria-pressed', String(isOn));
+          hidden.value = isOn ? '1' : '0';
+          if(hint) hint.textContent = isOn ? '開啟（付費會員享優惠）' : '關閉（不提供優惠）';
+        }
+
+        // 預設：關
+        render(false);
+
+        btn.addEventListener('click', ()=>{
+          const isOn = !btn.classList.contains('is-on');
+          render(isOn);
+        });
+      }
+
+      // 網頁載入後啟動（兩顆都綁；若其中一顆不存在會自動跳過）
+      document.addEventListener('DOMContentLoaded', ()=>{
+        setupDiscountSwitch('allowDiscountSwitchSingle','allow_discount_single','allowDiscountTextSingle');
+        setupDiscountSwitch('allowDiscountSwitchMulti','allow_discount_multi','allowDiscountTextMulti');
+      });
         // 當第一次上課時間改變時，自動填入每堂課開始時間並勾選對應每週上課日
   document.addEventListener('DOMContentLoaded', function() {
     const firstTimeInput = document.querySelector('input[name="firstTime"]');

@@ -674,6 +674,10 @@ def subscribe_plan(member_id):
         if not member:
             return jsonify({"error": "找不到會員"}), 404
 
+        # 禁止重複訂閱
+        if member.is_subscribed:
+            return jsonify({"error": "會員已訂閱，請勿重複購買"}), 400
+
         # 新增訂閱紀錄
         from app.models.subscription import Subscription
         try:

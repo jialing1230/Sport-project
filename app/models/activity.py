@@ -37,6 +37,7 @@ class Activity(Base):
     age_range = Column(String(20))
     venue_fee = Column(DECIMAL(10, 2))  
     registration_deadline = Column(DateTime)
+    is_discounted = Column(Boolean, default=False, nullable=False, comment="是否參與優惠活動")
     
 
 

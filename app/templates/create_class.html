@@ -933,7 +933,7 @@
             multi_count: parseInt(formData.get("multi_count")),
             location_name: document.getElementById("place-input").value,
             location_lat: parseFloat(document.getElementById("location-lat").value),
-  location_lng: parseFloat(document.getElementById("location-lng").value),
+            location_lng: parseFloat(document.getElementById("location-lng").value),
             max_participants: parseInt(formData.get("numPeople")),
             venue_fee: parseFloat(formData.get("venue_fee")),
             registration_deadline: formData.get("registration_deadline"),
@@ -944,6 +944,7 @@
             sport_type_id: parseInt(formData.get("sport")),
             description: formData.get("description"),
             status: "open",
+            is_discounted: parseInt(formData.get("allow_discount_single")) || 0,
           };
 
           fetch("/api/activities/class", {
@@ -1019,13 +1020,14 @@
             level: formData.get("multi_level"),
             location_name: document.getElementById("place-input").value,
             location_lat: parseFloat(document.getElementById("location-lat").value),
-  location_lng: parseFloat(document.getElementById("location-lng").value),
+            location_lng: parseFloat(document.getElementById("location-lng").value),
             venue_fee: parseFloat(formData.get("multi_venue_fee")),
             registration_deadline: formData.get("multi_registration_deadline"),
             organizer_id: memberId, // 使用網址中的 member_id
             description: formData.get("multi_description"),
             status: "open",
             scheduleList: scheduleList, // 添加 scheduleList
+            is_discounted: parseInt(formData.get("allow_discount_multi")) || 0,
           };
 
           fetch("/api/activities/multiclass", {

@@ -38,7 +38,7 @@
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 10px 16px;
+          padding: 32px 16px;
           background-color: #fff;
           box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
           z-index: 1000;
@@ -238,27 +238,7 @@
     </head>
     <body>
         <div class="header">
-            <div class="left-section">
-                <svg
-                id="back-button" 
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                width="24"
-                height="24">
-                    <path d="M15 19l-7-7 7-7"
-                        stroke= #81d3e1
-                        stroke-width="2"
-                        fill="none"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"></path>
-                    <path d="M8 12h14"
-                        stroke="#81d3e1"
-                        stroke-width="2"
-                        fill="none"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"></path>
-                </svg>
-            </div>
+
             <div class="navbar-title">
                 <img src="/static/logo.png" alt="Logo" />
                 通知
@@ -368,9 +348,7 @@
         </div>
 
         <script>
-            document.getElementById("back-button").addEventListener("click", function() {
-                window.history.back();
-            });
+
 
             // 下方導覽列互動動畫與導頁（複製自 member.html，略作調整）
             function goToActivity() {

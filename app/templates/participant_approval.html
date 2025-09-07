@@ -125,7 +125,7 @@
       max-width: 320px;
       min-width: 260px;
       position: relative;
-      text-align: center;
+      text-align: left;
       color: var(--text-color);
       animation: popupIn .25s;
     }
@@ -134,14 +134,22 @@
       to { transform: scale(1); opacity: 1; }
     }
     .modal-avatar {
-      width: 54px; height: 54px; margin-bottom: 10px; border-radius: 50%; background: #ddd; display: flex; align-items: center; justify-content: center; margin-left: auto; margin-right: auto;
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: #ddd;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;  /* ✅ 把 margin-left/right/auto 和 margin-bottom 都刪掉，統一寫 margin:0 */
     }
-    .modal-title { font-weight: bold; color: var(--main-color); font-size: 18px; margin-bottom: 2px;}
-    .modal-row { margin: 10px 0 5px 0; }
+
+    .modal-title { font-weight: bold; color: var(--deep-blue); font-size: 24px; margin-bottom: 2px;}
+    .modal-row { margin: 10px 0 5px 0; color: #64bcd0; font-weight: bold; }
     .modal-btn {
       margin-top: 16px;
       padding: 6px 28px;
-      background: var(--main-color);
+      background:var(--reject-color); 
       color: #fff;
       border: none;
       border-radius: 8px;
@@ -149,18 +157,15 @@
       cursor: pointer;
       transition: background 0.2s;
     }
-    .modal-btn:hover { background: var(--deep-blue);}
-    .modal-close {
-      position: absolute;
-      right: 18px; top: 14px; font-size: 22px; color: #bbb; cursor: pointer; background: none; border: none;
-    }
+    .modal-btn:hover { background: #fdf9ed; color: #000;}
+
 
     /* ✅ 手機驗證徽章 */
     .verify-badge{
       display:inline-flex; align-items:center; gap:6px;
       font-size:13px; font-weight:700; color:#176b45;
       background:#e7f6ef; border:1px solid #bfe8d5;
-      padding:4px 8px; border-radius:999px;
+      padding:2px 7px; border-radius:999px;
     }
 
     .verify-badge svg{ width:16px; height:16px; }
@@ -169,6 +174,48 @@
     .verify-line{
       margin: 6px 0 4px 0;
       display:flex; justify-content:center;
+    }
+    /* 頭區塊：左側文字 / 右側頭像 */
+    .modal-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
+    }
+    .modal-left{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .badge-row{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:wrap;
+      margin-bottom: 8px; /* ← 新增這行，增加和下面的距離 */
+    }
+    /* 新增：付費 VIP 徽章 */
+    .vip-badge{
+      display:inline-flex; align-items:center; gap:6px;
+      font-size:13px; font-weight:700; color:#8a6b00;
+      background:#fff8e1; border:1px solid #ffe08a;
+      padding:2px 7px; border-radius:999px;
+    }
+    .vip-badge svg {
+      width:14px; 
+      height:14px;
+    }
+    .modal-row.stars {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: flex-start;  /* ✅ 改成靠左 */
+    }
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end; /* 靠右 */
+      margin-top: -12px;
     }
 
   </style>
@@ -195,29 +242,41 @@
   <div id="modalBg" style="display:none">
     <div class="modal-bg">
       <div class="modal">
-  <button class="modal-close" onclick="closeModal()">&times;</button>
-  <div class="modal-avatar" id="modalAvatar"></div>
-  <div class="modal-title" id="modalName"></div>
-  <!-- ✅ 新增：名稱與自我介紹之間的驗證徽章列 -->
-  <div id="modalVerify" class="verify-line" hidden>
-    <span class="verify-badge" title="此用戶已完成手機驗證">
-      <svg viewBox="0 0 24 24" fill="none">
-        <path d="M12 3l7 3v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3z" stroke="#176b45" stroke-width="1.6"/>
-        <path d="M8.5 12.5l2.5 2.5 4.5-5" stroke="#176b45" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      手機驗證
-    </span>
+  <div class="modal-header">
+    <div class="modal-left">
+ <div class="modal-title" id="modalName"></div>
+      <div class="badge-row">
+        <!-- 手機驗證徽章 -->
+        <span id="badgeVerify" class="verify-badge" hidden title="此用戶已完成手機驗證">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 3l7 3v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3z" stroke="#176b45" stroke-width="1.6"/>
+            <path d="M8.5 12.5l2.5 2.5 4.5-5" stroke="#176b45" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          手機驗證
+        </span>
+        <!-- 付費會員徽章 -->
+        <span id="badgeVip" class="vip-badge" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#8a6b00" viewBox="0 0 256 256" style="transform: translateY(1px);"><path d="M230.9,73.6A15.85,15.85,0,0,0,212,77.39l-33.67,36.29-35.8-80.29a1,1,0,0,1,0-.1,16,16,0,0,0-29.06,0,1,1,0,0,1,0,.1l-35.8,80.29L44,77.39A16,16,0,0,0,16.25,90.81c0,.11,0,.21.07.32L39,195a16,16,0,0,0,15.72,13H201.29A16,16,0,0,0,217,195L239.68,91.13c0-.11,0-.21.07-.32A15.85,15.85,0,0,0,230.9,73.6ZM201.35,191.68l-.06.32H54.71l-.06-.32L32,88l.14.16,42,45.24a8,8,0,0,0,13.18-2.18L128,40l40.69,91.25a8,8,0,0,0,13.18,2.18l42-45.24L224,88Z"></path></svg>
+          付費會員
+        </span>
+      </div>
+    </div>
+
+    <!-- 右側頭像 -->
+    <div class="modal-avatar" id="modalAvatar"></div>
   </div>
   <div class="modal-row">自我介紹：</div>
-  <div id="modalPublic" style="font-size:14px;color:#666;margin-bottom:8px;text-align:left;"></div>
-  <div class="modal-row" style="display:flex;align-items:center;justify-content:center;gap:8px;">評價星等：
+  <div id="modalPublic" style="font-size:14px;margin-bottom:8px;text-align:left;"></div>
+  <div class="modal-row stars">評價星等：
     <span id="modalStars" style="display:flex;align-items:center;"></span>
-    <span id="modalRating" style="font-size:15px;color:#888;margin-left:2px;"></span>
+    <span id="modalRating" style="font-size:15px;margin-left:2px;margin-top:4px;"></span>
   </div>
   <div class="modal-row">常見評價：</div>
-  <div id="modalTemplates" style="font-size:14px;color:#666;"></div>
-  <div class="modal-row" id="modalAttendance" style="font-size:14px;color:#666;"></div>
+  <div id="modalTemplates" style="font-size:14px;"></div>
+  <div class="modal-row" id="modalAttendance" style="font-size:16px;color:#64bcd0;"></div>
+  <div class="modal-footer">
   <button class="modal-btn" onclick="closeModal()">關閉</button>
+  </div>
       </div>
     </div>
   </div>
@@ -249,27 +308,45 @@
       document.getElementById("modalStars").innerHTML = renderStars(0);
       document.getElementById("modalTemplates").innerHTML = '';
 
-      // ★ 新增：先把「手機驗證」列關掉
-      const verifyRow = document.getElementById("modalVerify");
-      if (verifyRow) verifyRow.hidden = true;
 
-      // 取得公開資料
-      fetch(`/api/members/${p.member_id}`)
-        .then(r => r.json())
-        .then(data => {
-          let html = '';
-          if(data.public_intro) html += data.public_intro;
-          document.getElementById("modalPublic").innerHTML = html || '無';
-           // ★ 新增：顯示「手機驗證」徽章（直接操作 display 屬性）
-          const badge = document.getElementById("modalVerify");
-          if (data.phone) {
-            badge.style.display = "flex";
-          } else {
-            badge.style.display = "none";
-          }
-        }).catch(()=>{
-          document.getElementById("modalPublic").innerHTML = '無';
-        });
+// 先抓元素並設預設狀態
+const elVerify = document.getElementById("badgeVerify");
+const elVip    = document.getElementById("badgeVip");
+if (elVerify) elVerify.hidden = true;
+if (elVip)    elVip.hidden = true;
+
+
+    // 取得公開資料
+    fetch(`/api/members/${p.member_id}`)
+      .then(r => r.json())
+      .then(data => {
+        // 自我介紹
+        const intro = (data.public_intro || "").trim();
+        document.getElementById("modalPublic").innerHTML = intro || '無';
+
+        // 手機驗證徽章
+        if (data.phone) elVerify.hidden = false;
+
+        // 會員方案（依你的後端欄位擇一；這裡做彈性判斷）
+        const plan =
+          (data.membership_plan) ||
+          (data.plan) ||
+          (data.subscription && data.subscription.plan) ||
+          (data.is_premium ? "VIP" : "free");
+
+        const isPaid = plan && String(plan).toLowerCase() !== "free";
+
+        if (isPaid) {
+          elVip.hidden = false;
+        } else {
+          elVip.hidden = true;
+        }
+      })
+      .catch(() => {
+        document.getElementById("modalPublic").innerHTML = '無';
+        // 失敗時維持預設（免費、不顯示徽章）
+      });
+
       // 取得評價統計
       fetch(`/reviews/statistics?target_member_id=${p.member_id}`)
         .then(r => r.json())

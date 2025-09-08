@@ -259,7 +259,7 @@
         justify-content: center;
         align-items: flex-start;
         padding-top: 20px;
-        z-index: 1000;
+        z-index: 1300;
         overflow: visible;
       }
 
@@ -267,7 +267,7 @@
         position: relative; /* 確保子元素的絕對定位基於此容器 */
         background-color: #fff;
         padding: 15px;
-        border-radius: 10px;
+        border-radius: 8px;
         width: 80%; /* 使用百分比寬度 */
         max-width: 400px; /* 設置最大寬度 */
         height: auto; /* 高度自適應內容 */
@@ -510,7 +510,7 @@
         width: 400px;
         height: auto;
         padding: 20px;
-        border-radius: 10px;
+        border-radius: 8px;
         background-color: #fff;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         text-align: center;
@@ -744,9 +744,23 @@
         text-align: center;
         position: relative;
         box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.2);
-
         transform: translateY(100%);
         animation: slideUp 0.3s ease-out forwards;
+      }
+      .activity-type-box::after {
+        content: "";
+        position: absolute;
+        bottom: -20px;   /* ⬅️ 延伸一塊白色到下方 */
+        left: 0;
+        right: 0;
+        height: 20px;
+        background: #fff;
+      }
+
+      @supports(padding:max(0px)){
+        .activity-type-box {
+          bottom: calc(16px + env(safe-area-inset-bottom));
+        }
       }
 
       @keyframes slideUp {
@@ -775,7 +789,7 @@
 
       .activity-type-options {
         display: flex;
-        gap: 16px;
+        gap: 32px;
         justify-content: center;
       }
 
@@ -789,12 +803,14 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        transition: transform 0.2s ease;
+        transition: none;
         cursor: pointer;
+        position: relative;
+        font-weight: 600;
       }
 
       .activity-type-btn:hover {
-        transform: scale(1.05);
+        transform: none;
       }
 
       .activity-type-btn svg {
@@ -802,11 +818,46 @@
         height: 36px;
         stroke: var(--text-color);
         margin-bottom: 8px;
+        position: relative;
+        z-index: 1;
+        display: block;
       }
 
       .activity-type-btn div {
         color: var(--text-color);
         font-weight: bold;
+      }
+      /* 鎖定狀態：把卡片內容淡化＋去色（膠囊不受影響） */
+      .activity-type-btn.is-locked > :not(.lock-pill){
+        opacity: .55;
+        filter: grayscale(1);
+      }
+
+
+      /* 付費膠囊（只保留這一份） */
+      .activity-type-btn .lock-pill{
+        position: absolute;
+        top: 36px;
+        left: 12px;
+        font-size: 12px;
+        color: #2c4975;
+        background: #fff;
+        border: 1px solid rgba(44,73,117,.15);
+        border-radius: 999px;
+        padding: 3px 10px;
+        box-shadow: 0 2px 6px rgba(0,0,0,.08);
+        pointer-events: none;        /* 不阻擋點擊 */
+        white-space: nowrap;
+        z-index: 3;
+        transition: background-color .2s ease, color .2s ease, border-color .2s ease;
+      }
+      /* 未開通：滑過卡片時，只有膠囊反轉顏色 */
+      .activity-type-btn.is-locked:hover .lock-pill,
+      .activity-type-btn.is-locked:focus-visible .lock-pill,
+      .activity-type-btn.is-locked:active .lock-pill{
+        background: #2c4975;
+        color: #fff;
+        border-color: #2c4975;
       }
       .custom-card-header {
         display: flex;
@@ -923,10 +974,6 @@
       }
     }
 
-
-
-
-
       /* ⭐ 1440px 以上顯示四欄（340px 卡片 + 20px 間距剛好） */
       @media (min-width: 1440px) {
         .activity-card-container {
@@ -948,7 +995,6 @@
         cursor: pointer;
         height: auto;      /* ← 由內容決定高度 */
         align-self: start; /* ← 即使整列很高，＋卡片自己維持正常高度 */
-
       }
 
       /* ＋符號樣式 */
@@ -994,6 +1040,194 @@
         color: #2c4975;
         background: transparent;
       }
+      /* 讓卡片能放膠囊 */
+      .activity-type-btn { position: relative; }
+
+
+      /* 有些 SVG 用 currentColor，強制給顏色 */
+      .activity-type-btn{ color: var(--text-color); }
+      .activity-type-btn svg path,
+      .activity-type-btn svg rect,
+      .activity-type-btn svg circle,
+      .activity-type-btn svg polygon {
+        fill: var(--text-color);   /* 若你想沿用深藍就用這個 */
+        /* 或想固定色：fill:#2c4975; */
+      }
+      /* 只針對升級提示這個 modal：置中、層級更高 */
+      #upgradeModal{
+        z-index: 1400;        /* 一定蓋過 #activityTypeModal(1200) */
+        align-items: center;  /* 垂直置中 */
+      }
+
+      /* 升級提示的白卡片 */
+      #upgradeModal .modal-content{
+        width: 300px;
+        max-width: calc(100% - 48px);
+        padding: 1px 16px 16px;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 8px 24px rgba(0,0,0,.2);
+      }
+
+      /* 升級提示不要右上角叉叉 */
+      #upgradeModal .close{ display:none; }
+
+      /* 對話框版型（之後別的彈窗也能重用） */
+      .dialog-title{
+        margin-bottom: 16px;
+        font-size: 20px;
+        font-weight: bold;
+        color: #2c4975;
+        letter-spacing: .5px;
+      }
+      .dialog-desc{
+        margin: 8px 0 18px;
+        font-size: 14px;
+        color: #000;
+        line-height: 1.7;
+        font-weight: 300;  /* ← 改細字 */
+      }
+      .dialog-actions{
+        display:flex;
+        justify-content:center;
+        gap: 40px;
+      }
+      .btn{
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-weight: 700;
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: transform .18s ease, filter .28s ease, box-shadow .35s ease;
+      }
+      .btn:active{ transform: scale(.98); }
+      .btn-outline-pink{
+        background: #fff;
+        color: var(--fab-color);
+        border-color: var(--fab-color);
+      }
+
+      .btn-pink{
+        background: var(--fab-color);
+        color: #fff;
+      }
+      .btn-pink:hover{ filter: brightness(.95); }
+
+      /* 保險：鎖定時，不要有放大或變色（卡片保持原樣） */
+      .activity-type-btn.is-locked:hover,
+      .activity-type-btn.is-locked:active{
+        transform: none;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      }
+      /* hover 時才出現陰影 */
+      .btn-outline-pink:hover,
+      .btn-pink:hover {
+        box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+        transform: translateY(-1px); /* 可選：稍微浮起 */
+      }
+      /* 只針對 活動類型說明 的彈窗做新樣式 */
+      #typeInfoModal{
+        display: none;             /* 預設隱藏（用 JS 顯示） */
+        align-items: center !important;   /* 垂直置中 */
+        justify-content: center !important; /* 水平置中 */
+        padding-top: 0 !important; /* 拿掉上方 padding */
+        z-index: 1350;             /* 比底部抽屜更上層一點（看你需求可調） */
+      }
+
+      /* 卡片樣式（與 upgrade 分開） */
+      #typeInfoModal .modal-content{
+        width: 320px;
+        max-width: calc(100% - 48px);
+        padding: 16px 16px 64px;  /* 底部多留空間放關閉按鈕 */
+        border-radius: 10px;
+        text-align: left;
+        position: relative;       /* 讓關閉鈕可以絕對定位到底部置中 */
+        box-shadow: 0 8px 24px rgba(0,0,0,.18);
+      }
+
+      /* 不要右上角叉叉 */
+      #typeInfoModal .close{ display:none !important; }
+
+      /* 內容滾動高度（避免被底部關閉鈕遮住） */
+      #typeInfoModal .scrollable-content{
+        max-height: 50vh;
+        overflow-y: auto;
+        padding-right: 4px;
+      }
+
+      /* 底部關閉按鈕 */
+      #typeInfoModal .modal-close-btn{
+        position: absolute;
+        left: 50%;
+        bottom: 14px;
+        transform: translateX(-50%);
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        background: var(--primary-color);
+        color: #fff;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform .18s ease, box-shadow .35s ease, filter .28s ease;
+      }
+      #typeInfoBtn {
+        cursor: pointer;
+      }
+
+      /* 活動類型說明 Modal：標題、內文、標籤統一排版 */
+      #typeInfoModal h2 {
+        text-align: center;
+        margin: 8px 0 2px;
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text-color); /* 水藍色標題 */
+      }
+
+      #typeInfoModal h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--primary-color); /* 深藍 */
+        margin: 10px 0 6px;
+      }
+
+      #typeInfoModal .info-tag {
+        font-size: 12px;
+        color: #4aa3b5;   /* 淺藍提示 */
+        font-weight: normal;
+      }
+
+      #typeInfoModal ul {
+        margin: 0 0 6px 20px; /* 左邊縮進 */
+        padding: 0;
+        color: #2c4975;
+        line-height: 1.7;
+      }
+
+      #typeInfoModal li {
+        margin-bottom: 4px;
+        font-size: 14px;
+      }
+
+      /* 關閉按鈕 */
+      #typeInfoModal .modal-close-btn {
+        display: block;
+        margin: 10px auto;  /* 置中 */
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        background:#81d3e1;
+        color: #fff;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      #typeInfoModal .modal-close-btn:hover {
+        background: #2c4975; 
+      }
+      #typeInfoModal .scrollable-content {
+        padding-left: 18px;  /* 左邊加 12px */
+      }
+
 
     </style>
   </head>
@@ -1075,7 +1309,7 @@
         <div class="activity-type-title">
           選擇活動類型
           <!-- 問號 SVG -->
-         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#4aa3b5" viewBox="0 0 256 256" style="position: relative; top: 3px;">
+         <svg id="typeInfoBtn" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#4aa3b5" viewBox="0 0 256 256" style="position: relative; top: 3px;">
           <path d="M144,180a16,16,0,1,1-16-16A16,16,0,0,1,144,180Zm92-52A108,108,0,1,1,128,20,108.12,108.12,0,0,1,236,128Zm-24,0a84,84,0,1,0-84,84A84.09,84.09,0,0,0,212,128ZM128,64c-24.26,0-44,17.94-44,40v4a12,12,0,0,0,24,0v-4c0-8.82,9-16,20-16s20,7.18,20,16-9,16-20,16a12,12,0,0,0-12,12v8a12,12,0,0,0,23.73,2.56C158.31,137.88,172,122.37,172,104,172,81.94,152.26,64,128,64Z"/>
         </svg>
         </div>
@@ -1091,15 +1325,48 @@
           </button>
 
           <!-- 訓練課程 -->
-          <button class="activity-type-btn" onclick="goToCreateWithType('course')">
-            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="#2c4975" viewBox="0 0 256 256">
+          <button class="activity-type-btn" data-type="course" onclick="goToCreateWithType('course')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 256 256">
               <path d="M172,164a12,12,0,0,1-12,12H96a12,12,0,0,1,0-24h64A12,12,0,0,1,172,164Zm-12-52H96a12,12,0,0,0,0,24h64a12,12,0,0,0,0-24Zm60-64V216a20,20,0,0,1-20,20H56a20,20,0,0,1-20-20V48A20,20,0,0,1,56,28H90.53a51.88,51.88,0,0,1,74.94,0H200A20,20,0,0,1,220,48ZM100.29,60h55.42a28,28,0,0,0-55.42,0ZM196,52H178.59A52.13,52.13,0,0,1,180,64v8a12,12,0,0,1-12,12H88A12,12,0,0,1,76,72V64a52.13,52.13,0,0,1,1.41-12H60V212H196Z"/>
             </svg>
             <div>訓練課程</div>
           </button>
+
         </div>
       </div>
     </div>
+      <!-- 說明彈窗 -->
+      <div id="typeInfoModal" class="modal" style="display:none;">
+        <div class="modal-content">
+          <h2>活動類型說明</h2>
+          <div class="scrollable-content">
+            <h3>一般活動</h3>
+            <ul>
+              <li>免費建立，適合臨時揪團或單次活動</li>
+              <li>快速發佈、簡易報名</li>
+            </ul>
+            <h3>訓練課程 <span class="info-tag">（付費會員限定）</span></h3>
+            <ul>
+              <li>支援單堂 / 多堂排程</li>
+              <li>完整課程管理</li>
+            </ul>
+          </div>
+          <button class="modal-close-btn" onclick="closeTypeInfo()">關閉</button>
+
+        </div>
+      </div>
+      <div id="upgradeModal" class="modal" style="display:none;">
+        <div class="modal-content">
+          <h3 class="dialog-title">解鎖訓練課程</h3>
+          <p class="dialog-desc">
+            解鎖為付費發起人，即可建立訓練課程
+          </p>
+          <div class="dialog-actions">
+            <button class="btn btn-outline-pink" onclick="closeUpgrade()">取　　消</button>
+            <button class="btn btn-pink" onclick="goToMembership()">立即開通</button>
+          </div>
+        </div>
+      </div>
 
 
     <script>
@@ -1443,7 +1710,70 @@ card.addEventListener("click", () => {
       this.classList.remove("show");
     }
   });
+  // 🔧 先用前端變數控制會員狀態（之後接後端改這裡就好）
+    const isPaidMember = false; // 未開通 = false；已開通 = true
 
+    // --- 問號說明 ---
+    function openTypeInfo(){ document.getElementById('typeInfoModal').style.display='flex'; }
+    function closeTypeInfo(){ document.getElementById('typeInfoModal').style.display='none'; }
+
+    // --- 升級提示 ---
+    function openUpgrade(){
+      // 不關掉選擇活動類型彈窗，直接把升級提示顯示在上層
+      document.getElementById('upgradeModal').style.display = 'flex';
+    }
+    function closeUpgrade(){ document.getElementById('upgradeModal').style.display='none'; }
+    function goToMembership(){
+      const url = `/membership${memberId ? `?member_id=${memberId}` : ''}`;
+      window.location.href = url;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // 問號：開說明
+      const infoBtn = document.getElementById('typeInfoBtn');
+      if (infoBtn){
+        infoBtn.addEventListener('click', openTypeInfo);
+        infoBtn.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' ') openTypeInfo(); });
+      }
+
+      // 訓練課程：依會員狀態控制（取代原本那段）
+      const courseBtn = document.querySelector('.activity-type-btn[data-type="course"]');
+      if (courseBtn){
+        if (!isPaidMember){
+          // 外觀鎖定（需要你有加第1步的 .is-locked CSS）
+          courseBtn.classList.add('is-locked');
+
+          // 動態加膠囊（避免重複）
+          if (!courseBtn.querySelector('.lock-pill')) {
+            courseBtn.insertAdjacentHTML('afterbegin','<span class="lock-pill">付費會員限定</span>');
+          }
+
+          // 攔截點擊，改為開升級視窗（用捕獲階段擋住 inline onclick）
+          const intercept = (e) => { e.preventDefault(); e.stopPropagation(); openUpgrade(); };
+          courseBtn.addEventListener('click', intercept, true);
+
+          courseBtn.setAttribute('aria-disabled','true');
+          courseBtn.setAttribute('title','付費會員限定');
+        } else {
+          // 已開通：解除鎖定
+          courseBtn.classList.remove('is-locked');
+          const pill = courseBtn.querySelector('.lock-pill'); if (pill) pill.remove();
+
+          // 移除任何捕獲監聽，保留原本 onclick="goToCreateWithType('course')"
+          const clone = courseBtn.cloneNode(true);
+          courseBtn.parentNode.replaceChild(clone, courseBtn);
+        }
+      }
+    });
+    // 點彈窗外關閉（沿用你的寫法，額外加在兩個新 modal 上）
+    ['typeInfoModal','upgradeModal'].forEach(id=>{
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('click', function(e){
+        const content = this.querySelector('.modal-content');
+        if (content && !content.contains(e.target)) this.style.display = 'none';
+      });
+    });
     </script>    
   </body>
 </html>

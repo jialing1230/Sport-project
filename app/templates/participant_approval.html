@@ -12,25 +12,47 @@
       --bg-color: #f5f5f5;
       --approve-color: #81d3e1;
       --reject-color: #fea3a8;
+      --header-h: 64px;
+      --container-desktop-w: 500px;
+      --card-padding-y: 12px;
+      --card-padding-x: 14px;
+      --card-gap: 12px;          /* 卡片內元件之間的 gap */
+      --info-gap: 12px;          /* 頭像與文字區 gap */
+      --btn-gap: 8px;            /* 兩顆按鈕間距 */
+      --avatar-size: 48px;
+      --name-size: 16px;
+      --status-size: 13px;
+      --btn-font: 14px;
+      --btn-minw: 92px;          /* 按鈕最小寬度，窄螢幕更好點 */
+      --btn-pad-y: 6px;
+      --btn-pad-x: 14px;
+      --info-gap: 20px;
     }
+    *, *::before, *::after { box-sizing: border-box; }
     html, body {
       margin: 0;
       background: var(--bg-color);
       font-family: Arial, sans-serif;
       color: var(--deep-blue);
+      height: 100%;
     }
     .header {
-      position: fixed;
-      top: 0; left: 0; right: 0;
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      right: 0; 
       z-index: 100;
-      background: #fff;
-      display: flex;
-      align-items: center;
-      padding: 22px 16px;
+      background: #fff; 
+      display: flex; 
+      align-items: center; 
+      justify-content: flex-start;   /* ← 保持左對齊，返回箭頭才不會跑掉 */
+      height: var(--header-h);       /* 固定高度 */
+      padding: 0 16px; 
       border-bottom: 1px solid #eee;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      box-shadow: 0 2px 6px rgba(0,0,0,.06);
       color: var(--deep-blue);
     }
+
     .arrow-icon {
       fill: var(--deep-blue);
       cursor: pointer;
@@ -51,16 +73,20 @@
       color: var(--deep-blue);
     }
     .container {
+      position: fixed;
+      top: var(--header-h);
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
       background: #fff;
-      max-width: 401px;
-      margin: 60px auto auto auto;
       padding: 0 24px 30px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-      border-radius: 0px;
-      top: 60px;
       overflow-y: auto;
+      box-shadow: 0 2px 6px rgba(0,0,0,.05);
+      border-radius: 0;
       color: var(--text-color);
+      width: min(var(--container-desktop-w), calc(100% - 40px));
     }
+
     .participant-card {
       background: #fff;
       border-radius: 8px;
@@ -68,31 +94,60 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border: 1px solid #eee;
+      border: 1.5px solid #ddd;
       margin-bottom: 10px;
       margin-top: 20px;
+      padding: var(--card-padding-y) var(--card-padding-x);
+      gap: var(--card-gap);                /* 讓左右區塊有一致距離 */
     }
-    .info { display: flex; align-items: center; gap: 10px; }
+    .participant-card .info{
+      display: flex;
+      align-items: center;
+      gap: var(--info-gap);
+    }
     .avatar {
-      width: 48px; height: 48px; border-radius: 50%;
-      background: #ddd; display: flex; align-items: center; justify-content: center;
+      width: var(--avatar-size);
+      height: var(--avatar-size);
+      border-radius: 50%;
+      background: #ddd;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;   /* 保持比例裁切 */
+    }
+
     .name {
       font-weight: bold;
       color: var(--deep-blue);
       cursor: pointer;
+      font-size: var(--name-size);
+      line-height: 1.2;   /* 讓行高更緊實 */
+      font-size: 18px;
     }
     .name:hover { text-decoration: underline; }
-    .status { font-size: 14px; color: var(--deep-blue); }
-    .btn {
-      border: none;
-      padding: 6px 14px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 15px;
-      margin-left: 8px;
-      transition: background 0.2s;
+
+    .status {
+      font-size: var(--status-size);
+      color: var(--deep-blue);
+      line-height: 1.1;
     }
+
+    .btn{
+      border:none;
+      padding:var(--btn-pad-y) var(--btn-pad-x);
+      border-radius:6px;
+      cursor:pointer;
+      font-size:var(--btn-font);
+      min-width:var(--btn-minw);
+      transition:background .2s;
+      margin-left:0;           /* ← 取消，避免和 .actions 的 gap 打架 */
+    }
+
     .btn-approve {
       background: var(--approve-color);
       color: #fff;
@@ -217,7 +272,29 @@
       justify-content: flex-end; /* 靠右 */
       margin-top: -12px;
     }
+    .actions{
+      display:flex;
+      justify-content:flex-end;
+      align-items:center;
+      gap:var(--btn-gap);
+      flex-wrap:wrap;          /* 窄螢幕自動換行，不用 media query */
+    }
 
+    .status-label {
+      font-weight: bold;
+      font-size: var(--btn-font);
+      min-width: var(--btn-minw);  /* 讓位置對齊按鈕 */
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    .status-label.approved {
+      color: var(--approve-color);
+    }
+
+    .status-label.rejected {
+      color: var(--reject-color);
+    }
   </style>
 </head>
 <body>
@@ -467,18 +544,31 @@ if (elVip)    elVip.hidden = true;
         card.innerHTML = `
           <div class="info">
             <div class="avatar" onclick="showUserDetail(${p.id})">
-              <img src="/static/avatars/${p.member_id}.png" alt="${p.name}" title="${p.name}" onerror="this.onerror=null;this.src='/static/avatars/default.jpg'" style="width:48px;height:48px;border-radius:50%;object-fit:cover;" />
+              <img src="/static/avatars/${p.member_id}.png" alt="${p.name}" title="${p.name}"
+                onerror="this.onerror=null;this.src='/static/avatars/default.jpg'"
+                style="width:48px;height:48px;border-radius:50%;object-fit:cover;" />
             </div>
             <div>
               <div class="name" onclick="showUserDetail(${p.id})">${p.name}</div>
-              <div class="status">${statusText}</div>
-              <div style="font-size:12px;color:#aaa;${p.viewed ? '' : 'font-style:italic;'}">${p.viewed ? '已檢視詳細' : '需先檢視詳細'}</div>
+              <div style="font-size:14px;color:#aaa;">
+                ${p.viewed ? '已檢視' : '待檢視'}
+              </div>
             </div>
           </div>
-          <div>
-            ${btnHtml}
+          <div class="actions">
+            ${
+              p.status === "approved" || p.status === "joined"
+                ? '<span class="status-label approved">已通過</span>'
+                : p.status === "rejected" || p.status === "reject"
+                ? '<span class="status-label rejected">已拒絕</span>'
+                : `
+                  <button class="btn btn-approve" onclick="approve(${p.id})" ${!p.viewed ? "disabled" : ""}>✔ 通過</button>
+                  <button class="btn btn-reject" onclick="reject(${p.id})" ${!p.viewed ? "disabled" : ""}>✖ 拒絕</button>
+                `
+            }
           </div>
         `;
+
         container.appendChild(card);
       });
     }

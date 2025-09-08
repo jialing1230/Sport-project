@@ -761,7 +761,6 @@
             const err = await resp.json();
             throw new Error(err.error || '訂閱失敗');
           }
-          alert('付款成功！您的訂閱已啟用。');
           // 導向成功頁
           const planParam = encodeURIComponent(plan.name);
           const amountParam = total.toLocaleString();

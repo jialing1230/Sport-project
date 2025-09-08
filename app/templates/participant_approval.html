@@ -401,22 +401,18 @@ if (elVip)    elVip.hidden = true;
         const intro = (data.public_intro || "").trim();
         document.getElementById("modalPublic").innerHTML = intro || '無';
 
-        // 手機驗證徽章
-        if (data.phone) elVerify.hidden = false;
-
-        // 會員方案（依你的後端欄位擇一；這裡做彈性判斷）
-        const plan =
-          (data.membership_plan) ||
-          (data.plan) ||
-          (data.subscription && data.subscription.plan) ||
-          (data.is_premium ? "VIP" : "free");
-
-        const isPaid = plan && String(plan).toLowerCase() !== "free";
-
-        if (isPaid) {
-          elVip.hidden = false;
+        // 手機驗證徽章（用圖片方式控制顯示/隱藏）
+        if (data.phone) {
+          elVerify.style.display = "inline-flex";
         } else {
-          elVip.hidden = true;
+          elVerify.style.display = "none";
+        }
+
+        // 直接用 is_subscribed 欄位判斷 VIP（用圖片方式控制顯示/隱藏）
+        if (data.is_subscribed === true) {
+          elVip.style.display = "inline-flex";
+        } else {
+          elVip.style.display = "none";
         }
       })
       .catch(() => {

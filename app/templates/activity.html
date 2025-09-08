@@ -1710,8 +1710,48 @@ card.addEventListener("click", () => {
       this.classList.remove("show");
     }
   });
-  // 🔧 先用前端變數控制會員狀態（之後接後端改這裡就好）
-    const isPaidMember = false; // 未開通 = false；已開通 = true
+
+
+  // 🔧 改為動態從 API 取得會員訂閱狀態
+
+    if (memberId) {
+      fetch(`api/members/${memberId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.is_subscribed !== undefined) {
+            isPaidMember = data.is_subscribed;
+          }
+          updateMemberUI();
+        })
+        .catch(() => {
+          isPaidMember = false;
+          updateMemberUI();
+        });
+    } else {
+      updateMemberUI();
+    }
+
+    function updateMemberUI() {
+      // 依 isPaidMember 控制 UI
+      const courseBtn = document.querySelector('.activity-type-btn[data-type="course"]');
+      if (courseBtn){
+        if (!isPaidMember){
+          courseBtn.classList.add('is-locked');
+          if (!courseBtn.querySelector('.lock-pill')) {
+            courseBtn.insertAdjacentHTML('afterbegin','<span class="lock-pill">付費會員限定</span>');
+          }
+          const intercept = (e) => { e.preventDefault(); e.stopPropagation(); openUpgrade(); };
+          courseBtn.addEventListener('click', intercept, true);
+          courseBtn.setAttribute('aria-disabled','true');
+          courseBtn.setAttribute('title','付費會員限定');
+        } else {
+          courseBtn.classList.remove('is-locked');
+          const pill = courseBtn.querySelector('.lock-pill'); if (pill) pill.remove();
+          const clone = courseBtn.cloneNode(true);
+          courseBtn.parentNode.replaceChild(clone, courseBtn);
+        }
+      }
+    }
 
     // --- 問號說明 ---
     function openTypeInfo(){ document.getElementById('typeInfoModal').style.display='flex'; }
@@ -1724,8 +1764,8 @@ card.addEventListener("click", () => {
     }
     function closeUpgrade(){ document.getElementById('upgradeModal').style.display='none'; }
     function goToMembership(){
-      const url = `/membership${memberId ? `?member_id=${memberId}` : ''}`;
-      window.location.href = url;
+      window.location.href = `/payment?member_id=${memberId}`;
+      
     }
 
     document.addEventListener('DOMContentLoaded', () => {

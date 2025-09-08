@@ -1764,8 +1764,8 @@ card.addEventListener("click", () => {
     }
     function closeUpgrade(){ document.getElementById('upgradeModal').style.display='none'; }
     function goToMembership(){
-      const url = `/membership${memberId ? `?member_id=${memberId}` : ''}`;
-      window.location.href = url;
+      window.location.href = `/payment?member_id=${memberId}`;
+      
     }
 
     document.addEventListener('DOMContentLoaded', () => {

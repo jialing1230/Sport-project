@@ -105,6 +105,7 @@ def get_member(member_id):
             "facebook_url": u.facebook_url,
             "instagram_url": u.instagram_url,
             "phone": u.phone,
+            "is_subscribed": u.is_subscribed,
 
         }
 

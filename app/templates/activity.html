@@ -1372,6 +1372,8 @@
     <script>
       const urlParams = new URLSearchParams(window.location.search);
       const memberId = urlParams.get("member_id");
+      function twWeekday(d){ return ['日','一','二','三','四','五','六'][d.getDay()]; }
+      function pad2(n){ return String(n).padStart(2,'0'); }
 
       function switchTab(index) {
         const tabs = document.querySelectorAll(".tab");
@@ -1500,12 +1502,16 @@
 
               <p class="custom-card-icon-line">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"></path></svg>  ${
-                  activity.start_time
-                    ? new Date(activity.start_time).toLocaleString("zh-TW", { month: "numeric", day: "numeric", weekday: "short", hour: "2-digit", minute: "2-digit", hour12: false })
-                    : '未設定'
-                } - ${
-                  activity.end_time
-                    ? new Date(activity.end_time).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit", hour12: false })
+                activity.start_time && activity.end_time
+                    ? (() => {
+                        const s = new Date(activity.start_time);
+                        const e = new Date(activity.end_time);
+                        const md = `${s.getMonth()+1}/${s.getDate()}`;
+                        const wk = `（${twWeekday(s)}）`;  // ← 只顯示「一～日」
+                        const st = `${pad2(s.getHours())}:${pad2(s.getMinutes())}`;
+                        const et = `${pad2(e.getHours())}:${pad2(e.getMinutes())}`;
+                        return `${md} ${wk} ${st} - ${et}`;
+                      })()
                     : '未設定'
                 }
               </p>
@@ -1517,7 +1523,7 @@
                     activity.type === 'class'
                       ? '訓練課程｜單堂'
                       : (activity.type === 'muti_class'
-                          ? `訓練課程｜共${activity.count ?? '?'}堂`
+                          ? `訓練課程｜共 ${activity.count ?? '?'} 堂`
                           : '一般活動'
                         )
                   }
@@ -1595,12 +1601,16 @@
 
           <p class="custom-card-icon-line">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"></path></svg> ${
-              activity.start_time
-                ? new Date(activity.start_time).toLocaleString("zh-TW", { month: "numeric", day: "numeric", weekday: "short", hour: "2-digit", minute: "2-digit", hour12: false })
-                : '未設定'
-            } - ${
-              activity.end_time
-                ? new Date(activity.end_time).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit", hour12: false })
+            activity.start_time && activity.end_time
+                ? (() => {
+                    const s = new Date(activity.start_time);
+                    const e = new Date(activity.end_time);
+                    const md = `${s.getMonth()+1}/${s.getDate()}`;
+                    const wk = `（${twWeekday(s)}）`;  // ← 只顯示「一～日」
+                    const st = `${pad2(s.getHours())}:${pad2(s.getMinutes())}`;
+                    const et = `${pad2(e.getHours())}:${pad2(e.getMinutes())}`;
+                    return `${md} ${wk} ${st} - ${et}`;
+                  })()
                 : '未設定'
             }
           </p>
@@ -1612,7 +1622,7 @@
               activity.type === 'class'
                 ? '訓練課程｜單堂'
                 : (activity.type === 'muti_class'
-                    ? `訓練課程｜共${activity.count ?? '?'}堂`
+                    ? `訓練課程｜ 共${activity.count ?? '?'} 堂`
                     : '一般活動'
                   )
             }

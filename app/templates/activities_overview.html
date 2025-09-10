@@ -397,17 +397,18 @@
         }
 
         /* 活動清單：3 欄 */
-        .activity-list{
-          display: flex !important;   /* ✅ 回到 flex 排列 */
-          flex-wrap: wrap;
-          gap: 40px;
-          justify-content: flex-start !important;
-          max-width: 1480px;
+        .activity-list {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, 340px); /* 一格固定 340px */
+          gap: 40px;                                      /* 卡片間距固定 */
+          justify-content: center;                        /* ✅ 整體致中 */
           margin: 0 auto;
-
-          /* ✅ 保險：清掉任何殘留的 grid 設定 */
-          grid-template-columns: unset !important;
+          width: 100%;
+          box-sizing: border-box;
         }
+
+
+
 
         .filters::before,
         .filters::after{
@@ -475,6 +476,12 @@
         margin-top: 11px;   /* 想要多一點空間就加大這裡 */
         margin-bottom: 11px;
       }
+      .main-content {
+        max-width:1480px;
+        margin:0 auto;
+        padding:20px 40px;
+      }
+
 
     </style>
   </head>

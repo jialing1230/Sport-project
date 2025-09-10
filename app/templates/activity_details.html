@@ -515,7 +515,32 @@
       opacity: 0;
       transition: all 0.4s ease; /* 動畫時間 0.4 秒 */
     }
+    .activity-type-label.training-course {
+      background-color: #2c4975;   /* 深藍底 */
+      color: white;               /* 白字 */
+      font-size: 16px;
+      font-weight: normal;
+      padding: 5px 10px 3px 10px;
+      display: inline-block;       /* 保持塊狀貼合文字 */
+      white-space: nowrap;         /* 不換行 */
+    }
 
+    .activity-type-label.general-activity {
+      color: #2c4975;       /* 深藍字 */
+      background: none;     /* 沒有底色 */
+      font-size: 16px;
+      font-weight: normal;  /* 同樣不用粗體 */
+      padding: 0;
+      border-radius: 0;
+    }
+    .address-text {
+      position: relative;
+      top: -2px;
+    }
+    .time-text {
+      position: relative;
+      top: -2px;  /* ✅ 往上移，可以改成 -3px 或 -4px 看效果 */
+    }
 
     </style>
   </head>
@@ -730,7 +755,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256" style="vertical-align: middle; margin-right: 14px;">
               <path d="M128,64a40,40,0,1,0,40,40A40,40,0,0,0,128,64Zm0,64a24,24,0,1,1,24-24A24,24,0,0,1,128,128Zm0-112a88.1,88.1,0,0,0-88,88c0,31.4,14.51,64.68,42,96.25a254.19,254.19,0,0,0,41.45,38.3,8,8,0,0,0,9.18,0A254.19,254.19,0,0,0,174,200.25c27.45-31.57,42-64.85,42-96.25A88.1,88.1,0,0,0,128,16Zm0,206c-16.53-13-72-60.75-72-118a72,72,0,0,1,144,0C200,161.23,144.53,209,128,222Z"></path>
             </svg>
-            <span>${detail.location_name}</span>
+            <span class="location-text address-text">${detail.location_name}</span>
           </div>
           
                 ${(() => {
@@ -752,7 +777,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256" style="vertical-align: middle; margin-right: 14px;">
                   <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"></path>
                 </svg>
-                <span class="location-text">${firstStr}</span>
+                <span class="location-text time-text">${firstStr}</span>
               </div>
 `;
           } else {
@@ -762,7 +787,7 @@
                   <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"></path>
                 </svg>
 
-                <span class="location-text">${formatDateRange(detail.start_time, detail.end_time)}</span>
+                <span class="location-text time-text">${formatDateRange(detail.start_time, detail.end_time)}</span>
               </div>`;
           }
         })()}
@@ -778,10 +803,20 @@
                 ? `免費` 
                 : `${detail.venue_fee} 元`}
               <span style="margin: 0 4px; vertical-align: baseline;">|</span>
-              <span class="activity-type-label" id="activity-type">
-                ${detail.activity_type === '一般活動' ? '一般活動' : detail.activity_type === '訓練課程' ? '訓練課程' : detail.type === 'class' || detail.type === 'muti_class' ? '訓練課程' : detail.type === 'activity' ? '一般活動' : '活動'}
-              </span>
+            <span class="activity-type-label ${detail.type === "activity" ? "general-activity" : "training-course"}" id="activity-type">
+              ${(() => {
+                if (detail.type === "muti_class") {
+                  return `訓練課程 ｜ 共 ${detail.course_schedules?.length || 0} 堂`;
+                } else if (detail.type === "class") {
+                  return "訓練課程 ｜ 單堂";
+                } else if (detail.type === "activity") {
+                  return "一般活動";
+                } else {
+                  return detail.activity_type || "活動";
+                }
+              })()}
             </span>
+
           </div>
           `;
 
@@ -803,22 +838,7 @@
           
           const activityType = detail.activity_type;  // 根據API返回的活動類型設定
 
-          // 根據活動類型來顯示對應的文字和樣式
-          requestAnimationFrame(() => {
-            const activityTypeLabel = document.getElementById("activity-type");
-            if (activityTypeLabel) {
-              const typeText = activityTypeLabel.textContent.trim();
-              if (typeText === "一般活動") {
-                activityTypeLabel.classList.remove("training-course");
-                activityTypeLabel.classList.add("general-activity");
-              } else if (typeText === "訓練課程") {
-                activityTypeLabel.classList.remove("general-activity");
-                activityTypeLabel.classList.add("training-course");
-              } else {
-                activityTypeLabel.classList.remove("general-activity", "training-course");
-              }
-            }
-          }, 0);
+
 
           function formatDateRange(start, end) {
             const startDate = new Date(start);

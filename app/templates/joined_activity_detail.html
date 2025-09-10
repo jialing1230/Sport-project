@@ -198,6 +198,8 @@
         padding-bottom: 4px;
         padding-left: 10px;
         padding-right: 10px;
+        border-radius: 0;
+        font-weight: normal;
       }
 
       .activity-type-label.general-activity {
@@ -486,6 +488,14 @@
         height: 50px;        /* 跟頭像一樣高 */
         margin: 8px -5px 0;      /* 左右留點間距 */
         
+      }
+      .address-text {
+        position: relative;
+        top: -3px;
+      }
+      .time-text {
+        position: relative;
+        top: -2px;   /* 讓時間文字往上移一點，可依需求調整 -2px ~ -4px */
       }
 
 
@@ -793,7 +803,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256" style="vertical-align: middle; margin-right:6px;">
               <path d="M128,64a40,40,0,1,0,40,40A40,40,0,0,0,128,64Zm0,64a24,24,0,1,1,24-24A24,24,0,0,1,128,128Zm0-112a88.1,88.1,0,0,0-88,88c0,31.4,14.51,64.68,42,96.25a254.19,254.19,0,0,0,41.45,38.3,8,8,0,0,0,9.18,0A254.19,254.19,0,0,0,174,200.25c27.45-31.57,42-64.85,42-96.25A88.1,88.1,0,0,0,128,16Zm0,206c-16.53-13-72-60.75-72-118a72,72,0,0,1,144,0C200,161.23,144.53,209,128,222Z"></path>
             </svg>
-            <span>${detail.location_name}</span>
+            <span class="location-text address-text">${detail.location_name}</span>
           </div>
           
                 ${(() => {
@@ -812,28 +822,19 @@
 
             return `
               <div class="location-row">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256"  style="margin-right:6px;">
                   <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"></path>
                 </svg>
-                <span class="location-text">第一次上課：${firstStr}</span>
+                <span class="location-text time-text">${firstStr}</span>
               </div>
-              <div class="location-row">
-                <svg class="location-icon" xmlns="http://www.w3.org/2000/svg"
-                  width="26" height="26"
-                  viewBox="0 0 256 256"
-                  fill="#2c4975"
-                  style="vertical-align: middle; margin-right: 14px;">
-                  <path d="M208,28H188V24a12,12,0,0,0-24,0v4H92V24a12,12,0,0,0-24,0v4H48A20,20,0,0,0,28,48V208a20,20,0,0,0,20,20H208a20,20,0,0,0,20-20V48A20,20,0,0,0,208,28ZM68,52a12,12,0,0,0,24,0h72a12,12,0,0,0,24,0h16V76H52V52ZM52,204V100H204V204Zm112-52a12,12,0,0,1-12,12H104a12,12,0,0,1,0-24h48A12,12,0,0,1,164,152Z" />
-                </svg>
-                <span class="location-text">固定課程：每週${daysUsed.join("、")}｜${rangeTime}（共 ${total} 堂）</span>
-              </div>`;
+              `;
           } else {
             return `
               <div class="location-row">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256" style="vertical-align: middle; margin-right:6px;">
                   <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"></path>
                 </svg>
-                <span class="location-text">${formatDateRange(detail.start_time, detail.end_time)}</span>
+                <span class="location-text time-text">${formatDateRange(detail.start_time, detail.end_time)}</span>
               </div>`;
           }
         })()}
@@ -849,8 +850,18 @@
                 ? `免費` 
                 : `${detail.venue_fee} 元`}
               <span style="margin: 0 4px; vertical-align: baseline;">|</span>
-              <span class="activity-type-label" id="activity-type">
-                ${detail.activity_type === '一般活動' ? '一般活動' : detail.activity_type === '訓練課程' ? '訓練課程' : detail.type === 'class' || detail.type === 'muti_class' ? '訓練課程' : detail.type === 'activity' ? '一般活動' : '活動'}
+              <span class="activity-type-label ${ (detail.type === 'class' || detail.type === 'muti_class') ? 'training-course' : 'general-activity' }" id="activity-type">
+                ${(() => {
+                  if (detail.type === "muti_class") {
+                    return `訓練課程 ｜ 共 ${detail.course_schedules?.length || 0} 堂`;
+                  } else if (detail.type === "class") {
+                    return "訓練課程 ｜ 單堂";
+                  } else if (detail.type === "activity") {
+                    return "一般活動";
+                  } else {
+                    return detail.activity_type || "活動";
+                  }
+                })()}
               </span>
             </span>
           </div>
@@ -879,10 +890,10 @@
             const activityTypeLabel = document.getElementById("activity-type");
             if (activityTypeLabel) {
               const typeText = activityTypeLabel.textContent.trim();
-              if (typeText === "一般活動") {
+              if (typeText.includes("一般活動")) {
                 activityTypeLabel.classList.remove("training-course");
                 activityTypeLabel.classList.add("general-activity");
-              } else if (typeText === "訓練課程") {
+              } else if (typeText.includes("訓練課程")) {
                 activityTypeLabel.classList.remove("general-activity");
                 activityTypeLabel.classList.add("training-course");
               } else {
@@ -890,6 +901,7 @@
               }
             }
           }, 0);
+
 
           function formatDateRange(start, end) {
             const startDate = new Date(start);

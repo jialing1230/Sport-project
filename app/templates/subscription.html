@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>訂閱服務</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+        box-sizing: border-box;
+        font-family: 'Noto Sans TC', sans-serif;
+        margin: 0; padding: 0;
+    }
+
+    body {
+        background-color: #ffffff;
+        color: #1e2a39;
+        padding: 20px;
+        padding-top: var(--header-h);
+    }
+
+    :root{
+        --header-h: 64px;
+        --page-max: 500px;
+        --gutter: 16px;
+        --deep-blue: #2c4975;
+    }
+
+    .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: var(--header-h);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 30px;
+        background-color: #fff;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.2);
+        z-index: 1000;
+        box-sizing: border-box;
+    }
+
+    .left-section {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        padding: 0;
+    }
+
+    .left-section svg{
+        color: #2c4975;
+        transition: color 0.3s ease;
+    }
+    .left-section svg:hover{
+        color: #81d3e1;
+    }
+
+    .navbar-title {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        font-weight: bold;
+        font-size: 20px;
+        color: #2c4975;
+    }
+    .navbar-title img { height: 28px; margin-right: 6px; margin-top: 0; }
+
+    .container { 
+        max-width: 500px;
+        margin: 0 auto;
+        padding-bottom: 80px;
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 0px 0px 0px 0px;
+        margin-bottom: 60px; 
+        margin-top: 16px;
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 16px; padding: 16px 20px;
+        max-width: 90%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #1B3A6E;
+    }
+
+    .plan-badge {
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: #e6f5f8;
+        color: #2c4975;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .card {
+        background: #f5f6f7;
+        border-radius: 12px;
+        padding: 16px;
+        margin: 12px auto;
+        max-width: 90%;
+    }
+
+    .row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .row.between { justify-content: space-between; width: 100%; }
+
+    .row + .row { 
+        margin-top: 10px;
+    }
+
+    .icon {
+        width: 22px;
+        height: 22px;
+    }
+
+    .muted { 
+        color: #5b6b8a;
+    }
+
+    .days {
+        font-size: 28px;
+        font-weight: 800;
+        color: #f8a9b3;
+    }
+
+    .days-line { white-space: nowrap; }
+
+    .label-strong { font-weight: 700; color: #1B3A6E; }
+
+    .perks { 
+        list-style: none;
+        padding: 0;
+        margin: 8px 0 0;
+    }
+
+    .perk { 
+        display: flex; 
+        align-items: center; 
+        gap: 10px; 
+        padding: 10px 0; 
+        border-bottom: 1px dashed #e7eef5; 
+    }
+
+    .perk:last-child { 
+        border-bottom: 0; 
+    }
+
+    .perk .label { 
+        font-weight: 700;
+        color: #1B3A6E;
+    }
+
+    .footer { 
+        margin-top: 18px;
+        text-align: center;
+        padding-bottom: 24px;
+    }
+
+    .cancel {
+        color: #9b2c2c;
+        cursor: pointer;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="left-section">
+      <svg
+        id="back-button"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        width="24"
+        height="24">
+        <path d="M15 19l-7-7 7-7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M8 12h14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+    </div>
+    <div class="navbar-title">
+      <img src="/static/logo.png" alt="Logo" />
+      訂閱服務
+    </div>
+  </div>
+  <div class="container">
+
+    <div class="card">
+      <div class="row between">
+        <div class="days-line"><span class="label-strong">訂閱服務還剩 </span><span class="days"> 42 </span><span class="label-strong">天</span></div>
+        <div class="plan-badge">目前方案：月費</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row muted" style="font-weight:700;">專屬優惠</div>
+      <ul class="perks">
+        <li class="perk">
+          <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1B3A6E" stroke-width="2">
+            <path d="M20 12l-8 8L4 12V4h8l8 8z"/>
+            <circle cx="9.5" cy="8.5" r="1.5"/>
+          </svg>
+          <span class="label">可以享有課程優惠</span>
+        </li>
+        <li class="perk">
+          <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1B3A6E" stroke-width="2">
+            <path d="M5 12l5 5L20 7"/>
+          </svg>
+          <span class="label">可無條件參與課程</span>
+        </li>
+        <li class="perk">
+          <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1B3A6E" stroke-width="2">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M4 20c0-3.314 3.582-6 8-6s8 2.686 8 6"/>
+            <path d="M12 2v3"/>
+          </svg>
+          <span class="label">VIP 專屬標章</span>
+        </li>
+        <li class="perk">
+          <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1B3A6E" stroke-width="2">
+            <path d="M12 5v14"/>
+            <path d="M5 12h14"/>
+          </svg>
+          <span class="label">解鎖發起課程功能</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="footer">
+      <span class="cancel">取消訂閱</span>
+    </div>
+  </div>
+  <script>
+    document.getElementById("back-button")?.addEventListener("click", function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const memberId = urlParams.get("member_id");
+      if (memberId) {
+        window.location.href = `/member_view?member_id=${memberId}`;
+      } else {
+        window.history.back();
+      }
+    });
+  </script>
+</body>
+</html>
+
+

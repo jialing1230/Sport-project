@@ -1568,7 +1568,6 @@
 
           const cardContainer = document.createElement("div");
           cardContainer.className = "activity-card-container";
-          cardContainer.style.justifyContent = "flex-start"; // 卡片從左到右排列
 
           data.forEach((activity) => {
             const card = document.createElement("div");
@@ -1622,7 +1621,7 @@
               activity.type === 'class'
                 ? '訓練課程｜單堂'
                 : (activity.type === 'muti_class'
-                    ? `訓練課程｜ 共${activity.count ?? '?'} 堂`
+                    ? `訓練課程｜ 共 ${activity.count ?? '?'} 堂`
                     : '一般活動'
                   )
             }

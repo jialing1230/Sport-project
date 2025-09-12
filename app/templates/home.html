@@ -464,6 +464,8 @@
           border-right: 5px solid transparent;
           border-top: 5px solid var(--deep-blue); /* 箭頭顏色 */
           transition: transform 0.2s ease;
+          vertical-align: middle;
+          margin-top: 0px;
         }
 
        .top-panel {
@@ -594,6 +596,62 @@
         .clear-filter-btn:hover {
           background-color: #bbb;
         }
+
+        .dropdown {
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  margin-top: 4px;
+  z-index: 1000;
+  list-style: none;
+  padding: 4px 0;
+  width: 100px; /* 可根據需求調整 */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.dropdown li {
+  padding: 8px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.dropdown li:hover {
+  background-color: #f0f0f0;
+}
+
+.hidden {
+  display: none;
+}
+/* 🟦 套用與活動類型一致的樣式給「時段」下拉選單 */
+#time-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 42%;
+  background-color: white;
+  border: 1px solid #ccc;
+  z-index: 100;
+  width: 70px;
+  padding: 8px 0;
+  border-radius: 8px;  /* ✅ 圓角設定 */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transform: translateX(-50%);
+  font-size: 12px;
+}
+
+#time-dropdown.hidden {
+  display: none;
+}
+
+#time-dropdown .time-option {
+  padding: 4.5px 10px;    /* ✅ 跟 activity-option 一樣 */
+  cursor: pointer;
+}
+
+#time-dropdown .time-option:hover {
+  background-color: #f0f0f0;
+}
+
+
     </style>
     
   </head>
@@ -705,10 +763,19 @@
             <li class="activity-option" data-activity="class">訓練課程</li>
           </ul>
         </div>
-        <button class="filter-btn" data-type="sport" id="sport-btn">
-            <span class="label">運動類型</span>
-            <span class="arrow"></span>
-        </button>
+        <!-- 時段按鈕 -->
+<button id="time-btn" class="filter-btn">
+  <span class="label">時段</span>
+  <span class="arrow"></span>
+</button>
+
+<!-- 時段下拉選單（一定要放在上面按鈕的後面，並預設 hidden） -->
+<ul id="time-dropdown" class="dropdown hidden">
+  <li class="time-option" data-time="all">全部</li>
+  <li class="time-option" data-time="morning">早上</li>
+  <li class="time-option" data-time="afternoon">下午</li>
+  <li class="time-option" data-time="evening">晚上</li>
+</ul>
         <button class="filter-btn" id="title-btn" data-type="title">
           <span class="label">活動名稱</span>
           <span class="icon">
@@ -819,18 +886,42 @@ if (searchIcon) {
       const currentCounty = countyBtn.querySelector('.label').textContent;
       const countyToSend = currentCounty === "所有縣市" ? "all" : currentCounty;
 
-      loadMarkers(countyToSend, selectedActivityType);
+      loadMarkers(countyToSend, selectedActivityType, selectedTime);
     });
   });
 }
+// 時段按鈕
+const timeBtn = document.getElementById("time-btn");
+const timeDropdown = document.getElementById("time-dropdown");
+const timeOptions = document.querySelectorAll('.time-option');
+
+let selectedTime = "all";
+
+timeBtn.addEventListener("click", () => {
+  timeDropdown.classList.toggle("hidden");
+});
+
+timeOptions.forEach(option => {
+  option.addEventListener('click', () => {
+    const timeValue = option.dataset.time;
+    const timeText = option.textContent;
+
+    timeBtn.querySelector('.label').textContent = timeText;
+    timeDropdown.classList.add('hidden');
+    selectedTime = timeValue;
+
+    // 這裡如需更新地圖也可以呼叫：
+    // loadMarkers(selectedCounty, selectedActivityType, selectedTime);
+  });
+});
 
 // 🆕 新增這個函式
-function loadMarkers(county, activityType = "all") {
+function loadMarkers(county, activityType = "all", time = "all") {
   // 清除舊有標記
   markers.forEach(marker => marker.setMap(null));
   markers = [];
 
-  const url = `/api/map/markers/by-county?county=${county}&type=${activityType}`;
+  const url = `/api/map/markers/by-county?county=${county}&type=${activityType}&time=${time}`;
   fetch(url)
     .then(response => response.json())
     .then(data => {
@@ -1189,7 +1280,7 @@ google.maps.event.addListener(map, 'click', () => {
         // 1. 清除所有篩選與搜尋欄
         document.querySelector("#county-btn .label").innerText = "所有縣市";
         document.querySelector("#activity-btn .label").innerText = "活動類型";
-        document.querySelector("#sport-btn .label").innerText = "運動類型";
+        document.querySelector("#time-btn .label").innerText = "時段";
         document.querySelector("#title-btn .label").innerText = "活動名稱";
         document.getElementById("title-search-container").style.display = "none";
         document.getElementById("title-search-input").value = "";
@@ -1215,7 +1306,7 @@ google.maps.event.addListener(map, 'click', () => {
         map.setZoom(15);
       
         // 5. 載入所有活動標記
-        loadMarkers("all", "all");
+        loadMarkers("all", "all", "all");
       });
 </script>
   </body>

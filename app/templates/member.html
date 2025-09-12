@@ -809,7 +809,18 @@
 
     document.getElementById("paymentBtn").addEventListener("click", function () {
       if (memberId) {
-        window.location.href = `/payment?member_id=${memberId}`;
+        fetch(`/api/members/${memberId}`)
+          .then(res => res.json())
+          .then(data => {
+            if (data.is_subscribed === true) {
+              window.location.href = `/subscription?member_id=${memberId}`;
+            } else {
+              window.location.href = `/payment?member_id=${memberId}`;
+            }
+          })
+          .catch(() => {
+            window.location.href = `/payment?member_id=${memberId}`;
+          });
       } else {
         window.location.href = "/payment";
       }

@@ -257,6 +257,46 @@
         window.history.back();
       }
     });
+
+    // 取得 member_id
+    const urlParams = new URLSearchParams(window.location.search);
+    const memberId = urlParams.get("member_id");
+
+    // 串接訂閱 API
+    if (memberId) {
+      fetch(`/api/members/${memberId}/subscriptions`)
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data) && data.length > 0) {
+            // 取最新一筆訂閱
+            const sub = data[0];
+            // 計算剩餘天數
+            const expire = sub.expire_at ? new Date(sub.expire_at) : null;
+            const now = new Date();
+            let days = 0;
+            if (expire) {
+              days = Math.max(0, Math.ceil((expire - now) / (1000 * 60 * 60 * 24)));
+            }
+            document.querySelector(".days").textContent = days;
+            // 顯示方案名稱
+            let planName = "-";
+            if (sub.plan === "month") planName = "月費";
+            else if (sub.plan === "season") planName = "季費";
+            else if (sub.plan === "year") planName = "年費";
+            document.querySelector(".plan-badge").textContent = `目前方案：${planName}`;
+          } else {
+            document.querySelector(".days").textContent = "0";
+            document.querySelector(".plan-badge").textContent = "目前無訂閱";
+          }
+        })
+        .catch(() => {
+          document.querySelector(".days").textContent = "-";
+          document.querySelector(".plan-badge").textContent = "查詢失敗";
+        });
+    } else {
+      document.querySelector(".days").textContent = "-";
+      document.querySelector(".plan-badge").textContent = "查無會員";
+    }
   </script>
 </body>
 </html>

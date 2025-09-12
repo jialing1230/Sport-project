@@ -179,6 +179,13 @@ def create_app():
     def payment_success_page():
         member_id = request.args.get("member_id")
         return render_template("payment_success.html", member_id=member_id)
+    
+    @app.route("/subscription")
+    def subscription_page():
+        member_id = request.args.get("member_id")
+        return render_template("subscription.html", member_id=member_id)
+
+
 
 
 

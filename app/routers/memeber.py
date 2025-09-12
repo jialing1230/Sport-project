@@ -707,6 +707,25 @@ def subscribe_plan(member_id):
         member.is_subscribed = True
         db.commit()
     return jsonify({"message": "訂閱成功", "subscription_id": sub_id}), 201
+
+@member_bp.route("/<string:member_id>/subscriptions", methods=["GET"])
+def get_member_subscriptions(member_id):
+    """取得該會員所有訂閱紀錄 (subscriptions)"""
+    from app.models.subscription import Subscription
+    with get_db() as db:
+        subs = db.query(Subscription).filter_by(member_id=member_id).order_by(Subscription.subscribed_at.desc()).all()
+        result = []
+        for s in subs:
+            result.append({
+                "id": s.id,
+                "member_id": s.member_id,
+                "subscribed_at": s.subscribed_at.isoformat() if s.subscribed_at else None,
+                "expire_at": s.expire_at.isoformat() if s.expire_at else None,
+                "plan": s.plan,
+                "amount": s.amount,
+                "is_active": s.is_active
+            })
+    return jsonify(result), 200
 # app/routers/member.py
 
 

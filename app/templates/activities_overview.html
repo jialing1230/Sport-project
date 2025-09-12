@@ -176,7 +176,7 @@
 
 
       .activity-card{
-        background:#fff; border-radius:8px; padding:20px;
+        background:#fff; border-radius:8px; padding:20px 20px 8px 20px;
         box-shadow:0 2px 8px rgba(0,0,0,.05);
         transition: box-shadow .3s ease, transform .3s ease;
 
@@ -795,7 +795,7 @@
             const endTime = pad(end.getHours()) + ":" + pad(end.getMinutes());
 
             timeStr = `
-              <div class="activity-info time-row" style="display: flex; align-items: center; color: #2c4975;">
+              <div class="activity-info time-row" style="display: flex; align-items: center; color: #2c4975; ">
               <svg xmlns="http://www.w3.org/2000/svg" 
                   width="24" height="24" 
                   fill="#2c4975" 
@@ -829,46 +829,48 @@
             ${timeStr}
 
 
-            </div>
-            <div class="activity-info" style="color: #2975; display: flex; align-items: center; justify-content: space-between;">
+            
+            <div class="activity-info" style="color: #2c4975; display: flex; align-items: center; justify-content: space-between;">
               <div style="display: flex; align-items: center;">
                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256">
                 <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm40-68a28,28,0,0,1-28,28h-4v8a8,8,0,0,1-16,0v-8H104a8,8,0,0,1,0-16h36a12,12,0,0,0,0-24H116a28,28,0,0,1,0-56h4V72a8,8,0,0,1,16,0v8h16a8,8,0,0,1,0,16H116a12,12,0,0,0,0,24h24A28,28,0,0,1,168,148Z"></path>
               </svg>
            <div style="display:flex; align-items:flex-start;">
 
-            <div style="margin-left:6px; line-height:1.2;">
-              ${
-                act.venue_fee && act.venue_fee !== 0
-                  ? (
-                      (act.type === 'class' || act.type === 'muti_class')
-                        // 訓練課程：上下兩行
-                        ? `
-                          <div style="text-decoration:line-through; color:#999; font-size:14px;">${act.venue_fee} 元</div>
-                          <div style="display:flex; align-items:center; gap:8px; margin-top:2px;">
-                            <span style="color:#fe8a90; font-weight:bold; font-size:16px;">
-                              ${Math.round(act.venue_fee * 0.8)} 元
-                            </span>
-                            <span class="price-divider-vertical"></span>
-                            ${renderActivityType(act)}
-                          </div>
+          <div style="margin-left:6px; line-height:1.2; margin-top:0px;">
+            ${
+              act.venue_fee && act.venue_fee !== 0
+                ? (
+                    (act.type === 'class' || act.type === 'muti_class')
+                      ? (
+                          (currentMember && currentMember.is_subscribed && act.organizer_has_discount)
+                            ? `
+                              <div style="text-decoration:line-through; color:#999; font-size:14px;">${act.venue_fee} 元</div>
+                              <div style="display:flex; align-items:center; gap:8px; margin-top:-6px;">
+                                <span style="color:#fe8a90; font-weight:bold; font-size:16px;">
+                                  ${Math.round(act.venue_fee * 0.8)} 元
+                                </span>
+                                <span class="price-divider-vertical"></span>
+                                ${renderActivityType(act)}
+                              </div>
+                            `
+                          : `<div style="font-size:16px; color:#2c4975; display:flex; align-items:center;">
+                              <span>${act.venue_fee} 元</span>
+                              <span style="margin-top:15px; display:flex; align-items:center;">
+                                <span class="price-divider-vertical" style="margin:0 12px;"></span>
+                                ${renderActivityType(act)}
+                              </span>
+                            </div>
+                            `
 
-
-
-                        `
-                        // 一般活動：一行
-                        : `<div style="font-size:16px; color:#2c4975;">${act.venue_fee} 元 ｜ ${renderActivityType(act)}</div>`
-                    )
-                  : `<div style="font-size:16px; color:#2c4975;">免費 ｜ ${renderActivityType(act)}</div>`
-              }
-            </div>
+                        )
+                      : `<div style="font-size:16px; color:#2c4975;">${act.venue_fee} 元 ｜ ${renderActivityType(act)}</div>`
+                  )
+                : `<div style="font-size:16px; color:#2c4975;">免費 ｜ ${renderActivityType(act)}</div>`
+            }
           </div>
 
-
-
-
-
-
+          </div>
 
               </div>
               <span class="heart-icon" style="display:inline-block; cursor:pointer; vertical-align:middle;">
@@ -979,11 +981,13 @@
 
         renderActivities(filtered);
       }
+      let currentMember = null;
 
       // 先取得會員資料
       fetch(`/api/members/${memberId}`)
         .then(res => res.json())
         .then(member => {
+          currentMember = member;
           // gender正規化
           if (member.gender === '男') member.gender = '男性';
           if (member.gender === '女') member.gender = '女性';
@@ -1046,6 +1050,7 @@
                 return true;
               });
               filteredActivities = filtered;
+              
               renderActivities(filteredActivities);
             })
             .catch((err) => {

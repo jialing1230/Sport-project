@@ -464,14 +464,16 @@
 
       /* 右側按鈕：固定寬度（高度保持原本 padding 12px） */
       .bottom-nav .btn{
-        width: 110px;            /* ← 只調寬度；要再小就改這裡，例如 96px */
-        padding: 10px 2px;         /* 垂直 12px 保持高度，左右 0 不影響寬度 */
+        width: auto;             /* ✅ 自動依文字調整 */
+        min-width: 96px;         /* ✅ 給個最小寬度，避免字少時太窄 */
+        padding: 10px 14px;      /* ✅ 左右留足空間，看起來不會貼邊 */
         font-size: 16px;
         border-radius: 8px;
         white-space: nowrap;
-        background-color: #81d3e1; /* 淺藍維持 */
-        margin: 0 8px 0 8px;
+        background-color: #81d3e1;
+        margin: 0 8px;
       }
+
 
       /* 手機時一樣對齊 info-box（手機 .info-box padding=15px，這裡已一致） */
       @media (max-width: 600px){

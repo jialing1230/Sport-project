@@ -201,6 +201,7 @@
       .activity-card {
         background-color: #fff;
         border-radius: 8px;
+        overflow: hidden;
         /* 初始陰影保持輕一些 */
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
         width:  var(--card-w);
@@ -1227,6 +1228,33 @@
       #typeInfoModal .scrollable-content {
         padding-left: 18px;  /* 左邊加 12px */
       }
+      /* 右上角「優惠」折角 */
+      .discount-corner {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: 0;
+        height: 0;
+        border-left: 50px solid transparent;   /* 左邊透明 */
+        border-bottom: 50px solid #ddd;     /* 下邊紅色折角 */
+        z-index: 2;
+        
+        
+      }
+
+      .discount-corner__icon{
+        position: absolute;
+        right: 6px;        /* 往右貼一點 */
+        bottom: -45px;     /* 因為是下邊三角，Y 需要是負值讓圖示落在三角裡 */
+        width: 20px;
+        height: 20px;
+        display: block;
+        pointer-events: none;
+        /* 如果不是描邊路徑而是填色圖，可用 fill: #fff; */
+      }
+
+
+
 
 
     </style>
@@ -1370,6 +1398,8 @@
 
 
     <script>
+      let isPaidMember = false;
+
       const urlParams = new URLSearchParams(window.location.search);
       const memberId = urlParams.get("member_id");
       function twWeekday(d){ return ['日','一','二','三','四','五','六'][d.getDay()]; }
@@ -1401,13 +1431,13 @@
         window.location.href = `/create_activity?member_id=${memberId}`;
       }
 
-      function goToPage(path) {
-        window.location.href = `/home?member_id={{ member_id }}`;
+      function goToPage() {
+        window.location.href = `/home?member_id=${memberId}`;
+      }
+      function goToActivity() {
+        window.location.href = `/activity?member_id=${memberId}`;
       }
 
-      function goToActivity() {
-        window.location.href = "/activity?member_id={{ member_id }}";
-      }
 
       function goToProfile() {
         window.location.href = `/member_view?member_id=${memberId}`;
@@ -1437,7 +1467,7 @@
 
         try {
           const res = await fetch(`/api/activities/my?member_id=${memberId}`);
-          const data = await res.json();
+          let data = await res.json();
 
           const container = document.getElementById("my-activities");
           container.innerHTML = "";
@@ -1466,6 +1496,17 @@
           data.forEach((activity) => {
             const card = document.createElement("div");
             card.className = "activity-card";
+
+            // ✅ 只有「訓練課程」且 organizer_has_discount = true 才顯示折角
+            const isTraining = (activity.type === 'class' || activity.type === 'muti_class');
+            const discountCorner = (isTraining && activity.organizer_has_discount)
+              ? `    <span class="discount-corner">
+              <svg class="discount-corner__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true">
+                <path d="M208.49,64.47l-144,144a12,12,0,1,1-17-17l144-144a12,12,0,0,1,17,17ZM47.72,104.27A40,40,0,1,1,76,116,39.72,39.72,0,0,1,47.72,104.27ZM60,76a16,16,0,1,0,4.69-11.31A15.87,15.87,0,0,0,60,76ZM220,180a40,40,0,1,1-11.72-28.29A39.71,39.71,0,0,1,220,180Zm-24,0a15.87,15.87,0,0,0-4.69-11.32h0A16,16,0,1,0,196,180Z" fill="white"/>
+              </svg>
+            </span>`
+              : "";
+
             const now = new Date();
             const signupDeadline = new Date(activity.registration_deadline);
             const startTime = new Date(activity.start_time);
@@ -1483,12 +1524,14 @@
             }
 
             card.innerHTML = `
-              <div class="custom-card-header">
-                <h3 class="custom-card-title">${activity.title}</h3>
-                <span class="status-badge" style="background-color:#fda7a8;">
-                  ${statusText}
-                </span>
-              </div>
+                ${discountCorner}  <!-- 👈 折角放最前面 -->
+                <div class="custom-card-header">
+                  <h3 class="custom-card-title">${activity.title}</h3>
+                  <span class="status-badge" style="background-color:#fda7a8;">
+                    ${statusText}
+                  </span>
+                </div>
+
             
 
 
@@ -1614,19 +1657,33 @@
             }
           </p>
 
-           <p class="custom-card-icon-line">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm40-68a28,28,0,0,1-28,28h-4v8a8,8,0,0,1-16,0v-8H104a8,8,0,0,1,0-16h36a12,12,0,0,0,0-24H116a28,28,0,0,1,0-56h4V72a8,8,0,0,1,16,0v8h16a8,8,0,0,1,0,16H116a12,12,0,0,0,0,24h24A28,28,0,0,1,168,148Z"></path></svg> ${activity.venue_fee === 0 ? '免費' : activity.venue_fee} ｜   <span class="custom-card-tag ${
-    (activity.type === 'class' || activity.type === 'muti_class') ? 'training' : 'general'
-  }">${
-              activity.type === 'class'
-                ? '訓練課程｜單堂'
-                : (activity.type === 'muti_class'
-                    ? `訓練課程｜ 共 ${activity.count ?? '?'} 堂`
-                    : '一般活動'
-                  )
-            }
+          <p class="custom-card-icon-line">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm40-68a28,28,0,0,1-28,28h-4v8a8,8,0,0,1-16,0v-8H104a8,8,0,0,1,0-16h36a12,12,0,0,0,0-24H116a28,28,0,0,1,0-56h4V72a8,8,0,0,1,16,0v8h16a8,8,0,0,1,0,16H116a12,12,0,0,0,0,24h24A28,28,0,0,1,168,148Z"></path></svg>
+            ${(() => {
+                if (activity.venue_fee === 0) return '免費';
+                const isTraining  = (activity.type === 'class' || activity.type === 'muti_class');
+                const hasDiscount = !!activity.organizer_has_discount;
+                if (isTraining && isPaidMember && hasDiscount) {
+                  const newPrice = Math.round(activity.venue_fee * 0.8); // 8折
+                  return `
+                    <span style="text-decoration:line-through; color:#999;">${activity.venue_fee} 元</span>
+                    <span style="margin-left:8px; font-weight:bold; color:#fe8a90;">${newPrice} 元</span>
+                  `;
+                }
+                return `${activity.venue_fee} 元`;
+            })()}
+            ｜ 
+            <span class="custom-card-tag ${(activity.type === 'class' || activity.type === 'muti_class') ? 'training' : 'general'}">
+              ${
+                activity.type === 'class'
+                  ? '訓練課程｜單堂'
+                  : (activity.type === 'muti_class'
+                      ? `訓練課程｜共 ${activity.count ?? '?'} 堂`
+                      : '一般活動')
+              }
             </span>
           </p>
+
 
         `;
 card.addEventListener("click", () => {
@@ -1724,7 +1781,7 @@ card.addEventListener("click", () => {
   // 🔧 改為動態從 API 取得會員訂閱狀態
 
     if (memberId) {
-      fetch(`api/members/${memberId}`)
+      fetch(`/api/members/${memberId}`)
         .then(res => res.json())
         .then(data => {
           if (data.is_subscribed !== undefined) {

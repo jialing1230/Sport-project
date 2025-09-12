@@ -49,8 +49,7 @@
       }
 
       .info-box h2 {
-        margin-top: 10px;    /* 距離卡片頂部縮小 */
-        margin-bottom: 8px;  /* 與內容間距 */
+
         color: #81d3e1;
         font-size: 18px;
         font-weight: bold;
@@ -60,14 +59,14 @@
         position: relative;
         background: #fff;
         padding: 15px;
-        border-radius: 10px;
+        border-radius: 8px;
         margin: 0 auto 20px;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
         max-width: 400px;
         margin-top: 20px;
       }
       .info-box p {
-        margin: 10px 0;
+        margin: 8px 0;
         line-height: 1.6;
         font-size: 16px;
       }
@@ -83,6 +82,7 @@
             align-items: flex-end;
             gap: 6px;
             margin-bottom: 6px;
+            margin-top: 10px;
         }
         .review-stars .score {
             font-size: 30px;
@@ -148,7 +148,7 @@
         }
 
         .badge-group {
-            margin-top: 8px;
+            margin-top: 15px;
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
@@ -582,11 +582,41 @@
       .name-row {
         display: flex;
         align-items: center;
-        gap: 16px;   /* 名字和徽章之間的距離 */
+        margin-bottom: 6px;
       }
 
       .name-row h3 {
         margin: 0;  /* 去掉預設間距，避免往下掉 */
+      }
+      @media (max-width: 600px) {
+        .info-box {
+          max-width: 82%;     /* ✅ 不要貼滿，左右留白 */
+          margin-left: auto;  /* ✅ 置中 */
+          margin-right: auto; /* ✅ 置中 */
+        }
+      }
+      .badge-row {
+        display: flex;
+        gap: 8px;      /* 徽章之間留空 */
+        margin-bottom: 8px;
+      }
+
+      .badge-vip {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #8a6b00;
+        background: #fff8e1;
+        border: 1px solid #f0d890;
+        padding: 2px 10px 2px 6px;
+        border-radius: 999px;
+        vertical-align: middle;
+      }
+      .badge-vip svg {
+        width: 14px;
+        height: 14px;
       }
 
 
@@ -622,7 +652,7 @@
     </div>
 
       <div class="info-box">
-        <div class="avatar-box" style="position: absolute; top: 30px; right: 35px; width: 60px; height: 60px;">
+        <div class="avatar-box" style="position: absolute; top: 20px; right: 35px; width: 60px; height: 60px;">
             <img
           id="avatarImage"
           src="{{ url_for('static', filename='avatars/' + member_id + '.png') }}"
@@ -634,16 +664,24 @@
           };
         </script>
         </div>
-        <div class="name-row">
-          <h3 id="memberName"></h3>
-          <span id="phoneVerifiedBadge" class="badge-verified" hidden>
-            <svg viewBox="0 0 24 24" fill="none">
-              <path d="M12 3l7 3v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3z" stroke="#176b45" stroke-width="1.6"/>
-              <path d="M8.5 12.5l2.5 2.5 4.5-5" stroke="#176b45" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            手機驗證
-          </span>
-        </div>
+       <div class="name-row">
+        <h3 id="memberName"></h3>
+      </div>
+      <div class="badge-row">
+        <span id="phoneVerifiedBadge" class="badge-verified" hidden>
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 3l7 3v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3z" stroke="#176b45" stroke-width="1.6"/>
+            <path d="M8.5 12.5l2.5 2.5 4.5-5" stroke="#176b45" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          手機驗證
+        </span>
+
+        <span id="vipBadge" class="badge-vip" hidden>
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#8a6b00" viewBox="0 0 256 256" style="transform: translateY(1px);"><path d="M230.9,73.6A15.85,15.85,0,0,0,212,77.39l-33.67,36.29-35.8-80.29a1,1,0,0,1,0-.1,16,16,0,0,0-29.06,0,1,1,0,0,1,0,.1l-35.8,80.29L44,77.39A16,16,0,0,0,16.25,90.81c0,.11,0,.21.07.32L39,195a16,16,0,0,0,15.72,13H201.29A16,16,0,0,0,217,195L239.68,91.13c0-.11,0-.21.07-.32A15.85,15.85,0,0,0,230.9,73.6ZM201.35,191.68l-.06.32H54.71l-.06-.32L32,88l.14.16,42,45.24a8,8,0,0,0,13.18-2.18L128,40l40.69,91.25a8,8,0,0,0,13.18,2.18l42-45.24L224,88Z"></path></svg>
+          付費會員
+        </span>
+      </div>
+
 
 
         <h2>自我介紹</h2>

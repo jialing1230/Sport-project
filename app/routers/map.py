@@ -93,16 +93,6 @@ def get_markers_by_county():
             Activity.status != "close",
             Activity.end_time > datetime.now()
         ]
-        time_period = request.args.get("time", "all")
-        if time_period != "all":
-            if time_period == "morning":
-                filters.append(extract('hour', Activity.start_time) >= 5)
-                filters.append(extract('hour', Activity.start_time) < 12)
-            elif time_period == "afternoon":
-                filters.append(extract('hour', Activity.start_time) >= 12)
-                filters.append(extract('hour', Activity.start_time) < 18)
-            elif time_period == "evening":
-                filters.append(extract('hour', Activity.start_time) >= 18)
 
         # 縣市過濾
         if county != "all":
@@ -157,4 +147,3 @@ def get_markers_by_county():
             })
 
     return jsonify(result), 200
-

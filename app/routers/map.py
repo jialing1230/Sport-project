@@ -5,6 +5,7 @@ from flask import jsonify
 from app.database import get_db
 from app.models.activity import Activity
 from app.models.sport_type import SportType
+from sqlalchemy import extract
 
 map_bp = Blueprint("map", __name__)
 
@@ -48,6 +49,7 @@ from datetime import datetime
 @map_bp.route("/api/map/active-markers", methods=["GET"])
 def get_active_markers():
     activity_type = request.args.get("type")
+    time_period = request.args.get("time", "all")
 
     with get_db() as db:
         query = (
@@ -101,6 +103,16 @@ def get_markers_by_county():
             Activity.location_lng >= bounds["min_lng"],
             Activity.location_lng <= bounds["max_lng"],
         ]
+        time_period = request.args.get("time", "all")
+        if time_period != "all":
+            if time_period == "morning":
+                filters.append(extract('hour', Activity.start_time) >= 5)
+                filters.append(extract('hour', Activity.start_time) < 12)
+            elif time_period == "afternoon":
+                filters.append(extract('hour', Activity.start_time) >= 12)
+                filters.append(extract('hour', Activity.start_time) < 18)
+            elif time_period == "evening":
+                filters.append(extract('hour', Activity.start_time) >= 18)
 
         if activity_type and activity_type != "all":
             filters.append(Activity.type == activity_type)
@@ -131,3 +143,4 @@ def get_markers_by_county():
             })
 
     return jsonify(result), 200
+

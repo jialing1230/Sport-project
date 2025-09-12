@@ -86,24 +86,27 @@ def get_active_markers():
 def get_markers_by_county():
     county = request.args.get("county")
     activity_type = request.args.get("type")
-
-    if county == "all":
-        return get_active_markers()
-
-    bounds = county_bounds.get(county)
-    if not bounds:
-        return jsonify([]), 200
+    time_period = request.args.get("time", "all")
 
     with get_db() as db:
         filters = [
             Activity.status != "close",
-            Activity.end_time > datetime.now(),
-            Activity.location_lat >= bounds["min_lat"],
-            Activity.location_lat <= bounds["max_lat"],
-            Activity.location_lng >= bounds["min_lng"],
-            Activity.location_lng <= bounds["max_lng"],
+            Activity.end_time > datetime.now()
         ]
-        time_period = request.args.get("time", "all")
+
+        # 縣市過濾
+        if county != "all":
+            bounds = county_bounds.get(county)
+            if not bounds:
+                return jsonify([]), 200
+            filters.extend([
+                Activity.location_lat >= bounds["min_lat"],
+                Activity.location_lat <= bounds["max_lat"],
+                Activity.location_lng >= bounds["min_lng"],
+                Activity.location_lng <= bounds["max_lng"],
+            ])
+
+        # 時段過濾
         if time_period != "all":
             if time_period == "morning":
                 filters.append(extract('hour', Activity.start_time) >= 5)
@@ -114,6 +117,7 @@ def get_markers_by_county():
             elif time_period == "evening":
                 filters.append(extract('hour', Activity.start_time) >= 18)
 
+        # 類型過濾
         if activity_type and activity_type != "all":
             filters.append(Activity.type == activity_type)
 
@@ -143,4 +147,3 @@ def get_markers_by_county():
             })
 
     return jsonify(result), 200
-

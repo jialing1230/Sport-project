@@ -598,60 +598,58 @@
         }
 
         .dropdown {
-  position: absolute;
-  background-color: white;
-  border: 1px solid #ccc;
-  margin-top: 4px;
-  z-index: 1000;
-  list-style: none;
-  padding: 4px 0;
-  width: 100px; /* 可根據需求調整 */
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-}
+          position: absolute;
+          background-color: white;
+          border: 1px solid #ccc;
+          margin-top: 4px;
+          z-index: 1000;
+          list-style: none;
+          padding: 4px 0;
+          width: 100px; /* 可根據需求調整 */
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
 
-.dropdown li {
-  padding: 8px 12px;
-  cursor: pointer;
-  white-space: nowrap;
-}
+        .dropdown li {  
+          padding: 8px 12px;
+          cursor: pointer;
+          white-space: nowrap;
+        }
 
-.dropdown li:hover {
-  background-color: #f0f0f0;
-}
+        .dropdown li:hover {
+          background-color: #f0f0f0;
+        }
 
-.hidden {
-  display: none;
-}
-/* 🟦 套用與活動類型一致的樣式給「時段」下拉選單 */
-#time-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 42%;
-  background-color: white;
-  border: 1px solid #ccc;
-  z-index: 100;
-  width: 70px;
-  padding: 8px 0;
-  border-radius: 8px;  /* ✅ 圓角設定 */
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  transform: translateX(-50%);
-  font-size: 12px;
-}
+        .hidden {
+          display: none;
+        }
+        /* 🟦 套用與活動類型一致的樣式給「時段」下拉選單 */
+        #time-dropdown {
+          position: absolute;
+          top: 100%;
+          left: 42%;
+          background-color: white;
+          border: 1px solid #ccc;
+          z-index: 100;
+          width: 70px;
+          padding: 8px 0;
+          border-radius: 8px;  /* ✅ 圓角設定 */
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+          transform: translateX(-50%);
+          font-size: 12px;
+        }
 
-#time-dropdown.hidden {
-  display: none;
-}
+        #time-dropdown.hidden {
+          display: none;
+        }
 
-#time-dropdown .time-option {
-  padding: 4.5px 10px;    /* ✅ 跟 activity-option 一樣 */
-  cursor: pointer;
-}
+        #time-dropdown .time-option {
+          padding: 4.5px 10px;    /* ✅ 跟 activity-option 一樣 */
+          cursor: pointer;
+        }
 
-#time-dropdown .time-option:hover {
-  background-color: #f0f0f0;
-}
-
-
+        #time-dropdown .time-option:hover {
+          background-color: #f0f0f0;
+        }
     </style>
     
   </head>
@@ -840,7 +838,11 @@
       let openInfoWindows = [];
       
       let searchMarker = null;
-      let searchInfoWindow = null;
+      let searchInfoWindow = null; 
+      
+      let selectedCounty = "all";
+      let selectedActivityType = "all";
+      let selectedTime = "all";
 
 function initMap() {
   const center = { lat: 25.033964, lng: 121.562321 };
@@ -895,7 +897,6 @@ const timeBtn = document.getElementById("time-btn");
 const timeDropdown = document.getElementById("time-dropdown");
 const timeOptions = document.querySelectorAll('.time-option');
 
-let selectedTime = "all";
 
 timeBtn.addEventListener("click", () => {
   timeDropdown.classList.toggle("hidden");
@@ -910,8 +911,11 @@ timeOptions.forEach(option => {
     timeDropdown.classList.add('hidden');
     selectedTime = timeValue;
 
-    // 這裡如需更新地圖也可以呼叫：
-    // loadMarkers(selectedCounty, selectedActivityType, selectedTime);
+    // 🔹 修正：取得目前縣市，再呼叫 loadMarkers
+    const currentCounty = countyBtn.querySelector('.label').textContent;
+    const countyToSend = currentCounty === "所有縣市" ? "all" : currentCounty;
+
+    loadMarkers(countyToSend, selectedActivityType, selectedTime);
   });
 });
 

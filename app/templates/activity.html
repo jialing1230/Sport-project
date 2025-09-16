@@ -217,7 +217,6 @@
         height: auto;         /* ← 避免被拉到跟整列一樣高 */
       }
 
-
       .label {
         color: var(--text-color);
         font-weight: bold;
@@ -237,7 +236,6 @@
       .activity-card:hover {
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* ⭐ 輕微加深陰影 */
       }
-
 
       .activity-card h3 {
         font-size: 24px;
@@ -543,7 +541,6 @@
         color: black; /* 深藍色，與主題一致 */
         margin-right: 10px; /* 與按鈕保持間距 */
       }
-
 
       .evaluate-button {
         display: inline-flex;
@@ -1443,14 +1440,29 @@
         </div>
       </div>
 
-
     <script>
-      let isPaidMember = false;
-
       const urlParams = new URLSearchParams(window.location.search);
       const memberId = urlParams.get("member_id");
-      function twWeekday(d){ return ['日','一','二','三','四','五','六'][d.getDay()]; }
-      function pad2(n){ return String(n).padStart(2,'0'); }
+      function twWeekday(d) {
+        return ["日", "一", "二", "三", "四", "五", "六"][d.getDay()];
+      }
+      function pad2(n) {
+        return String(n).padStart(2, "0");
+      }
+
+      let isPaidMember = false;
+      if (memberId) {
+        fetch(`/api/members/${memberId}`)
+          .then((res) => res.json())
+          .then((data) => {
+            isPaidMember = !!data.is_subscribed;
+          })
+          .catch(() => {
+            isPaidMember = false;
+          });
+      } else {
+        isPaidMember = false;
+      }
 
       function switchTab(index) {
         const tabs = document.querySelectorAll(".tab");
@@ -1485,7 +1497,6 @@
         window.location.href = `/activity?member_id=${memberId}`;
       }
 
-
       function goToProfile() {
         window.location.href = `/member_view?member_id=${memberId}`;
       }
@@ -1493,7 +1504,6 @@
       function goToNews() {
         window.location.href = `/notice?member_id=${memberId}`;
       }
-
 
       window.addEventListener("resize", () => {
         const tabs = document.querySelectorAll(".tab");
@@ -1528,7 +1538,6 @@
           addActivityCard.onclick = openActivityTypeModal;
           addActivityCard.innerHTML = '<span class="plus-sign">＋</span>';
 
-
           cardContainer.appendChild(addActivityCard);
 
           if (data.length === 0) {
@@ -1545,8 +1554,10 @@
             card.className = "activity-card";
 
             // ✅ 只有「訓練課程」且 organizer_has_discount = true 才顯示折角
-            const isTraining = (activity.type === 'class' || activity.type === 'muti_class');
-            const discountCorner = (isTraining && activity.organizer_participated)
+            const isTraining =
+              activity.type === "class" || activity.type === "muti_class";
+            const discountCorner =
+              isTraining && activity.is_discounted === true
               ? `
                 <span class="discount-corner">
                   <svg class="discount-corner__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true">
@@ -1554,7 +1565,6 @@
                   </svg>
                 </span>`
               : "";
-
 
             const now = new Date();
             const signupDeadline = new Date(activity.registration_deadline);
@@ -1712,8 +1722,14 @@
                   if (activity.venue_fee === 0) {
                     return `免費 ｜ <span class="custom-card-tag general">一般活動</span>`;
                   }
-                  const isTraining = (activity.type === 'class' || activity.type === 'muti_class');
-                if (isTraining && isPaidMember && activity.organizer_participated) {
+              const isTraining =
+                activity.type === "class" || activity.type === "muti_class";
+              
+              if (
+                isTraining &&
+                isPaidMember &&
+                activity.is_discounted === true
+              ) {
                   const newPrice = Math.round(activity.venue_fee * 0.8); // 8折
                   return `
                     <span class="price-and-tag">
@@ -1831,8 +1847,6 @@ card.addEventListener("click", () => {
       }
     }
 
-
-
     // 點擊彈窗外部區域時關閉彈窗
     document.getElementById("activityTypeModal").addEventListener("click", function (event) {
     const box = this.querySelector(".activity-type-box");
@@ -1840,7 +1854,6 @@ card.addEventListener("click", () => {
       this.classList.remove("show");
     }
   });
-
 
   // 🔧 改為動態從 API 取得會員訂閱狀態
 

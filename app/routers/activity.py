@@ -286,7 +286,8 @@ def list_my_activities():
                 "type": a.type,
                 "organizer": {
                     "name": a.organizer.name if a.organizer else "未知"
-                }
+                },
+                "is_discounted": a.is_discounted,
             }
             # 若為多堂課，查詢堂數
             if hasattr(a, 'type') and a.type == 'muti_class':
@@ -335,6 +336,7 @@ def get_activity_details():
             "age_range": activity.age_range,
             "venue_fee": float(activity.venue_fee) if activity.venue_fee else 0,
             "registration_deadline": activity.registration_deadline.isoformat() if activity.registration_deadline else None,
+            "is_discounted": activity.is_discounted,
         }
 
         # 如果 type 是 "muti_class"，額外查詢 course_schedul
@@ -396,7 +398,8 @@ def list_joined_activities():
                 "type": a.type,
                 "organizer": {
                     "name": a.organizer.name if a.organizer else "未知"
-                }
+                },
+                "is_discounted": a.is_discounted,
             }
             # 若為多堂課，查詢堂數
             if hasattr(a, 'type') and a.type == 'muti_class':

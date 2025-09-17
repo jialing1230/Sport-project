@@ -679,6 +679,25 @@
   const activityId = urlParams.get("id");
   const memberId = urlParams.get("member_id");
 
+  // 取得會員資料並存 is_subscribed 狀態
+      let isSubscribed = false;
+      fetch(`/api/members/${memberId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && typeof data.is_subscribed !== "undefined") {
+            isSubscribed = !!data.is_subscribed;
+          }
+        })
+        .catch(err => {
+          console.error("無法取得會員資料", err);
+        });
+
+      if (!activityId) {
+        document.querySelector(".container").innerHTML =
+          `<p style="color:red;">找不到活動 ID！</p>`;
+        throw new Error("No activity ID found in URL");
+      }
+
   if (!activityId) {
     document.querySelector(".container").innerHTML =
     `<p style="color:red;">找不到活動 ID！</p>`;
@@ -868,17 +887,21 @@
             </svg>
             <span class="price-and-tag">
                 ${
-                  (detail.type === "class" || detail.type === "muti_class")
-                    ? `
-                      <div class="price-wrapper">
-                        <span class="original-price">${detail.venue_fee} 元</span>
-                        <span class="discount-price">${Math.round(detail.venue_fee * 0.8)} 元</span>
-                      </div>
-                    `
-                    : (!detail.venue_fee || detail.venue_fee === 0 
-                        ? `免費` 
-                        : `${detail.venue_fee} 元`)
-                }
+                (detail.type === "class" || detail.type === "muti_class")
+                  ? (
+                      isSubscribed && detail.is_discounted
+                        ? `
+                            <div class="price-wrapper">
+                              <span class="original-price">${detail.venue_fee} 元</span>
+                              <span class="discount-price">${Math.round(detail.venue_fee * 0.8)} 元</span>
+                            </div>
+                          `
+                        : `${detail.venue_fee} 元`
+                    )
+                  : (!detail.venue_fee || detail.venue_fee === 0 
+                      ? `免費` 
+                      : `${detail.venue_fee} 元`)
+              }
                 <span style=" vertical-align: baseline;">|</span>
                 <span class="activity-type-label ${ (detail.type === 'class' || detail.type === 'muti_class') ? 'training-course' : 'general-activity' }" id="activity-type">
                   ${(() => {

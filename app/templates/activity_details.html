@@ -829,7 +829,7 @@
               ${
                 (detail.type === "class" || detail.type === "muti_class")
                   ? (
-                      isSubscribed
+                      isSubscribed && detail.is_discounted
                         ? `
                             <div class="price-wrapper">
                               <span class="original-price">${detail.venue_fee} 元</span>

@@ -889,12 +889,19 @@
 
       // 判斷是否顯示手機驗證徽章
       const badge = document.getElementById("phoneVerifiedBadge");
+      const vipBadge = document.getElementById("vipBadge");
       if (memberData.phone) {
         badge.style.display = "inline-flex";
       } else {
         badge.style.display = "none";
       }
 
+      // 判斷是否顯示 VIP 徽章
+      if (memberData.is_subscribed) {
+        vipBadge.style.display = "inline-flex";
+      } else {
+        vipBadge.style.display = "none";
+      }
 
       // 更新社群連結到「關於我」卡片
       const fbLink = memberData.fb_link || memberData.facebook_url || "";

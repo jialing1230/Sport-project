@@ -257,7 +257,8 @@ def list_activities():
                 "max_participants": a.max_participants,
                 "status": a.status,
                 "gender": a.gender,
-                "age_range": a.age_range
+                "age_range": a.age_range,
+                "is_discounted": a.is_discounted,
             })
     return jsonify(result), 200
 
@@ -637,12 +638,19 @@ def join_activity():
     if not member_id or not activity_id:
         return jsonify({"error": "缺少必要參數"}), 400
 
+
     with get_db() as db:
         activity = db.query(Activity).filter_by(activity_id=activity_id).first()
         if not activity:
             return jsonify({"error": "活動不存在"}), 404
 
-         # 檢查是否為活動的發起人
+        # 查詢申請人會員資料
+        member = db.query(Member).filter_by(member_id=member_id).first()
+        if not member:
+            return jsonify({"error": "會員不存在"}), 404
+
+       
+        # 檢查是否為活動的發起人
         if activity.organizer_id == member_id:
             return jsonify({"error": "主辦人無法申請參加自己的活動"}), 403
 
@@ -656,24 +664,29 @@ def join_activity():
         if activity.status not in ["open", "deadline"]:
             return jsonify({"error": "報名已截止，無法申請參加"}), 403
 
-
         if activity.current_participants >= activity.max_participants:
             return jsonify({"error": "活動已額滿"}), 403
-
 
         existing = db.query(ActivityJoin).filter_by(member_id=member_id, activity_id=activity_id).first()
         if existing:
             if existing.status == "waiting":
-                existing.status = "pending"
+                # 若活動類型為 class 或 muti_class 且會員有訂閱，直接設為 joined
+                if activity.type in ["class", "muti_class"] and getattr(member, "is_subscribed", False):
+                    existing.status = "joined"
+                else:
+                    existing.status = "pending"
                 db.commit()
                 # 仍然要通知主辦人
             else:
                 return jsonify({"error": "已參加或申請過此活動"}), 409
         else:
+            join_status = "pending"
+            if activity.type in ["class", "muti_class"] and getattr(member, "is_subscribed", False):
+                join_status = "joined"
             join = ActivityJoin(
                 member_id=member_id,
                 activity_id=activity_id,
-                status="pending",
+                status=join_status,
                 has_review=False,
                 is_checked_in=False
             )
@@ -681,8 +694,6 @@ def join_activity():
 
         # 新增通知給主辦人
         from app.models.notification import Notification
-        # 查詢申請人名稱
-        member = db.query(Member).filter_by(member_id=member_id).first()
         member_name = member.name if member else "該會員"
         content = f"{member_name} 申請參加您的活動：{activity.title if activity else ''}"
         notification = Notification(

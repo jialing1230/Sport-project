@@ -719,7 +719,7 @@
 		  `;
       // 只有「訓練課程」顯示優惠折角
       const isTraining = (detail.type === 'class' || detail.type === 'muti_class');
-      if (isTraining) {
+      if (isTraining && detail.is_discounted) {
         const infoBox = document.getElementById("activity-info");
         const corner = document.createElement("span");
         corner.className = "discount-corner";

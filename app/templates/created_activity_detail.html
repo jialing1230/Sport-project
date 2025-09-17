@@ -37,6 +37,8 @@
         margin: 0 auto 20px;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
         max-width: 400px;
+        position: relative;
+        overflow: hidden;
       }
       .info-box p {
         margin: 5px 0;
@@ -520,6 +522,28 @@
         position: relative;
         top: -2px;   /* 讓時間文字往上移一點，可依需求調整 -2px ~ -4px */
       }
+      /* 右下角「優惠」折角 */
+      .discount-corner {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: 0;
+        height: 0;
+        border-left: 50px solid transparent;  /* 左邊透明 */
+        border-bottom: 50px solid #ddd;        /* 下邊三角形 */
+        z-index: 2;
+      }
+
+      /* 折角上的小圖示（白色） */
+      .discount-corner__icon{
+        position: absolute;
+        right: 6px;       /* 靠右一點 */
+        bottom: -45px;    /* 放進三角形裡（因為是下邊三角所以用負值） */
+        width: 20px;
+        height: 20px;
+        display: block;
+        pointer-events: none;
+      }
 
 
     </style>
@@ -693,6 +717,18 @@
 			  </span>
 			</div>
 		  `;
+      // 只有「訓練課程」顯示優惠折角
+      const isTraining = (detail.type === 'class' || detail.type === 'muti_class');
+      if (isTraining) {
+        const infoBox = document.getElementById("activity-info");
+        const corner = document.createElement("span");
+        corner.className = "discount-corner";
+        corner.innerHTML = `
+          <svg class="discount-corner__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true">
+            <path d="M208.49,64.47l-144,144a12,12,0,1,1-17-17l144-144a12,12,0,0,1,17,17ZM47.72,104.27A40,40,0,1,1,76,116,39.72,39.72,0,0,1,47.72,104.27ZM60,76a16,16,0,1,0,4.69-11.31A15.87,15.87,0,0,0,60,76ZM220,180a40,40,0,1,1-11.72-28.29A39.71,39.71,0,0,1,220,180Zm-24,0a15.87,15.87,0,0,0-4.69-11.32h0A16,16,0,1,0,196,180Z" fill="white"/>
+          </svg>`;
+        infoBox.appendChild(corner);
+      }
 
 		  // 報名人數與截止顯示
 		  document.getElementById("participant-status").textContent =

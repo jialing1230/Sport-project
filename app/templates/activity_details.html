@@ -668,6 +668,20 @@
       let joinStatus = "";  // ✅ 這行是新增的：用來記錄使用者的報名狀態
       let isUserPending = false;  // ✅ 新增：記錄使用者是否處於「待審核」狀態
 
+
+      // 取得會員資料並存 is_subscribed 狀態
+      let isSubscribed = false;
+      fetch(`/api/members/${memberId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && typeof data.is_subscribed !== "undefined") {
+            isSubscribed = !!data.is_subscribed;
+          }
+        })
+        .catch(err => {
+          console.error("無法取得會員資料", err);
+        });
+
       if (!activityId) {
         document.querySelector(".container").innerHTML =
           `<p style="color:red;">找不到活動 ID！</p>`;
@@ -814,12 +828,16 @@
             <span class="price-and-tag">
               ${
                 (detail.type === "class" || detail.type === "muti_class")
-                  ? `
-                    <div class="price-wrapper">
-                      <span class="original-price">${detail.venue_fee} 元</span>
-                      <span class="discount-price">${Math.round(detail.venue_fee * 0.8)} 元</span>
-                    </div>
-                  `
+                  ? (
+                      isSubscribed
+                        ? `
+                            <div class="price-wrapper">
+                              <span class="original-price">${detail.venue_fee} 元</span>
+                              <span class="discount-price">${Math.round(detail.venue_fee * 0.8)} 元</span>
+                            </div>
+                          `
+                        : `${detail.venue_fee} 元`
+                    )
                   : (!detail.venue_fee || detail.venue_fee === 0 
                       ? `免費` 
                       : `${detail.venue_fee} 元`)

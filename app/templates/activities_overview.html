@@ -843,7 +843,7 @@
                 ? (
                     (act.type === 'class' || act.type === 'muti_class')
                       ? (
-                          (currentMember && currentMember.is_subscribed && act.organizer_has_discount)
+                          (currentMember && currentMember.is_subscribed && act.is_discounted)
                             ? `
                               <div style="text-decoration:line-through; color:#999; font-size:14px;">${act.venue_fee} 元</div>
                               <div style="display:flex; align-items:center; gap:8px; margin-top:-6px;">
@@ -990,7 +990,7 @@
           currentMember = member;
           // gender正規化
           if (member.gender === '男') member.gender = '男性';
-          if (member.gender === '女') member.gender = '女性';
+          if (member.gender === '女') member.gender = '女性';  
           // 取得活動資料
           fetch("/api/activities")
             .then((res) => res.json())
@@ -1024,6 +1024,7 @@
                 max_participants: a.max_participants,
                 gender: a.gender || "不限",
                 age_range: a.age_range || null,
+                is_discounted: a.is_discounted || false,
               }));
               // 根據會員年齡與性別過濾
               let filtered = activities.filter(act => {

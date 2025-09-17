@@ -257,7 +257,8 @@ def list_activities():
                 "max_participants": a.max_participants,
                 "status": a.status,
                 "gender": a.gender,
-                "age_range": a.age_range
+                "age_range": a.age_range,
+                "is_discounted": a.is_discounted,
             })
     return jsonify(result), 200
 

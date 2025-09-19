@@ -988,10 +988,10 @@ function loadMarkers(county, activityType = "all", time = "all") {
 }
     </script>
     <script
-      async
-      defer
-      src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap"
-    ></script>
+    async
+    defer
+    src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap&libraries=places"
+  ></script>
 
     <script>
       const urlParams = new URLSearchParams(window.location.search);
@@ -1117,18 +1117,20 @@ if (countyName === 'all') {
       });
       function searchAddress() {
   const input = document.querySelector('.search-box input');
-  const address = input.value;
+  const keyword = input.value.trim();
 
-  if (!address) {
-    alert("請輸入地址");
+  if (!keyword) {
+    alert("請輸入地點或地址");
     return;
   }
 
-  const geocoder = new google.maps.Geocoder();
+  // 使用 PlacesService
+  const service = new google.maps.places.PlacesService(map);
 
-  geocoder.geocode({ address: address }, (results, status) => {
-    if (status === "OK") {
-      const location = results[0].geometry.location;
+  service.textSearch({ query: keyword }, (results, status) => {
+    if (status === google.maps.places.PlacesServiceStatus.OK && results[0]) {
+      const place = results[0];
+      const location = place.geometry.location;
 
       if (searchMarker) searchMarker.setMap(null);
       if (searchInfoWindow) searchInfoWindow.close();
@@ -1139,17 +1141,15 @@ if (countyName === 'all') {
         icon: "http://maps.google.com/mapfiles/ms/icons/green-dot.png",
       });
 
-      const infoWindowContent = `
-        <div class="map-info-card">
-          <div class="title">${address}</div>
-          <img src="https://maps.googleapis.com/maps/api/streetview?size=300x150&location=${encodeURIComponent(
-            address
-          )}&key={{ api_key }}" alt="街景圖片" style="margin-top: 8px; width: 100%; border-radius: 8px;" />
-        </div>
-      `;
+      const displayName = place.name || place.formatted_address || keyword;
 
       searchInfoWindow = new google.maps.InfoWindow({
-        content: infoWindowContent,
+        content: `
+          <div class="map-info-card">
+            <div class="title">${displayName}</div>
+            <img src="https://maps.googleapis.com/maps/api/streetview?size=300x150&location=${encodeURIComponent(displayName)}&key={{ api_key }}" style="margin-top:8px;width:100%;border-radius:8px;" />
+          </div>
+        `,
       });
 
       searchInfoWindow.open(map, searchMarker);
@@ -1168,7 +1168,32 @@ if (countyName === 'all') {
         map.setZoom(15);
       });
     } else {
-      alert("找不到地址：" + status);
+      // ⚠️ 找不到地標 → fallback 用 Geocoder
+      const geocoder = new google.maps.Geocoder();
+      geocoder.geocode({ address: keyword }, (results, status) => {
+        if (status === "OK" && results[0]) {
+          const location = results[0].geometry.location;
+
+          if (searchMarker) searchMarker.setMap(null);
+          if (searchInfoWindow) searchInfoWindow.close();
+
+          searchMarker = new google.maps.Marker({
+            map: map,
+            position: location,
+            icon: "http://maps.google.com/mapfiles/ms/icons/green-dot.png",
+          });
+
+          searchInfoWindow = new google.maps.InfoWindow({
+            content: `<div class="map-info-card"><div class="title">${results[0].formatted_address}</div></div>`,
+          });
+
+          searchInfoWindow.open(map, searchMarker);
+          map.setCenter(location);
+          map.setZoom(17);
+        } else {
+          alert("找不到地點：" + status);
+        }
+      });
     }
   });
 }

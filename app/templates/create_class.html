@@ -1222,9 +1222,9 @@ function initAutocomplete() {
 
   const input = document.getElementById("place-input");
   autocomplete = new google.maps.places.Autocomplete(input, {
-    types: ["geocode"],
-    componentRestrictions: { country: "tw" },
-  });
+  types: ["establishment", "geocode"], // ✅ 支援地標 + 地址
+  componentRestrictions: { country: "tw" },
+});
 
   // 使用者選了建議地址
   autocomplete.addListener("place_changed", () => {

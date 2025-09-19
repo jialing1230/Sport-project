@@ -27,13 +27,14 @@
             position: relative;
             display: flex;
             align-items: center;
-            justify-content: flex-start;
-            padding: 10px 30px;
+            justify-content: space-between;   /* 左中右三欄 */
+            height: 70px;
+            padding: 0 20px;
             background-color: #fff;
             box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
             z-index: 1000;
-            height: 70px;
         }
+
 
         body {
             background-color: #f5f5f5;
@@ -73,15 +74,13 @@
         }
 
         .navbar-title {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            align-items: center;
+            flex: 1;               /* 中間自動撐開 */
+            text-align: center;    /* 文字置中 */
             font-weight: bold;
             font-size: 20px;
             color: #2c4975;
         }
+
 
 
         @media (max-width: 480px) {
@@ -214,6 +213,9 @@
             cursor: pointer;
             margin-top: 13px; /* ✅ 控制往下位移 */
         }
+        .right-section {
+            width: 40px;  /* 跟左邊箭頭區塊一樣寬 */
+        }
 
     </style>
   </head>
@@ -247,6 +249,7 @@
             </div>
             <div class="navbar-title">                我的收藏
             </div>
+              <div class="right-section"></div>
         </div>
         <div class="favorite-list">
             </div>

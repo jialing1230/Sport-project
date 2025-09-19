@@ -36,24 +36,22 @@
         font-family: 'Noto Sans TC', sans-serif;
         }
 
-        .header{
-        position: fixed; 
-        top:0; 
-        left:0; 
-        width:100%;
-        display:flex; 
-        align-items:center; 
-        justify-content:flex-start;
-        height:70px; background:#fff; 
-        box-shadow:0 1px 6px rgba(0,0,0,.2); 
-        z-index:1000;
+        .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
 
-        /* 上下固定，左右用計算讓內文邊線與 .container 一致 */
-        padding-top:10px; 
-        padding-bottom:10px;
-        padding-left:  calc((100vw - min(var(--page-max), calc(100vw - var(--side-gap))))/2 + var(--gutter));
-        padding-right: calc((100vw - min(var(--page-max), calc(100vw - var(--side-gap))))/2 + var(--gutter));
+        display: flex;
+        align-items: center;
+        justify-content: space-between;  /* 左中右三欄 */
+        height: 70px;
+        padding: 0 20px;
+        background: #fff;
+        box-shadow: 0 1px 6px rgba(0,0,0,.2);
+        z-index: 1000;
         }
+
 
 
         .back-button {
@@ -64,12 +62,12 @@
         }
 
         .left-section {
-            position: absolute;
-            left: 30px;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 2;
+        width: 40px;  /* 固定寬度，避免影響置中 */
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
         }
+
 
         .left-section svg {
             width: 24px;
@@ -85,17 +83,14 @@
         color: #81d3e1;
         /* 可選：微小位移讓互動更柔和，有需要就留著 */
         }
-
         .navbar-title {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            align-items: center;
-            font-weight: bold;
-            font-size: 20px;
-            color: #2c4975;
+        flex: 1;               /* 中間撐開 */
+        text-align: center;    /* 標題文字置中 */
+        font-weight: bold;
+        font-size: 20px;
+        color: #2c4975;
         }
+
 
         @media (max-width: 480px) {
             .navbar-title {
@@ -199,6 +194,9 @@
             height: 70%;           /* 分隔線稍短一點更好看 */
         }
         }
+        .right-section {
+        width: 40px;  /* 跟左邊對稱 */
+        }
 
 
     </style>
@@ -234,6 +232,7 @@
             <div class="navbar-title">
                 運動分析
             </div>
+              <div class="right-section"></div>
         </div>
         <div class="container">
         <div class="summary">

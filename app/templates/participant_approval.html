@@ -51,11 +51,14 @@
       box-shadow: 0 2px 6px rgba(0,0,0,.06);
       color: var(--deep-blue);
     }
-
     .arrow-icon {
-      fill: var(--deep-blue);
+      fill: var(--deep-blue);       /* 預設深藍 */
       cursor: pointer;
       margin-left: 8px;
+      transition: fill 0.3s ease;   /* 平滑變色 */
+    }
+    .arrow-icon:hover {
+      fill: var(--main-color);      /* 滑過變淺藍 */
     }
     .header-center {
       position: absolute;

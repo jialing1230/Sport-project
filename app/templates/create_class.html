@@ -1154,8 +1154,61 @@
     </script>
     <!-- Google Maps JS 載入 -->
     <script>
-      let map, marker, autocomplete;
+      let map, marker, autocomplete, geocoder, places;
 
+// 幫手：放標記 + 更新隱藏欄位
+function setMarkerAndUpdateUI(latLng, displayText) {
+  if (!marker) {
+    marker = new google.maps.Marker({
+      map,
+      position: latLng,
+      draggable: true,
+    });
+    // 拖曳結束 → 更新地址
+    marker.addListener("dragend", () => handleLatLngChange(marker.getPosition()));
+  } else {
+    marker.setPosition(latLng);
+  }
+
+  map.panTo(latLng);
+  document.getElementById("location-lat").value = latLng.lat();
+  document.getElementById("location-lng").value = latLng.lng();
+
+  if (displayText) {
+    document.getElementById("place-input").value = displayText;
+  }
+}
+
+// 幫手：反查地址
+function reverseGeocodeAndFillInput(latLng) {
+  const input = document.getElementById("place-input");
+  geocoder.geocode({ location: latLng }, (results, status) => {
+    if (status === "OK" && results && results[0]) {
+      const first = results[0];
+      const placeId = first.place_id;
+
+      if (placeId) {
+        places.getDetails({ placeId, fields: ["name", "formatted_address"] }, (detail, s2) => {
+          const name = detail && detail.name;
+          const addr = (detail && detail.formatted_address) || first.formatted_address;
+          input.value = name || addr || "未知地址";
+        });
+      } else {
+        input.value = first.formatted_address || "未知地址";
+      }
+    } else {
+      input.value = "未知地址";
+    }
+  });
+}
+
+// 幫手：座標改變時統一處理
+function handleLatLngChange(latLng) {
+  setMarkerAndUpdateUI(latLng);
+  reverseGeocodeAndFillInput(latLng);
+}
+
+// 新版 initAutocomplete
 function initAutocomplete() {
   console.log("✅ initAutocomplete 已執行！");
 
@@ -1164,41 +1217,30 @@ function initAutocomplete() {
     zoom: 15,
   });
 
+  geocoder = new google.maps.Geocoder();
+  places   = new google.maps.places.PlacesService(map);
+
   const input = document.getElementById("place-input");
   autocomplete = new google.maps.places.Autocomplete(input, {
     types: ["geocode"],
     componentRestrictions: { country: "tw" },
   });
 
+  // 使用者選了建議地址
   autocomplete.addListener("place_changed", () => {
     const place = autocomplete.getPlace();
-    console.log("📍 使用者選擇地點：", place);
-
-    if (!place.geometry || !place.geometry.location) {
+    if (!place || !place.geometry || !place.geometry.location) {
       alert("找不到此地址的地理位置，請重新輸入！");
       return;
     }
+    const loc = place.geometry.location;
+    const display = place.name || place.formatted_address || input.value;
+    setMarkerAndUpdateUI(loc, display);
+  });
 
-    const location = place.geometry.location;
-    const lat = location.lat();
-    const lng = location.lng();
-
-    map.setCenter(location);
-
-    if (marker) marker.setMap(null);
-    marker = new google.maps.Marker({
-      map: map,
-      position: location,
-      title: place.name || input.value,
-    });
-
-    // ✅ 這兩行一定要先設定（將緯度經緯度填入隱藏欄位）
-    document.getElementById("location-lat").value = lat;
-    document.getElementById("location-lng").value = lng;
-
-    // ✅ 這兩行是用來確認你是否正確抓到
-    console.log("✅ 緯度 lat:", lat);
-    console.log("✅ 經度 lng:", lng);
+  // 點一下地圖也能放標記
+  map.addListener("click", (e) => {
+    handleLatLngChange(e.latLng);
   });
 }
     </script>

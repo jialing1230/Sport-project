@@ -106,11 +106,18 @@
       .left-section svg {
         width: 24px;
         height: 24px;
-        fill: var(--deep-blue);
+        stroke: #2c4975;             /* 預設深藍 */
         cursor: pointer;
-        transition: fill 0.3s ease;
+        transition: stroke 0.3s ease;
       }
 
+      .left-section svg:hover {
+        stroke: #81d3e1;             /* 滑過變淺藍 */
+      }
+
+      #back-button {
+        margin-left: -18px; /* 👈 讓箭頭與左邊保持距離 */
+      }
       .right-section {
         display: flex;
         justify-content: flex-end;
@@ -557,13 +564,11 @@
           width="24"
           height="24">
           <path d="M15 19l-7-7 7-7"
-                stroke="#81d3e1"
                 stroke-width="2"
                 fill="none"
                 stroke-linecap="round"
                 stroke-linejoin="round"></path>
           <path d="M8 12h14"
-                stroke="#81d3e1"
                 stroke-width="2"
                 fill="none"
                 stroke-linecap="round"
@@ -690,7 +695,11 @@
           <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"></path>
         </svg>
 
-			  <span class="location-text time-text">${formatDateRange(detail.start_time, detail.end_time)}</span>
+      <span class="location-text time-text">${
+        detail.type === 'muti_class' && detail.course_schedules?.length > 0
+          ? formatDateRange(detail.course_schedules[0].start_time, detail.course_schedules[0].end_time)
+          : formatDateRange(detail.start_time, detail.end_time)
+      }</span>
 			</div>
 			<div class="location-row">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256" style="vertical-align: middle; margin-right:6px;">

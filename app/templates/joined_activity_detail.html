@@ -121,10 +121,18 @@
         padding: 10px;
       }
 
-      .right-section svg {
-        cursor: pointer;           /* 鼠標懸停時顯示手型 */
-        transition: fill 0.3s ease; /* 鼠標懸停時的過渡效果 */
+      .left-section svg {
+        width: 24px;
+        height: 24px;
+        stroke: #2c4975;             /* 預設深藍 */
+        cursor: pointer;
+        transition: stroke 0.3s ease;
       }
+
+      .left-section svg:hover {
+        stroke: #81d3e1;             /* 滑過變淺藍 */
+      }
+
 
       .title-row {
         display: flex;
@@ -218,7 +226,9 @@
       .activity-type-label {
         vertical-align: baseline;
       }
-
+     #back-button {
+        margin-left: -18px; /* 👈 讓箭頭與左邊保持距離 */
+      }
       .bottom-center {
         display: flex;
         align-items: center;
@@ -532,13 +542,11 @@
           width="24"
           height="24">
             <path d="M15 19l-7-7 7-7"
-                  stroke= #81d3e1
                   stroke-width="2"
                   fill="none"
                   stroke-linecap="round"
                   stroke-linejoin="round"></path>
             <path d="M8 12h14"
-                  stroke="#81d3e1"
                   stroke-width="2"
                   fill="none"
                   stroke-linecap="round"
@@ -554,7 +562,7 @@
         >
           <path
             d="M24 30 V14"
-            stroke="#1B3A6E"
+            stroke="#fff"
             stroke-width="3"
             fill="none"
             stroke-linecap="round"
@@ -562,7 +570,7 @@
           ></path>
           <path
             d="M16 22 L24 14 L32 22"
-            stroke="#1B3A6E"
+            stroke="#ffffff"
             stroke-width="3"
             fill="none"
             stroke-linecap="round"
@@ -570,30 +578,14 @@
           ></path>
           <path
             d="M10 30 V36 A4 4 0 0 0 14 40 H34 A4 4 0 0 0 38 36 V30"
-            stroke="#1B3A6E"
+            stroke="#fff"
             stroke-width="3"
             fill="none"
             stroke-linecap="round"
             stroke-linejoin="round"
           ></path>
         </svg>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          width="24"
-          height="24"
-          class="heart-icon"
-        >
-          <path
-            class="heart-path"
-            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-            stroke="#fea3a8"
-            stroke-width="2"
-            fill="none"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          ></path>
-        </svg>
+
       </div>
   </div>
   <div class="container">

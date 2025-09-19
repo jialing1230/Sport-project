@@ -44,14 +44,21 @@
             padding: 10px;
             margin-left: -10px;
         }
-
+        #back-button {
+            margin-left: -10px; /* 👈 讓箭頭與左邊保持距離 */
+        }
         .left-section svg {
             width: 24px;
             height: 24px;
-            fill: var(--deep-blue); /* 注意這個變數在此未定義，可換成實際顏色 */
+            stroke: #2c4975;             /* 預設深藍 */
             cursor: pointer;
-            transition: fill 0.3s ease;
+            transition: stroke 0.3s ease;
         }
+
+        .left-section svg:hover {
+            stroke: #81d3e1;             /* 滑過變淺藍 */
+        }
+
 
         .navbar-title {
             position: absolute;
@@ -184,13 +191,11 @@
                 width="24"
                 height="24">
                     <path d="M15 19l-7-7 7-7"
-                        stroke= #81d3e1
                         stroke-width="2"
                         fill="none"
                         stroke-linecap="round"
                         stroke-linejoin="round"></path>
                     <path d="M8 12h14"
-                        stroke="#81d3e1"
                         stroke-width="2"
                         fill="none"
                         stroke-linecap="round"

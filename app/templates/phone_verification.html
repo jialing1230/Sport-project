@@ -38,49 +38,58 @@
       }
 
       .header {
-        position: fixed;             /* ← 從 relative 改成 fixed */
+        position: fixed;
         top: 0;
         left: 0;
         right: 0;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        height: var(--header-h);
+        padding: 0 20px;
+        background: #fff;
+        box-shadow: 0 1px 6px rgba(0,0,0,.2);
+        z-index: 1000;
+      }
+      .left-section {
+        width: 40px;              /* 固定寬，避免推擠 */
         display: flex;
         align-items: center;
         justify-content: flex-start;
-        padding: 10px 30px;
-        background-color: #fff;
-        box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
-        z-index: 1000;
-        height: var(--header-h);     /* ← 用變數統一高度 */
       }
 
-      .left-section {
-        position: relative;
-        z-index: 2;
-      }
 
       .left-section svg {
         width: 24px;
         height: 24px;
-        fill: #81d3e1;
+        stroke: #2c4975;             /* 預設深藍 */
         cursor: pointer;
-        transition: fill 0.3s ease;
+        transition: stroke 0.3s ease;
+      }
+
+      .left-section svg:hover {
+        stroke: #81d3e1;             /* 滑過變淺藍 */
       }
 
       .navbar-title {
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        display: flex;
-        align-items: center;
+        flex: 1;
+        text-align: center;
         font-weight: bold;
+        font-size: 20px;
         color: #2c4975;
       }
+
 
       .navbar-title img {
         height: 40px;
         margin-right: 5px;
         margin-top: 3px;
       }
-
+      .header-right {
+        width: 40px; /* 和左邊對稱 */
+      }
       .container{
         /* 關鍵：不讓它滿版，手機也強制留左右灰 */
         width: min(100% - 2 * var(--side-gap), var(--page-max));
@@ -179,7 +188,6 @@
         >
           <path
             d="M15 19l-7-7 7-7"
-            stroke="#81d3e1"
             stroke-width="2"
             fill="none"
             stroke-linecap="round"
@@ -187,7 +195,6 @@
           ></path>
           <path
             d="M8 12h14"
-            stroke="#81d3e1"
             stroke-width="2"
             fill="none"
             stroke-linecap="round"
@@ -198,6 +205,7 @@
       <div class="navbar-title">
         手機認證
       </div>
+      <div class="header-right"></div>
     </div>
 
     <div class="container">

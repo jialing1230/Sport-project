@@ -29,20 +29,21 @@
         }
 
         .header {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
 
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        padding: 10px 30px;
-        background-color: #fff;
-        box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
-        z-index: 1000;
-        height: 70px;
+            display: flex;
+            align-items: center;     /* 垂直置中箭頭和文字 */
+            justify-content: space-between; /* 左中右三欄分布 */
+            padding: 0 20px;         /* 左右邊距固定 */
+            background-color: #fff;
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            height: 70px;
         }
+
         body { padding-top: 90px; }
 
         .back-button {
@@ -135,6 +136,10 @@
         .left-section {
             position: relative;
             z-index: 2;
+            width: 40px;             /* 固定寬度，不會壓到標題 */
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
         }
 
         .left-section svg {
@@ -155,15 +160,13 @@
         }
 
         .navbar-title {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            align-items: center;
+            flex: 1;                 /* 吃滿中間空間 */
+            text-align: center;      /* 文字置中 */
             font-weight: bold;
-            font-size: 20px;
+            font-size: 18px;
             color: #2c4975;
         }
+
 
         .container {
         /* 讓容器永遠比螢幕窄一點：兩側各 24px 邊溝（桌機預設） */
@@ -371,6 +374,9 @@
         animation: fadeUp .28s ease both;
         }
 
+        .right-section {
+        width: 40px; /* 跟左側一樣寬，確保對稱 */
+        }
 
     </style>
   </head>
@@ -405,6 +411,8 @@
         <div class="navbar-title">
             評價紀錄
         </div>
+          <div class="right-section"></div> <!-- 用來佔位，讓標題真正置中 -->
+
     </div>
     <div class="tab-switch">
         <button id="tab-participant" class="tab-btn active">參加人</button>

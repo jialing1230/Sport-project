@@ -9,10 +9,19 @@
       color: #d9534f;
       font-size: 15px;
       text-align: center;
-      margin-bottom: 8px;
+      margin: 20px 0 8px 0;
       font-weight: bold;
-      display: none;
+
+      opacity: 0;              /* 預設透明 */
+      max-height: 0;           /* 預設高度 0 */
+      overflow: hidden;        /* 防止文字撐開 */
+      transition: all 0.4s ease; /* ✅ 加入過渡效果 */
     }
+    .save-reminder.show {
+      opacity: 1;              /* 淡入 */
+      max-height: 50px;        /* 給一個足夠高度 */
+    }
+
     html, body {
       height: auto;
       margin: 0;
@@ -27,7 +36,7 @@
       top: 0;
       left: 0;
       right: 0;
-      height: 15px;
+      height: 26px;
       z-index: 100;
       background-color: #ffffff;
       display: flex;
@@ -63,26 +72,22 @@
     }
 
     .header-title {
-      font-size: 14px;
+      font-size: 18px;
       font-weight: bold;
       color: #2c4975;
     }
 
     .container {
-      background-color: #ffffff;
-      max-width: 401px;
-      margin: 60px auto auto auto;
-      padding: 0 24px 30px;
+      background-color: #ffffff;    /* 中間白底 */
+      max-width: 500px;             /* 跟其他頁一致的寬度 */
+      margin: 60px auto 0 auto;     /* 上方 60px 給 header 空間，左右自動置中 */
+      padding: 10px 24px 30px;
+      min-height: calc(100vh - 60px); /* ✅ 白底往下延伸到視窗底 */
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-      border-radius: 0px;
-   
-      top: 60px;
-      bottom: 0;
-      left: 0;
-      right: 0;
-
-      overflow-y: auto; /* 內容可滾動 */
+      border-radius: 0;             /* 頂到底時通常不需要圓角 */
     }
+
+
 
     .participant-card {
       background: white;
@@ -143,9 +148,21 @@
       text-align: center;
       margin: 16px 0;
       font-size: 14px;
+      line-height: 1.6;   /* ✅ 行距更好看 */
+    }
+    .summary div {
+      margin: 8px 0 4px 0;      /* ✅ 上下間距 */
     }
     .summary span {
       margin: 0 6px;
+    }
+    .summary .alert {
+      color: #d9534f;
+      font-weight: bold;
+    }
+    .summary .normal {
+      color: #2c4975;      /* 深藍色 */
+      font-weight: normal;
     }
     .btn-submit {
       display: block;
@@ -174,15 +191,18 @@
 
   <!-- 白卡片內容 -->
   <div class="container">
-  <div id="save-reminder" class="save-reminder">有尚未儲存的點名變更，請記得儲存！</div>
+  
     <div id="participants"></div>
 
-    <div class="summary">
-      <span>準時 <span id="onTimeCount">0</span> 人</span> |
-      <span>遲到 <span id="lateCount">0</span> 人</span> |
-      <span>缺席 <span id="absentCount">0</span> 人</span> |
-      <span>未點名 <span id="notMarkedCount">0</span> 人</span>
-    </div>
+<div class="summary">
+  <div>
+    <span>準時 <span id="onTimeCount">0</span> 人</span> |
+    <span>遲到 <span id="lateCount">0</span> 人</span> |
+    <span>缺席 <span id="absentCount">0</span> 人</span>
+  </div>
+<div class="alert">未點名 <span id="notMarkedCount">1</span> 人</div>
+<div id="save-reminder" class="save-reminder">有尚未儲存的點名變更，請記得儲存！</div>
+</div>
 
     <button class="btn-submit" onclick="saveAttendance()">儲存點名</button>
   </div>
@@ -238,19 +258,37 @@
   }
 
   function checkUnsaved() {
-    // 比較目前狀態與上次儲存狀態
     const changed = joinedParticipants.some((p, i) => {
       return !lastSavedState[i] || p.is_checked_in !== lastSavedState[i].is_checked_in;
     });
-    document.getElementById('save-reminder').style.display = changed ? 'block' : 'none';
+    const reminder = document.getElementById('save-reminder');
+    if (changed) {
+      reminder.classList.add('show');   // ✅ 滑入
+    } else {
+      reminder.classList.remove('show'); // ✅ 滑出
+    }
   }
 
   function updateSummary() {
-    document.getElementById('onTimeCount').textContent = joinedParticipants.filter(p => p.is_checked_in).length;
+    const onTimeCount = joinedParticipants.filter(p => p.is_checked_in).length;
+    const notMarkedCount = joinedParticipants.filter(p => !p.is_checked_in).length;
+
+    document.getElementById('onTimeCount').textContent = onTimeCount;
     document.getElementById('lateCount').textContent = 0;
     document.getElementById('absentCount').textContent = 0;
-    document.getElementById('notMarkedCount').textContent = joinedParticipants.filter(p => !p.is_checked_in).length;
+    document.getElementById('notMarkedCount').textContent = notMarkedCount;
+
+    // ✅ 這裡新增切換樣式的判斷
+    const notMarkedDiv = document.getElementById('notMarkedCount').parentNode;
+    if (notMarkedCount === 0) {
+      notMarkedDiv.classList.remove('alert');
+      notMarkedDiv.classList.add('normal');
+    } else {
+      notMarkedDiv.classList.remove('normal');
+      notMarkedDiv.classList.add('alert');
+    }
   }
+
 
 
   function saveAttendance() {

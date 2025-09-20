@@ -13,7 +13,7 @@
     }
 
     body {
-        background-color: #ffffff;
+        background-color: #F4F4F4;
         color: #1e2a39;
         padding: 20px;
         padding-top: var(--header-h);
@@ -70,16 +70,16 @@
       #back-button {
         margin-left: -10px; /* 👈 讓箭頭與左邊保持距離 */
       }
-    .container { 
-        max-width: 500px;
-        margin: 0 auto;
-        padding-bottom: 80px;
-        background-color: #ffffff;
-        border-radius: 12px;
-        padding: 0px 0px 0px 0px;
-        margin-bottom: 60px; 
-        margin-top: 24px;
-    }
+      .container { 
+          max-width: var(--page-max);
+          margin: 0 auto;             /* ✅ 置中 */
+          padding-bottom: 80px;
+          background-color: #ffffff;
+          min-height: calc(100vh - var(--header-h)); /* ✅ 填滿除 header 外的高度 */
+          display: flex;              /* ✅ 讓內容能撐開 */
+          flex-direction: column;     /* ✅ 內容直向排列 */
+      }
+
 
     .section-header {
         display: flex;
@@ -107,7 +107,6 @@
     }
 
     .card {
-        background: #f5f6f7;
         border-radius: 12px;
         padding: 16px;
         margin: 12px auto;

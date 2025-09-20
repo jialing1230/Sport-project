@@ -964,11 +964,14 @@
         justify-items: center;   /* 每張卡在欄內置中 */
       }
 
-      .activity-card,
-      .add-activity-card {
+      .activity-card {
         width: var(--card-w);     /* 固定寬 */
         max-width: var(--card-w); /* 不被撐大 */
         /* 不要再寫 width:100% / max-width:none */
+      }
+      .add-activity-card {
+        align-self: stretch;  /* 自動撐滿跟旁邊一樣高 */
+        height: 100%;
       }
     }
 
@@ -988,11 +991,11 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: 220px;    /* 跟一般卡片一致 */
-        box-shadow: none;     /* 拿掉陰影 */
+        min-height: 220px;
+        box-shadow: none;
         cursor: pointer;
-        height: auto;      /* ← 由內容決定高度 */
-        align-self: start; /* ← 即使整列很高，＋卡片自己維持正常高度 */
+        height: auto;
+        align-self: start;  /* 預設不拉到跟整列一樣高 */
       }
 
       /* ＋符號樣式 */

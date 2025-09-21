@@ -843,6 +843,8 @@
       </div>
 
     <script>
+      // 放在檔案最前面，確保後面組 href 時一定拿得到
+      const mid = new URLSearchParams(window.location.search).get('member_id') || '';
       let map;
       let markers = [];
       let openInfoWindows = [];
@@ -991,10 +993,10 @@ function loadMarkers(county, activityType = "all", time = "all") {
                 <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(activity.location_name)}" 
                   target="_blank" style="color:#64bcd0; text-decoration:none;">Google 地圖</a>
               </div>
-              <a href="/activity/details/${activity.id}" 
-                style="padding:4px 10px; font-size:12px; background-color:#64bcd0; color:#fff; border-radius:6px; text-decoration:none;">
-                查看詳情
-              </a>
+              <a href="/api/activities/details_page?id=${activity.activity_id}${mid ? '&member_id=' + mid : ''}"
+   style="padding:4px 10px; font-size:12px; background-color:#64bcd0; color:#fff; border-radius:6px; text-decoration:none;">
+  查看詳情
+</a>
             </div>
 
             <img src="https://maps.googleapis.com/maps/api/streetview?size=300x150&location=${encodeURIComponent(activity.location_name)}&key={{ api_key }}" 

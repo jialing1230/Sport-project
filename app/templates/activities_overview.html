@@ -817,8 +817,13 @@
               ${statusText ? `<span class="status-badge" style="font-size: 16px; padding: 5px 10px 3px 10px; border-radius: 8px; font-weight: bold; color: white; background: ${statusText === '開放報名' ? '#fea3a8' : '#81d3e1'}; margin-left: 10px;">${statusText}</span>` : ''}
             </div>
             <div class="activity-info" style="color: #2c4975 !important;">
-              <span class="value" style="color: #2c4975 !important;">${act.sport_type||"－"}</span> <span class="divider">|</span> <span class="value" style="color: #2c4975 !important;">${act.level ? act.level : '－'}</span> <span class="divider">|</span> <span class="value" style="color: #2c4975 !important;">${act.organizer_name ? '由 ' + act.organizer_name + ' 發起' : '－'}</span>
+              <span class="value" style="color: #2c4975 !important;">${act.sport_type || "－"}</span> 
+              <span class="divider">|</span> 
+              <span class="value" style="color: #2c4975 !important;">${act.level ? act.level : "不限"}等級</span> 
+              <span class="divider">|</span> 
+              <span class="value" style="color: #2c4975 !important;">${act.organizer_name ? "由 " + act.organizer_name + " 發起" : "－"}</span>
             </div>
+
             <div class="card-divider" style="display:block;width:100%;height:0;border-top:1px solid #81d3e1;margin:10px 0 15px 0;"></div>
             <div class="activity-info" style="display: flex; align-items: center;">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256">

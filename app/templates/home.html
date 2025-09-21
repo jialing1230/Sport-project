@@ -273,19 +273,6 @@
           padding-right: 16px; /* ✅ 手機版右邊縮小 */
         }
       }
-      .map-info-card {
-        width: 360px;       /* 固定寬度 */
-        max-width: 90vw;    /* 手機自適應 */
-        box-sizing: border-box; /* ✅ 防止 padding 撐爆寬度 */
-        overflow-x: hidden; /* ✅ 禁止水平卷軸 */
-        padding: 0px 5px 12px 20px;  /* 上 右 下 左 */
-
-      }
-      .map-info-card img {
-        max-width: 100%;
-        height: auto;
-        display: block;
-      }
 
       .gm-style-iw {
         padding: 0 !important;   /* 清掉預設 padding */
@@ -293,26 +280,6 @@
         overflow: hidden !important; /* 不要有水平卷軸 */
       }
 
-
-      .map-info-card .title {
-        font-size: 20px;
-        font-weight: bold;
-        color: #40bcd0;
-        margin-top: 0;
-        margin-bottom: 4px;
-        text-align: center;
-      }
-
-      .map-info-card .label {
-        font-weight: bold;
-        color: #1b3a6e;
-      }
-
-      .map-info-card .value {
-        color: #000000;
-        display: inline;
-        font-weight: normal;
-      }
       .container {
         width: 100%;
         max-width: 1400px;
@@ -660,6 +627,123 @@
         #time-dropdown .time-option:hover {
           background-color: #f0f0f0;
         }
+        .map-info-card {
+          width: 300px;
+          position: relative;
+          font-size: 14px;
+          line-height: 1.5;
+          padding: 0 10px 12px 22px;
+        }
+
+        .map-info-card .title {
+          margin: 0;
+          font-size: 28px;
+          font-weight: bold;
+          color: #2c4975;
+          text-align: left;
+          padding: -10px 0 0 0;
+        }
+        /* 狀態標籤基礎樣式 */
+        .map-info-card .status-badge {
+          font-size: 16px;
+          padding: 3px 8px 2px 8px;
+          border-radius: 8px;
+          color: #fff;
+          font-weight: 500;
+        }
+        .map-info-card .header-row {
+          display: flex;
+          justify-content: space-between; /* 標題靠左，標籤靠右 */
+          align-items: center;            /* 垂直置中 */
+          margin-bottom: 8px;
+        }
+
+        /* 開放報名 → 粉紅 */
+        .map-info-card .status-badge.open {
+          background-color: #fea3a8;
+        }
+
+        /* 已截止 → 灰色 */
+        .map-info-card .status-badge.closed {
+          background-color: #ccc;
+        }
+
+        .map-info-card .subtitle {
+          color: #2c4975;
+          font-size: 16px;
+          margin-bottom: 6px;
+          font-weight: 400;
+
+        
+        }
+
+        .map-info-card hr {
+          border: none;
+          border-top: 1px solid #64bcd0;
+          margin: 10px 0;
+        }
+
+        .map-info-card .info {
+          font-size: 16px;
+          margin-bottom: 4px;
+          font-weight: 400;
+        }
+
+        .map-info-card .footer-row {
+          margin-top: 8px;
+          font-size: 13px;
+          color: #2c4975;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .map-info-card .footer-row a {
+          color: #64bcd0;
+          text-decoration: none;
+        }
+
+        .map-info-card .detail-btn {
+          padding: 4px 10px;
+          font-size: 12px;
+          background-color: #64bcd0;
+          color: #fff;
+          border-radius: 6px;
+          text-decoration: none;
+        }
+
+        .map-info-card .image-wrapper {
+          position: relative;
+          margin-top: 6px;
+        }
+
+        .map-info-card .streetview-img {
+          width: 100%;
+          border-radius: 8px;
+        }
+
+        .map-info-card .nav-btn {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          font-size: 22px;
+          text-decoration: none;
+          color: #2c4975;
+          background: rgba(255, 255, 255, 0.7);
+          padding: 2px 6px;
+          border-radius: 50%;
+        }
+
+        .map-info-card .nav-btn.prev { left: -14px; }
+        .map-info-card .nav-btn.next { right: -14px; }
+
+        .map-info-card .pagination {
+          text-align: center;
+          margin-top: 6px;
+          font-size: 12px;
+          color: #666;
+        }
+
     </style>
     
   </head>
@@ -978,50 +1062,81 @@ function loadMarkers(county, activityType = "all", time = "all") {
           const act = group[index];
           const total = group.length;
           const typeLabel = act.type === "class" ? "訓練課程" : "一般活動";
-          const statusBadge =
-            `<span style="background-color:${act.status === "open" ? "#fea3a8" : "#ccc"};color:#fff;font-size:12px;padding:2px 6px;border-radius:6px;">
-               ${act.status === "open" ? "開放報名" : "已截止"}
-             </span>`;
+          const statusBadge = `
+            <span class="status-badge ${act.status === "open" ? "open" : "closed"}">
+              ${act.status === "open" ? "開放報名" : "已截止"}
+            </span>`;
 
-          const content = `
-            <div class="map-info-card" style="font-family:'Noto Sans TC',sans-serif;width:300px;position:relative;">
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                <h3 style="margin:0;font-size:18px;font-weight:700;color:#2c4975;">${act.title}</h3>
-                ${statusBadge}
-              </div>
-              <div style="color:#666;font-size:13px;margin-bottom:6px;">
-  ${act.sport_type || ""} ｜ 不限 ｜ 發起人：${act.organizer_name || "未知"}
-</div>
-              <hr style="border:none;border-top:1px solid #eee;margin:6px 0;">
-              <div style="font-size:14px;margin-bottom:4px;">📍 ${act.location_name || ""}</div>
-              <div style="font-size:14px;margin-bottom:4px;">
-                🕒 ${new Date(act.start_time).toLocaleDateString("zh-TW",{month:"numeric",day:"numeric",weekday:"short"})}
-                ${new Date(act.start_time).toLocaleTimeString("zh-TW",{hour:"2-digit",minute:"2-digit"})}～
-                ${new Date(act.end_time).toLocaleTimeString("zh-TW",{hour:"2-digit",minute:"2-digit"})}
-              </div>
-              <div style="font-size:14px;margin-bottom:4px;">💲 ${act.venue_fee ?? 0} 元 ｜ ${typeLabel}</div>
-              <div style="margin-top:8px;font-size:13px;color:#2c4975;display:flex;justify-content:space-between;align-items:center;">
-                <div>
-                  <span class="label">場地資訊：</span>
-                  <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(act.location_name || "")}"
-                     target="_blank" style="color:#64bcd0;text-decoration:none;">Google 地圖</a>
-                </div>
-                <a href="/api/activities/details_page?id=${act.activity_id}${mid ? "&member_id=" + mid : ""}"
-                   style="padding:4px 10px;font-size:12px;background-color:#64bcd0;color:#fff;border-radius:6px;text-decoration:none;">查看詳情</a>
-              </div>
-              <div style="position:relative;margin-top:6px;">
-                <img src="https://maps.googleapis.com/maps/api/streetview?size=300x150&location=${encodeURIComponent(act.location_name || "")}&key={{ api_key }}"
-                     alt="街景圖片" style="width:100%;border-radius:8px;"/>
-                ${total > 1 ? `
-                  <a id="${uid}-prev" href="#"
-                     style="position:absolute;left:-14px;top:50%;transform:translateY(-50%);font-size:22px;text-decoration:none;">‹</a>
-                  <a id="${uid}-next" href="#"
-                     style="position:absolute;right:-14px;top:50%;transform:translateY(-50%);font-size:22px;text-decoration:none;">›</a>
-                ` : ``}
-              </div>
-              ${total > 1 ? `<div style="text-align:center;margin-top:6px;font-size:12px;color:#666;">${index + 1}/${total}</div>` : ``}
+
+        const content = `
+          <div class="map-info-card">
+            <div class="header-row">
+              <h3 class="title">${act.title}</h3>
+              ${statusBadge}
             </div>
-          `;
+            <div class="subtitle">
+              ${act.sport_type || ""} ｜ 不限 ｜ 由 ${act.organizer_name || "未知"} 發起
+            </div>
+            <hr>
+            <div class="info info-row">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256" style="margin-top: 2px">
+              <path d="M128,64a40,40,0,1,0,40,40A40,40,0,0,0,128,64Zm0,64a24,24,0,1,1,24-24A24,24,0,0,1,128,128Zm0-112a88.1,88.1,0,0,0-88,88c0,31.4,14.51,64.68,42,96.25a254.19,254.19,0,0,0,41.45,38.3,8,8,0,0,0,9.18,0A254.19,254.19,0,0,0,174,200.25c27.45-31.57,42-64.85,42-96.25A88.1,88.1,0,0,0,128,16Zm0,206c-16.53-13-72-60.75-72-118a72,72,0,0,1,144,0C200,161.23,144.53,209,128,222Z"></path>
+            </svg>
+              <span>${act.location_name || ""}</span>
+            </div>
+            <div class="info info-row">
+              <svg xmlns="http://www.w3.org/2000/svg" 
+                  width="24" height="24" 
+                  fill="#2c4975" 
+                  viewBox="0 0 256 256"
+                  style="margin-right:8px; vertical-align:middle;">
+                <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"></path>
+              </svg>
+              <span>
+                ${(() => {
+                  const start = new Date(act.start_time);
+                  const end = new Date(act.end_time);
+
+                  const weekdays = ["日", "一", "二", "三", "四", "五", "六"];
+
+                  const month = start.getMonth() + 1;
+                  const day = start.getDate();
+                  const weekday = weekdays[start.getDay()];
+
+                  const pad = n => n.toString().padStart(2, "0");
+                  const startTime = `${pad(start.getHours())}:${pad(start.getMinutes())}`;
+                  const endTime = `${pad(end.getHours())}:${pad(end.getMinutes())}`;
+
+                return `${month}/${day}（${weekday}） ${startTime}～${endTime}`;
+                })()}
+              </span>
+            </div>
+
+
+            <div class="info info-row">
+               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256">
+                <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm40-68a28,28,0,0,1-28,28h-4v8a8,8,0,0,1-16,0v-8H104a8,8,0,0,1,0-16h36a12,12,0,0,0,0-24H116a28,28,0,0,1,0-56h4V72a8,8,0,0,1,16,0v8h16a8,8,0,0,1,0,16H116a12,12,0,0,0,0,24h24A28,28,0,0,1,168,148Z"></path>
+              </svg>
+              <span>${act.venue_fee ?? 0} 元 ｜ ${typeLabel}</span>
+            </div>
+            <div class="footer-row">
+              <div>
+                <span class="label">場地資訊：</span>
+                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(act.location_name || "")}" target="_blank">Google 地圖</a>
+              </div>
+              <a href="/api/activities/details_page?id=${act.activity_id}${mid ? "&member_id=" + mid : ""}" class="detail-btn">查看詳情</a>
+            </div>
+            <div class="image-wrapper">
+              <img src="https://maps.googleapis.com/maps/api/streetview?size=300x150&location=${encodeURIComponent(act.location_name || "")}&key={{ api_key }}" alt="街景圖片" class="streetview-img"/>
+              ${total > 1 ? `
+                <a id="${uid}-prev" href="#" class="nav-btn prev">‹</a>
+                <a id="${uid}-next" href="#" class="nav-btn next">›</a>
+              ` : ``}
+            </div>
+            ${total > 1 ? `<div class="pagination">${index + 1}/${total}</div>` : ``}
+          </div>
+        `;
+
 
           infoWindow.setContent(content);
 

@@ -989,7 +989,9 @@ function loadMarkers(county, activityType = "all", time = "all") {
                 <h3 style="margin:0;font-size:18px;font-weight:700;color:#2c4975;">${act.title}</h3>
                 ${statusBadge}
               </div>
-              <div style="color:#666;font-size:13px;margin-bottom:6px;">${act.sport_type || ""} ｜ 不限</div>
+              <div style="color:#666;font-size:13px;margin-bottom:6px;">
+  ${act.sport_type || ""} ｜ 不限 ｜ 發起人：${act.organizer_name || "未知"}
+</div>
               <hr style="border:none;border-top:1px solid #eee;margin:6px 0;">
               <div style="font-size:14px;margin-bottom:4px;">📍 ${act.location_name || ""}</div>
               <div style="font-size:14px;margin-bottom:4px;">

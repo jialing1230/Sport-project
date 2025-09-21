@@ -6,6 +6,7 @@ from app.database import get_db
 from app.models.activity import Activity
 from app.models.sport_type import SportType
 from sqlalchemy import extract
+from app.models.member import Member
 
 map_bp = Blueprint("map", __name__)
 
@@ -78,6 +79,7 @@ def get_active_markers():
                 "venue_fee": float(a.venue_fee) if a.venue_fee is not None else 0,
                 "status": a.status,
                 "sport_type": a.sport_type.name if a.sport_type else "未分類",
+                "organizer_name": a.organizer.name if a.organizer_id else "未知",
                 "type": a.type  # ✅ 新增這一行（最重要）
             })
 
@@ -145,6 +147,7 @@ def get_markers_by_county():
                 "venue_fee": float(a.venue_fee) if a.venue_fee is not None else 0,
                 "status": a.status,
                 "sport_type": a.sport_type.name if a.sport_type else "未分類",
+                "organizer_name": a.organizer.name if a.organizer_id else "未知",
                 "type": a.type
             })
 

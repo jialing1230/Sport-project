@@ -1193,16 +1193,17 @@ if (countyName === 'all') {
       map.setZoom(17);
 
       google.maps.event.addListenerOnce(searchInfoWindow, "closeclick", () => {
-        if (searchMarker) {
-          searchMarker.setMap(null);
-          searchMarker = null;
-        }
-        searchInfoWindow.close();
-        searchInfoWindow = null;
-        input.value = "";
-        map.setCenter({ lat: 25.033964, lng: 121.562321 });
-        map.setZoom(15);
-      });
+  if (searchMarker) {
+    searchMarker.setMap(null);
+    searchMarker = null;
+  }
+  if (searchInfoWindow) {
+    searchInfoWindow.close();
+    searchInfoWindow = null;
+  }
+  input.value = "";
+  // ❌ 不要重設地圖中心與縮放
+});
     } else {
       // ⚠️ 找不到地標 → fallback 用 Geocoder
       const geocoder = new google.maps.Geocoder();

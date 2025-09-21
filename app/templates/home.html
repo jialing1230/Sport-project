@@ -984,7 +984,7 @@ function loadMarkers(county, activityType = "all", time = "all") {
               ${new Date(activity.end_time).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}
             </div>
             <div style="font-size:14px; margin-bottom:4px;">
-              💲 ${activity.price || 0} 元 ｜ ${activity.type === "class" ? "訓練課程" : "一般活動"}
+              💲 ${activity.venue_fee || 0} 元 ｜ ${activity.type === "class" ? "訓練課程" : "一般活動"}
             </div>
 
             <div style="margin-top:8px; font-size:13px; color:#2c4975; display:flex; justify-content:space-between; align-items:center;">

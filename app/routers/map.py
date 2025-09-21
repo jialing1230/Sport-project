@@ -75,6 +75,7 @@ def get_active_markers():
                 "current_participants": a.current_participants,
                 "max_participants": a.max_participants,
                 "location_name": a.location_name,
+                "venue_fee": float(a.venue_fee) if a.venue_fee is not None else 0,
                 "status": a.status,
                 "sport_type": a.sport_type.name if a.sport_type else "未分類",
                 "type": a.type  # ✅ 新增這一行（最重要）
@@ -141,6 +142,7 @@ def get_markers_by_county():
                 "current_participants": a.current_participants,
                 "max_participants": a.max_participants,
                 "location_name": a.location_name,
+                "venue_fee": float(a.venue_fee) if a.venue_fee is not None else 0,
                 "status": a.status,
                 "sport_type": a.sport_type.name if a.sport_type else "未分類",
                 "type": a.type

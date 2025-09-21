@@ -934,92 +934,115 @@ timeOptions.forEach(option => {
 
 // 🆕 新增這個函式
 function loadMarkers(county, activityType = "all", time = "all") {
-  // 清除舊有標記
-  markers.forEach(marker => marker.setMap(null));
+  // 1) 清除舊標記
+  markers.forEach(m => m.setMap(null));
   markers = [];
 
   const url = `/api/map/markers/by-county?county=${county}&type=${activityType}&time=${time}`;
+
   fetch(url)
-    .then(response => response.json())
-    .then(data => {
-      data.forEach(activity => {
-        const iconUrl =
-          activity.type === "class"
-            ? "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
-            : "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
+    .then(res => res.json())
+    .then(raw => {
+      // 2) 依地址分組（同地址只顯示一顆 marker）
+      const groups = {};
+      raw.forEach(a => {
+        const key = (a.location_name && a.location_name.trim());
+        (groups[key] ||= []).push(a);
+      });
+
+      // 3) 每組產生一顆 marker，InfoWindow 內做分頁
+      Object.values(groups).forEach(group => {
+        group.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
+
+        const pos = {
+          lat: parseFloat(group[0].location_lat),
+          lng: parseFloat(group[0].location_lng),
+        };
+
+        const iconUrl = group.every(x => x.type === "class")
+          ? "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+          : "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
 
         const marker = new google.maps.Marker({
-          position: {
-            lat: parseFloat(activity.location_lat),
-            lng: parseFloat(activity.location_lng),
-          },
-          map: map,
-          title: activity.title,
+          position: pos,
+          map,
           icon: iconUrl,
+          title: group[0].location_name || group[0].title,
         });
 
-        const typeLabel = activity.type === "class" ? "訓練課程" : "一般活動";
+        const infoWindow = new google.maps.InfoWindow({ content: "" });
+        let index = 0;
+        const uid = "g" + Math.random().toString(36).slice(2, 9);
 
-        const content = `
-          <div class="map-info-card" style="font-family: 'Noto Sans TC', sans-serif; width: 300px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-              <h3 style="margin:0; font-size:18px; font-weight:700; color:#2c4975;">${activity.title}</h3>
-              <span style="background-color:${activity.status === "open" ? "#fea3a8" : "#ccc"}; color:#fff; font-size:12px; padding:2px 6px; border-radius:6px;">
-                ${activity.status === "open" ? "開放報名" : "已截止"}
-              </span>
-            </div>
+        const render = () => {
+          const act = group[index];
+          const total = group.length;
+          const typeLabel = act.type === "class" ? "訓練課程" : "一般活動";
+          const statusBadge =
+            `<span style="background-color:${act.status === "open" ? "#fea3a8" : "#ccc"};color:#fff;font-size:12px;padding:2px 6px;border-radius:6px;">
+               ${act.status === "open" ? "開放報名" : "已截止"}
+             </span>`;
 
-            <div style="color:#666; font-size:13px; margin-bottom:6px;">
-              ${activity.sport_type} ｜ 不限 ｜ 由 ${activity.organizer_name || "主辦人"} 發起
-            </div>
-
-            <hr style="border:none; border-top:1px solid #eee; margin:6px 0;">
-
-            <div style="font-size:14px; margin-bottom:4px;">
-              📍 ${activity.location_name}
-            </div>
-            <div style="font-size:14px; margin-bottom:4px;">
-              🕒 ${new Date(activity.start_time).toLocaleDateString("zh-TW", { month: "numeric", day: "numeric", weekday: "short" })} 
-              ${new Date(activity.start_time).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}～
-              ${new Date(activity.end_time).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}
-            </div>
-            <div style="font-size:14px; margin-bottom:4px;">
-              💲 ${activity.venue_fee || 0} 元 ｜ ${activity.type === "class" ? "訓練課程" : "一般活動"}
-            </div>
-
-            <div style="margin-top:8px; font-size:13px; color:#2c4975; display:flex; justify-content:space-between; align-items:center;">
-              <div>
-                <span class="label">場地資訊：</span>
-                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(activity.location_name)}" 
-                  target="_blank" style="color:#64bcd0; text-decoration:none;">Google 地圖</a>
+          const content = `
+            <div class="map-info-card" style="font-family:'Noto Sans TC',sans-serif;width:300px;position:relative;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <h3 style="margin:0;font-size:18px;font-weight:700;color:#2c4975;">${act.title}</h3>
+                ${statusBadge}
               </div>
-              <a href="/api/activities/details_page?id=${activity.activity_id}${mid ? '&member_id=' + mid : ''}"
-   style="padding:4px 10px; font-size:12px; background-color:#64bcd0; color:#fff; border-radius:6px; text-decoration:none;">
-  查看詳情
-</a>
+              <div style="color:#666;font-size:13px;margin-bottom:6px;">${act.sport_type || ""} ｜ 不限</div>
+              <hr style="border:none;border-top:1px solid #eee;margin:6px 0;">
+              <div style="font-size:14px;margin-bottom:4px;">📍 ${act.location_name || ""}</div>
+              <div style="font-size:14px;margin-bottom:4px;">
+                🕒 ${new Date(act.start_time).toLocaleDateString("zh-TW",{month:"numeric",day:"numeric",weekday:"short"})}
+                ${new Date(act.start_time).toLocaleTimeString("zh-TW",{hour:"2-digit",minute:"2-digit"})}～
+                ${new Date(act.end_time).toLocaleTimeString("zh-TW",{hour:"2-digit",minute:"2-digit"})}
+              </div>
+              <div style="font-size:14px;margin-bottom:4px;">💲 ${act.venue_fee ?? 0} 元 ｜ ${typeLabel}</div>
+              <div style="margin-top:8px;font-size:13px;color:#2c4975;display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                  <span class="label">場地資訊：</span>
+                  <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(act.location_name || "")}"
+                     target="_blank" style="color:#64bcd0;text-decoration:none;">Google 地圖</a>
+                </div>
+                <a href="/api/activities/details_page?id=${act.activity_id}${mid ? "&member_id=" + mid : ""}"
+                   style="padding:4px 10px;font-size:12px;background-color:#64bcd0;color:#fff;border-radius:6px;text-decoration:none;">查看詳情</a>
+              </div>
+              <div style="position:relative;margin-top:6px;">
+                <img src="https://maps.googleapis.com/maps/api/streetview?size=300x150&location=${encodeURIComponent(act.location_name || "")}&key={{ api_key }}"
+                     alt="街景圖片" style="width:100%;border-radius:8px;"/>
+                ${total > 1 ? `
+                  <a id="${uid}-prev" href="#"
+                     style="position:absolute;left:-14px;top:50%;transform:translateY(-50%);font-size:22px;text-decoration:none;">‹</a>
+                  <a id="${uid}-next" href="#"
+                     style="position:absolute;right:-14px;top:50%;transform:translateY(-50%);font-size:22px;text-decoration:none;">›</a>
+                ` : ``}
+              </div>
+              ${total > 1 ? `<div style="text-align:center;margin-top:6px;font-size:12px;color:#666;">${index + 1}/${total}</div>` : ``}
             </div>
+          `;
 
-            <img src="https://maps.googleapis.com/maps/api/streetview?size=300x150&location=${encodeURIComponent(activity.location_name)}&key={{ api_key }}" 
-              alt="街景圖片" style="margin-top:6px; width:100%; border-radius:8px;" />
+          infoWindow.setContent(content);
 
-            </div>
-          </div>
-        `;
-
-
-        const infoWindow = new google.maps.InfoWindow({
-          content: content,
-        });
+          google.maps.event.addListenerOnce(infoWindow, "domready", () => {
+            const prev = document.getElementById(`${uid}-prev`);
+            const next = document.getElementById(`${uid}-next`);
+            if (prev) prev.addEventListener("click", e => { e.preventDefault(); index = (index - 1 + total) % total; render(); });
+            if (next) next.addEventListener("click", e => { e.preventDefault(); index = (index + 1) % total; render(); });
+          });
+        };
 
         marker.addListener("click", () => {
-          openInfoWindows.push(infoWindow);  // ⬅️ 加這行
-          infoWindow.open(map, marker);});
+          index = 0;
+          render();
+          infoWindow.open(map, marker);
+          openInfoWindows.push(infoWindow);
+        });
 
         markers.push(marker);
       });
     })
-    .catch(error => {
-      console.error("載入活動標記失敗", error);
+    .catch(err => {
+      console.error("載入活動標記失敗", err);
     });
 }
     </script>

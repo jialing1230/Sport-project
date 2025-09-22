@@ -656,6 +656,7 @@
           justify-content: space-between; /* 標題靠左，標籤靠右 */
           align-items: center;            /* 垂直置中 */
           margin-bottom: 8px;
+          margin-top: -6px;
         }
 
         /* 開放報名 → 粉紅 */
@@ -672,6 +673,7 @@
           color: #2c4975;
           font-size: 16px;
           margin-bottom: 6px;
+          margin-top: -4px;
           font-weight: 400;
 
         
@@ -680,7 +682,7 @@
         .map-info-card hr {
           border: none;
           border-top: 1px solid #64bcd0;
-          margin: 10px 0;
+          margin: 8px 0;
         }
 
         .map-info-card .info {
@@ -691,30 +693,50 @@
 
         .map-info-card .footer-row {
           margin-top: 8px;
-          font-size: 13px;
+          font-size: 16px;
           color: #2c4975;
           display: flex;
           justify-content: space-between;
           align-items: center;
+          font-weight: 400;
         }
 
         .map-info-card .footer-row a {
           color: #64bcd0;
           text-decoration: none;
         }
+        /* 左邊 label */
+        .map-info-card .footer-row .label {
+          margin-right: 4px;
+          color: #2c4975;
+          font-weight: 500;
+        }
 
-        .map-info-card .detail-btn {
-          padding: 4px 10px;
-          font-size: 12px;
-          background-color: #64bcd0;
-          color: #fff;
-          border-radius: 6px;
+        /* Google 地圖連結 */
+        .map-info-card .footer-row .map-link {
+          color: #64bcd0;
+          text-decoration: none;
+          margin-right: auto;   /* 把「Google 地圖」推到左邊 */
+        }
+        .map-info-card .footer-row .map-link:hover {
+          text-decoration: underline;
+        }
+
+        /* 查看詳情連結 */
+        .map-info-card .footer-row .detail-link {
+          color: #2c4975;
+          font-weight: 500;
           text-decoration: none;
         }
+        .map-info-card .footer-row .detail-link:hover {
+          color: #40a9b5;
+          text-decoration: underline;
+        }
+
 
         .map-info-card .image-wrapper {
           position: relative;
-          margin-top: 6px;
+          margin-top: 10px;
         }
 
         .map-info-card .streetview-img {
@@ -724,24 +746,76 @@
 
         .map-info-card .nav-btn {
           position: absolute;
-          top: 50%;
+          top: 25%;
           transform: translateY(-50%);
-          font-size: 22px;
+          font-size: 26px;
           text-decoration: none;
           color: #2c4975;
-          background: rgba(255, 255, 255, 0.7);
+          background: #fff;
           padding: 2px 6px;
           border-radius: 50%;
+          line-height: 4;  
+        }
+        .map-info-card .nav-btn:hover {
+          color: #64bcd0;           /* 箭頭變白 */
+          transition: all 0.3s ease; /* 平滑過渡 */
         }
 
-        .map-info-card .nav-btn.prev { left: -14px; }
-        .map-info-card .nav-btn.next { right: -14px; }
+        .map-info-card .nav-btn.prev { left: 4px; }
+        .map-info-card .nav-btn.next { right: 4px; }
 
         .map-info-card .pagination {
-          text-align: center;
-          margin-top: 6px;
-          font-size: 12px;
+          position: absolute;
+          top: 6px;            /* ✅ 與叉叉同高，可微調 */
+          left: 50%;           /* 水平置中 */
+          transform: translateX(-50%);
+          font-size: 13px;
           color: #666;
+          font-weight: 500;
+          background: none;    /* 拿掉底色，讓它看起來像原生 InfoWindow 樣式 */
+        }
+
+
+        /* 地點 */
+        .location-icon { margin-right: 6px; position: relative; top: 5px; }
+        .location-text { position: relative; top: -2px; }
+
+        /* 時間 */
+        .time-icon { margin-right: 6px; position: relative; top: 2px; }
+        .time-text { position: relative; top: 4px; }
+
+        /* 費用 */
+        .fee-icon { margin-right: 6px; position: relative; top: 5px; }
+        .fee-text { position: relative; top: -2px; }
+        .gm-style-iw .top-pagination {
+          position: absolute;
+          top: 20px;              /* 與叉叉同高，可微調 */
+          left: 50%;             /* 水平置中 */
+          transform: translateX(-50%);
+          font-size: 13px;
+          color: #666;
+          font-weight: 500;
+          pointer-events: none;  /* 不影響點擊 */
+        }
+
+        .gm-style-iw .top-dots {
+          position: absolute;
+          top: 20px;             /* 與叉叉同一高度 */
+          left: 50%;             /* 水平置中 */
+          transform: translateX(-50%);
+          display: flex;
+          gap: 6px;              /* 點與點之間距離 */
+        }
+
+        .gm-style-iw .top-dots .dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #ccc;       /* 預設灰色 */
+        }
+
+        .gm-style-iw .top-dots .dot.active {
+          background: #2c4975;    /* 目前頁 → 深藍 */
         }
 
     </style>
@@ -1070,6 +1144,7 @@ function loadMarkers(county, activityType = "all", time = "all") {
 
         const content = `
           <div class="map-info-card">
+
             <div class="header-row">
               <h3 class="title">${act.title}</h3>
               ${statusBadge}
@@ -1078,21 +1153,21 @@ function loadMarkers(county, activityType = "all", time = "all") {
               ${act.sport_type || ""} ｜ 不限 ｜ 由 ${act.organizer_name || "未知"} 發起
             </div>
             <hr>
-            <div class="info info-row">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256" style="margin-top: 2px">
+            <div class="info info-row location-row">
+            <svg class="icon location-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256">
               <path d="M128,64a40,40,0,1,0,40,40A40,40,0,0,0,128,64Zm0,64a24,24,0,1,1,24-24A24,24,0,0,1,128,128Zm0-112a88.1,88.1,0,0,0-88,88c0,31.4,14.51,64.68,42,96.25a254.19,254.19,0,0,0,41.45,38.3,8,8,0,0,0,9.18,0A254.19,254.19,0,0,0,174,200.25c27.45-31.57,42-64.85,42-96.25A88.1,88.1,0,0,0,128,16Zm0,206c-16.53-13-72-60.75-72-118a72,72,0,0,1,144,0C200,161.23,144.53,209,128,222Z"></path>
             </svg>
-              <span>${act.location_name || ""}</span>
+              <span class="text location-text">${act.location_name || ""}</span>
             </div>
-            <div class="info info-row">
-              <svg xmlns="http://www.w3.org/2000/svg" 
+            <div class="info info-row time-row">
+              <svg class="icon time-icon" xmlns="http://www.w3.org/2000/svg" 
                   width="24" height="24" 
                   fill="#2c4975" 
                   viewBox="0 0 256 256"
                   style="margin-right:8px; vertical-align:middle;">
                 <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"></path>
               </svg>
-              <span>
+              <span class="text time-text">
                 ${(() => {
                   const start = new Date(act.start_time);
                   const end = new Date(act.end_time);
@@ -1113,28 +1188,27 @@ function loadMarkers(county, activityType = "all", time = "all") {
             </div>
 
 
-            <div class="info info-row">
-               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256">
+            <div class="info info-row fee-row">
+               <svg class="icon fee-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256">
                 <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm40-68a28,28,0,0,1-28,28h-4v8a8,8,0,0,1-16,0v-8H104a8,8,0,0,1,0-16h36a12,12,0,0,0,0-24H116a28,28,0,0,1,0-56h4V72a8,8,0,0,1,16,0v8h16a8,8,0,0,1,0,16H116a12,12,0,0,0,0,24h24A28,28,0,0,1,168,148Z"></path>
               </svg>
-              <span>${act.venue_fee ?? 0} 元 ｜ ${typeLabel}</span>
+              <span class="text fee-text">${act.venue_fee ?? 0} 元 ｜ ${typeLabel}</span>
             </div>
-            <div class="footer-row">
-              <div>
-                <span class="label">場地資訊：</span>
-                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(act.location_name || "")}" target="_blank">Google 地圖</a>
-              </div>
-              <a href="/api/activities/details_page?id=${act.activity_id}${mid ? "&member_id=" + mid : ""}" class="detail-btn">查看詳情</a>
-            </div>
+           <div class="footer-row">
+            <span class="label">場地資訊：</span>
+            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(act.location_name || "")}" 
+              target="_blank" class="map-link">Google 地圖</a>
+            <a href="/api/activities/details_page?id=${act.activity_id}${mid ? "&member_id=" + mid : ""}" 
+              class="detail-link">查看詳情 ›</a>
+          </div>
             <div class="image-wrapper">
               <img src="https://maps.googleapis.com/maps/api/streetview?size=300x150&location=${encodeURIComponent(act.location_name || "")}&key={{ api_key }}" alt="街景圖片" class="streetview-img"/>
+            </div>
               ${total > 1 ? `
                 <a id="${uid}-prev" href="#" class="nav-btn prev">‹</a>
                 <a id="${uid}-next" href="#" class="nav-btn next">›</a>
               ` : ``}
-            </div>
-            ${total > 1 ? `<div class="pagination">${index + 1}/${total}</div>` : ``}
-          </div>
+
         `;
 
 
@@ -1145,6 +1219,40 @@ function loadMarkers(county, activityType = "all", time = "all") {
             const next = document.getElementById(`${uid}-next`);
             if (prev) prev.addEventListener("click", e => { e.preventDefault(); index = (index - 1 + total) % total; render(); });
             if (next) next.addEventListener("click", e => { e.preventDefault(); index = (index + 1) % total; render(); });
+         // 🆕 插入分頁到 InfoWindow 頂部
+            const iwOuter = document.querySelector(".gm-style-iw");
+            if (iwOuter) {
+              // 避免重複插入，先清掉舊的
+              const old = iwOuter.querySelector(".top-pagination");
+              if (old) old.remove();
+
+              if (total > 1) {
+                const pagination = document.createElement("div");
+                pagination.className = "top-pagination";
+                // 🆕 插入分頁點點
+                const iwOuter = document.querySelector(".gm-style-iw");
+                if (iwOuter) {
+                  const old = iwOuter.querySelector(".top-dots");
+                  if (old) old.remove();
+
+                  if (total > 1) {
+                    const dots = document.createElement("div");
+                    dots.className = "top-dots";
+
+                    for (let i = 0; i < total; i++) {
+                      const dot = document.createElement("span");
+                      dot.className = "dot" + (i === index ? " active" : "");
+                      dots.appendChild(dot);
+                    }
+
+                    iwOuter.appendChild(dots);
+                  }
+                }
+
+                iwOuter.appendChild(pagination);
+              }
+            }
+
           });
         };
 

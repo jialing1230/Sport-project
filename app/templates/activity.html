@@ -1737,7 +1737,7 @@
                   return `
                     <span class="price-and-tag">
                       <span class="price-wrapper">
-                        <span class="original-price">${activity.venue_fee} 元</span>
+                        <span class="original-price">${activity.venue_fee === 0 ? '免費' : activity.venue_fee + ' 元'}</span>
                         <span class="discount-price">${newPrice} 元</span>
                       </span>
                       <span style="margin: 0 -10px;">｜</span>
@@ -1750,7 +1750,7 @@
                   `;
                 } else if (isTraining) {
                   return `
-                    ${activity.venue_fee} 元 ｜ 
+                    ${!activity.venue_fee || activity.venue_fee === 0 ? '免費' : activity.venue_fee + ' 元'} ｜ 
                     <span class="custom-card-tag training">
                       ${activity.type === 'class'
                         ? '訓練課程｜單堂'
@@ -1761,7 +1761,7 @@
 
                   // 一般活動
                   return `
-                    ${activity.venue_fee} 元 ｜ 
+                     ${!activity.venue_fee || activity.venue_fee === 0 ? '免費' : activity.venue_fee + ' 元'} ｜ 
                     <span class="custom-card-tag general">一般活動</span>
                   `;
               })()}

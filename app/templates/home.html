@@ -407,11 +407,11 @@
 
         /* 單一篩選按鈕樣式 */
         .filter-btn {
-          padding: 1px 10px;
+          padding: 0px 10px;
           background-color: #ffffff;
           color: var(--deep-blue);
           border: 1px solid #1b3a6e;
-          border-radius: 10px;
+          border-radius: 8px;
           font-size: 14px;
           font-weight: 500; /* 或 600, 看你要多粗 */
           white-space: nowrap;
@@ -746,7 +746,7 @@
 
         .map-info-card .nav-btn {
           position: absolute;
-          top: 25%;
+          top:34%;
           transform: translateY(-50%);
           font-size: 26px;
           text-decoration: none;
@@ -817,6 +817,98 @@
         .gm-style-iw .top-dots .dot.active {
           background: #2c4975;    /* 目前頁 → 深藍 */
         }
+        /* 向左滑出 */
+        .map-info-card.slide-out-left {
+          animation: slideOutLeft 0.35s forwards;
+        }
+        @keyframes slideOutLeft {
+          from { opacity: 1; transform: translateX(0); }
+          to   { opacity: 0; transform: translateX(-100%); }
+        }
+
+        /* 從右滑入 */
+        .map-info-card.slide-in-right {
+          animation: slideInRight 0.35s forwards;
+        }
+        @keyframes slideInRight {
+          from { opacity: 0; transform: translateX(100%); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+
+        /* 向右滑出 */
+        .map-info-card.slide-out-right {
+          animation: slideOutRight 0.35s forwards;
+        }
+        @keyframes slideOutRight {
+          from { opacity: 1; transform: translateX(0); }
+          to   { opacity: 0; transform: translateX(100%); }
+        }
+
+        /* 從左滑入 */
+        .map-info-card.slide-in-left {
+          animation: slideInLeft 0.35s forwards;
+        }
+        @keyframes slideInLeft {
+          from { opacity: 0; transform: translateX(-100%); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        /* 訓練課程用深藍底白字 */
+        .map-info-card .class-badge {
+          display: inline-block;
+          margin-left: 8px;
+          padding: 2px 8px;
+          background-color: #2c4975;  /* 深藍底 */
+          color: #fff;                /* 白字 */
+          font-size: 16px;
+        
+          line-height: 1.6;
+          white-space: nowrap;
+        }
+
+        /* 一般活動 → 只有深藍字，沒有底色 */
+        .map-info-card .activity-badge {
+          margin-left: 8px;
+          color: #2c4975;             /* 深藍字 */
+          font-size: 16px;
+    
+          line-height: 1.6;
+          white-space: nowrap;
+        }
+        .fee-row {
+          display: flex;
+          align-items: center;  /* 左邊圖示 + 右邊內容同列 */
+          gap: 8px;
+        }
+
+        .fee-text {
+          display: flex;
+          align-items: center;  /* 價格組 + 類型標籤同列 */
+          gap: 2px;
+          margin-top: 8px;
+        }
+
+        .fee-prices {
+          display: flex;
+          flex-direction: column; /* 原價在上、優惠價在下 */
+          align-items: flex-start;
+          margin-right: 6px;
+          
+        }
+
+        .original-price {
+          text-decoration: line-through;
+          color: #888;
+          font-size: 13px;
+          line-height: 1.2;
+        }
+
+        .discount-price {
+          color: #fea3a8;
+          font-weight: 600;
+          font-size: 16px;
+          line-height: 1.2;
+        }
+
 
     </style>
     
@@ -916,7 +1008,7 @@
                 <li class="county-option" data-county="連江縣">連江縣</li>
               </ul>
             </div>
-          </button>
+          
         <button class="filter-btn" data-type="activity" id="activity-btn">
             <span class="label">活動類型</span>
             <span class="arrow"></span>
@@ -1014,6 +1106,23 @@
       let selectedActivityType = "all";
       let selectedTime = "all";
 
+      // ✅ 共用：關閉所有下拉/搜尋
+      function closeAllDropdowns() {
+        document.querySelector('.county-dropdown')?.classList.add('hidden');
+        document.querySelector('.activity-dropdown')?.classList.add('hidden');
+        document.getElementById('time-dropdown')?.classList.add('hidden');
+
+        const titleBox = document.getElementById('title-search-container');
+        if (titleBox) titleBox.style.display = 'none';
+      }
+
+      // ✅ 共用：只打開自己
+      function toggleDropdown(dropdownEl) {
+        const willOpen = dropdownEl.classList.contains('hidden');
+        closeAllDropdowns();
+        if (willOpen) dropdownEl.classList.remove('hidden');
+      }
+
 function initMap() {
   const center = { lat: 25.033964, lng: 121.562321 };
   map = new google.maps.Map(document.getElementById("map"), {
@@ -1041,9 +1150,11 @@ if (searchIcon) {
 
   let selectedActivityType = "all"; // 🆕 加一個全域變數來記錄
 
-  activityBtn.addEventListener('click', () => {
-    activityDropdown.classList.toggle('hidden');
-  });
+activityBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  toggleDropdown(activityDropdown);
+});
+
 
   activityOptions.forEach(option => {
     option.addEventListener('click', () => {
@@ -1069,9 +1180,11 @@ const timeDropdown = document.getElementById("time-dropdown");
 const timeOptions = document.querySelectorAll('.time-option');
 
 
-timeBtn.addEventListener("click", () => {
-  timeDropdown.classList.toggle("hidden");
+timeBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  toggleDropdown(timeDropdown);
 });
+
 
 timeOptions.forEach(option => {
   option.addEventListener('click', () => {
@@ -1135,7 +1248,41 @@ function loadMarkers(county, activityType = "all", time = "all") {
         const render = () => {
           const act = group[index];
           const total = group.length;
-          const typeLabel = act.type === "class" ? "訓練課程" : "一般活動";
+        // 判斷是否為課程與堂數（盡量相容你後端欄位命名）
+          const isClass = act.type === "class";        // 單堂課程
+          const isMulti = act.type === "muti_class";   // 多堂課程
+          const clsCount = (
+            act.class_count ??
+            act.total_sessions ??
+            act.sessions ??
+            act.class_total ??
+            (Array.isArray(act.course_schedules) ? act.course_schedules.length : null)
+          );
+            const originalFee = act.venue_fee ?? 0;
+            const discountFee = Math.floor(originalFee * 0.8);
+
+          let feeHtml = `
+            <div class="fee-prices">
+              <span class="original-price">${originalFee} 元</span>
+              <span class="discount-price">${discountFee} 元</span>
+            </div>
+          `;
+
+
+          let feeSuffixHtml = "";
+          if (act.type === "class") {
+            // 單堂課程
+            feeSuffixHtml = `｜<span class="class-badge">訓練課程｜單堂</span>`;
+          } else if (act.type === "muti_class") {
+            // 多堂課程
+            feeSuffixHtml = `｜<span class="class-badge">訓練課程｜共 ${act.class_count ?? "?"} 堂</span>`;
+          } else {
+            // 一般活動
+            feeSuffixHtml = `｜<span class="activity-badge">一般活動</span>`;
+          }
+
+
+
           const statusBadge = `
             <span class="status-badge ${act.status === "open" ? "open" : "closed"}">
               ${act.status === "open" ? "開放報名" : "已截止"}
@@ -1192,8 +1339,11 @@ function loadMarkers(county, activityType = "all", time = "all") {
                <svg class="icon fee-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256">
                 <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm40-68a28,28,0,0,1-28,28h-4v8a8,8,0,0,1-16,0v-8H104a8,8,0,0,1,0-16h36a12,12,0,0,0,0-24H116a28,28,0,0,1,0-56h4V72a8,8,0,0,1,16,0v8h16a8,8,0,0,1,0,16H116a12,12,0,0,0,0,24h24A28,28,0,0,1,168,148Z"></path>
               </svg>
-              <span class="text fee-text">${act.venue_fee ?? 0} 元 ｜ ${typeLabel}</span>
+             <div class="fee-text">
+              ${feeHtml}
+              ${feeSuffixHtml}
             </div>
+          </div>
            <div class="footer-row">
             <span class="label">場地資訊：</span>
             <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(act.location_name || "")}" 
@@ -1217,8 +1367,41 @@ function loadMarkers(county, activityType = "all", time = "all") {
           google.maps.event.addListenerOnce(infoWindow, "domready", () => {
             const prev = document.getElementById(`${uid}-prev`);
             const next = document.getElementById(`${uid}-next`);
-            if (prev) prev.addEventListener("click", e => { e.preventDefault(); index = (index - 1 + total) % total; render(); });
-            if (next) next.addEventListener("click", e => { e.preventDefault(); index = (index + 1) % total; render(); });
+            function switchPage(newIndex, direction) {
+              const card = document.querySelector(".map-info-card");
+              if (!card) return;
+
+              // 根據方向選擇動畫
+              const outClass = direction === "next" ? "slide-out-left" : "slide-out-right";
+              const inClass  = direction === "next" ? "slide-in-right" : "slide-in-left";
+
+              card.classList.add(outClass);
+
+              card.addEventListener("animationend", () => {
+                // 1. 刪掉舊卡片
+                index = newIndex;
+                render();
+
+                // 2. 對新卡片加進場動畫
+                const newCard = document.querySelector(".map-info-card");
+                newCard.classList.add(inClass);
+
+                newCard.addEventListener("animationend", () => {
+                  newCard.classList.remove(inClass);
+                }, { once: true });
+              }, { once: true });
+            }
+
+            if (prev) prev.addEventListener("click", e => { 
+              e.preventDefault();
+              switchPage((index - 1 + total) % total, "prev"); 
+            });
+            if (next) next.addEventListener("click", e => { 
+              e.preventDefault(); 
+              switchPage((index + 1) % total, "next"); 
+            });
+
+
          // 🆕 插入分頁到 InfoWindow 頂部
             const iwOuter = document.querySelector(".gm-style-iw");
             if (iwOuter) {
@@ -1242,8 +1425,19 @@ function loadMarkers(county, activityType = "all", time = "all") {
                     for (let i = 0; i < total; i++) {
                       const dot = document.createElement("span");
                       dot.className = "dot" + (i === index ? " active" : "");
+                      
+                      // 👉 點擊事件：根據目前 index 判斷方向
+                      dot.addEventListener("click", () => {
+                        if (i === index) return; // 點到自己就不動
+                        const direction = i > index ? "next" : "prev";
+                        switchPage(i, direction);
+                      });
+
                       dots.appendChild(dot);
                     }
+                    document.querySelectorAll(".gm-style-iw .dot").forEach((d, i) => {
+                      d.classList.toggle("active", i === index);
+                    });
 
                     iwOuter.appendChild(dots);
                   }
@@ -1252,16 +1446,36 @@ function loadMarkers(county, activityType = "all", time = "all") {
                 iwOuter.appendChild(pagination);
               }
             }
+            // 🆕 滑鼠移入/移出 InfoWindow 時控制關閉
+            const iw = document.querySelector(".gm-style-iw");
+            if (iw) {
+              iw.addEventListener("mouseenter", () => clearTimeout(closeTimer));
+              iw.addEventListener("mouseleave", () => scheduleClose());
+            }
 
           });
         };
 
-        marker.addListener("click", () => {
+        let closeTimer = null;
+
+        marker.addListener("mouseover", () => {
+          clearTimeout(closeTimer);
           index = 0;
           render();
           infoWindow.open(map, marker);
           openInfoWindows.push(infoWindow);
         });
+
+        marker.addListener("mouseout", () => scheduleClose());
+        function scheduleClose() {
+          clearTimeout(closeTimer);
+          closeTimer = setTimeout(() => {
+            // 若滑鼠已經移到 InfoWindow 上，就不要關
+            const iw = document.querySelector(".gm-style-iw");
+            if (!iw || !iw.matches(":hover")) infoWindow.close();
+          }, 200); // 200ms 緩衝，讓使用者有時間移到卡片上
+        }
+
 
         markers.push(marker);
       });
@@ -1375,9 +1589,11 @@ function loadMarkers(county, activityType = "all", time = "all") {
       };
       
       // 點擊「所有縣市」按鈕 → 顯示/隱藏下拉
-      countyBtn.addEventListener('click', () => {
-        countyDropdown.classList.toggle('hidden');
+      countyBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleDropdown(countyDropdown);
       });
+
       
       // 點選縣市後 → 移動地圖與更新按鈕文字
       countyOptions.forEach(option => {
@@ -1576,10 +1792,15 @@ if (matches.length === 1) {
     });
 }
 
-document.querySelector('[data-type="title"]').addEventListener('click', () => {
-  const container = document.getElementById('title-search-container');
-  container.style.display = (container.style.display === 'none') ? 'flex' : 'none';
+const titleBtn = document.querySelector('[data-type="title"]');
+titleBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  const box = document.getElementById('title-search-container');
+  const willOpen = (box.style.display === 'none' || !box.style.display);
+  closeAllDropdowns();
+  box.style.display = willOpen ? 'flex' : 'none';
 });
+
 
 // 點擊 InfoWindow 的叉叉後隱藏搜尋欄
 google.maps.event.addListener(map, 'click', () => {
@@ -1623,6 +1844,12 @@ google.maps.event.addListener(map, 'click', () => {
         // 5. 載入所有活動標記
         loadMarkers("all", "all", "all");
       });
+      // ✅ 點擊外部自動收合
+      document.addEventListener('click', (e) => {
+        const inside = e.target.closest('.filter-buttons');
+        if (!inside) closeAllDropdowns();
+      });
+
 </script>
   </body>
 </html>

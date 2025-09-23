@@ -1122,6 +1122,117 @@
         closeAllDropdowns();
         if (willOpen) dropdownEl.classList.remove('hidden');
       }
+      // === 共用：把活動資料渲染成同一套卡片 HTML ===
+      function buildInfoCardHTML(act, options = {}) {
+        const { nav = false, total = 1, uid = "" } = options;
+
+        const originalFee = (act.venue_fee ?? 0);
+        const discountFee = Math.max(0, Math.floor(originalFee * 0.8));
+
+        const feeHtml = `
+          <div class="fee-prices">
+            <span class="original-price">${originalFee} 元</span>
+            <span class="discount-price">${discountFee} 元</span>
+          </div>
+        `;
+
+        let feeSuffixHtml = "";
+        if (act.type === "class") {
+          feeSuffixHtml = `｜<span class="class-badge">訓練課程｜單堂</span>`;
+        } else if (act.type === "muti_class") {
+          const clsCount = (
+            act.class_count ??
+            act.total_sessions ??
+            act.sessions ??
+            act.class_total ??
+            (Array.isArray(act.course_schedules) ? act.course_schedules.length : null)
+          );
+          feeSuffixHtml = `｜<span class="class-badge">訓練課程｜共 ${clsCount ?? "?"} 堂</span>`;
+        } else {
+          feeSuffixHtml = `｜<span class="activity-badge">一般活動</span>`;
+        }
+
+        const statusBadge = `
+          <span class="status-badge ${act.status === "open" ? "open" : "closed"}">
+            ${act.status === "open" ? "開放報名" : "已截止"}
+          </span>`;
+
+        // 時間格式
+        const start = new Date(act.start_time);
+        const end = new Date(act.end_time);
+        const weekdays = ["日", "一", "二", "三", "四", "五", "六"];
+        const month = start.getMonth() + 1;
+        const day = start.getDate();
+        const weekday = weekdays[start.getDay()];
+        const pad = n => n.toString().padStart(2, "0");
+        const startTime = `${pad(start.getHours())}:${pad(start.getMinutes())}`;
+        const endTime = `${pad(end.getHours())}:${pad(end.getMinutes())}`;
+        const timeText = `${month}/${day}（${weekday}） ${startTime}～${endTime}`;
+
+        // 圖片（可視需求關閉）
+        const imageHTML = `
+          <div class="image-wrapper">
+            <img src="https://maps.googleapis.com/maps/api/streetview?size=300x150&location=${encodeURIComponent(act.location_name || "")}&key={{ api_key }}" alt="街景圖片" class="streetview-img"/>
+          </div>
+        `;
+
+        // 上一頁/下一頁（只有多筆同址分頁時才會出現）
+        const navHTML = (nav && total > 1)
+          ? `
+            <a id="${uid}-prev" href="#" class="nav-btn prev">‹</a>
+            <a id="${uid}-next" href="#" class="nav-btn next">›</a>
+          `
+          : ``;
+
+        // 卡片本體
+        return `
+          <div class="map-info-card">
+            <div class="header-row">
+              <h3 class="title">${act.title}</h3>
+              ${statusBadge}
+            </div>
+
+            <div class="subtitle">
+              ${act.sport_type || ""} ｜ 不限 ｜ 由 ${act.organizer_name || "未知"} 發起
+            </div>
+
+            <hr>
+
+            <div class="info info-row location-row">
+              <svg class="icon location-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256">
+                <path d="M128,64a40,40,0,1,0,40,40A40,40,0,0,0,128,64Zm0,64a24,24,0,1,1,24-24A24,24,0,0,1,128,128Zm0-112a88.1,88.1,0,0,0-88,88c0,31.4,14.51,64.68,42,96.25a254.19,254.19,0,0,0,41.45,38.3,8,8,0,0,0,9.18,0A254.19,254.19,0,0,0,174,200.25c27.45-31.57,42-64.85,42-96.25A88.1,88.1,0,0,0,128,16Zm0,206c-16.53-13-72-60.75-72-118a72,72,0,0,1,144,0C200,161.23,144.53,209,128,222Z"></path>
+              </svg>
+              <span class="text location-text">${act.location_name || ""}</span>
+            </div>
+
+            <div class="info info-row time-row">
+              <svg class="icon time-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256" style="margin-right:8px; vertical-align:middle;">
+                <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"></path>
+              </svg>
+              <span class="text time-text">${timeText}</span>
+            </div>
+
+            <div class="info info-row fee-row">
+              <svg class="icon fee-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256">
+                <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm40-68a28,28,0,0,1-28,28h-4v8a8,8,0,0,1-16,0v-8H104a8,8,0,0,1,0-16h36a12,12,0,0,0,0-24H116a28,28,0,0,1,0-56h4V72a8,8,0,0,1,16,0v8h16a8,8,0,0,1,0,16H116a12,12,0,0,0,0,24h24A28,28,0,0,1,168,148Z"></path>
+              </svg>
+              <div class="fee-text">
+                ${feeHtml}
+                ${feeSuffixHtml}
+              </div>
+            </div>
+
+            <div class="footer-row">
+              <span class="label">場地資訊：</span>
+              <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(act.location_name || "")}" target="_blank" class="map-link">Google 地圖</a>
+              <a href="/api/activities/details_page?id=${act.activity_id}${mid ? "&member_id=" + mid : ""}" class="detail-link">查看詳情 ›</a>
+            </div>
+
+            ${imageHTML}
+            ${navHTML}
+          </div>
+        `;
+      }
 
 function initMap() {
   const center = { lat: 25.033964, lng: 121.562321 };
@@ -1202,6 +1313,214 @@ timeOptions.forEach(option => {
     loadMarkers(countyToSend, selectedActivityType, selectedTime);
   });
 });
+// === 產生「同一地點的一組活動」的 Marker + InfoWindow（含分頁切換、頂部點點、滑入不關閉） ===
+function createMarkerForGroup(group) {
+  // 先把同地點這組依時間排序
+  group.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
+
+  const pos = {
+    lat: parseFloat(group[0].location_lat),
+    lng: parseFloat(group[0].location_lng),
+  };
+
+  const iconUrl = group.every(x => x.type === "class")
+    ? "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+    : "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
+
+  const marker = new google.maps.Marker({
+    position: pos,
+    map,
+    icon: iconUrl,
+    title: group[0].location_name || group[0].title,
+  });
+
+  const infoWindow = new google.maps.InfoWindow({ content: "" });
+  let index = 0;
+  const uid = "g" + Math.random().toString(36).slice(2, 9);
+
+  const render = () => {
+    const act = group[index];
+    const total = group.length;
+
+    const originalFee = act.venue_fee ?? 0;
+    const discountFee = Math.floor(originalFee * 0.8);
+
+    const feeHtml = `
+      <div class="fee-prices">
+        <span class="original-price">${originalFee} 元</span>
+        <span class="discount-price">${discountFee} 元</span>
+      </div>
+    `;
+
+    let feeSuffixHtml = "";
+    if (act.type === "class") {
+      feeSuffixHtml = `｜<span class="class-badge">訓練課程｜單堂</span>`;
+    } else if (act.type === "muti_class") {
+      feeSuffixHtml = `｜<span class="class-badge">訓練課程｜共 ${act.class_count ?? "?"} 堂</span>`;
+    } else {
+      feeSuffixHtml = `｜<span class="activity-badge">一般活動</span>`;
+    }
+
+    const statusBadge = `
+      <span class="status-badge ${act.status === "open" ? "open" : "closed"}">
+        ${act.status === "open" ? "開放報名" : "已截止"}
+      </span>`;
+
+    const content = `
+      <div class="map-info-card">
+        <div class="header-row">
+          <h3 class="title">${act.title}</h3>
+          ${statusBadge}
+        </div>
+        <div class="subtitle">
+          ${act.sport_type || ""} ｜ 不限 ｜ 由 ${act.organizer_name || "未知"} 發起
+        </div>
+        <hr>
+
+        <div class="info info-row location-row">
+          <svg class="icon location-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256">
+            <path d="M128,64a40,40,0,1,0,40,40A40,40,0,0,0,128,64Zm0,64a24,24,0,1,1,24-24A24,24,0,0,1,128,128Zm0-112a88.1,88.1,0,0,0-88,88c0,31.4,14.51,64.68,42,96.25a254.19,254.19,0,0,0,41.45,38.3,8,8,0,0,0,9.18,0A254.19,254.19,0,0,0,174,200.25c27.45-31.57,42-64.85,42-96.25A88.1,88.1,0,0,0,128,16Zm0,206c-16.53-13-72-60.75-72-118a72,72,0,0,1,144,0C200,161.23,144.53,209,128,222Z"></path>
+          </svg>
+          <span class="text location-text">${act.location_name || ""}</span>
+        </div>
+
+        <div class="info info-row time-row">
+          <svg class="icon time-icon" xmlns="http://www.w3.org/2000/svg" 
+              width="24" height="24" 
+              fill="#2c4975" 
+              viewBox="0 0 256 256"
+              style="margin-right:8px; vertical-align:middle;">
+            <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"></path>
+          </svg>
+          <span class="text time-text">
+            ${(() => {
+              const start = new Date(act.start_time);
+              const end = new Date(act.end_time);
+              const weekdays = ["日", "一", "二", "三", "四", "五", "六"];
+              const month = start.getMonth() + 1;
+              const day = start.getDate();
+              const weekday = weekdays[start.getDay()];
+              const pad = n => n.toString().padStart(2, "0");
+              const startTime = `${pad(start.getHours())}:${pad(start.getMinutes())}`;
+              const endTime = `${pad(end.getHours())}:${pad(end.getMinutes())}`;
+              return `${month}/${day}（${weekday}） ${startTime}～${endTime}`;
+            })()}
+          </span>
+        </div>
+
+        <div class="info info-row fee-row">
+          <svg class="icon fee-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256">
+            <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm40-68a28,28,0,0,1-28,28h-4v8a8,8,0,0,1-16,0v-8H104a8,8,0,0,1,0-16h36a12,12,0,0,0,0-24H116a28,28,0,0,1,0-56h4V72a8,8,0,0,1,16,0v8h16a8,8,0,0,1,0,16H116a12,12,0,0,0,0,24h24A28,28,0,0,1,168,148Z"></path>
+          </svg>
+          <div class="fee-text">
+            ${feeHtml}
+            ${feeSuffixHtml}
+          </div>
+        </div>
+
+        <div class="footer-row">
+          <span class="label">場地資訊：</span>
+          <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(act.location_name || "")}" 
+            target="_blank" class="map-link">Google 地圖</a>
+          <a href="/api/activities/details_page?id=${act.activity_id}${mid ? "&member_id=" + mid : ""}" 
+            class="detail-link">查看詳情 ›</a>
+        </div>
+
+        <div class="image-wrapper">
+          <img src="https://maps.googleapis.com/maps/api/streetview?size=300x150&location=${encodeURIComponent(act.location_name || "")}&key={{ api_key }}" alt="街景圖片" class="streetview-img"/>
+        </div>
+
+        ${total > 1 ? `
+          <a id="${uid}-prev" href="#" class="nav-btn prev">‹</a>
+          <a id="${uid}-next" href="#" class="nav-btn next">›</a>
+        ` : ``}
+      </div>
+    `;
+
+    infoWindow.setContent(content);
+
+    google.maps.event.addListenerOnce(infoWindow, "domready", () => {
+      const prev = document.getElementById(`${uid}-prev`);
+      const next = document.getElementById(`${uid}-next`);
+
+      function switchPage(newIndex, direction) {
+        const card = document.querySelector(".map-info-card");
+        if (!card) return;
+        const outClass = direction === "next" ? "slide-out-left" : "slide-out-right";
+        const inClass  = direction === "next" ? "slide-in-right" : "slide-in-left";
+
+        card.classList.add(outClass);
+        card.addEventListener("animationend", () => {
+          index = newIndex;
+          render();
+          const newCard = document.querySelector(".map-info-card");
+          newCard.classList.add(inClass);
+          newCard.addEventListener("animationend", () => {
+            newCard.classList.remove(inClass);
+          }, { once: true });
+        }, { once: true });
+      }
+
+      if (prev) prev.addEventListener("click", e => { 
+        e.preventDefault();
+        switchPage((index - 1 + total) % total, "prev"); 
+      });
+      if (next) next.addEventListener("click", e => { 
+        e.preventDefault(); 
+        switchPage((index + 1) % total, "next"); 
+      });
+
+      // 頂部分頁小點
+      const iwOuter = document.querySelector(".gm-style-iw");
+      if (iwOuter) {
+        const oldDots = iwOuter.querySelector(".top-dots");
+        if (oldDots) oldDots.remove();
+        if (total > 1) {
+          const dots = document.createElement("div");
+          dots.className = "top-dots";
+          for (let i = 0; i < total; i++) {
+            const dot = document.createElement("span");
+            dot.className = "dot" + (i === index ? " active" : "");
+            dot.addEventListener("click", () => {
+              if (i === index) return;
+              const direction = i > index ? "next" : "prev";
+              switchPage(i, direction);
+            });
+            dots.appendChild(dot);
+          }
+          iwOuter.appendChild(dots);
+        }
+      }
+
+      // 滑出才關閉
+      const iw = document.querySelector(".gm-style-iw");
+      if (iw) {
+        iw.addEventListener("mouseenter", () => clearTimeout(closeTimer));
+        iw.addEventListener("mouseleave", () => scheduleClose());
+      }
+    });
+  };
+
+  let closeTimer = null;
+  function scheduleClose() {
+    clearTimeout(closeTimer);
+    closeTimer = setTimeout(() => {
+      const iw = document.querySelector(".gm-style-iw");
+      if (!iw || !iw.matches(":hover")) infoWindow.close();
+    }, 200);
+  }
+
+  marker.addListener("mouseover", () => {
+    clearTimeout(closeTimer);
+    index = 0;
+    render();
+    infoWindow.open(map, marker);
+    openInfoWindows.push(infoWindow);
+  });
+  marker.addListener("mouseout", () => scheduleClose());
+
+  markers.push(marker);
+}
 
 // 🆕 新增這個函式
 function loadMarkers(county, activityType = "all", time = "all") {
@@ -1221,264 +1540,11 @@ function loadMarkers(county, activityType = "all", time = "all") {
         (groups[key] ||= []).push(a);
       });
 
-      // 3) 每組產生一顆 marker，InfoWindow 內做分頁
-      Object.values(groups).forEach(group => {
-        group.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
-
-        const pos = {
-          lat: parseFloat(group[0].location_lat),
-          lng: parseFloat(group[0].location_lng),
-        };
-
-        const iconUrl = group.every(x => x.type === "class")
-          ? "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
-          : "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
-
-        const marker = new google.maps.Marker({
-          position: pos,
-          map,
-          icon: iconUrl,
-          title: group[0].location_name || group[0].title,
-        });
-
-        const infoWindow = new google.maps.InfoWindow({ content: "" });
-        let index = 0;
-        const uid = "g" + Math.random().toString(36).slice(2, 9);
-
-        const render = () => {
-          const act = group[index];
-          const total = group.length;
-        // 判斷是否為課程與堂數（盡量相容你後端欄位命名）
-          const isClass = act.type === "class";        // 單堂課程
-          const isMulti = act.type === "muti_class";   // 多堂課程
-          const clsCount = (
-            act.class_count ??
-            act.total_sessions ??
-            act.sessions ??
-            act.class_total ??
-            (Array.isArray(act.course_schedules) ? act.course_schedules.length : null)
-          );
-            const originalFee = act.venue_fee ?? 0;
-            const discountFee = Math.floor(originalFee * 0.8);
-
-          let feeHtml = `
-            <div class="fee-prices">
-              <span class="original-price">${originalFee} 元</span>
-              <span class="discount-price">${discountFee} 元</span>
-            </div>
-          `;
+    Object.values(groups).forEach(group => {
+      createMarkerForGroup(group);  // ✅ 改呼叫共用的產生器
+    });
 
 
-          let feeSuffixHtml = "";
-          if (act.type === "class") {
-            // 單堂課程
-            feeSuffixHtml = `｜<span class="class-badge">訓練課程｜單堂</span>`;
-          } else if (act.type === "muti_class") {
-            // 多堂課程
-            feeSuffixHtml = `｜<span class="class-badge">訓練課程｜共 ${act.class_count ?? "?"} 堂</span>`;
-          } else {
-            // 一般活動
-            feeSuffixHtml = `｜<span class="activity-badge">一般活動</span>`;
-          }
-
-
-
-          const statusBadge = `
-            <span class="status-badge ${act.status === "open" ? "open" : "closed"}">
-              ${act.status === "open" ? "開放報名" : "已截止"}
-            </span>`;
-
-
-        const content = `
-          <div class="map-info-card">
-
-            <div class="header-row">
-              <h3 class="title">${act.title}</h3>
-              ${statusBadge}
-            </div>
-            <div class="subtitle">
-              ${act.sport_type || ""} ｜ 不限 ｜ 由 ${act.organizer_name || "未知"} 發起
-            </div>
-            <hr>
-            <div class="info info-row location-row">
-            <svg class="icon location-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256">
-              <path d="M128,64a40,40,0,1,0,40,40A40,40,0,0,0,128,64Zm0,64a24,24,0,1,1,24-24A24,24,0,0,1,128,128Zm0-112a88.1,88.1,0,0,0-88,88c0,31.4,14.51,64.68,42,96.25a254.19,254.19,0,0,0,41.45,38.3,8,8,0,0,0,9.18,0A254.19,254.19,0,0,0,174,200.25c27.45-31.57,42-64.85,42-96.25A88.1,88.1,0,0,0,128,16Zm0,206c-16.53-13-72-60.75-72-118a72,72,0,0,1,144,0C200,161.23,144.53,209,128,222Z"></path>
-            </svg>
-              <span class="text location-text">${act.location_name || ""}</span>
-            </div>
-            <div class="info info-row time-row">
-              <svg class="icon time-icon" xmlns="http://www.w3.org/2000/svg" 
-                  width="24" height="24" 
-                  fill="#2c4975" 
-                  viewBox="0 0 256 256"
-                  style="margin-right:8px; vertical-align:middle;">
-                <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"></path>
-              </svg>
-              <span class="text time-text">
-                ${(() => {
-                  const start = new Date(act.start_time);
-                  const end = new Date(act.end_time);
-
-                  const weekdays = ["日", "一", "二", "三", "四", "五", "六"];
-
-                  const month = start.getMonth() + 1;
-                  const day = start.getDate();
-                  const weekday = weekdays[start.getDay()];
-
-                  const pad = n => n.toString().padStart(2, "0");
-                  const startTime = `${pad(start.getHours())}:${pad(start.getMinutes())}`;
-                  const endTime = `${pad(end.getHours())}:${pad(end.getMinutes())}`;
-
-                return `${month}/${day}（${weekday}） ${startTime}～${endTime}`;
-                })()}
-              </span>
-            </div>
-
-
-            <div class="info info-row fee-row">
-               <svg class="icon fee-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#2c4975" viewBox="0 0 256 256">
-                <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm40-68a28,28,0,0,1-28,28h-4v8a8,8,0,0,1-16,0v-8H104a8,8,0,0,1,0-16h36a12,12,0,0,0,0-24H116a28,28,0,0,1,0-56h4V72a8,8,0,0,1,16,0v8h16a8,8,0,0,1,0,16H116a12,12,0,0,0,0,24h24A28,28,0,0,1,168,148Z"></path>
-              </svg>
-             <div class="fee-text">
-              ${feeHtml}
-              ${feeSuffixHtml}
-            </div>
-          </div>
-           <div class="footer-row">
-            <span class="label">場地資訊：</span>
-            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(act.location_name || "")}" 
-              target="_blank" class="map-link">Google 地圖</a>
-            <a href="/api/activities/details_page?id=${act.activity_id}${mid ? "&member_id=" + mid : ""}" 
-              class="detail-link">查看詳情 ›</a>
-          </div>
-            <div class="image-wrapper">
-              <img src="https://maps.googleapis.com/maps/api/streetview?size=300x150&location=${encodeURIComponent(act.location_name || "")}&key={{ api_key }}" alt="街景圖片" class="streetview-img"/>
-            </div>
-              ${total > 1 ? `
-                <a id="${uid}-prev" href="#" class="nav-btn prev">‹</a>
-                <a id="${uid}-next" href="#" class="nav-btn next">›</a>
-              ` : ``}
-
-        `;
-
-
-          infoWindow.setContent(content);
-
-          google.maps.event.addListenerOnce(infoWindow, "domready", () => {
-            const prev = document.getElementById(`${uid}-prev`);
-            const next = document.getElementById(`${uid}-next`);
-            function switchPage(newIndex, direction) {
-              const card = document.querySelector(".map-info-card");
-              if (!card) return;
-
-              // 根據方向選擇動畫
-              const outClass = direction === "next" ? "slide-out-left" : "slide-out-right";
-              const inClass  = direction === "next" ? "slide-in-right" : "slide-in-left";
-
-              card.classList.add(outClass);
-
-              card.addEventListener("animationend", () => {
-                // 1. 刪掉舊卡片
-                index = newIndex;
-                render();
-
-                // 2. 對新卡片加進場動畫
-                const newCard = document.querySelector(".map-info-card");
-                newCard.classList.add(inClass);
-
-                newCard.addEventListener("animationend", () => {
-                  newCard.classList.remove(inClass);
-                }, { once: true });
-              }, { once: true });
-            }
-
-            if (prev) prev.addEventListener("click", e => { 
-              e.preventDefault();
-              switchPage((index - 1 + total) % total, "prev"); 
-            });
-            if (next) next.addEventListener("click", e => { 
-              e.preventDefault(); 
-              switchPage((index + 1) % total, "next"); 
-            });
-
-
-         // 🆕 插入分頁到 InfoWindow 頂部
-            const iwOuter = document.querySelector(".gm-style-iw");
-            if (iwOuter) {
-              // 避免重複插入，先清掉舊的
-              const old = iwOuter.querySelector(".top-pagination");
-              if (old) old.remove();
-
-              if (total > 1) {
-                const pagination = document.createElement("div");
-                pagination.className = "top-pagination";
-                // 🆕 插入分頁點點
-                const iwOuter = document.querySelector(".gm-style-iw");
-                if (iwOuter) {
-                  const old = iwOuter.querySelector(".top-dots");
-                  if (old) old.remove();
-
-                  if (total > 1) {
-                    const dots = document.createElement("div");
-                    dots.className = "top-dots";
-
-                    for (let i = 0; i < total; i++) {
-                      const dot = document.createElement("span");
-                      dot.className = "dot" + (i === index ? " active" : "");
-                      
-                      // 👉 點擊事件：根據目前 index 判斷方向
-                      dot.addEventListener("click", () => {
-                        if (i === index) return; // 點到自己就不動
-                        const direction = i > index ? "next" : "prev";
-                        switchPage(i, direction);
-                      });
-
-                      dots.appendChild(dot);
-                    }
-                    document.querySelectorAll(".gm-style-iw .dot").forEach((d, i) => {
-                      d.classList.toggle("active", i === index);
-                    });
-
-                    iwOuter.appendChild(dots);
-                  }
-                }
-
-                iwOuter.appendChild(pagination);
-              }
-            }
-            // 🆕 滑鼠移入/移出 InfoWindow 時控制關閉
-            const iw = document.querySelector(".gm-style-iw");
-            if (iw) {
-              iw.addEventListener("mouseenter", () => clearTimeout(closeTimer));
-              iw.addEventListener("mouseleave", () => scheduleClose());
-            }
-
-          });
-        };
-
-        let closeTimer = null;
-
-        marker.addListener("mouseover", () => {
-          clearTimeout(closeTimer);
-          index = 0;
-          render();
-          infoWindow.open(map, marker);
-          openInfoWindows.push(infoWindow);
-        });
-
-        marker.addListener("mouseout", () => scheduleClose());
-        function scheduleClose() {
-          clearTimeout(closeTimer);
-          closeTimer = setTimeout(() => {
-            // 若滑鼠已經移到 InfoWindow 上，就不要關
-            const iw = document.querySelector(".gm-style-iw");
-            if (!iw || !iw.matches(":hover")) infoWindow.close();
-          }, 200); // 200ms 緩衝，讓使用者有時間移到卡片上
-        }
-
-
-        markers.push(marker);
-      });
     })
     .catch(err => {
       console.error("載入活動標記失敗", err);
@@ -1719,73 +1785,38 @@ function searchByTitle() {
   return;
 }
 
-// ✅ 加上這段條件判斷
-if (matches.length === 1) {
-  const lat = parseFloat(matches[0].location_lat);
-  const lng = parseFloat(matches[0].location_lng);
-  map.setCenter({ lat, lng });
-  map.setZoom(17);
-  showInfoWindowForSingleMatch(matches[0]);
-} else {
-  map.setCenter({ lat: 23.6978, lng: 120.9605 });
-  map.setZoom(7);
-}
+
 
       // 清除目前所有標點
       markers.forEach((marker) => marker.setMap(null));
       markers = [];
-
-      // 縮放到全台灣範圍
-      map.setCenter({ lat: 23.6978, lng: 120.9605 });
-      map.setZoom(7);
-
-      // 每筆符合的活動都建立 marker 和 infoWindow
-      matches.forEach((activity) => {
-        const markerLatLng = {
-          lat: parseFloat(activity.location_lat),
-          lng: parseFloat(activity.location_lng),
-        };
-
-        const marker = new google.maps.Marker({
-          position: markerLatLng,
-          map: map,
-          icon:
-            activity.type === "class"
-              ? "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
-              : "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
-        });
-
-        const infoContent = `
-          <div class="map-info-card">
-            <div class="title">${activity.title}</div>
-            <div><span class="label">活動類型：</span><span class="value">${activity.type === "class" ? "訓練課程" : "一般活動"}</span></div>
-            <div><span class="label">運動類型：</span><span class="value">${activity.sport_type}</span></div>
-            <div><span class="label">開始時間：</span><span class="value">${new Date(activity.start_time).toLocaleString("zh-TW")}</span></div>
-            <div><span class="label">結束時間：</span><span class="value">${new Date(activity.end_time).toLocaleString("zh-TW")}</span></div>
-            <div><span class="label">運動地點：</span><span class="value">${activity.location_name}</span></div>
-            <div><span class="label">目前狀態：</span><span class="value">${activity.status === "open" ? "開放報名" : activity.status}</span></div>
-            <div><span class="label">參加人數：</span><span class="value">${activity.current_participants}/${activity.max_participants}</span></div>
-            <div><span class="label">場地資訊：</span>
-              <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(activity.location_name)}" target="_blank">Google 地圖連結</a>
-              <br>
-              <img src="https://maps.googleapis.com/maps/api/streetview?size=300x150&location=${encodeURIComponent(
-                activity.location_name
-              )}&key={{ api_key }}" alt="街景圖片" style="margin-top: 8px; width: 100%; border-radius: 8px;" />
-            </div>
-          </div>
-        `;
-
-        const infoWindow = new google.maps.InfoWindow({
-          content: infoContent,
-        });
-
-        marker.addListener("click", () => {
-          openInfoWindows.push(infoWindow);  // ⬅️ 加這行
-          infoWindow.open(map, marker);
-        });
-
-        markers.push(marker);
+      // 依地點分組（同地點只顯示一顆 marker，InfoWindow 可分頁）
+      const groups = {};
+      matches.forEach(a => {
+        const key = (a.location_name && a.location_name.trim()) || `${a.location_lat},${a.location_lng}`;
+        (groups[key] ||= []).push(a);
       });
+
+      const groupsArr = Object.values(groups);
+
+      // 地圖置中邏輯
+      if (groupsArr.length === 1) {
+        const g = groupsArr[0];
+        const lat = parseFloat(g[0].location_lat);
+        const lng = parseFloat(g[0].location_lng);
+        map.setCenter({ lat, lng });
+        map.setZoom(17);
+      } else {
+        map.setCenter({ lat: 23.6978, lng: 120.9605 }); // 全台中心
+        map.setZoom(7);
+      }
+
+      // 畫出 marker
+      groupsArr.forEach(group => createMarkerForGroup(group));
+
+
+
+
     })
     .catch((err) => {
       console.error("活動搜尋錯誤：", err);

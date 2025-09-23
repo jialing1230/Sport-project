@@ -1,10 +1,15 @@
+import os
+# 依據環境變數決定 domain
+DOMAIN = os.getenv("APP_DOMAIN", "http://127.0.0.1:5002")
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime,timedelta
 from app.database import get_db
+from app.models.member import Member
 from app.models.activity import Activity
 from app.models.activity_join import ActivityJoin
 from app.models.notification import Notification
 import logging
+from gmail_eval import send_eval_mail
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -34,13 +39,49 @@ def update_activity_status():
                 for participant in pending_participants:
                     db.delete(participant)
             elif activity.end_time and now >= activity.end_time:
-                activity.status = "close"
-                pending_participants = db.query(ActivityJoin).filter(
-                    ActivityJoin.activity_id == activity.activity_id,
-                    ActivityJoin.status == "pending"
-                ).all()
-                for participant in pending_participants:
-                    db.delete(participant)
+                # 只在狀態從非 close → close 時才觸發
+                if activity.status != "close":
+                    activity.status = "close"
+
+                    # 找出所有已參加者
+                    participants = db.query(ActivityJoin).filter_by(
+                        activity_id=activity.activity_id,
+                        status="joined"
+                    ).all()
+
+                    for participant in participants:
+                        eval_link = f"{DOMAIN}/evaluate?activity_id={activity.activity_id}&member_id={participant.member_id}"
+
+                        # 避免重複寄送，檢查是否已有通知紀錄
+                        exists = db.query(Notification).filter_by(
+                            member_id=participant.member_id,
+                            title="活動評價邀請",
+                            url=eval_link
+                        ).first()
+
+                        if not exists:
+                            # 透過 member_id 查詢 email
+                            member = db.query(Member).filter_by(member_id=participant.member_id).first()
+                            if member and member.email:
+                                try:
+                                    send_eval_mail(
+                                        to_email=member.email,
+                                        activity_title=activity.title,
+                                        eval_link=eval_link
+                                    )
+                                    # 建立通知紀錄
+                                    notify = Notification(
+                                        member_id=participant.member_id,
+                                        title="活動評價邀請",
+                                        content=f"感謝您參加「{activity.title}」，請留下您的評價！",
+                                        url=eval_link
+                                    )
+                                    db.add(notify)
+                                except Exception as e:
+                                    logger.error(f"寄送評價信失敗: {e}")
+
+                else:
+                    activity.status = "close"
             else:
                 activity.status = "unknown"
 

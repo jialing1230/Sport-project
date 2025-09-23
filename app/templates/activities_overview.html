@@ -149,8 +149,8 @@
       }
 
       /* 自訂下拉樣式（外框） */
-      .select-wrapper{
-        position:relative; display:inline-block;
+        .select-wrapper{
+        position:relative; display:inline-flex; align-items:center; justify-content:center;
         border:1px solid #2c4975; border-radius:10px;
         margin:0; padding:0; background-color:#fff; flex:0 0 auto;
       }
@@ -158,6 +158,17 @@
         border:none; font-size:14px; font-weight:500; color:#2c4975;
         padding:4px 24px 4px 12px; border-radius:10px; background:transparent;
         appearance:none; height:24px; width:100%; text-align:center; text-align-last:center; cursor:pointer;
+      }
+      .select-wrapper.time input[type="time"]{
+        width:100%;
+        text-align:center;
+        text-align-last:center;
+        -moz-text-align-last:center; /* Firefox 對齊備援 */
+      }
+      /* 讓時間輸入的時鐘圖示呈現深藍色（WebKit） */
+      .select-wrapper.time input[type="time"]::-webkit-calendar-picker-indicator{
+        filter: invert(16%) sepia(19%) saturate(1114%) hue-rotate(178deg) brightness(90%) contrast(92%);
+        cursor: pointer;
       }
       .select-wrapper .arrow{
         position:absolute; right:10px; top:50%; transform:translateY(-50%);
@@ -169,7 +180,8 @@
 
       /* 固定寬度（桌機用） */
       .select-wrapper.city, .select-wrapper.type, .select-wrapper.sport{ width:92px; }
-      .select-wrapper.time, .select-wrapper.gender, .select-wrapper.level{ width:70px; }
+      .select-wrapper.gender, .select-wrapper.level{ width:70px; }
+      .select-wrapper.time{ width:120px; }
 
       /* ===== 活動清單與卡片 ===== */
       .main-content{ max-width:1480px; margin:0 auto; padding:20px 40px; margin-bottom:80px; padding-top: 20px;}
@@ -298,6 +310,7 @@
         }
         /* 手機下拉按鈕尺寸稍大，方便點擊 */
         .select-wrapper{ min-width:84px; }
+        .select-wrapper.time{ width:120px; }
         .select-wrapper.city,
         .select-wrapper.type,
         .select-wrapper.sport,
@@ -308,6 +321,12 @@
           height:24px;
           font-size:14px;
           padding:4px 24px 4px 10px;
+        }
+        .select-wrapper.time input[type="time"]{
+          height:24px;
+          font-size:14px;
+          padding:4px 10px;
+          text-align:center;
         }
 
         /* 活動清單：單欄 */
@@ -617,14 +636,12 @@
                     </select>
                     <span class="arrow"></span>
                   </div>
-                  <div class="select-wrapper">
-                    <select id="searchTimeOption">
-                      <option value="">時段</option>
-                      <option value="morning">早上</option>
-                      <option value="afternoon">下午</option>
-                      <option value="evening">晚上</option>
-                    </select>
-                    <span class="arrow"></span>
+                  <div class="select-wrapper time">
+                    <input id="searchTimeStart" type="time" style="border:none; background:transparent; color:#2c4975; height:24px; font-size:14px; padding:4px 12px; text-align:center; width:100%;" />
+                  </div>
+                  <div style="display:flex; align-items:center; color:#2c4975; padding:0 2px;">~</div>
+                  <div class="select-wrapper time">
+                    <input id="searchTimeEnd" type="time" style="border:none; background:transparent; color:#2c4975; height:24px; font-size:14px; padding:4px 12px; text-align:center; width:100%;" />
                   </div>
 
                   <div class="select-wrapper">
@@ -949,7 +966,8 @@
         const city = document.getElementById("searchCity").value;
         const activityType = document.getElementById("searchActivityType").value;
         const type = document.getElementById("searchType").value.toLowerCase();
-        const timeOption = document.getElementById("searchTimeOption").value;
+        const timeStartVal = (document.getElementById("searchTimeStart") && document.getElementById("searchTimeStart").value) || "";
+        const timeEndVal = (document.getElementById("searchTimeEnd") && document.getElementById("searchTimeEnd").value) || "";
         const level = document.getElementById("searchLevel").value;
         const titleKeyword = document.getElementById("searchTitle") ? document.getElementById("searchTitle").value.trim().toLowerCase() : "";
 
@@ -959,22 +977,37 @@
             (activityType === "" || (act.activity_type && act.activity_type === activityType)) &&
             (act.sport_type || "").toLowerCase().includes(type)
             && (function() {
-              if (!timeOption) return true;
-              // 取得活動的開始時間
+              // 若未填任何時間，直接通過
+              if (!timeStartVal && !timeEndVal) return true;
+
+              // 取得活動的開始時間（對於課程取最近一堂或第一堂）
               let startTimeStr = act.start_time;
               if ((act.type === 'class' || act.type === 'muti_class') && Array.isArray(act.course_schedules) && act.course_schedules.length > 0) {
-                // 找到最近未來的課程
                 const now = new Date();
                 let showSchedule = act.course_schedules.find(cs => new Date(cs.start_time) > now);
                 if (!showSchedule) showSchedule = act.course_schedules[0];
                 startTimeStr = showSchedule.start_time;
               }
               if (!startTimeStr) return true;
+
               const start = new Date(startTimeStr);
-              const hour = start.getHours();
-              if (timeOption === 'morning') return hour >= 6 && hour < 12;
-              if (timeOption === 'afternoon') return hour >= 12 && hour < 18;
-              if (timeOption === 'evening') return hour >= 18 && hour < 24;
+              const actMinutes = start.getHours() * 60 + start.getMinutes();
+
+              const parseToMinutes = (val) => {
+                if (!val) return null;
+                const [h, m] = val.split(":");
+                const hh = parseInt(h, 10);
+                const mm = parseInt(m || '0', 10);
+                if (Number.isNaN(hh) || Number.isNaN(mm)) return null;
+                return hh * 60 + mm;
+              };
+
+              const startMin = parseToMinutes(timeStartVal);
+              const endMin = parseToMinutes(timeEndVal);
+
+              if (startMin !== null && endMin !== null) return actMinutes >= startMin && actMinutes <= endMin;
+              if (startMin !== null) return actMinutes >= startMin;
+              if (endMin !== null) return actMinutes <= endMin;
               return true;
             })()
             && (function() {
@@ -1069,7 +1102,10 @@
       document.getElementById("searchCity").addEventListener("change", filterActivities);
       document.getElementById("searchActivityType").addEventListener("change", filterActivities);
       document.getElementById("searchType").addEventListener("change", filterActivities);
-      document.getElementById("searchTimeOption").addEventListener("change", filterActivities);
+      const timeStartEl = document.getElementById("searchTimeStart");
+      const timeEndEl = document.getElementById("searchTimeEnd");
+      if (timeStartEl) timeStartEl.addEventListener("change", filterActivities);
+      if (timeEndEl) timeEndEl.addEventListener("change", filterActivities);
       document.getElementById("searchLevel").addEventListener("change", filterActivities);
       if (document.getElementById("searchTitle")) {
         document.getElementById("searchTitle").addEventListener("input", filterActivities);

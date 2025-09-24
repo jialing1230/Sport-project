@@ -20,7 +20,6 @@ from app.models import (
     Member,
     SportType,
     Activity,
-    ExerciseRecord,
     SportPreference,
     UserReview,
     ActivityJoin,
@@ -674,9 +673,6 @@ def downgrade() -> None:
     session.query(UserReview).filter(UserReview.review_id.in_([1, 2, 3, 4, 5])).delete()
     session.query(SportPreference).filter(
         SportPreference.preference_id.in_([1, 2, 3, 4, 5])
-    ).delete()
-    session.query(ExerciseRecord).filter(
-        ExerciseRecord.record_id.in_([1, 2, 3, 4, 5])
     ).delete()
     session.query(Activity).filter(Activity.activity_id.in_([1, 2, 3, 4, 5])).delete()
     session.query(SportType).filter(

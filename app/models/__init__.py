@@ -5,7 +5,6 @@ from .activity import Activity
 from .activity_join import ActivityJoin
 from .activity_review import ActivityReview
 from .user_review import UserReview
-from .exercise_record import ExerciseRecord
 from .preference_sport import PreferenceSport
 from .time_option import TimeOption
 from .preference_time import PreferenceTime
@@ -15,6 +14,7 @@ from .activity_favorite import ActivityFavorite
 from .photo import Photo
 from .blacklist import Blacklist
 from .subscription import Subscription
+from .notification import Notification
 
 __all__ = [
     "PreferenceSport",
@@ -25,7 +25,6 @@ __all__ = [
     "ActivityJoin",
     "ActivityReview",
     "UserReview",
-    "ExerciseRecord",
     "TimeOption",
     "PreferenceTime",
     "CourseSchedule",
@@ -33,5 +32,6 @@ __all__ = [
     "ActivityFavorite",
     "Blacklist",
     "Photo",
-    "Subscription"
+    "Subscription",
+    "Notification"
 ]

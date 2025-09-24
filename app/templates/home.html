@@ -768,7 +768,7 @@
           <ul class="activity-list">
             <li class="activity-option" data-activity="all">活動類型</li>
             <li class="activity-option" data-activity="activity">一般活動</li>
-            <li class="activity-option" data-activity="class">訓練課程</li>
+            <li class="activity-option" data-activity="training">訓練課程</li>
           </ul>
         </div>
         <!-- 時段按鈕 -->
@@ -959,9 +959,9 @@ function loadMarkers(county, activityType = "all", time = "all") {
           lng: parseFloat(group[0].location_lng),
         };
 
-        const iconUrl = group.every(x => x.type === "class")
-          ? "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
-          : "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
+        const iconUrl = group.every(x => x.type === "class" || x.type === "muti_class")
+        ? "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+        : "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
 
         const marker = new google.maps.Marker({
           position: pos,
@@ -977,7 +977,10 @@ function loadMarkers(county, activityType = "all", time = "all") {
         const render = () => {
           const act = group[index];
           const total = group.length;
-          const typeLabel = act.type === "class" ? "訓練課程" : "一般活動";
+          const typeLabel =
+          act.type === "muti_class" ? "多堂課程" :
+          act.type === "class"      ? "單堂課程" :
+                               "一般活動";
           const statusBadge =
             `<span style="background-color:${act.status === "open" ? "#fea3a8" : "#ccc"};color:#fff;font-size:12px;padding:2px 6px;border-radius:6px;">
                ${act.status === "open" ? "開放報名" : "已截止"}

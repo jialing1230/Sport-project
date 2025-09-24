@@ -84,22 +84,7 @@ def upgrade() -> None:
 )
 
     op.create_index(op.f('ix_activities_activity_id'), 'activities', ['activity_id'], unique=False)
-    op.create_table('exercise_records',
-    sa.Column('record_id', sa.Integer(), nullable=False),
-    sa.Column('member_id', sa.String(length=36), nullable=True),
-    sa.Column('sport_type_id', sa.Integer(), nullable=True),
-    sa.Column('location', sa.String(length=255), nullable=True),
-    sa.Column('location_lat', sa.Float(), nullable=True),
-    sa.Column('location_lng', sa.Float(), nullable=True),
-    sa.Column('duration_hours', sa.Float(), nullable=True),
-    sa.Column('record_date', sa.Date(), nullable=True),
-    sa.Column('intensity_level', sa.String(length=50), nullable=True),
-    sa.Column('notes', sa.Text(), nullable=True),
-    sa.ForeignKeyConstraint(['member_id'], ['members.member_id'], ),
-    sa.ForeignKeyConstraint(['sport_type_id'], ['sport_types.sport_type_id'], ),
-    sa.PrimaryKeyConstraint('record_id')
-    )
-    op.create_index(op.f('ix_exercise_records_record_id'), 'exercise_records', ['record_id'], unique=False)
+    
     op.create_table('sport_preferences',
     sa.Column('preference_id', sa.Integer(), nullable=False),
     sa.Column('member_id', sa.String(length=36), nullable=True),
@@ -277,8 +262,6 @@ def downgrade() -> None:
     op.drop_table('user_reviews')
     op.drop_index(op.f('ix_sport_preferences_preference_id'), table_name='sport_preferences')
     op.drop_table('sport_preferences')
-    op.drop_index(op.f('ix_exercise_records_record_id'), table_name='exercise_records')
-    op.drop_table('exercise_records')
     op.drop_index(op.f('ix_activities_activity_id'), table_name='activities')
     op.drop_table('activities')
     op.drop_index(op.f('ix_sport_types_sport_type_id'), table_name='sport_types')

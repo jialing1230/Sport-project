@@ -9,5 +9,4 @@ class SportType(Base):
     name = Column(String(100), unique=True, nullable=False)
 
     activities = relationship("Activity", back_populates="sport_type")
-    exercise_records = relationship("ExerciseRecord", back_populates="sport_type")
     preference_sports = relationship("PreferenceSport", back_populates="sport_type")

@@ -69,16 +69,16 @@ def update_activity_status():
                                         activity_title=activity.title,
                                         eval_link=eval_link
                                     )
-                                    # 建立通知紀錄
-                                    notify = Notification(
-                                        member_id=participant.member_id,
-                                        title="活動評價邀請",
-                                        content=f"感謝您參加「{activity.title}」，請留下您的評價！",
-                                        url=eval_link
-                                    )
-                                    db.add(notify)
                                 except Exception as e:
                                     logger.error(f"寄送評價信失敗: {e}")
+                            # 無論有沒有寄信都建立通知紀錄
+                            notify = Notification(
+                                member_id=participant.member_id,
+                                title="活動評價邀請",
+                                content=f"感謝您參加「{activity.title}」，請留下您的評價！",
+                                url=eval_link
+                            )
+                            db.add(notify)
 
                 else:
                     activity.status = "close"

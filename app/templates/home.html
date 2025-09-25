@@ -26,6 +26,8 @@
         margin: 0;
         padding: 0;
         height: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
       }
 
       body {
@@ -41,11 +43,12 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 10px 30px;
+        padding: 14px 30px 18px 30px;
         background-color: #fff;
         flex-wrap: wrap;
         gap: 16px;
         z-index: 2;
+        margin-top: -4px;
       }
 
       .logo {
@@ -54,6 +57,7 @@
         gap: 8px;                  /* ✅ Logo 和名稱間距 */
         flex-shrink: 0;
         padding-right: 16px;
+        margin-left: -2px;
         padding-top: 2px;
       }
       .logo img {
@@ -115,7 +119,7 @@
         color: var(--deep-blue);
         opacity: 0.6;
       }
-      @media (min-width: 768px) {
+      @media (min-width: 600px) {
         .search-box {
           max-width: 420px; /* ✅ 桌機版拉長 */
         }
@@ -262,17 +266,7 @@
         padding-right: 8px; /* 👈 收進一點 */
         min-width: 0;
       }
-      @media (max-width: 767px) {
-        .right-section {
-          gap: 8px;
-          padding-right: 4px;
-        }
-      }
-      @media (max-width: 767px) {
-        .header {
-          padding-right: 16px; /* ✅ 手機版右邊縮小 */
-        }
-      }
+
 
       .gm-style-iw {
         padding: 0 !important;   /* 清掉預設 padding */
@@ -284,7 +278,7 @@
         width: 100%;
         max-width: 1400px;
         margin: 0 auto;
-        padding: 0 4px; /* ✅ 保留左右內距，避免緊貼邊 */
+        padding: 0 18px; /* ✅ 保留左右內距，避免緊貼邊 */
         box-sizing: border-box;
       }
       .header .container {
@@ -314,35 +308,13 @@
         cursor: pointer;
       }
 
-      @media (max-width: 767px) {
-        .search-box {
-          display: none !important; /* 手機版隱藏完整搜尋欄 */
-        }
-        
-      @media (min-width: 768px) {
-        .search-box {
-          margin: 0 auto;
-        }
-      }
-          .mobile-search-button {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: none;
-          border: none;
-          cursor: pointer;
-          padding: 0;
-          margin: 0;
-          height: 40px; /* ✅ 跟其他 header 元素對齊高度 */
-        }
+  
+    
 
-        .mobile-search-button .search-icon {
-          width: 22px;
-          height: 22px;
-          vertical-align: middle;
-          margin-top: 1px; /* ✅ 視覺微調下壓 */
-        }
+      @media (min-width: 600px) {
+        .search-box { margin: 0 auto; }
       }
+
         /* 先預設圖示顯示、文字隱藏（手機版） */
         .nav-icon {
           display: inline;
@@ -355,12 +327,13 @@
           color: #1b3a6e;
           white-space: nowrap; 
           transition: color 0.3s ease;
+          margin-right: -1px;
         }
         .nav-label:hover {
           color: var(--light-blue);
         }
         /* 桌機版：隱藏圖示、顯示文字 */
-        @media (min-width: 768px) {
+        @media (min-width: 600px) {
           .nav-icon {
             display: none;
           }
@@ -377,17 +350,26 @@
             box-shadow: none;
             padding-bottom: 10px;  /* ✅ 統一下方留白 */
             padding-top: 0;
-            padding-left: 24;
-            padding-right: 24;
+            padding-left: 24px;
+            padding-right: 24px;
             position: relative;
             z-index: 1;
             max-width: 1200px;
             margin: 0 auto;
             display: flex;
             justify-content: center;
-             gap: 12px;
+            gap: 12px;
+            width: 100%;             /* ✅ 區塊撐滿畫面寬 */
+            box-sizing: border-box;  /* ✅ padding 不再把寬度撐破 */
+        }
+        @media (min-width: 1024px) {
+          .filter-bar { margin-left: 80px; }
         }
 
+        .filter-bar,
+        .filter-bar .container {
+          overflow: visible;
+        }
         /* 篩選按鈕列排版 */
         .filter-buttons {
           display: flex;
@@ -399,18 +381,20 @@
           overflow-x: auto; /* 保留水平捲動功能 */
           scrollbar-width: none; /* Firefox */
           -ms-overflow-style: none; /* IE 10+ */
-          justify-content: flex-end;
+          justify-content: center;
           max-width: 1200px;              /* 限制最寬範圍 */
           margin: 0 auto;                 /* 置中 + 結合 justify-content: flex-end 會偏右但不貼邊 */
-          padding-right: 450px;            /* 稍微退一點不要貼太邊 */
+          width: 100%;     /* ✅ 子容器撐滿寬度 */
+          min-width: 0;    /* ✅ 允許被壓縮而不是把父層撐爆 */
+          box-sizing: border-box;
         }
 
         /* 單一篩選按鈕樣式 */
         .filter-btn {
-          padding: 0px 10px;
+          padding: 6px 10px !important;
           background-color: #ffffff;
           color: var(--deep-blue);
-          border: 1px solid #1b3a6e;
+          border: 1px solid #2c4975;
           border-radius: 8px;
           font-size: 14px;
           font-weight: 500; /* 或 600, 看你要多粗 */
@@ -421,8 +405,11 @@
           display: inline-flex;
           align-items: center;
           gap: 4px;
+            height: 34px;       /* 跟 input 一樣高 */
         }
-
+        .search-dropdown input {
+          height: 34px;
+        }
         .filter-btn:hover {
           background-color: #f0f8fa;
           border-color: var(--light-blue);
@@ -448,92 +435,23 @@
        .top-panel {
           background-color: #ffffff;
           box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12);
-          margin-bottom: 6px; /* ✅ 或改用 padding-bottom 取代內部 filter-bar */
-          z-index: 10;
+          margin-bottom: 0; /* ✅ 或改用 padding-bottom 取代內部 filter-bar */
+          z-index: 5000;
           position: relative;
         }
         .filter-buttons::-webkit-scrollbar {
           display: none; /* Chrome、Safari */
         }
-        /* 桌機版才套用靠右，手機維持滿版滾動 */
-        @media (max-width: 768px) {
-          .filter-buttons {
-            justify-content: flex-start;
-            padding: 0 16px;
-          }
-        }
+
         .filter-btn[data-type="county"] {
           position: relative; /* ✅ 讓下拉以此按鈕為基準定位 */
           display: inline-block; /* ✅ 和其他篩選按鈕並排 */
         }
-        .county-dropdown {
-          position: absolute;
-          top: 100%;
-          left: 24%;
-          background-color: white;
-          border: 1px solid #ccc;
-          z-index: 100;
-          width: 90px;
-          padding: 8px 0;
-          border-radius: 8px;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-          transform: translateX(-50%);
-        }
-        .county-dropdown.hidden {
-          display: none;
-        }
-        
-        .county-list {
-          list-style: none;
-          padding: 0;
-          margin: 0;
-        }
-        
-        .county-option {
-          padding: 4.5px 10px; /* ✅ 減少內距 */
-          font-size: 12px;   /* ✅ 縮小字型 */
-          cursor: pointer;
-        }
-        
-        .county-option:hover {
-          background-color: #f0f0f0;
-          }
 
         
-       .activity-dropdown {
-          position: absolute;
-          top: 100%;
-          left: 32.5%;
-          background-color: white;
-          border: 1px solid #ccc;
-          z-index: 100;
-          width: 90px;
-          padding: 8px 0;
-          border-radius: 8px;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-          transform: translateX(-50%);
-        }
-        
-        .activity-dropdown.hidden {
-          display: none;
-        }
-        
-        .activity-list {
-          list-style: none;
-          margin: 0;
-          padding: 0;
-        }
-        
-        .activity-option {
-          padding: 4.5px 10px;
-          font-size: 12px;
-          cursor: pointer;
-        }
-        
-        .activity-option:hover {
-          background-color: #f0f0f0;
-        }
 
+        
+      
         #title-search-container {
           display: none;
           align-items: center;
@@ -551,7 +469,7 @@
           height: 32px;
           padding: 0 10px;
           margin-left: 6px;
-          background-color: #005BAC;
+          background-color: #64bcd0;
           color: white;
           border: none;
           border-radius: 16px;
@@ -563,70 +481,83 @@
         .clear-filter-btn {
           padding: 6px 12px;
           margin-left: 8px;
-          background-color: #ccc;
+          background-color: #e5e5e5;
           color: #2c4975;
           border: none;
-          border-radius: 4px;
+          border-radius: 6px;
           cursor: pointer;
+          height: 34px;             /* ✅ 跟 .filter-btn 一樣高 */
+          display: inline-flex;     /* ✅ 垂直置中文字 */
+          align-items: center;
+          white-space: nowrap;      /* ✅ 禁止自動換行變直排 */
+          flex-shrink: 0;           /* ✅ 不被擠壓變窄 */
         }
 
         .clear-filter-btn:hover {
-          background-color: #bbb;
+          background-color: #d1d1d1;
         }
 
-        .dropdown {
-          position: absolute;
-          background-color: white;
-          border: 1px solid #ccc;
-          margin-top: 4px;
-          z-index: 1000;
-          list-style: none;
-          padding: 4px 0;
-          width: 100px; /* 可根據需求調整 */
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-        }
 
-        .dropdown li {  
-          padding: 8px 12px;
-          cursor: pointer;
-          white-space: nowrap;
-        }
-
-        .dropdown li:hover {
-          background-color: #f0f0f0;
-        }
 
         .hidden {
           display: none;
         }
-        /* 🟦 套用與活動類型一致的樣式給「時段」下拉選單 */
+        /* ✅ 三個下拉統一樣式 */
+        .county-dropdown,
+        .activity-dropdown,
         #time-dropdown {
           position: absolute;
-          top: 100%;
-          left: 42%;
-          background-color: white;
+          top: calc(100% + 6px);  /* 在按鈕正下方，留 6px 間距 */
+          left: 0;
+          background: #fff;
           border: 1px solid #ccc;
-          z-index: 100;
-          width: 70px;
+          border-radius: 8px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          min-width: 120px;       /* 不會太窄 */
+          z-index: 6000;          /* 蓋過地圖內層 overlay */
           padding: 8px 0;
-          border-radius: 8px;  /* ✅ 圓角設定 */
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-          transform: translateX(-50%);
-          font-size: 12px;
+          transform: none;        /* 保險，避免被舊樣式影響 */
+          /* ✨ 新增以下兩行，限制高度+可捲動 */
+          max-height: 240px;      /* 下拉最多 240px 高 */
+          overflow-y: auto;       /* 超過就出現捲軸 */
+          min-width: 100px;   /* 最小寬度，不會太窄 */
+          max-width: 140px;   /* 最大寬度，避免太寬 */
         }
 
-        #time-dropdown.hidden {
-          display: none;
+        .county-dropdown.hidden,
+        .activity-dropdown.hidden,
+        #time-dropdown.hidden { display: none; }
+
+        /* 統一下拉項目樣式（縣市 / 類型 / 時段都吃這個） */
+        .county-dropdown .county-list,
+        .activity-dropdown .activity-list,
+        #time-dropdown {
+          list-style: none;
+          margin: 0;
+          padding: 0;
         }
 
+        .county-dropdown .county-option,
+        .activity-dropdown .activity-option,
         #time-dropdown .time-option {
-          padding: 4.5px 10px;    /* ✅ 跟 activity-option 一樣 */
+          padding: 6px 12px;
+          font-size: 14px;
+          white-space: nowrap;
           cursor: pointer;
         }
 
+        .county-dropdown .county-option:hover,
+        .activity-dropdown .activity-option:hover,
         #time-dropdown .time-option:hover {
-          background-color: #f0f0f0;
+          background: #f0f0f0;
         }
+
+        .filter-item {
+          position: relative;     /* 讓下拉的 absolute 以它為基準 */
+          display: inline-block;  /* 和其他按鈕排一列 */
+        }
+
+      
         .map-info-card {
           width: 300px;
           position: relative;
@@ -909,6 +840,168 @@
           line-height: 1.2;
         }
 
+        @media (max-width: 599px) {
+          .right-section {
+            gap: 8px;
+            padding-right: 4px;
+          }
+
+          .header {
+            padding-right: 16px; /* ✅ 手機版右邊縮小 */
+          }
+
+          .search-box {
+            display: none !important;
+          }
+
+          .mobile-search-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            margin: 0;
+            height: 40px; /* ✅ 跟其他 header 元素對齊高度 */
+          }
+
+          .mobile-search-button .search-icon {
+            width: 22px;
+            height: 22px;
+            vertical-align: middle;
+            margin-top: 1px; /* ✅ 視覺微調下壓 */
+          }
+          .filter-buttons {
+             justify-content: flex-start;
+             padding: 0 16px;
+          }
+        }
+@media (max-width: 599px) {
+  .map-info-card {
+    width: 240px;
+    font-size: 14px;
+    padding: 4px 12px 10px 12px;
+    line-height: 1.4;
+  }
+
+  /* 標題 + 狀態 */
+  .map-info-card .header-row {
+    margin-bottom: 4px;
+  }
+  .map-info-card .title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .map-info-card .status-badge {
+    font-size: 12px;
+    padding: 2px 6px;
+  }
+
+  /* 副標 */
+  .map-info-card .subtitle {
+    font-size: 12px;
+    margin-bottom: 4px;
+    color: #555;
+  }
+
+  /* 分隔線更短 */
+  .map-info-card hr {
+    margin: 6px 0 10px 0;
+  }
+
+  /* 每行資訊更緊湊 */
+  .map-info-card .info {
+    font-size: 12px;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .map-info-card .icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* 價格 + 課程標籤 */
+  .map-info-card .fee-text {
+    flex-wrap: wrap;
+    gap:1px;
+  }
+  .map-info-card .original-price {
+    font-size: 11px;
+  }
+  .map-info-card .discount-price {
+    font-size: 14px;
+    font-weight: 700;
+
+  }
+  .map-info-card .class-badge,
+  .map-info-card .activity-badge {
+    font-size: 11px;
+    padding: 1px 6px;
+  }
+
+  /* 場地資訊列：改成按鈕樣式 */
+  .map-info-card .footer-row {
+    font-size: 12px;
+    margin-top: 6px;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  .map-info-card .map-link,
+  .map-info-card .detail-link {
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 4px;
+   
+  }
+
+  /* 圖片縮小 */
+  .map-info-card .streetview-img {
+  width:100%;     /* 保持比例 */
+    max-width: 100%;  /* 不超過容器寬 */
+    height: 90px;
+    object-fit: cover;
+     object-position: center;
+  }
+
+  /* 左右箭頭縮小 */
+  .map-info-card .nav-btn {
+    font-size: 18px;
+    padding: 2px 4px;
+  }
+    .map-info-card .location-icon {
+    margin-right: 5px;   /* 與文字間距 */
+    position: relative;
+    top: -2px;         /* 往下微調 */
+    width: 17px;         /* 縮小寬度 */
+    height: 17px;
+    margin-left: 7px;
+  }
+
+  .map-info-card .time-icon {
+    margin-right:0;
+    position: relative;
+    top: 4px;            /* 往下 1px */
+    width: 16px;
+    height: 16px;
+    margin-left:7px;
+
+
+  }
+
+  .map-info-card .fee-icon {
+    margin-right: 5px;
+    position: relative;
+    top: 1px;            /* 文字對齊 */
+    width: 17px;
+    height: 17px;
+    margin-left: 6px;
+  }
+}
+
 
     </style>
     
@@ -977,6 +1070,8 @@
 
     <div class="filter-bar">
       <div class="container filter-buttons">
+        <div class="filter-item">
+
         <button class="filter-btn" data-type="county" id="county-btn">
             <span class="label">所有縣市</span>
             <span class="arrow"></span>
@@ -1008,7 +1103,8 @@
                 <li class="county-option" data-county="連江縣">連江縣</li>
               </ul>
             </div>
-          
+          </div>
+        <div class="filter-item">
         <button class="filter-btn" data-type="activity" id="activity-btn">
             <span class="label">活動類型</span>
             <span class="arrow"></span>
@@ -1021,19 +1117,22 @@
             <li class="activity-option" data-activity="class">訓練課程</li>
           </ul>
         </div>
+        </div>
         <!-- 時段按鈕 -->
-<button id="time-btn" class="filter-btn">
-  <span class="label">時段</span>
-  <span class="arrow"></span>
-</button>
+        <div class="filter-item">
+        <button id="time-btn" class="filter-btn">
+          <span class="label">時段</span>
+          <span class="arrow"></span>
+        </button>
 
-<!-- 時段下拉選單（一定要放在上面按鈕的後面，並預設 hidden） -->
-<ul id="time-dropdown" class="dropdown hidden">
-  <li class="time-option" data-time="all">全部</li>
-  <li class="time-option" data-time="morning">早上</li>
-  <li class="time-option" data-time="afternoon">下午</li>
-  <li class="time-option" data-time="evening">晚上</li>
-</ul>
+        <!-- 時段下拉選單（一定要放在上面按鈕的後面，並預設 hidden） -->
+        <ul id="time-dropdown" class="hidden">
+          <li class="time-option" data-time="all">全部</li>
+          <li class="time-option" data-time="morning">早上</li>
+          <li class="time-option" data-time="afternoon">下午</li>
+          <li class="time-option" data-time="evening">晚上</li>
+        </ul>
+        </div>
         <button class="filter-btn" id="title-btn" data-type="title">
           <span class="label">活動名稱</span>
           <span class="icon">
@@ -1236,10 +1335,13 @@
 
 function initMap() {
   const center = { lat: 25.033964, lng: 121.562321 };
-  map = new google.maps.Map(document.getElementById("map"), {
-    zoom: 15,
-    center: center,
-  });
+map = new google.maps.Map(document.getElementById("map"), {
+  zoom: 15,
+  center: center,
+  gestureHandling: "greedy",  // ✅ 允許直接用手指拖曳，不需 Ctrl
+  zoomControl: true           // ✅ 保留縮放控制按鈕（可選）
+});
+
     // 綁定搜尋圖示（SVG）的點擊事件
 document.querySelector('.search-icon').addEventListener('click', searchAddress);
 
@@ -1442,6 +1544,32 @@ function createMarkerForGroup(group) {
     google.maps.event.addListenerOnce(infoWindow, "domready", () => {
       const prev = document.getElementById(`${uid}-prev`);
       const next = document.getElementById(`${uid}-next`);
+      if (isMobile && total > 1) {
+        const card = document.querySelector(".map-info-card");
+        if (card) {
+          let startX = 0;
+          let endX = 0;
+
+          card.addEventListener("touchstart", (e) => {
+            startX = e.changedTouches[0].clientX;
+          });
+
+          card.addEventListener("touchend", (e) => {
+            endX = e.changedTouches[0].clientX;
+            const diffX = endX - startX;
+
+            if (Math.abs(diffX) > 50) { // ✅ 滑動距離大於 50px 才觸發
+              if (diffX < 0) {
+                // 向左滑 → 下一頁
+                switchPage((index + 1) % total, "next");
+              } else {
+                // 向右滑 → 上一頁
+                switchPage((index - 1 + total) % total, "prev");
+              }
+            }
+          });
+        }
+      }
 
       function switchPage(newIndex, direction) {
         const card = document.querySelector(".map-info-card");
@@ -1510,17 +1638,45 @@ function createMarkerForGroup(group) {
     }, 200);
   }
 
-  marker.addListener("mouseover", () => {
-    clearTimeout(closeTimer);
-    index = 0;
-    render();
-    infoWindow.open(map, marker);
-    openInfoWindows.push(infoWindow);
-  });
-  marker.addListener("mouseout", () => scheduleClose());
+  // 判斷裝置是桌機還是手機
+  const isMobile = window.innerWidth < 600;
+
+  if (isMobile) {
+    // 手機：點擊才顯示
+    marker.addListener("click", () => {
+      index = 0;
+      render();
+
+      // 先關掉舊的 InfoWindow
+      openInfoWindows.forEach(w => w.close());
+      openInfoWindows = [];
+
+      // 開新的 InfoWindow
+      infoWindow.open(map, marker);
+      openInfoWindows.push(infoWindow);
+    });
+
+    // 手機：點擊地圖空白處 → 關閉 InfoWindow
+    google.maps.event.addListener(map, "click", () => {
+      openInfoWindows.forEach(w => w.close());
+      openInfoWindows = [];
+    });
+
+  } else {
+    // 桌機：滑過顯示、移出隱藏
+    marker.addListener("mouseover", () => {
+      clearTimeout(closeTimer);
+      index = 0;
+      render();
+      infoWindow.open(map, marker);
+      openInfoWindows.push(infoWindow);
+    });
+    marker.addListener("mouseout", () => scheduleClose());
+  }
 
   markers.push(marker);
-}
+  }
+
 
 // 🆕 新增這個函式
 function loadMarkers(county, activityType = "all", time = "all") {

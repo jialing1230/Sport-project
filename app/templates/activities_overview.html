@@ -24,7 +24,7 @@
       /* 統一上方列高度（桌機/手機一致） */
       :root { 
         --nav-top-h: 56px;   /* 想更高或更低改這裡，例如 60px */
-        --nav-x: 12px;       /* 左右內距，可自訂 */
+        --nav-x: 24px;       /* 左右內距，可自訂 */
       }
       /* ===== 基本樣式 ===== */
       body{
@@ -73,9 +73,11 @@
 
       .navbar-logo{ display:flex; align-items:center; }
       .navbar-logo img { 
-        max-height: calc(var(--nav-top-h) - 16px); /* 上下留 8px 緩衝 */
+        max-height: calc(var(--nav-top-h) - 13px); /* 上下留 8px 緩衝 */
         height: auto;
         display: block; 
+        margin-left: -8px;
+        margin-top: 10px;     
       }
       .navbar-title{
         font-size:20px;
@@ -83,29 +85,33 @@
         white-space:nowrap;
         margin: 0;
         line-height: 1;
+          margin-left: 7px;    /* 👈 與 logo 距離 */
+         margin-top: 6px;
+
       }
 
       /* 桌機 icon/文字 */
-      .desktop-icons{ display:flex; align-items:center; gap:30px; margin: 0 !important; }
+      .desktop-icons{ display:flex; align-items:center; gap:30px; margin: 0 !important;padding-right: 8px;  }
       .desktop-search{
         height:30px; padding:0 10px; border-radius:16px; border:1px solid #2c4975;
         font-size:14px; color:#2c4975;
       }
       .desktop-map, .desktop-menu{
-        font-size:14px; font-weight:bold; color:#2c4975; cursor:pointer;
+        font-size:14px; font-weight:bold; color:#2c4975; cursor:pointer; margin-top: 6px;
       }
       .desktop-map:hover, .desktop-menu:hover{ color:#81d3e1; }
 
+      
       /* 手機 icon 列（預設先隱藏，交由 RWD 顯示） */
       .mobile-icons{ display:none; margin: 0 !important;}
 
       /* 搜尋盒（桌機顯示） */
       .search-box{
         display:flex; align-items:center; background-color:#fff; border-radius:6px;
-        padding:7px 16px; max-width:240px; box-shadow:0 0 4px rgba(0,0,0,0.08);
-        margin-right:-4px; transition: box-shadow .2s, border-color .2s; gap:8px;
+        padding:6px 16px; max-width:240px; box-shadow:0 0 4px rgba(0,0,0,0.08);
+        margin-right:-4px; margin-top: 6px; transition: box-shadow .2s, border-color .2s; gap:8px;
       }
-      .search-icon{ width:22px; height:22px; color:#2c4975; stroke:currentColor; transition: color .2s, stroke .2s; }
+      .search-icon{ width:20px; height:20px; color:#2c4975; stroke:currentColor; transition: color .2s, stroke .2s; }
       .search-box input{ border:none; background:transparent; outline:none; color:#2c4975; font-size:16px; flex:1; padding-left:4px; }
       .search-box input::placeholder{ color:#2c4975; opacity:.6; font-size:14px; }
       .search-box:hover .search-icon,
@@ -143,6 +149,7 @@
         display: flex;
         flex-wrap: nowrap;
         gap: 8px;
+        
       }
       .filters .fake-padding{
         display: none !important;
@@ -151,13 +158,13 @@
       /* 自訂下拉樣式（外框） */
         .select-wrapper{
         position:relative; display:inline-flex; align-items:center; justify-content:center;
-        border:1px solid #2c4975; border-radius:10px;
-        margin:0; padding:0; background-color:#fff; flex:0 0 auto;
+        border:1px solid #2c4975; border-radius:10px; height: 30px;
+        margin: 2px 0 0 0 ; padding:0; background-color:#fff; flex:0 0 auto;
       }
       .select-wrapper select{
         border:none; font-size:14px; font-weight:500; color:#2c4975;
-        padding:4px 24px 4px 12px; border-radius:10px; background:transparent;
-        appearance:none; height:24px; width:100%; text-align:center; text-align-last:center; cursor:pointer;
+        padding:3px 24px 3px 12px; border-radius:10px; background:transparent;
+        appearance:none; height:24px; width:100%; text-align:center; text-align-last:center; cursor:pointer; 
       }
       .select-wrapper.time input[type="time"]{
         width:100%;
@@ -328,7 +335,10 @@
           padding:4px 10px;
           text-align:center;
         }
-
+        .filters::after {
+          content: "";
+          flex: 0 0 15px;  /* 👈 預留 20px 空間 */
+        }
         /* 活動清單：單欄 */
         .activity-list{
           display: flex;
@@ -347,6 +357,9 @@
         flex: 0 0 auto;
         box-sizing: border-box;
         }
+        #mobileSearchBtn{ margin-right: 10px; margin-top: 5px; height:23px ;} /* 搜尋 */
+        #backBtn{ margin-right: 13px;   margin-top: 4px;}         /* 地圖 */
+        .mobile-icons svg:last-child{ margin-right: -2px; margin-top: 2px; } /* 選單 */
       }
       #mobileSearchInline {
         flex: 0 1 auto;
@@ -362,6 +375,8 @@
         background: #fff;
         box-shadow: 0 0px 4px rgba(0,0,0,0.15);
         box-sizing: border-box;
+        margin-top: 7px;
+        margin-left: 4px;
 
         opacity: 0;
         visibility: hidden;                   /* 初始隱藏 */
@@ -392,8 +407,10 @@
           max-width: 1400px;
           margin: 0 auto;
           display: flex;            /* 讓裡面那個 form 可以被置中 */
-          justify-content: center;  /* 置中整個表單 */
+          justify-content: flex-start;  /* 置中整個表單 */
           overflow: visible;        /* 取消橫向捲動，才能真正置中 */
+            margin-left: -17px;            /* ✅ 跟 logo 對齊（數字依實際寬度調整） */
+
         }
           #navbarFilters{
           display: inline-flex;     /* 變成行內彈性盒，寬 = 內容寬 */
@@ -535,19 +552,19 @@
             <div class="navbar-icons desktop-icons">
               <div class="search-box">
                 <svg
-                    class="search-icon"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24" 
-                  >
-                    <path
-                      d="M15.8 15.8L21 21M18 10.5C18 14.64 14.64 18 10.5 18C6.36 18 3 14.64 3 10.5C3 6.36 6.36 3 10.5 3C14.64 3 18 6.36 18 10.5Z"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
+                  class="search-icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M15.8 15.8L21 21M18 10.5C18 14.64 14.64 18 10.5 18C6.36 18 3 14.64 3 10.5C3 6.36 6.36 3 10.5 3C14.64 3 18 6.36 18 10.5Z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
                 <input type="text" id="searchTitle" placeholder="搜尋活動名稱" />
               </div>
              <span class="desktop-map" id="mapSwitchBtn">切換地圖</span>

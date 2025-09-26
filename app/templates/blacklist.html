@@ -230,6 +230,17 @@
                     return;
                 }
 
+                function formatDateTime(isoString) {
+                    const date = new Date(isoString);
+                    const y = date.getFullYear();
+                    const m = String(date.getMonth() + 1).padStart(2, "0");
+                    const d = String(date.getDate()).padStart(2, "0");
+                    const hh = String(date.getHours()).padStart(2, "0");
+                    const mm = String(date.getMinutes()).padStart(2, "0");
+                    const ss = String(date.getSeconds()).padStart(2, "0");
+                    return `${y}-${m}-${d} ${hh}:${mm}:${ss}`; // ✅ 中間用空格取代 T
+                }
+
                 try {
                     const response = await fetch(`/api/members/blacklist?member_id=${memberId}`);
                     const data = await response.json();
@@ -263,7 +274,7 @@
                                         </div>
                                         <div class="activity-info" style="color: #2c4975;">
                                             <span class="value">封鎖時間：</span>
-                                            <span class="value">${item.created_at}</span>
+                                            <span class="value">${formatDateTime(item.created_at)}</span>
                                         </div>
                                         <div style="display: flex; justify-content: flex-end; margin-top: 12px;">
                                             <button class="unblock-btn">解除封鎖</button>

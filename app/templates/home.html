@@ -1292,8 +1292,8 @@
             </div>
 
             <div class="subtitle">
-              ${act.sport_type || ""} ｜ 不限 ｜ 由 ${act.organizer_name || "未知"} 發起
-            </div>
+  ${act.sport_type || ""} ｜ ${levelLabel} ｜ 由 ${act.organizer_name || "未知"} 發起
+</div>
 
             <hr>
 
@@ -1447,6 +1447,16 @@ const iconUrl = group.every(x => isTrainingType(x.type))
 
     const originalFee = act.venue_fee ?? 0;
     const discountFee = Math.floor(originalFee * 0.8);
+    // 新增：等級顯示對應表
+const levelMap = { 
+  "初階": "初階等級", 
+  "中階": "中階等級", 
+  "進階": "進階等級", 
+  "不限": "不限等級" 
+};
+
+// 轉換目前活動的等級，如果沒資料就顯示「不限等級」
+const levelLabel = levelMap[(act.level || "").trim()] || "不限等級";
 
     const feeHtml = `
       <div class="fee-prices">
@@ -1476,8 +1486,8 @@ const iconUrl = group.every(x => isTrainingType(x.type))
           ${statusBadge}
         </div>
         <div class="subtitle">
-          ${act.sport_type || ""} ｜ 不限 ｜ 由 ${act.organizer_name || "未知"} 發起
-        </div>
+  ${act.sport_type || ""} ｜ ${levelLabel} ｜ 由 ${act.organizer_name || "未知"} 發起
+</div>
         <hr>
 
         <div class="info info-row location-row">

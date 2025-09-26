@@ -80,6 +80,7 @@ def get_active_markers():
                 "status": a.status,
                 "sport_type": a.sport_type.name if a.sport_type else "未分類",
                 "organizer_name": a.organizer.name if a.organizer_id else "未知",
+                "level": a.level,
                 "type": a.type  # ✅ 新增這一行（最重要）
             })
 
@@ -156,6 +157,7 @@ def get_markers_by_county():
                 "status": a.status,
                 "sport_type": a.sport_type.name if a.sport_type else "未分類",
                 "organizer_name": a.organizer.name if a.organizer_id else "未知",
+                "level": a.level,
                 "type": a.type
             })
 

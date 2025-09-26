@@ -62,7 +62,7 @@ def update_activity_status():
                         if not exists:
                             # 透過 member_id 查詢 email
                             member = db.query(Member).filter_by(member_id=participant.member_id).first()
-                            if member and member.email:
+                            if member and member.email and not member.email.endswith("@example.com"):
                                 try:
                                     send_eval_mail(
                                         to_email=member.email,

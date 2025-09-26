@@ -1446,7 +1446,7 @@ const iconUrl = group.every(x => isTrainingType(x.type))
     const total = group.length;
 
     const originalFee = act.venue_fee ?? 0;
-    const discountFee = Math.floor(originalFee * 0.8);
+    const discountFee = Math.max(0, Math.floor(originalFee * 0.8));
     // 新增：等級顯示對應表
 const levelMap = { 
   "初階": "初階等級", 
@@ -1458,10 +1458,22 @@ const levelMap = {
 // 轉換目前活動的等級，如果沒資料就顯示「不限等級」
 const levelLabel = levelMap[(act.level || "").trim()] || "不限等級";
 
-    const feeHtml = `
+    // 同時滿足兩條件才顯示優惠：活動有開啟優惠 + 使用者有訂閱
+const eligibleForDiscount = (act.is_discounted === 1 || act.is_discounted === true)
+  && (act.user_is_subscribed === 1 || act.user_is_subscribed === true);
+
+const feeHtml = eligibleForDiscount
+  ? `
       <div class="fee-prices">
         <span class="original-price">${originalFee} 元</span>
         <span class="discount-price">${discountFee} 元</span>
+      </div>
+    `
+  : `
+      <div class="fee-prices">
+        <span class="discount-price" style="color:#2c4975;font-weight:500;text-decoration:none;">
+          ${originalFee} 元
+        </span>
       </div>
     `;
 
@@ -1695,7 +1707,7 @@ function loadMarkers(county, activityType = "all", time = "all") {
   markers.forEach(m => m.setMap(null));
   markers = [];
 
-  const url = `/api/map/markers/by-county?county=${county}&type=${activityType}&time=${time}`;
+  const url = `/api/map/markers/by-county?county=${county}&type=${activityType}&time=${time}${mid ? `&member_id=${mid}` : ""}`;
 
   fetch(url)
     .then(res => res.json())
@@ -1940,7 +1952,7 @@ function searchByTitle() {
     return;
   }
 
-  fetch("/api/map/active-markers")
+  fetch(`/api/map/active-markers${mid ? `?member_id=${mid}` : ""}`)
     .then((res) => res.json())
     .then((data) => {
       const matches = data.filter((activity) =>

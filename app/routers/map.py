@@ -51,6 +51,15 @@ from datetime import datetime
 def get_active_markers():
     activity_type = request.args.get("type")
     time_period = request.args.get("time", "all")
+    member_id = request.args.get("member_id")
+    
+    with get_db() as db:
+        # 先求出目前檢視使用者是否訂閱
+        user_is_subscribed = False
+        if member_id:
+            m = db.query(Member).filter(Member.member_id == member_id).first()
+            if m and getattr(m, "is_subscribed", 0):
+                user_is_subscribed = True
 
     with get_db() as db:
         query = (
@@ -81,6 +90,8 @@ def get_active_markers():
                 "sport_type": a.sport_type.name if a.sport_type else "未分類",
                 "organizer_name": a.organizer.name if a.organizer_id else "未知",
                 "level": a.level,
+                "is_discounted": int(getattr(a, "is_discounted", 0)),
+                "user_is_subscribed": user_is_subscribed,
                 "type": a.type  # ✅ 新增這一行（最重要）
             })
 
@@ -91,6 +102,15 @@ def get_markers_by_county():
     county = request.args.get("county")
     activity_type = request.args.get("type")
     time_period = request.args.get("time", "all")
+    member_id = request.args.get("member_id")
+    
+    with get_db() as db:
+        # 先求出目前檢視使用者是否訂閱
+        user_is_subscribed = False
+        if member_id:
+            m = db.query(Member).filter(Member.member_id == member_id).first()
+            if m and getattr(m, "is_subscribed", 0):
+                user_is_subscribed = True
 
     with get_db() as db:
         filters = [
@@ -158,6 +178,8 @@ def get_markers_by_county():
                 "sport_type": a.sport_type.name if a.sport_type else "未分類",
                 "organizer_name": a.organizer.name if a.organizer_id else "未知",
                 "level": a.level,
+                "is_discounted": int(getattr(a, "is_discounted", 0)),
+                "user_is_subscribed": user_is_subscribed,
                 "type": a.type
             })
 

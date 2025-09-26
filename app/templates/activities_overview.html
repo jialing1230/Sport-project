@@ -568,7 +568,7 @@
                 <input type="text" id="searchTitle" placeholder="搜尋活動名稱" />
               </div>
              <span class="desktop-map" id="mapSwitchBtn">切換地圖</span>
-              <span class="desktop-menu">選單</span>
+              <span class="desktop-menu" id="desktopMenuBtn">選單</span>
             </div>
             <!-- 手機版 -->
             <div class="navbar-icons mobile-icons">
@@ -586,7 +586,7 @@
                 <path d="M15 3V19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
               </svg>
               <!-- 選單 -->
-              <svg viewBox="0 0 24 24" width="24" height="24">
+              <svg id="mobileMenuBtn" viewBox="0 0 24 24" width="24" height="24">
                 <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 <line x1="3" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 <line x1="3" y1="18" x2="21" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -1152,9 +1152,17 @@
       }
 
       function goToNews() {
-        window.location.href = `/notice?member_id=${memberId}`;
+        window.location.href = `/news?member_id=${memberId}`;
       }
 
+
+      // ✅ 讓上方「選單」按鈕（桌機/手機）都導向新聞頁
+      (function(){
+        const desktopMenu = document.getElementById('desktopMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenuBtn');
+        if (desktopMenu) desktopMenu.addEventListener('click', goToNews);
+        if (mobileMenu) mobileMenu.addEventListener('click', goToNews);
+      })();
 
       document.querySelectorAll(".bottom-item").forEach((item) => {
         item.addEventListener("click", function (e) {

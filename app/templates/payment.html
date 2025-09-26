@@ -51,14 +51,14 @@
         padding: 10px;
         margin-left: -10px;
       }
+.left-section svg path {
+  stroke: #2c4975;   /* 預設深藍 */
+  transition: stroke 0.3s ease;
+}
 
-      .left-section svg {
-        width: 24px;
-        height: 24px;
-        fill: #81d3e1;
-        cursor: pointer;
-        transition: fill 0.3s ease;
-      }
+.left-section svg:hover path {
+  stroke: #81d3e1;   /* 滑鼠移過去變淺藍 */
+}
 
       .navbar-title {
         position: absolute;
@@ -82,16 +82,14 @@
         max-width: 900px;
         min-width: 320px;
         width: 100%;
-        margin: 20px auto;
+        margin: 0px auto;
         background-color: #fff;
         padding: 30px;
-        border-radius: 8px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         display: flex;
         flex-wrap: wrap;
         gap: 30px;
         overflow: hidden;
-        min-height: 500px;
       }
 
       .payment-form {
@@ -106,6 +104,7 @@
         border-radius: 8px;
         border: 1px solid #e0e0e0;
         height: fit-content;
+        margin: 8px 0 8px 0;
       }
 
       .title-row {
@@ -172,6 +171,7 @@
         gap: 15px;
         margin-bottom: 20px;
         flex-wrap: wrap;
+        margin-top: 10PX;
       }
 
       .subscription-plan {
@@ -305,9 +305,7 @@
           padding: 20px;
         }
         
-        .payment-summary {
-          order: -1;
-        }
+
         
         .title-row {
           gap: 8px;
@@ -350,6 +348,7 @@
       @media (max-width: 480px) {
         .container {
           padding: 15px;
+          width: 90%;
         }
         
         h1 {
@@ -367,21 +366,23 @@
 
       /* Modal styles */
       .modal {
-        display: none;
+        display: none; /* 預設隱藏 */
         position: fixed;
         z-index: 1000;
-        left: 0;
-        top: 0;
+        inset: 0; /* 等於 top:0; right:0; bottom:0; left:0; */
         width: 100%;
         height: 100%;
         background-color: rgba(0, 0, 0, 0.5);
-        animation: fadeIn 0.3s ease-in-out;
+
+        /* ✅ 用 flex 垂直 + 水平置中 */
+        justify-content: center;
+        align-items: center;
       }
 
       .modal-content {
         background-color: #fff;
-        margin: 15% auto;
-        padding: 30px;
+        margin: 0;
+        padding: 25px;
         border-radius: 8px;
         width: 90%;
         max-width: 400px;
@@ -392,16 +393,30 @@
 
       .modal-title {
         color: #2c4975;
-        font-size: 20px;
+        font-size: 18px;
         font-weight: bold;
         margin-bottom: 15px;
       }
 
       .modal-message {
-        color: #333;
+        color: #2c4975;
         font-size: 16px;
         line-height: 1.5;
         margin-bottom: 25px;
+        text-align: left;   /* 👈 加這行讓文字靠左 */
+      }
+      .modal-message ul {
+        margin: 0;
+        padding-left: 85px; /* 控制點點和文字距離 */
+        list-style-type: disc; /* 使用實心圓點 */
+      }
+
+      .modal-message li {
+        margin-bottom: 5px; /* 每點之間的間距 */
+        color: #2c4975;
+        font-size: 16px;
+        line-height: 1.5;
+        text-align: left;
       }
 
       .modal-btn {
@@ -409,7 +424,7 @@
         color: white;
         padding: 12px 30px;
         border: none;
-        border-radius: 4px;
+        border-radius: 8px;
         font-size: 16px;
         font-weight: bold;
         cursor: pointer;
@@ -435,6 +450,18 @@
           transform: translateY(0);
         }
       }
+      .plan-section {
+  flex: 1 1 100%;
+}
+@media (min-width: 769px) {
+  .payment-form {
+    order: 1;
+  }
+  .payment-summary {
+    order: 2;
+  }
+}
+
     </style>
   </head>
   <body>
@@ -447,13 +474,11 @@
           width="24"
           height="24">
           <path d="M15 19l-7-7 7-7"
-            stroke="#81d3e1"
             stroke-width="2"
             fill="none"
             stroke-linecap="round"
             stroke-linejoin="round"></path>
           <path d="M8 12h14"
-            stroke="#81d3e1"
             stroke-width="2"
             fill="none"
             stroke-linecap="round"
@@ -466,41 +491,73 @@
     </div>
 
     <div class="container">
+      <div class="plan-section">
+  <label class="form-label">月費方案</label>
+  <div class="subscription-plan-group">
+    <div class="subscription-plan">
+      <input type="radio" name="subscriptionPlan" value="monthly" id="monthly" checked>
+      <label for="monthly">
+        <div>月費</div>
+        <div class="plan-price">NT$ 200</div>
+        <div class="plan-period">每月</div>
+      </label>
+    </div>
+    <div class="subscription-plan">
+      <input type="radio" name="subscriptionPlan" value="quarterly" id="quarterly">
+      <label for="quarterly">
+        <div>季費</div>
+        <div class="plan-price">NT$ 400</div>
+        <div class="plan-period">每季</div>
+        <div class="plan-savings">省 NT$ 200</div>
+      </label>
+    </div>
+    <div class="subscription-plan">
+      <input type="radio" name="subscriptionPlan" value="yearly" id="yearly">
+      <label for="yearly">
+        <div>年費</div>
+        <div class="plan-price">NT$ 1,600</div>
+        <div class="plan-period">每年</div>
+        <div class="plan-savings">省 NT$ 800</div>
+      </label>
+    </div>
+  </div>
+</div>
+      <div class="payment-summary">
+        <h3 style="color: #2c4975; margin-top: 0; margin-bottom: 20px;">付款摘要</h3>
+        
+        <div class="summary-item">
+          <span class="summary-label">選擇方案</span>
+          <span class="summary-value" id="selectedPlan">月費</span>
+        </div>
+        
+        <div class="summary-item">
+          <span class="summary-label">方案費用</span>
+          <span class="summary-value" id="planFee">NT$ 200</span>
+        </div>
+        
+        
+        <div class="summary-item">
+          <span class="summary-label">優惠折扣</span>
+          <span class="summary-value" id="discount">NT$ 0</span>
+        </div>
+        
+        <div class="summary-item">
+          <span class="summary-label">總計</span>
+          <span class="summary-value" id="totalAmount">NT$ 200</span>
+        </div>
+        
+        <div style="margin-top: 20px; padding: 15px; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; font-size: 13px; color: #856404;">
+          <strong>注意事項：</strong><br>
+          • 月費將於每月自動扣款<br>
+          • 可隨時取消訂閱<br>
+          • 課程開始前7天可申請退款
+        </div>
+      </div>
       <div class="payment-form">
 
 
         <form id="paymentForm">
-          <div class="form-row">
-            <label class="form-label">月費方案</label>
-            <div class="subscription-plan-group">
-              <div class="subscription-plan">
-                <input type="radio" name="subscriptionPlan" value="monthly" id="monthly" checked>
-                <label for="monthly">
-                  <div>月費</div>
-                  <div class="plan-price">NT$ 200</div>
-                  <div class="plan-period">每月</div>
-                </label>
-              </div>
-              <div class="subscription-plan">
-                <input type="radio" name="subscriptionPlan" value="quarterly" id="quarterly">
-                <label for="quarterly">
-                  <div>季費</div>
-                  <div class="plan-price">NT$ 400</div>
-                  <div class="plan-period">每季</div>
-                  <div class="plan-savings">省 NT$ 200</div>
-                </label>
-              </div>
-              <div class="subscription-plan">
-                <input type="radio" name="subscriptionPlan" value="yearly" id="yearly">
-                <label for="yearly">
-                  <div>年費</div>
-                  <div class="plan-price">NT$ 1,600</div>
-                  <div class="plan-period">每年</div>
-                  <div class="plan-savings">省 NT$ 800</div>
-                </label>
-              </div>
-            </div>
-          </div>
+
 
           <div class="form-row">
             <label for="cardNumber" class="form-label">卡號</label>
@@ -575,37 +632,6 @@
         </form>
       </div>
 
-      <div class="payment-summary">
-        <h3 style="color: #2c4975; margin-top: 0; margin-bottom: 20px;">付款摘要</h3>
-        
-        <div class="summary-item">
-          <span class="summary-label">選擇方案</span>
-          <span class="summary-value" id="selectedPlan">月費</span>
-        </div>
-        
-        <div class="summary-item">
-          <span class="summary-label">方案費用</span>
-          <span class="summary-value" id="planFee">NT$ 200</span>
-        </div>
-        
-        
-        <div class="summary-item">
-          <span class="summary-label">優惠折扣</span>
-          <span class="summary-value" id="discount">NT$ 0</span>
-        </div>
-        
-        <div class="summary-item">
-          <span class="summary-label">總計</span>
-          <span class="summary-value" id="totalAmount">NT$ 200</span>
-        </div>
-        
-        <div style="margin-top: 20px; padding: 15px; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; font-size: 13px; color: #856404;">
-          <strong>注意事項：</strong><br>
-          • 月費將於每月自動扣款<br>
-          • 可隨時取消訂閱<br>
-          • 課程開始前7天可申請退款
-        </div>
-      </div>
     </div>
 
     <!-- Modal -->
@@ -613,10 +639,12 @@
       <div class="modal-content">
         <div class="modal-title">升級會員享專屬權益</div>
         <div class="modal-message">
-          <div>1. 課程優惠</div>
-          <div>2. 無限次發起課程</div>
-          <div>3. 自由參與任何課程</div>
-          <div>4. 解鎖VIP專屬標章</div>
+          <ul>
+            <li>課程優惠</li>
+            <li>無限次發起課程</li>
+            <li>自由參與任何課程</li>
+            <li>解鎖VIP專屬標章</li>
+          </ul>
         </div>
         <button class="modal-btn" onclick="closeModal()">我知道了</button>
       </div>
@@ -791,8 +819,10 @@
       
       // 顯示彈窗函數
       function showModal() {
-        document.getElementById('infoModal').style.display = 'block';
+        const modal = document.getElementById('infoModal');
+        modal.style.display = 'flex';  // ✅ 開啟時用 flex，而不是 block
       }
+
       
       // 關閉彈窗函數
       function closeModal() {

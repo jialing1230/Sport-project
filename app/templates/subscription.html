@@ -74,10 +74,11 @@
           max-width: var(--page-max);
           margin: 0 auto;             /* ✅ 置中 */
           padding-bottom: 80px;
-          background-color: #ffffff;
           min-height: calc(100vh - var(--header-h)); /* ✅ 填滿除 header 外的高度 */
           display: flex;              /* ✅ 讓內容能撐開 */
           flex-direction: column;     /* ✅ 內容直向排列 */
+            margin-top: 20px;   /* ✅ 新增這行 */
+
       }
 
 
@@ -98,20 +99,25 @@
     }
 
     .plan-badge {
-        padding: 6px 10px;
-        border-radius: 999px;
-        background: #e6f5f8;
-        color: #2c4975;
-        font-size: 12px;
-        font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: #eef5ff;
+      color: #2c4975;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); /* ✅ 小立體感 */
     }
 
+
     .card {
-        border-radius: 12px;
-        padding: 16px;
-        margin: 12px auto;
-        max-width: 90%;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 12px auto;
+      width: 95%;       /* ✅ 跟 container 一樣寬 */
+      background-color: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
+
 
     .row {
         display: flex;
@@ -135,50 +141,83 @@
     }
 
     .days {
-        font-size: 28px;
-        font-weight: 800;
-        color: #f8a9b3;
+      font-size: 32px;          /* ✅ 再大一點 */
+      font-weight: 800;
+      color: #e74c3c;           /* ✅ 紅色更鮮明 */
     }
+
 
     .days-line { white-space: nowrap; }
 
     .label-strong { font-weight: 700; color: #1B3A6E; }
 
-    .perks { 
-        list-style: none;
-        padding: 0;
-        margin: 8px 0 0;
+    .perks {
+      list-style: none;
+      margin-top: 12px;
     }
 
-    .perk { 
-        display: flex; 
-        align-items: center; 
-        gap: 10px; 
-        padding: 10px 0; 
-        border-bottom: 1px dashed #e7eef5; 
+    .perk {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
     }
 
-    .perk:last-child { 
-        border-bottom: 0; 
+    .perk:last-child {
+      border-bottom: none;
     }
 
-    .perk .label { 
-        font-weight: 700;
-        color: #1B3A6E;
+    .perk svg {
+      color: var(--deep-blue);
+      flex-shrink: 0;
     }
+
+    .perk .label {
+      font-weight: 600;
+      color: #1B3A6E;
+    }
+
 
     .footer { 
         margin-top: 18px;
         text-align: center;
         padding-bottom: 24px;
     }
-
     .cancel {
-        color: #9b2c2c;
-        cursor: pointer;
-        font-weight: 700;
-        text-decoration: underline;
+      display: inline-block;
+      padding: 10px 26px;
+      background: #e74c3c;
+      color: #fff;
+      border-radius: 8px;        /* ✅ 改成 pill 狀 */
+      font-size: 16px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.3s ease;
     }
+    .cancel:hover {
+      background: #ff5c5c;
+    }
+
+.strong {
+  font-weight: 700;
+}
+.perks-card {
+  width: 95%;     
+   padding-bottom: 0;
+
+}
+
+.perks-card .row.between {
+  width: 100%;     /* ✅ 撐滿寬度 */
+}
+.footer.inside {
+  margin-top: 20px;
+  text-align: center;
+  padding-bottom: 0; /* ✅ 移到卡片內就不需要多餘 padding */
+    margin: 20px 0 0;      /* ✅ 上方 20px，下面 0 */
+}
 
   </style>
 </head>
@@ -208,9 +247,12 @@
       </div>
     </div>
 
-    <div class="card">
-      <div class="row muted" style="font-weight:700;">專屬優惠</div>
-      <ul class="perks">
+<div class="card perks-card">
+  <div class="row between">
+    <span class="muted strong">專屬優惠</span>
+  </div>
+  <ul class="perks">
+
         <li class="perk">
           <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1B3A6E" stroke-width="2">
             <path d="M20 12l-8 8L4 12V4h8l8 8z"/>
@@ -240,12 +282,13 @@
           <span class="label">解鎖發起課程功能</span>
         </li>
       </ul>
-    </div>
-
-    <div class="footer">
+          <div class="footer">
       <span class="cancel">取消訂閱</span>
     </div>
   </div>
+    </div>
+
+
   <script>
     document.getElementById("back-button")?.addEventListener("click", function() {
       const urlParams = new URLSearchParams(window.location.search);

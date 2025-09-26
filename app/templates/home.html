@@ -350,8 +350,8 @@
             box-shadow: none;
             padding-bottom: 10px;  /* ✅ 統一下方留白 */
             padding-top: 0;
-            padding-left: 24px;
-            padding-right: 24px;
+            padding-left: 2px;
+            padding-right: 0px;
             position: relative;
             z-index: 1;
             max-width: 1200px;
@@ -378,12 +378,11 @@
           gap: 8px;
           padding: 0 8px;
           -webkit-overflow-scrolling: touch;
-          overflow-x: auto; /* 保留水平捲動功能 */
           scrollbar-width: none; /* Firefox */
           -ms-overflow-style: none; /* IE 10+ */
-          justify-content: center;
-          max-width: 1200px;              /* 限制最寬範圍 */
-          margin: 0 auto;                 /* 置中 + 結合 justify-content: flex-end 會偏右但不貼邊 */
+          justify-content: flex-start;
+          max-width: none;              /* 限制最寬範圍 */
+          margin: 0;                 /* 置中 + 結合 justify-content: flex-end 會偏右但不貼邊 */
           width: 100%;     /* ✅ 子容器撐滿寬度 */
           min-width: 0;    /* ✅ 允許被壓縮而不是把父層撐爆 */
           box-sizing: border-box;
@@ -507,8 +506,6 @@
         .activity-dropdown,
         #time-dropdown {
           position: absolute;
-          top: calc(100% + 6px);  /* 在按鈕正下方，留 6px 間距 */
-          left: 0;
           background: #fff;
           border: 1px solid #ccc;
           border-radius: 8px;
@@ -843,12 +840,11 @@
         @media (max-width: 599px) {
           .right-section {
             gap: 8px;
-            padding-right: 4px;
+            padding-right: 0px;
           }
 
           .header {
-            padding-right: 16px; /* ✅ 手機版右邊縮小 */
-          }
+            padding: 14px 0px 18px 1px;  /* 上右下左，左右縮小 */          }
 
           .search-box {
             display: none !important;
@@ -875,6 +871,40 @@
           .filter-buttons {
              justify-content: flex-start;
              padding: 0 16px;
+          }
+           .search-box {
+            display: none !important;
+            width: 100%;          /* 撐滿 */
+            max-width: none;      /* 不限制寬度 */
+            margin: 8px auto 0;   /* 與上方留距離 */
+            
+          }
+
+          /* 點擊時展開 */
+          .search-box.active {
+            display: flex !important;
+            position: absolute;
+                top: 5px;          /* 距離上方 */
+                left: 35%;
+                transform: translateX(-50%);
+                width: 35%;         /* 搜尋框寬度（自己調整，70%~85%之間試試） */
+                max-width: 280px;   /* 最寬不要超過 */
+                height: 28px;       /* 高度 */
+                padding: 4px 10px;  /* 內距 */
+                font-size: 14px;    /* 字體大小 */
+                z-index: 3000;      /* 確保在最上層 */
+          }
+            .search-box.active input {
+            font-size: 16px;
+             margin-left: -8PX; 
+             padding-left: -8px;
+          }
+            .mobile-search-button {
+            position: relative;
+            z-index: 4001; /* ⬅️ 比搜尋框的 z-index 更高 */
+          }
+           .search-box.active svg.search-icon {
+            display: none;   /* 手機版搜尋框裡把 SVG 隱藏掉 */
           }
         }
 @media (max-width: 599px) {
@@ -1001,7 +1031,12 @@
     margin-left: 6px;
   }
 }
-
+@media (min-width: 1024px) {
+  .filter-buttons {
+    justify-content: center;   /* 靠右對齊 */
+    overflow-x: visible;         /* 桌機不需要橫向滑動 */
+  }
+}
 
     </style>
     
@@ -1016,7 +1051,7 @@
       </div>
       <div class="right-section">
         <!-- 📱 手機版用搜尋 icon -->
-        <button class="mobile-search-button" onclick="handleMobileSearch()">
+        <button class="mobile-search-button" onclick="toggleMobileSearch()">
           <div class="icon-wrapper">
             <svg id="search-icon-main" class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <path
@@ -1045,7 +1080,7 @@
               stroke-linejoin="round"
             />
           </svg>
-          <input type="text" placeholder="搜尋地點" />
+<input id="mobile-search-input" type="text" placeholder="搜尋地點" />
           
         </div>
       <a href="/overview" class="overview-button only-label" id="overview-link" style="display: inline-flex; align-items: center;">
@@ -1067,18 +1102,10 @@
       </div>
       </div>
     </div>
-
-    <div class="filter-bar">
-      <div class="container filter-buttons">
-        <div class="filter-item">
-
-        <button class="filter-btn" data-type="county" id="county-btn">
-            <span class="label">所有縣市</span>
-            <span class="arrow"></span>
-          </button>
-            <div class="county-dropdown hidden">
-              <ul class="county-list">
-                <li class="county-option" data-county="all">所有縣市</li>
+<!-- ===== Portal dropdowns（貼在 </body> 前）===== -->
+<div id="menu-county" class="county-dropdown hidden">
+  <ul class="county-list">
+    <li class="county-option" data-county="all">所有縣市</li>
                 <li class="county-option" data-county="台北市">台北市</li>
                 <li class="county-option" data-county="新北市">新北市</li>
                 <li class="county-option" data-county="基隆市">基隆市</li>
@@ -1101,8 +1128,33 @@
                 <li class="county-option" data-county="澎湖縣">澎湖縣</li>
                 <li class="county-option" data-county="金門縣">金門縣</li>
                 <li class="county-option" data-county="連江縣">連江縣</li>
-              </ul>
-            </div>
+  </ul>
+</div>
+
+<div id="menu-activity" class="activity-dropdown hidden">
+  <ul class="activity-list">
+     <li class="activity-option" data-activity="all">活動類型</li>
+            <li class="activity-option" data-activity="activity">一般活動</li>
+            <li class="activity-option" data-activity="training">訓練課程</li>
+  </ul>
+</div>
+
+<ul id="time-dropdown" class="hidden">
+            <li class="time-option" data-time="all">全部</li>
+          <li class="time-option" data-time="morning">早上</li>
+          <li class="time-option" data-time="afternoon">下午</li>
+          <li class="time-option" data-time="evening">晚上</li>
+</ul>
+
+    <div class="filter-bar">
+      <div class="filter-buttons">
+        <div class="filter-item">
+
+        <button class="filter-btn" data-type="county" id="county-btn">
+            <span class="label">所有縣市</span>
+            <span class="arrow"></span>
+          </button>
+
           </div>
         <div class="filter-item">
         <button class="filter-btn" data-type="activity" id="activity-btn">
@@ -1110,13 +1162,7 @@
             <span class="arrow"></span>
         </button>
         <!-- 下拉選單放這裡！不要放在 button 裡面 -->
-        <div class="activity-dropdown hidden">
-          <ul class="activity-list">
-            <li class="activity-option" data-activity="all">活動類型</li>
-            <li class="activity-option" data-activity="activity">一般活動</li>
-            <li class="activity-option" data-activity="training">訓練課程</li>
-          </ul>
-        </div>
+
         </div>
         <!-- 時段按鈕 -->
         <div class="filter-item">
@@ -1126,12 +1172,7 @@
         </button>
 
         <!-- 時段下拉選單（一定要放在上面按鈕的後面，並預設 hidden） -->
-        <ul id="time-dropdown" class="hidden">
-          <li class="time-option" data-time="all">全部</li>
-          <li class="time-option" data-time="morning">早上</li>
-          <li class="time-option" data-time="afternoon">下午</li>
-          <li class="time-option" data-time="evening">晚上</li>
-        </ul>
+   
         </div>
         <button class="filter-btn" id="title-btn" data-type="title">
           <span class="label">活動名稱</span>
@@ -1214,6 +1255,40 @@
         const titleBox = document.getElementById('title-search-container');
         if (titleBox) titleBox.style.display = 'none';
       }
+      // 📱 手機搜尋框開/關
+      function toggleMobileSearch() {
+        const searchBox = document.querySelector('.search-box');
+        searchBox.classList.toggle('active');
+
+        // 如果打開就自動 focus 輸入框
+        if (searchBox.classList.contains('active')) {
+          const input = document.getElementById("mobile-search-input");
+          input.focus();
+        }
+      }
+
+      // 📱 手機輸入框按下 Enter（✔）直接觸發搜尋
+      document.getElementById("mobile-search-input").addEventListener("keypress", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault();   // 避免預設提交
+          searchAddress();      // 呼叫你的搜尋函式
+        }
+      });
+
+      // 📱 點擊搜尋框以外區域 → 關閉搜尋框
+      document.addEventListener("click", function (e) {
+        const searchBox = document.querySelector(".search-box");
+        const searchButton = document.querySelector(".mobile-search-button");
+
+        if (
+          searchBox.classList.contains("active") &&    // 有打開
+          !searchBox.contains(e.target) &&             // 點的不是搜尋框
+          !searchButton.contains(e.target)             // 點的不是搜尋圖示
+        ) {
+          searchBox.classList.remove("active");        // 關閉
+        }
+      });
+
 
       // ✅ 共用：只打開自己
       function toggleDropdown(dropdownEl) {
@@ -1221,6 +1296,61 @@
         closeAllDropdowns();
         if (willOpen) dropdownEl.classList.remove('hidden');
       }
+      // ===== Dropdown Portal helpers =====
+let openMenu = null;
+let activeBtn = null;
+
+function placeAndShow(menuEl, btnEl){
+  // 先關掉舊的（如果有的話）
+  if (openMenu && openMenu !== menuEl) {
+    openMenu.classList.add('hidden');
+  }
+
+  const rect = btnEl.getBoundingClientRect();
+  const left = rect.left + window.scrollX;
+  const top  = rect.bottom + window.scrollY + 6;
+
+  menuEl.style.left = left + 'px';
+  menuEl.style.top  = top  + 'px';
+
+  if (menuEl.parentElement !== document.body){
+    document.body.appendChild(menuEl);
+  }
+
+  menuEl.classList.remove('hidden');
+  openMenu = menuEl;
+  activeBtn = btnEl;
+}
+
+
+function closeMenu(){
+  if(!openMenu) return;
+  openMenu.classList.add('hidden');
+  openMenu = null;
+  activeBtn = null;
+}
+
+// 任何時候滾動/縮放/轉向 → 重新定位打開中的選單
+['scroll','resize','orientationchange'].forEach(evt=>{
+  window.addEventListener(evt, ()=>{
+    if(openMenu && activeBtn){ placeAndShow(openMenu, activeBtn); }
+  });
+});
+
+// 點外面就關閉
+document.addEventListener('click', (e)=>{
+  if (!openMenu) return;
+  if (openMenu.contains(e.target)) return;         // 點到選單：不關
+  if (activeBtn && activeBtn.contains(e.target)) return; // 點到按鈕本身：不關
+  closeMenu();
+});
+
+// 讓你原本的 closeAllDropdowns() 也能關掉 portal 狀態
+const _origCloseAllDropdowns = closeAllDropdowns;
+closeAllDropdowns = function(){
+  try { _origCloseAllDropdowns(); } catch(e){}
+  closeMenu();
+};
       // === 共用：把活動資料渲染成同一套卡片 HTML ===
       function buildInfoCardHTML(act, options = {}) {
         const { nav = false, total = 1, uid = "" } = options;
@@ -1343,7 +1473,6 @@ map = new google.maps.Map(document.getElementById("map"), {
 });
 
     // 綁定搜尋圖示（SVG）的點擊事件
-document.querySelector('.search-icon').addEventListener('click', searchAddress);
 
   loadMarkers("all"); // 🆕 初始載入所有標記
   document.getElementById("title-search-btn").addEventListener("click", searchByTitle);
@@ -1357,17 +1486,21 @@ if (searchIcon) {
 
 
   // 🆕 加上活動類型篩選邏輯
-  const activityBtn = document.querySelector('.filter-btn[data-type="activity"]');
-  const activityDropdown = document.querySelector('.activity-dropdown');
-  const activityOptions = document.querySelectorAll('.activity-option');
-
-  let selectedActivityType = "all"; // 🆕 加一個全域變數來記錄
+const activityBtn = document.querySelector('.filter-btn[data-type="activity"]');
+const activityDropdown = document.getElementById('menu-activity') 
+                       || document.querySelector('.activity-dropdown');
 
 activityBtn.addEventListener('click', (e) => {
   e.stopPropagation();
-  toggleDropdown(activityDropdown);
+  if (openMenu === activityDropdown) {
+    closeMenu();
+  } else {
+    placeAndShow(activityDropdown, activityBtn);
+  }
 });
 
+
+const activityOptions = document.querySelectorAll('#menu-activity .activity-option');
 
   activityOptions.forEach(option => {
     option.addEventListener('click', () => {
@@ -1383,20 +1516,24 @@ activityBtn.addEventListener('click', (e) => {
       const countyToSend = currentCounty === "所有縣市" ? "all" : currentCounty;
 
       loadMarkers(countyToSend, selectedActivityType, selectedTime);
-      loadMarkers(countyToSend, selectedActivityType, selectedTime);
     });
   });
 }
 // 時段按鈕
 const timeBtn = document.getElementById("time-btn");
 const timeDropdown = document.getElementById("time-dropdown");
-const timeOptions = document.querySelectorAll('.time-option');
+const timeOptions = document.querySelectorAll('#time-dropdown .time-option');
 
 
 timeBtn.addEventListener("click", (e) => {
   e.stopPropagation();
-  toggleDropdown(timeDropdown);
+  if (openMenu === timeDropdown) {
+    closeMenu();
+  } else {
+    placeAndShow(timeDropdown, timeBtn);
+  }
 });
+
 
 
 timeOptions.forEach(option => {
@@ -1805,7 +1942,8 @@ function loadMarkers(county, activityType = "all", time = "all") {
     </script>
     <script>
       const countyBtn = document.querySelector('.filter-btn[data-type="county"]');
-      const countyDropdown = document.querySelector('.county-dropdown');
+      const countyDropdown = document.getElementById('menu-county');
+
       const countyOptions = document.querySelectorAll('.county-option');
       
       const countyCenter = {
@@ -1834,10 +1972,17 @@ function loadMarkers(county, activityType = "all", time = "all") {
       };
       
       // 點擊「所有縣市」按鈕 → 顯示/隱藏下拉
-      countyBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        toggleDropdown(countyDropdown);
-      });
+countyBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  // 取得 body 裡的 menu（你剛剛貼在 body 的那個）
+  const menu = document.getElementById('menu-county') || countyDropdown;
+  if (openMenu === menu) {
+    closeMenu();
+  } else {
+    placeAndShow(menu, countyBtn);
+  }
+});
+
 
       
       // 點選縣市後 → 移動地圖與更新按鈕文字

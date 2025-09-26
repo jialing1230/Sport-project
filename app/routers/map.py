@@ -122,7 +122,15 @@ def get_markers_by_county():
 
         # 類型過濾
         if activity_type and activity_type != "all":
-            filters.append(Activity.type == activity_type)
+            if activity_type == "training":
+                # "訓練課程" = class + muti_class
+                from sqlalchemy import or_
+                filters.append(
+                    Activity.type.in_(["class", "muti_class"])
+                )
+            else:
+                # "一般活動" 就是 activity
+                filters.append(Activity.type == activity_type)
 
         activities = (
             db.query(Activity)

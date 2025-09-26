@@ -1114,7 +1114,7 @@
           <ul class="activity-list">
             <li class="activity-option" data-activity="all">活動類型</li>
             <li class="activity-option" data-activity="activity">一般活動</li>
-            <li class="activity-option" data-activity="class">訓練課程</li>
+            <li class="activity-option" data-activity="training">訓練課程</li>
           </ul>
         </div>
         </div>
@@ -1425,9 +1425,10 @@ function createMarkerForGroup(group) {
     lng: parseFloat(group[0].location_lng),
   };
 
-  const iconUrl = group.every(x => x.type === "class")
-    ? "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
-    : "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
+  const isTrainingType = t => (t === "class" || t === "muti_class");
+const iconUrl = group.every(x => isTrainingType(x.type))
+  ? "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+  : "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
 
   const marker = new google.maps.Marker({
     position: pos,

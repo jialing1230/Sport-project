@@ -1037,6 +1037,17 @@
     overflow-x: visible;         /* 桌機不需要橫向滑動 */
   }
 }
+/* 頁面淡出動畫 */
+.fade-out {
+  animation: fadeOut 0.4s forwards;
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+
 
     </style>
     
@@ -2243,7 +2254,21 @@ google.maps.event.addListener(map, 'click', () => {
         const inside = e.target.closest('.filter-buttons');
         if (!inside) closeAllDropdowns();
       });
+// ✅ 切換清單：淡出轉場後跳頁
+const overviewLink = document.getElementById("overview-link");
+if (overviewLink) {
+  overviewLink.addEventListener("click", function (e) {
+    e.preventDefault(); // 阻止立即跳頁
 
+    // 加上淡出 class
+    document.body.classList.add("fade-out");
+
+    // 動畫結束後才跳轉
+    setTimeout(() => {
+      window.location.href = this.href;
+    }, 400); // 與 CSS 的 0.4s 對應
+  });
+}
 </script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {

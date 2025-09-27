@@ -738,13 +738,16 @@
       const memberId = params.get("member_id");
 
       // ✅ 返回按鈕處理（帶上 member_id）
-      document.getElementById("backBtn").onclick = () => {
-        if (memberId) {
-          location.href = `/home?member_id=${memberId}`;
-        } else {
-          location.href = "/home";
-        }
-      };
+document.getElementById("backBtn").onclick = () => {
+  document.body.classList.add("fade-out");
+  setTimeout(() => {
+    if (memberId) {
+      location.href = `/home?member_id=${memberId}`;
+    } else {
+      location.href = "/home";
+    }
+  }, 400); // 0.4 秒對應 fade-out 動畫
+};
 
   let activities = [];
   let filteredActivities = [];

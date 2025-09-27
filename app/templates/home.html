@@ -2056,14 +2056,25 @@ if (countyName === 'all') {
 
       const displayName = place.name || place.formatted_address || keyword;
 
-      searchInfoWindow = new google.maps.InfoWindow({
-        content: `
-          <div class="map-info-card">
-            <div class="title">${displayName}</div>
-            <img src="https://maps.googleapis.com/maps/api/streetview?size=300x150&location=${encodeURIComponent(displayName)}&key={{ api_key }}" style="margin-top:8px;width:100%;border-radius:8px;" />
-          </div>
-        `,
-      });
+      // 用 place_id（若有）做精準連結，否則用名稱搜尋
+const mapsUrl = place.place_id
+  ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(displayName)}&query_place_id=${encodeURIComponent(place.place_id)}`
+  : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(displayName)}`;
+
+searchInfoWindow = new google.maps.InfoWindow({
+  content: `
+    <div class="map-info-card">
+      <div class="title">${displayName}</div>
+
+      <div class="footer-row" style="margin-top:6px;">
+        <span class="label">場地資訊：</span>
+        <a href="${mapsUrl}" target="_blank" rel="noopener" class="map-link">Google 地圖</a>
+      </div>
+
+      <img src="https://maps.googleapis.com/maps/api/streetview?size=300x150&location=${encodeURIComponent(displayName)}&key={{ api_key }}" style="margin-top:8px;width:100%;border-radius:8px;" />
+    </div>
+  `
+});
 
       searchInfoWindow.open(map, searchMarker);
       map.setCenter(location);

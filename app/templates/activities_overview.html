@@ -1155,6 +1155,10 @@
         window.location.href = `/news?member_id=${memberId}`;
       }
 
+      function goToNotice() {
+        window.location.href = `/notice?member_id=${memberId}`;
+      }
+
 
       // ✅ 讓上方「選單」按鈕（桌機/手機）都導向新聞頁
       (function(){
@@ -1193,7 +1197,7 @@
           setTimeout(() => {
             if (index === 0) goToPage();
             else if (index === 1) goToActivity();
-            else if (index === 2) goToNews();
+            else if (index === 2) goToNotice();
             else if (index === 3) goToProfile();
           }, 300);
         });

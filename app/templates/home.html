@@ -1561,32 +1561,45 @@ function createMarkerForGroup(group) {
     lat: parseFloat(group[0].location_lat),
     lng: parseFloat(group[0].location_lng),
   };
+  
+  // ✨ 放這裡
+const RED_ICON  = "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
+const BLUE_ICON = "http://maps.google.com/mapfiles/ms/icons/blue-dot.png";
+const isTrainingType = t => (t === "class" || t === "muti_class");
 
-  const isTrainingType = t => (t === "class" || t === "muti_class");
-const iconUrl = group.every(x => isTrainingType(x.type))
-  ? "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
-  : "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
+// 這顆 marker 建立時的預設顏色（全部是訓練→藍，否則紅）
+const defaultIcon = group.every(x => isTrainingType(x.type)) ? BLUE_ICON : RED_ICON;
 
   const marker = new google.maps.Marker({
-    position: pos,
-    map,
-    icon: iconUrl,
-    title: group[0].location_name || group[0].title,
-  });
+  position: pos,
+  map,
+  icon: defaultIcon,   // ← 用預設 icon
+  title: group[0].location_name || group[0].title,
+});
 
   const infoWindow = new google.maps.InfoWindow({ content: "" });
+
+// ✨ 放這裡
+infoWindow.addListener("closeclick", () => {
+  marker.setIcon(defaultIcon);  // X 被按掉時復原
+});
   let index = 0;
   const uid = "g" + Math.random().toString(36).slice(2, 9);
 
   const render = () => {
     const act = group[index];
+    // 依當頁活動型別，讓 marker 即時變色
+const liveIcon = isTrainingType(act.type) ? BLUE_ICON : RED_ICON;
+if (marker.getIcon() !== liveIcon) {
+  marker.setIcon(liveIcon);
+}
     const total = group.length;
 
     const originalFee = act.venue_fee ?? 0;
     const discountFee = Math.max(0, Math.floor(originalFee * 0.8));
     // 新增：等級顯示對應表
 const levelMap = { 
-  "初階": "初階等級", 
+  "初學": "初學等級", 
   "中階": "中階等級", 
   "進階": "進階等級", 
   "不限": "不限等級" 
@@ -1836,6 +1849,16 @@ const feeHtml = eligibleForDiscount
 
   markers.push(marker);
   }
+  function scheduleClose() {
+  clearTimeout(closeTimer);
+  closeTimer = setTimeout(() => {
+    const iw = document.querySelector(".gm-style-iw");
+    if (!iw || !iw.matches(":hover")) {
+      infoWindow.close();
+      marker.setIcon(defaultIcon);  // ← 關閉後復原顏色
+    }
+  }, 200);
+}
 
 
 // 🆕 新增這個函式

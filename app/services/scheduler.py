@@ -1,6 +1,3 @@
-import os
-# 依據環境變數決定 domain
-DOMAIN = os.getenv("APP_DOMAIN", "http://127.0.0.1:5002")
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime,timedelta
 from app.database import get_db
@@ -13,6 +10,7 @@ from gmail_eval import send_eval_mail
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+DOMAIN = "http://ec2-52-195-207-234.ap-northeast-1.compute.amazonaws.com:8000"
 
 def update_activity_status():
     with get_db() as db:
@@ -50,7 +48,7 @@ def update_activity_status():
                     ).all()
 
                     for participant in participants:
-                        eval_link = f"{DOMAIN}/evaluate?activity_id={activity.activity_id}&member_id={participant.member_id}"
+                        eval_link = f"{DOMAIN.rstrip('/')}/evaluate?activity_id={activity.activity_id}&member_id={participant.member_id}"
 
                         # 避免重複寄送，檢查是否已有通知紀錄
                         exists = db.query(Notification).filter_by(

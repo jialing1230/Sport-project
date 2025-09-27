@@ -7,6 +7,8 @@ from app.models.activity import Activity
 from app.models.sport_type import SportType
 from sqlalchemy import extract
 from app.models.member import Member
+from app.models.course_schedul import CourseSchedule
+from sqlalchemy import func
 
 map_bp = Blueprint("map", __name__)
 
@@ -74,6 +76,13 @@ def get_active_markers():
 
         result = []
         for a in activities:
+            # 這裡算堂數
+            class_count = (
+                db.query(func.count(CourseSchedule.course_schedule_id))
+                .filter(CourseSchedule.activity_id == a.activity_id)
+                .scalar()
+                )
+
             result.append({
                 "activity_id": a.activity_id,
                 "title": a.title,
@@ -92,6 +101,7 @@ def get_active_markers():
                 "level": a.level,
                 "is_discounted": int(getattr(a, "is_discounted", 0)),
                 "user_is_subscribed": user_is_subscribed,
+                "class_count": class_count,
                 "type": a.type  # ✅ 新增這一行（最重要）
             })
 
@@ -159,9 +169,15 @@ def get_markers_by_county():
             .join(SportType)
             .all()
         )
-
         result = []
         for a in activities:
+             # 這裡算堂數
+            class_count = (
+                db.query(func.count(CourseSchedule.course_schedule_id))
+                .filter(CourseSchedule.activity_id == a.activity_id)
+                .scalar()
+                )
+            
             result.append({
                 "activity_id": a.activity_id,
                 "title": a.title,
@@ -180,6 +196,7 @@ def get_markers_by_county():
                 "level": a.level,
                 "is_discounted": int(getattr(a, "is_discounted", 0)),
                 "user_is_subscribed": user_is_subscribed,
+                "class_count": class_count,
                 "type": a.type
             })
 

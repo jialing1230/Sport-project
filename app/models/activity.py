@@ -25,6 +25,7 @@ class Activity(Base):
     location_lng = Column(DECIMAL(18, 15))
     max_participants = Column(Integer)
     current_participants = Column(Integer, default=0)
+    min_participants = Column(Integer, nullable=False, comment="活動人數下限")
     organizer_id = Column(String(36), ForeignKey("members.member_id"))
     level = Column(String(50))
     sport_type_id = Column(Integer, ForeignKey("sport_types.sport_type_id"))

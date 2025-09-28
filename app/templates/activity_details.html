@@ -737,6 +737,10 @@
 
 
       const joinBtn = document.getElementById("join-btn");
+        // 狀態為取消則隱藏按鈕
+        if (detail.status === "cancelled") {
+          joinBtn.style.display = "none";
+        } else {
       // 先判斷是否為發起人
       if (String(participant.organizer.member_id) === String(memberId)) {
         joinBtn.textContent = "發起人";
@@ -772,6 +776,7 @@
         joinBtn.style.backgroundColor = "#ccc";
         joinBtn.disabled = true;
       }
+        }
 
       let statusText = "";
       switch (detail.status) {

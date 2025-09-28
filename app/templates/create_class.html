@@ -444,14 +444,27 @@
       <input type="datetime-local" name="endTime" required />
     </div>
     <div class="form-row">
-          <label class="form-label">人數</label>
+          <label class="form-label">上限人數</label>
           <input
             type="number"
             name="numPeople"
-            placeholder="請輸入正確人數"
+            placeholder="請輸入最高上限人數"
             required
             min="1"
           />
+        </div>
+    <div class="form-row">
+          <label class="form-label">下限人數</label>
+          <input
+            type="number"
+            name="minPeople"
+            placeholder="請輸入最低下限人數"
+            required
+            min="1"
+          />
+          <div style="font-size: 12px; color: #666; margin-top: 5px;">
+            提醒：報名截止人數未達最低下限，活動將自行取消
+          </div>
         </div>
     <div class="form-row">
       <label class="form-label">費用NTD（每位學員）</label>
@@ -616,14 +629,27 @@
 	</div>
 
     <div class="form-row">
-          <label class="form-label">人數</label>
+          <label class="form-label">上限人數</label>
           <input
             type="number"
             name="multi_numPeople"
-            placeholder="請輸入正確人數"
+            placeholder="請輸入最高上限人數"
             required
             min="1"
           />
+        </div>
+    <div class="form-row">
+          <label class="form-label">下限人數</label>
+          <input
+            type="number"
+            name="multi_minPeople"
+            placeholder="請輸入最低下限人數"
+            required
+            min="1"
+          />
+          <div style="font-size: 12px; color: #666; margin-top: 5px;">
+            提醒：報名截止人數未達最低下限，活動將自行取消
+          </div>
         </div>
     <div class="form-row">
       <label class="form-label">費用NTD（每位學員）</label>
@@ -942,7 +968,13 @@
             return;
           }
 
+          const maxParticipants = parseInt(formData.get("numPeople"));
+          const minParticipants = parseInt(formData.get("minPeople"));
           
+          if (minParticipants > maxParticipants) {
+            alert("下限人數不能超過上限人數！");
+            return;
+          }
 
           if (!confirm("確定要發起課程嗎？")) {
             return;
@@ -961,6 +993,7 @@
             location_lat: parseFloat(document.getElementById("location-lat").value),
             location_lng: parseFloat(document.getElementById("location-lng").value),
             max_participants: parseInt(formData.get("numPeople")),
+            min_participants: parseInt(formData.get("minPeople")),
             venue_fee: parseFloat(formData.get("venue_fee")),
             registration_deadline: formData.get("registration_deadline"),
             organizer_id: memberId, // 使用網址中的 member_id
@@ -1028,6 +1061,14 @@
             }
           }
 
+          const maxParticipants = parseInt(formData.get("multi_numPeople"));
+          const minParticipants = parseInt(formData.get("multi_minPeople"));
+          
+          if (minParticipants > maxParticipants) {
+            alert("下限人數不能超過上限人數！");
+            return;
+          }
+
           if (!confirm("確定要發起多堂課程嗎？")) {
             return;
           }
@@ -1041,6 +1082,7 @@
             weekdays: formData.getAll("weekdays"),
             multi_count: parseInt(formData.get("multi_count")),
             max_participants: parseInt(formData.get("multi_numPeople")),
+            min_participants: parseInt(formData.get("multi_minPeople")),
             gender: formData.get("multi_gender"),
             age_range: formData.get("multi_ageRange"),
             level: formData.get("multi_level"),

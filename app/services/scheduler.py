@@ -1,6 +1,3 @@
-# ✅ 新增：時區 & 環境
-import os
-from zoneinfo import ZoneInfo
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime,timedelta
 from app.database import get_db
@@ -14,12 +11,10 @@ from gmail_eval import send_eval_mail
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 DOMAIN = "http://ec2-52-195-207-234.ap-northeast-1.compute.amazonaws.com:8000"
-# ✅ 新增：統一程式內使用的時區（預設吃環境變數 TZ，否則 Asia/Taipei）
-TZ = ZoneInfo(os.getenv("TZ", "Asia/Taipei"))
 
 def update_activity_status():
     with get_db() as db:
-        now = datetime.now(TZ)
+        now = datetime.now()
         activities = db.query(Activity).all()
         for activity in activities:
             # 按 open -> deadline -> ongoing -> close 順序更新狀態
@@ -150,10 +145,10 @@ def update_activity_status():
                     activity.status = "unknown"
 
         db.commit()
-
+    
 def notify_upcoming_activities():
     with get_db() as db:
-        now = datetime.now(TZ)
+        now = datetime.now()
         # 查詢2小時後即將開始的活動
         upcoming_activities = db.query(Activity).filter(
             Activity.start_time.isnot(None),
@@ -182,14 +177,9 @@ def notify_upcoming_activities():
                     db.add(notify)
         db.commit()
 
-# ✅ 最小改動：指定 APScheduler 的時區，並給每個 job 一個固定 id（避免重覆掛載）
 def start_scheduler():
     logger.info("Starting the scheduler...")
-    scheduler = BackgroundScheduler(timezone=TZ)
-    scheduler.add_job(update_activity_status, 'interval', minutes=1,
-                      id="update_activity_status", replace_existing=True,
-                      max_instances=1, coalesce=True)
-    scheduler.add_job(notify_upcoming_activities, 'interval', minutes=3,
-                      id="notify_upcoming_activities", replace_existing=True,
-                      max_instances=1, coalesce=True)
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(update_activity_status, 'interval', minutes=1)
+    scheduler.add_job(notify_upcoming_activities, 'interval', minutes=3)
     scheduler.start()

@@ -216,8 +216,8 @@ def get_activity_participants(activity_id):
                 participants.append({
                     "user_id": str(host.member_id),
                     "name": host.name,
-    })
-
+                    "has_review": bool(activity.has_review)  # 主辦人用 activity.has_review
+                })
 
         # 再抓報名成功的參加者
         joins = db_session.query(ActivityJoin).filter(
@@ -230,8 +230,8 @@ def get_activity_participants(activity_id):
                 participants.append({
                     "user_id": str(user.member_id),
                     "name": user.name,
-    })
-
+                    "has_review": bool(j.has_review)  # 參加者用 join.has_review
+                })
 
     return jsonify(participants)
 

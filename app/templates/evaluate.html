@@ -393,6 +393,28 @@
   </head>
 
   <body>
+    <script>
+        // 頁面載入時檢查是否已評價
+        document.addEventListener('DOMContentLoaded', async function() {
+          const urlParams = new URLSearchParams(window.location.search);
+          const activityId = urlParams.get('activity_id');
+          const memberId = urlParams.get('member_id');
+          if (activityId && memberId) {
+            try {
+              const res = await fetch(`/api/activities/${activityId}/participants`);
+              if (res.ok) {
+                const participants = await res.json();
+                // 找出當前使用者
+                const me = participants.find(p => String(p.user_id) === String(memberId));
+                if (me && me.has_review) {
+                  alert('您已評價過此活動，將自動返回上一頁');
+                  window.history.back();
+                }
+              }
+            } catch (e) {}
+          }
+        });
+      </script>
     <header class="page-header">
       <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 256 256" onclick="redirectToMemberView()">
         <path d="M228,128a12,12,0,0,1-12,12H69l51.52,51.51a12,12,0,0,1-17,17l-72-72a12,12,0,0,1,0-17l72-72a12,12,0,0,1,17,17L69,116H216A12,12,0,0,1,228,128Z"/>

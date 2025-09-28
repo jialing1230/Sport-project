@@ -306,14 +306,27 @@
         </div>
         
         <div class="form-row">
-          <label class="form-label">人數（包含自己）</label>
+          <label class="form-label">上限人數（包含自己）</label>
           <input
             type="number"
             name="numPeople"
-            placeholder="請輸入正確人數"
+            placeholder="請輸入最高上限人數"
             required
             min="1"
           />
+        </div>
+        <div class="form-row">
+          <label class="form-label">下限人數（包含自己）</label>
+          <input
+            type="number"
+            name="minPeople"
+            placeholder="請輸入最低下限人數"
+            required
+            min="1"
+          />
+          <div style="font-size: 12px; color: #666; margin-top: 5px;">
+            提醒：報名截止人數未達最低下限，活動將自行取消
+          </div>
         </div>
         <div class="form-row">
           <label class="form-label">場地費 (NTD)</label>
@@ -481,6 +494,14 @@
     return;
   }
 
+  const maxParticipants = parseInt(formData.get("numPeople"));
+  const minParticipants = parseInt(formData.get("minPeople"));
+  
+  if (minParticipants > maxParticipants) {
+    alert("下限人數不能超過上限人數！");
+    return;
+  }
+
   if (!confirm("確定要發起活動嗎？")) {
     return;
   }
@@ -502,6 +523,7 @@ const data = {
   location_lat: locationLat,
   location_lng: locationLng,
   max_participants: parseInt(formData.get("numPeople")),
+  min_participants: parseInt(formData.get("minPeople")),
   venue_fee: parseFloat(formData.get("venue_fee")),
   registration_deadline: formData.get("registration_deadline"),
   organizer_id: memberId,

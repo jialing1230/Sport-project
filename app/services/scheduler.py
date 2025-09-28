@@ -17,9 +17,6 @@ def update_activity_status():
         now = datetime.now()
         activities = db.query(Activity).all()
         for activity in activities:
-            # 已取消活動永遠保持 cancelled 狀態
-            if activity.status == "cancelled":
-                continue
             # 按 open -> deadline -> ongoing -> close 順序更新狀態
             if activity.registration_deadline and now < activity.registration_deadline:
                 if activity.status != "cancelled":
@@ -66,7 +63,11 @@ def update_activity_status():
                     for participant in pending_participants:
                         db.delete(participant)
             elif activity.end_time and now >= activity.end_time:
-                if activity.status != "cancelled":
+                if activity.status == "cancelled":
+                    # 活動已取消且已結束，刪除所有相關紀錄
+                    db.query(ActivityJoin).filter_by(activity_id=activity.activity_id).delete()
+                    db.query(Activity).filter_by(activity_id=activity.activity_id).delete()
+                elif activity.status != "cancelled":
                     # 只在狀態從非 close → close 時才觸發
                     if activity.status != "close":
                         activity.status = "close"

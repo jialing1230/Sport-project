@@ -302,7 +302,8 @@
             document.getElementById("captcha-container").classList.add("show");
             alert("驗證碼已發送至您的信箱！");
           } else {
-            alert("發送驗證碼失敗！");
+            document.getElementById("captcha-container").classList.add("show");
+            alert("發送驗證碼失敗！僅寄驗證碼給測試人員帳號，其餘請向測試人員索取驗證碼。");
           }
         });
       }

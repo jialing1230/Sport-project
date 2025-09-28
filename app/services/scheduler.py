@@ -55,15 +55,44 @@ def update_activity_status():
                             db.add(notify)
             elif activity.start_time and now >= activity.start_time and (not activity.end_time or now < activity.end_time):
                 if activity.status != "cancelled":
-                    activity.status = "ongoing"
-                    pending_participants = db.query(ActivityJoin).filter(
-                        ActivityJoin.activity_id == activity.activity_id,
-                        ActivityJoin.status == "pending"
-                    ).all()
-                    for participant in pending_participants:
-                        db.delete(participant)
+                    # 進行前先判斷人數是否達下限
+                    if getattr(activity, "current_participants", 0) >= getattr(activity, "min_participants", 0):
+                        activity.status = "ongoing"
+                        pending_participants = db.query(ActivityJoin).filter(
+                            ActivityJoin.activity_id == activity.activity_id,
+                            ActivityJoin.status == "pending"
+                        ).all()
+                        for participant in pending_participants:
+                            db.delete(participant)
+                    else:
+                        activity.status = "cancelled"
+                        # 發起人通知
+                        if activity.organizer_id:
+                            notify = Notification(
+                                member_id=activity.organizer_id,
+                                title="活動取消通知",
+                                content=f"您的活動「{activity.title}」因人數不足已取消。",
+                                url=f"/api/activities/details_page?id={activity.activity_id}&member_id={activity.organizer_id}"
+                            )
+                            db.add(notify)
+                        # 所有已報名參加者通知
+                        participants = db.query(ActivityJoin).filter_by(activity_id=activity.activity_id, status="joined").all()
+                        for participant in participants:
+                            notify = Notification(
+                                member_id=participant.member_id,
+                                title="活動取消通知",
+                                content=f"您參加的活動「{activity.title}」因人數不足已取消。",
+                                url=f"/api/activities/details_page?id={activity.activity_id}&member_id={participant.member_id}"
+                            )
+                            db.add(notify)
             elif activity.end_time and now >= activity.end_time:
-                if activity.status == "cancelled":
+                # 結束時也判斷人數是否達下限
+                if getattr(activity, "current_participants", 0) < getattr(activity, "min_participants", 0):
+                    activity.status = "cancelled"
+                    # 活動已取消且已結束，刪除所有相關紀錄
+                    db.query(ActivityJoin).filter_by(activity_id=activity.activity_id).delete()
+                    db.query(Activity).filter_by(activity_id=activity.activity_id).delete()
+                elif activity.status == "cancelled":
                     # 活動已取消且已結束，刪除所有相關紀錄
                     db.query(ActivityJoin).filter_by(activity_id=activity.activity_id).delete()
                     db.query(Activity).filter_by(activity_id=activity.activity_id).delete()

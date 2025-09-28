@@ -517,7 +517,7 @@
     }
 
     .activity-type-label.general-activity {
-      color: #2c4975;       /* 深藍字 */
+      color: #2c4975;       /* 深藜字 */
       background: none;     /* 沒有底色 */
       font-size: 16px;
       font-weight: normal;  /* 同樣不用粗體 */
@@ -695,6 +695,13 @@
         fetch(`/api/activities/participants?activity_id=${activityId}`).then(res => res.json())
       ])
       .then(async ([detail, participant]) => {
+        // 檢查活動是否存在
+        if (!detail || !detail.activity_id) {
+          document.querySelector(".container").innerHTML = `<p style='color:red;font-size:20px;text-align:center;margin-top:40px;'>此活動已取消</p>`;
+          document.getElementById("join-btn").style.display = "none";
+          return;
+        }
+
         // 取得發起人黑名單
         let isBlocked = false;
         if (memberId && participant.organizer && participant.organizer.member_id) {

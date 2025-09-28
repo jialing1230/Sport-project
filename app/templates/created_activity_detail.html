@@ -656,19 +656,31 @@
       // 若後端有時沒給 registration_deadline，可把截止視為開始前一刻
       const effectiveSignupDeadline = isNaN(signupDeadline) ? startTime : signupDeadline;
 
-      // 狀態優先序：已結束 > 進行中 > 準備中 > 審核階段
-      if (now >= endTime) {
-        statusText = "已結束";
-        statusClass = "badge-open";
-      } else if (now >= startTime && now < endTime) {
-        statusText = "進行中";
-        statusClass = "badge-open";
-      } else if (now >= effectiveSignupDeadline && now < startTime) {
-        statusText = "準備中";        // 報名截止「那一刻」起算為準備中
-        statusClass = "badge-open";
-      } else {
-        statusText = "審核階段";      // 報名截止前，一律顯示審核階段
-        statusClass = "badge-open";
+      // 狀態文字直接依據活動狀態
+      switch (detail.status) {
+        case "open":
+          statusText = "審核階段";
+          statusClass = "badge-open";
+          break;
+        case "deadline":
+          statusText = "準備中";
+          statusClass = "badge-open";
+          break;
+        case "ongoing":
+          statusText = "進行中";
+          statusClass = "badge-open";
+          break;
+        case "close":
+          statusText = "已結束";
+          statusClass = "badge-open";
+          break;
+        case "cancelled":
+          statusText = "已取消";
+          statusClass = "badge-full";
+          break;
+        default:
+          statusText = "未知狀態";
+          statusClass = "badge-open";
       }
 
 
@@ -827,62 +839,67 @@
           const organizerHasReview = participant.organizer && participant.organizer.has_review === true;
 
           if (isOrganizer) {
-            // 狀態1: 審核階段（報名截止前）
-            if (now < signupDeadline) {
-              btn.style.display = "block";
-              btn.innerHTML = `待審核<span class="count">（${participant.pending_participants.length}）</span>`;
+            // 狀態為已取消則不顯示按鈕
+            if (detail.status === "cancelled") {
+              btn.style.display = "none";
+            } else {
+              // 狀態1: 審核階段（報名截止前）
+              if (now < signupDeadline) {
+                btn.style.display = "block";
+                btn.innerHTML = `待審核<span class="count">（${participant.pending_participants.length}）</span>`;
 
-              btn.classList.remove("disabled");
-              btn.disabled = false;
-              btn.onclick = function() {
-                window.location.href = `/participation?activity_id=${activityId}&member_id=${memberId}`;
-              };
-            }
-            // 狀態2: 準備中（報名截止後~活動開始前10分鐘）
-            else if (now >= signupDeadline && now < startTime - 10*60*1000) {
-              btn.style.display = "block";
-              btn.textContent = "開始點名";
-              btn.classList.add("disabled");
-              btn.disabled = true; // 尚未到可以點名時
-              btn.onclick = null;
-            }
-            // 狀態3: 活動開始前10分鐘~活動結束（可以點名／補點名）
-            else if (now >= startTime - 10*60*1000 && now <= endTime) {
-              btn.style.display = "block";
-              const checkedIn = detail.attendance_started; // 後端請記得回傳
-              btn.textContent = checkedIn ? "補點名" : "開始點名";
-              btn.classList.remove("disabled");
-              btn.disabled = false;
-              btn.onclick = function() {
-                window.location.href = `/attendance?activity_id=${activityId}&member_id=${memberId}`;
-              };
-            }
-            // 狀態4: 已結束2小時內（還能補點名）
-            else if (now > endTime && now <= new Date(endTime.getTime() + 2*60*60*1000)) {
-              btn.style.display = "block";
-              btn.textContent = "補點名";
-              btn.classList.remove("disabled");
-              btn.disabled = false;
-              btn.onclick = function() {
-                window.location.href = `/attendance?activity_id=${activityId}&member_id=${memberId}`;
-              };
-            }
-            // 狀態5: 已結束超過2小時（顯示待評價/已評價）
-            else if (now > new Date(endTime.getTime() + 2*60*60*1000)) {
-              if (organizerHasReview) {
-                btn.style.display = "block";
-                btn.textContent = "已評價";
-                btn.classList.add("disabled");
-                btn.disabled = true;
-                btn.onclick = null;
-              } else {
-                btn.style.display = "block";
-                btn.textContent = "待評價";
                 btn.classList.remove("disabled");
                 btn.disabled = false;
                 btn.onclick = function() {
-                  window.location.href = `/evaluate?activity_id=${activityId}&member_id=${memberId}`;
+                  window.location.href = `/participation?activity_id=${activityId}&member_id=${memberId}`;
                 };
+              }
+              // 狀態2: 準備中（報名截止後~活動開始前10分鐘）
+              else if (now >= signupDeadline && now < startTime - 10*60*1000) {
+                btn.style.display = "block";
+                btn.textContent = "開始點名";
+                btn.classList.add("disabled");
+                btn.disabled = true; // 尚未到可以點名時
+                btn.onclick = null;
+              }
+              // 狀態3: 活動開始前10分鐘~活動結束（可以點名／補點名）
+              else if (now >= startTime - 10*60*1000 && now <= endTime) {
+                btn.style.display = "block";
+                const checkedIn = detail.attendance_started; // 後端請記得回傳
+                btn.textContent = checkedIn ? "補點名" : "開始點名";
+                btn.classList.remove("disabled");
+                btn.disabled = false;
+                btn.onclick = function() {
+                  window.location.href = `/attendance?activity_id=${activityId}&member_id=${memberId}`;
+                };
+              }
+              // 狀態4: 已結束2小時內（還能補點名）
+              else if (now > endTime && now <= new Date(endTime.getTime() + 2*60*60*1000)) {
+                btn.style.display = "block";
+                btn.textContent = "補點名";
+                btn.classList.remove("disabled");
+                btn.disabled = false;
+                btn.onclick = function() {
+                  window.location.href = `/attendance?activity_id=${activityId}&member_id=${memberId}`;
+                };
+              }
+              // 狀態5: 已結束超過2小時（顯示待評價/已評價）
+              else if (now > new Date(endTime.getTime() + 2*60*60*1000)) {
+                if (organizerHasReview) {
+                  btn.style.display = "block";
+                  btn.textContent = "已評價";
+                  btn.classList.add("disabled");
+                  btn.disabled = true;
+                  btn.onclick = null;
+                } else {
+                  btn.style.display = "block";
+                  btn.textContent = "待評價";
+                  btn.classList.remove("disabled");
+                  btn.disabled = false;
+                  btn.onclick = function() {
+                    window.location.href = `/evaluate?activity_id=${activityId}&member_id=${memberId}`;
+                  };
+                }
               }
             }
           } else {

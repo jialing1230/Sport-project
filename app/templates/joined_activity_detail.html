@@ -749,7 +749,10 @@
       const isParticipant = participant.joined_participants.some(p => String(p.member_id) === String(memberId));
 
       if (isParticipant) {
-        if (state === "已報名") {
+        // 狀態為已取消則不顯示按鈕
+        if (detail.status === "cancelled") {
+          joinBtn.style.display = "none";
+        } else if (state === "已報名") {
           joinBtn.textContent = "取消參加";
           joinBtn.classList.remove("disabled");
           joinBtn.disabled = false;
@@ -814,6 +817,9 @@
           break;
         case "close":
           statusText = "已結束";
+          break;
+        case "cancelled":
+          statusText = "已取消";
           break;
         default:
           statusText = "未知狀態";

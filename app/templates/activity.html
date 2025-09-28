@@ -1578,14 +1578,24 @@
             const endTime = new Date(activity.end_time);
 
             let statusText = "審核階段"; // 預設
-            if (now < signupDeadline) {
-              statusText = "審核階段";
-            } else if (now >= signupDeadline && now < startTime) {
-              statusText = "準備中";
-            } else if (now >= startTime && now <= endTime) {
-              statusText = "進行中";
-            } else if (now > endTime) {
-              statusText = "已結束";
+            switch (activity.status) {
+              case "open":
+                statusText = "審核階段";
+                break;
+              case "deadline":
+                statusText = "準備中";
+                break;
+              case "ongoing":
+                statusText = "進行中";
+                break;
+              case "close":
+                statusText = "已結束";
+                break;
+              case "cancelled":
+                statusText = "已取消";
+                break;
+              default:
+                statusText = "未知狀態";
             }
 
             card.innerHTML = `
@@ -1686,14 +1696,24 @@
             const endTime = new Date(activity.end_time);
 
             let statusText = "已報名"; // 預設 → 代表已審核通過
-            if (now < signupDeadline) {
-              statusText = "已報名";
-            } else if (now >= signupDeadline && now < startTime) {
-              statusText = "準備中";
-            } else if (now >= startTime && now <= endTime) {
-              statusText = "進行中";
-            } else if (now > endTime) {
-              statusText = "已結束";
+            switch (activity.status) {
+              case "open":
+                statusText = "已報名";
+                break;
+              case "deadline":
+                statusText = "準備中";
+                break;
+              case "ongoing":
+                statusText = "進行中";
+                break;
+              case "close":
+                statusText = "已結束";
+                break;
+              case "cancelled":
+                statusText = "已取消";
+                break;
+              default:
+                statusText = "未知狀態";
             }
             card.innerHTML = `
         <div class="custom-card-header">

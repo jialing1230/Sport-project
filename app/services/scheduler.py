@@ -19,69 +19,101 @@ def update_activity_status():
         for activity in activities:
             # 按 open -> deadline -> ongoing -> close 順序更新狀態
             if activity.registration_deadline and now < activity.registration_deadline:
-                activity.status = "open"
+                if activity.status != "cancelled":
+                    activity.status = "open"
             elif activity.registration_deadline and now >= activity.registration_deadline and (not activity.start_time or now < activity.start_time):
-                activity.status = "deadline"
-                pending_participants = db.query(ActivityJoin).filter(
-                    ActivityJoin.activity_id == activity.activity_id,
-                    ActivityJoin.status == "pending"
-                ).all()
-                for participant in pending_participants:
-                    db.delete(participant)
-            elif activity.start_time and now >= activity.start_time and (not activity.end_time or now < activity.end_time):
-                activity.status = "ongoing"
-                pending_participants = db.query(ActivityJoin).filter(
-                    ActivityJoin.activity_id == activity.activity_id,
-                    ActivityJoin.status == "pending"
-                ).all()
-                for participant in pending_participants:
-                    db.delete(participant)
-            elif activity.end_time and now >= activity.end_time:
-                # 只在狀態從非 close → close 時才觸發
-                if activity.status != "close":
-                    activity.status = "close"
-
-                    # 找出所有已參加者
-                    participants = db.query(ActivityJoin).filter_by(
-                        activity_id=activity.activity_id,
-                        status="joined"
+                if activity.status != "cancelled":
+                    pending_participants = db.query(ActivityJoin).filter(
+                        ActivityJoin.activity_id == activity.activity_id,
+                        ActivityJoin.status == "pending"
                     ).all()
-
-                    for participant in participants:
-                        eval_link = f"{DOMAIN.rstrip('/')}/evaluate?activity_id={activity.activity_id}&member_id={participant.member_id}"
-
-                        # 避免重複寄送，檢查是否已有通知紀錄
-                        exists = db.query(Notification).filter_by(
-                            member_id=participant.member_id,
-                            title="活動評價邀請",
-                            url=eval_link
-                        ).first()
-
-                        if not exists:
-                            # 透過 member_id 查詢 email
-                            member = db.query(Member).filter_by(member_id=participant.member_id).first()
-                            if member and member.email and not member.email.endswith("@example.com"):
-                                try:
-                                    send_eval_mail(
-                                        to_email=member.email,
-                                        activity_title=activity.title,
-                                        eval_link=eval_link
-                                    )
-                                except Exception as e:
-                                    logger.error(f"寄送評價信失敗: {e}")
-                            # 無論有沒有寄信都建立通知紀錄
+                    for participant in pending_participants:
+                        db.delete(participant)
+                    # 報名截止時檢查人數是否達下限（直接用 current_participants）
+                    if getattr(activity, "current_participants", 0) >= getattr(activity, "min_participants", 0):
+                        activity.status = "deadline"
+                    else:
+                        activity.status = "cancelled"
+                        # 發起人通知
+                        if activity.organizer_id:
                             notify = Notification(
-                                member_id=participant.member_id,
-                                title="活動評價邀請",
-                                content=f"感謝您參加「{activity.title}」，請留下您的評價！",
-                                url=eval_link
+                                member_id=activity.organizer_id,
+                                title="活動取消通知",
+                                content=f"您的活動「{activity.title}」因人數不足已取消。",
+                                url=f"/api/activities/details_page?id={activity.activity_id}&member_id={activity.organizer_id}"
                             )
                             db.add(notify)
+                        # 所有已報名參加者通知
+                        participants = db.query(ActivityJoin).filter_by(activity_id=activity.activity_id, status="joined").all()
+                        for participant in participants:
+                            notify = Notification(
+                                member_id=participant.member_id,
+                                title="活動取消通知",
+                                content=f"您參加的活動「{activity.title}」因人數不足已取消。",
+                                url=f"/api/activities/details_page?id={activity.activity_id}&member_id={participant.member_id}"
+                            )
+                            db.add(notify)
+            elif activity.start_time and now >= activity.start_time and (not activity.end_time or now < activity.end_time):
+                if activity.status != "cancelled":
+                    activity.status = "ongoing"
+                    pending_participants = db.query(ActivityJoin).filter(
+                        ActivityJoin.activity_id == activity.activity_id,
+                        ActivityJoin.status == "pending"
+                    ).all()
+                    for participant in pending_participants:
+                        db.delete(participant)
+            elif activity.end_time and now >= activity.end_time:
+                if activity.status == "cancelled":
+                    # 活動已取消且已結束，刪除所有相關紀錄
+                    db.query(ActivityJoin).filter_by(activity_id=activity.activity_id).delete()
+                    db.query(Activity).filter_by(activity_id=activity.activity_id).delete()
+                elif activity.status != "cancelled":
+                    # 只在狀態從非 close → close 時才觸發
+                    if activity.status != "close":
+                        activity.status = "close"
 
-                else:
-                    activity.status = "close"
+                        # 找出所有已參加者
+                        participants = db.query(ActivityJoin).filter_by(
+                            activity_id=activity.activity_id,
+                            status="joined"
+                        ).all()
+
+                        for participant in participants:
+                            eval_link = f"{DOMAIN.rstrip('/')}/evaluate?activity_id={activity.activity_id}&member_id={participant.member_id}"
+
+                            # 避免重複寄送，檢查是否已有通知紀錄
+                            exists = db.query(Notification).filter_by(
+                                member_id=participant.member_id,
+                                title="活動評價邀請",
+                                url=eval_link
+                            ).first()
+
+                            if not exists:
+                                # 透過 member_id 查詢 email
+                                member = db.query(Member).filter_by(member_id=participant.member_id).first()
+                                if member and member.email and not member.email.endswith("@example.com"):
+                                    try:
+                                        send_eval_mail(
+                                            to_email=member.email,
+                                            activity_title=activity.title,
+                                            eval_link=eval_link
+                                        )
+                                    except Exception as e:
+                                        logger.error(f"寄送評價信失敗: {e}")
+                                # 無論有沒有寄信都建立通知紀錄
+                                notify = Notification(
+                                    member_id=participant.member_id,
+                                    title="活動評價邀請",
+                                    content=f"感謝您參加「{activity.title}」，請留下您的評價！",
+                                    url=eval_link
+                                )
+                                db.add(notify)
+
+                    else:
+                        activity.status = "close"
             else:
-                activity.status = "unknown"
+                if activity.status != "cancelled":
+                    activity.status = "unknown"
 
         db.commit()
     

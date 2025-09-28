@@ -78,6 +78,7 @@ def upgrade() -> None:
     sa.Column('age_range', sa.String(length=20), nullable=True),
     sa.Column('venue_fee', sa.DECIMAL(10, 2), nullable=True),
     sa.Column('registration_deadline', sa.DateTime(), nullable=True),
+    sa.Column('min_participants', sa.Integer(), nullable=False, comment='活動人數下限'),
     sa.ForeignKeyConstraint(['organizer_id'], ['members.member_id']),
     sa.ForeignKeyConstraint(['sport_type_id'], ['sport_types.sport_type_id']),
     sa.PrimaryKeyConstraint('activity_id')

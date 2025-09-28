@@ -324,6 +324,7 @@ def get_activity_details():
             "location_lat": activity.location_lat,
             "location_lng": activity.location_lng,
             "max_participants": activity.max_participants,
+            "min_participants": activity.min_participants,
             "current_participants": activity.current_participants,
             "organizer_id": activity.organizer_id,
             "organizer": {

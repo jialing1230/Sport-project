@@ -1,6 +1,14 @@
 # Use a Python image with uv pre-installed
 FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
 
+RUN apt-get update \
+    &&  DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata
+    
+RUN TZ=Asia/Taipei \
+    && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
+    && echo $TZ > /etc/timezone \
+    && dpkg-reconfigure -f noninteractive tzdata 
+
 # Setup a non-root user
 RUN groupadd --system --gid 999 nonroot \
  && useradd --system --gid 999 --uid 999 --create-home nonroot

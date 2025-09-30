@@ -733,6 +733,7 @@
       // 報名狀態（假設 API 有回傳 participant.joined_ids 陣列，裡面有 memberId 代表已報名）
       const isJoined = participant.joined_participants.some(p => String(p.member_id) === String(memberId));
       const isPending = participant.pending_participants.some(p => String(p.member_id) === String(memberId));
+      const isRejected = participant.reject_participants.some(p => String(p.member_id) === String(memberId));
       isUserPending = isPending;   // ✅ 把判斷結果存到外層變數
 
 
@@ -763,6 +764,11 @@
         joinBtn.classList.add("btn-pink");  // 粉紅底
         joinBtn.style.backgroundColor = ""; // 交給 .btn-pink 控制
         joinBtn.disabled = false;
+      } else if (isRejected) {
+        joinBtn.textContent = "未通過";
+        joinBtn.classList.add("disabled");
+        joinBtn.style.backgroundColor = "#ccc";
+        joinBtn.disabled = true;
       } else if (!isFull && hasDeadline) {
         joinBtn.textContent = "我要報名";
         joinBtn.classList.remove("disabled");

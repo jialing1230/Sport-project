@@ -438,6 +438,12 @@ def get_activity_participants():
             .all()
         )
 
+        reject_participants = (
+            db.query(ActivityJoin)
+            .filter(ActivityJoin.activity_id == activity_id, ActivityJoin.status == "reject")
+            .all()
+        )
+
         # 構建返回資料
         result = {
             "organizer": {
@@ -460,6 +466,13 @@ def get_activity_participants():
                     "name": p.member.name,
                 }
                 for p in pending_participants
+            ],
+            "reject_participants": [
+                {
+                    "member_id": p.member_id,
+                    "name": p.member.name,
+                }
+                for p in reject_participants
             ],
         }
     return jsonify(result), 200

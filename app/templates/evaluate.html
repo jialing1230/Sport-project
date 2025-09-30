@@ -426,7 +426,7 @@
 
     <!-- ✅ 白底內容容器開始 -->
     <div class="container">
-	<div class="activity-title">輕鬆認識拍友團</div>
+  <div class="activity-title" id="activity-title">活動標題載入中...</div>
       <div class="section">
         <div class="section-title">評價此活動</div>
         <div class="note">從流程、氣氛到內容，給主辦人一個回饋吧！</div>
@@ -481,6 +481,23 @@
     <!-- ✅ 白底內容容器結束 -->
 
     <script>
+      document.addEventListener('DOMContentLoaded', async function() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const activityId = urlParams.get('activity_id');
+  if (activityId) {
+    try {
+      const res = await fetch(`/api/activities/details?activity_id=${activityId}`);
+      if (res.ok) {
+        const detail = await res.json();
+        document.getElementById('activity-title').textContent = detail.title || '活動標題';
+      } else {
+        document.getElementById('activity-title').textContent = '活動標題載入失敗';
+      }
+    } catch (e) {
+      document.getElementById('activity-title').textContent = '活動標題載入失敗';
+    }
+  }
+});
       // 星星互動邏輯
       let selectedActivityStars = 0;
 		const activityStars = document.querySelectorAll("#activity-stars .star");

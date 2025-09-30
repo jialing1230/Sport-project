@@ -66,7 +66,7 @@ def get_active_markers():
     with get_db() as db:
         query = (
             db.query(Activity)
-            .filter(Activity.status != "close", Activity.end_time > datetime.now())
+            .filter(Activity.status.in_(["open", "deadline"]), Activity.end_time > datetime.now())
         )
 
         if activity_type and activity_type != "all":
@@ -124,7 +124,7 @@ def get_markers_by_county():
 
     with get_db() as db:
         filters = [
-            Activity.status != "close",
+            Activity.status.in_(["open", "deadline"]),
             Activity.end_time > datetime.now()
         ]
 

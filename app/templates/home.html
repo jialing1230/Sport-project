@@ -1575,25 +1575,26 @@ function createMarkerForGroup(group) {
   };
   
   // 這裡補上/整理 icon 與判斷（保留你原本的紅/藍）
+  // ✨ 放在 createMarkerForGroup(group) 的開頭，RED_ICON/BLUE_ICON 定義附近
   const RED_ICON    = "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
-  const BLUE_ICON   = "http://maps.google.com/mapfiles/ms/icons/blue-dot.png";
-  const PURPLE_ICON = "http://maps.google.com/mapfiles/ms/icons/purple-dot.png";
+const BLUE_ICON   = "http://maps.google.com/mapfiles/ms/icons/blue-dot.png";
+const PURPLE_ICON = "http://maps.google.com/mapfiles/ms/icons/purple-dot.png";
 
-  const isTrainingType   = t => (t === "class" || t === "muti_class");
-  const isDeadlinePassed = d => (d ? new Date(d) <= new Date() : false);
+const isTrainingType = t => (t === "class" || t === "muti_class");
+const isDeadline = s => s === "deadline";
 
-  // 建立當下這顆 marker 的「預設顏色」（維持你原本：全部訓練→藍，否則紅）
-  const defaultIcon =
-  group.every(x => isDeadlinePassed(x.registration_deadline)) ? PURPLE_ICON
-  : (group.every(x => isTrainingType(x.type)) ? BLUE_ICON : RED_ICON);
-
+// 以 group[0] 當 marker 建立時的預設顏色
+const baseAct = group[0];
+const defaultIcon = isDeadline(baseAct.status)
+  ? PURPLE_ICON
+  : (isTrainingType(baseAct.type) ? BLUE_ICON : RED_ICON);
   // 建立 marker 時用預設顏色
   const marker = new google.maps.Marker({
-    position: pos,
-    map,
-    icon: defaultIcon,
-    title: group[0].location_name || group[0].title,
-  });
+  position: pos,
+  map,
+  icon: defaultIcon,   // ← 用預設顏色
+  title: group[0].location_name || group[0].title,
+});
 
   const infoWindow = new google.maps.InfoWindow({ content: "" });
 
@@ -1607,14 +1608,13 @@ infoWindow.addListener("closeclick", () => {
   const render = () => {
   const act = group[index];
 
-  // 先判斷是否過報名截止，過了就紫；沒過再依型別紅/藍
-  const liveIcon = isDeadlinePassed(act.registration_deadline)
-    ? PURPLE_ICON
-    : (isTrainingType(act.type) ? BLUE_ICON : RED_ICON);
+const liveIcon = isDeadline(act.status)
+  ? PURPLE_ICON
+  : (isTrainingType(act.type) ? BLUE_ICON : RED_ICON);
 
-  if (marker.getIcon() !== liveIcon) {
-    marker.setIcon(liveIcon);
-  }
+if (marker.getIcon() !== liveIcon) {
+  marker.setIcon(liveIcon);
+}
     const total = group.length;
 
     const originalFee = act.venue_fee ?? 0;

@@ -183,6 +183,9 @@
         width: 100%;
         max-width: 350px; /* 控制寬度，避免太寬 */
       }
+      .form-row.success-shown {
+        margin-bottom: 0;
+      }
       @media screen and (max-width: 768px) {
         .container {
           flex-direction: column;
@@ -223,6 +226,9 @@
               >
                 驗證
               </button>
+              <div id="success-message" class="success" style="display:none; margin-top:8px;">
+                驗證成功！
+              </div>
             </div>
             <div class="form-row" id="captcha-container">
               <label for="captcha" class="form-label">驗證碼</label>
@@ -241,18 +247,8 @@
                 確認
               </button>
             </div>
-            <div style="text-align: center; margin-top: 10px">
-              已有帳號？<a
-                href="/login"
-                style="color: #2c4975; font-weight: bold; text-decoration: underline;"
-              >前往登入</a>
-            </div>
-          </div>
 
-          <div id="success-message" class="success" style="display: none">
-            驗證成功！
-          </div>
-          <div id="password-container" style="display: none">
+            <div id="password-container" style="display: none">
             <div class="form-row">
               <label for="password" class="form-label">密碼</label>
               <input
@@ -279,6 +275,14 @@
             </div>
             <button type="submit" class="btn btn-primary">送出</button>
           </div>
+            <div style="text-align: center; margin-top: 10px">
+              已有帳號？<a
+                href="/login"
+                style="color: #2c4975; font-weight: bold; text-decoration: underline;"
+              >前往登入</a>
+            </div>
+          </div>
+
         </form>
       </div>
       <div class="image-box">
@@ -355,6 +359,7 @@
               .getElementById("captcha-container")
               .classList.remove("show");
             document.getElementById("success-message").style.display = "block";
+            document.getElementById("success-message").parentElement.classList.add("success-shown");
             emailInput.disabled = true;
             isCaptchaVerified = true;
             document.getElementById("password-container").style.display = "block";

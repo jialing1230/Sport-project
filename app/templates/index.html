@@ -151,6 +151,38 @@
         color: green;
         font-weight: bold;
       }
+
+      .form-box.centered {
+        display: flex;
+        flex-direction: column;
+        justify-content: center; /* 垂直置中 */
+        align-items: center;     /* 水平置中 */
+      }
+
+      .form-box.centered #registrationForm {
+        align-items: center;
+      }
+
+      .form-box.centered .form-row,
+      .form-box.centered #success-message,
+      .form-box.centered #password-container,
+      .form-box.centered > div[style] {
+        width: 100%;
+        max-width: 350px; /* 控制寬度比較集中 */
+      }
+
+      .centered-only {
+        display: flex;
+        flex-direction: column;
+        justify-content: center; /* 垂直置中 */
+        align-items: center;     /* 水平置中 */
+        min-height: 300px;       /* 預留空間讓它能置中 */
+      }
+
+      .centered-only .form-row {
+        width: 100%;
+        max-width: 350px; /* 控制寬度，避免太寬 */
+      }
       @media screen and (max-width: 768px) {
         .container {
           flex-direction: column;
@@ -173,78 +205,79 @@
           <h1>會員註冊</h1>
         </div>
         <form id="registrationForm">
-          <div class="form-row">
-            <label for="account" class="form-label">帳號</label>
-            <input
-              type="email"
-              id="account"
-              name="account"
-              class="form-input"
-              placeholder="EX: 123456@gmail.com"
-              required
-            />
-            <button
-              type="button"
-              class="btn btn-verify"
-              onclick="sendVerificationEmail()"
-            >
-              驗證
-            </button>
+          <div id="account-container" class="centered-only">
+            <div class="form-row">
+              <label for="account" class="form-label">帳號</label>
+              <input
+                type="email"
+                id="account"
+                name="account"
+                class="form-input"
+                placeholder="EX: 123456@gmail.com"
+                required
+              />
+              <button
+                type="button"
+                class="btn btn-verify"
+                onclick="sendVerificationEmail()"
+              >
+                驗證
+              </button>
+            </div>
+            <div class="form-row" id="captcha-container">
+              <label for="captcha" class="form-label">驗證碼</label>
+              <input
+                type="text"
+                id="captcha"
+                name="captcha"
+                class="form-input"
+                required
+              />
+              <button
+                type="button"
+                class="btn btn-verify"
+                onclick="verifyCaptcha()"
+              >
+                確認
+              </button>
+            </div>
+            <div style="text-align: center; margin-top: 10px">
+              已有帳號？<a
+                href="/login"
+                style="color: #2c4975; font-weight: bold; text-decoration: underline;"
+              >前往登入</a>
+            </div>
           </div>
-          <div class="form-row" id="captcha-container">
-            <label for="captcha" class="form-label">驗證碼</label>
-            <input
-              type="text"
-              id="captcha"
-              name="captcha"
-              class="form-input"
-              required
-            />
-            <button
-              type="button"
-              class="btn btn-verify"
-              onclick="verifyCaptcha()"
-            >
-              確認
-            </button>
-          </div>
+
           <div id="success-message" class="success" style="display: none">
             驗證成功！
           </div>
-          <div class="form-row">
-            <label for="password" class="form-label">密碼</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              class="form-input"
-              placeholder="至少 8 字元，含大小寫字母與數字"
-              autocomplete="new-password"
-              required
-            />
-          </div>
-          <div class="form-row">
-            <label for="confirmPassword" class="form-label">確認密碼</label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              class="form-input"
-              autocomplete="new-password"
-              required
-            />
-          </div>
-          <button type="submit" class="btn btn-primary">送出</button>
-          <div style="text-align: center; margin-top: 10px">
-            已有帳號？<a
-              href="/login"
-              style="
-                color: #2c4975;
-                font-weight: bold;
-                text-decoration: underline;
-              "
-              >前往登入</a
-            >
+          <div id="password-container" style="display: none">
+            <div class="form-row">
+              <label for="password" class="form-label">密碼</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                class="form-input"
+                placeholder="至少 8 字元，含大小寫字母與數字"
+                autocomplete="new-password"
+                required
+              />
+            </div>
+
+            <div class="form-row">
+              <label for="confirmPassword" class="form-label">確認密碼</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                class="form-input"
+                autocomplete="new-password"
+                required
+              />
+            </div>
+            <button type="submit" class="btn btn-primary">送出</button>
           </div>
         </form>
       </div>
@@ -324,6 +357,8 @@
             document.getElementById("success-message").style.display = "block";
             emailInput.disabled = true;
             isCaptchaVerified = true;
+            document.getElementById("password-container").style.display = "block";
+            document.getElementById("account-container").classList.remove("centered-only");
           } else {
             alert("驗證碼錯誤或已過期！");
           }

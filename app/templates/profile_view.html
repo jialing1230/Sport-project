@@ -440,12 +440,6 @@
         </div>
 
         <div class="section-block">
-          <h3>身體資訊</h3>
-          <p><strong>身高：</strong><span id="height"></span> cm</p>
-          <p><strong>體重：</strong><span id="weight"></span> kg</p>
-        </div>
-
-        <div class="section-block">
           <h3>運動偏好</h3>
           <p><strong>喜好運動：</strong><span id="sports"></span></p>
           <p><strong>偏好性別：</strong><span id="match-gender"></span></p>
@@ -950,13 +944,7 @@
           }
         }
 
-        // 身高、體重、地區
-        const heightElement = document.getElementById("height");
-        if (heightElement) heightElement.textContent = data.height || "未填寫";
-
-        const weightElement = document.getElementById("weight");
-        if (weightElement) weightElement.textContent = data.weight || "未填寫";
-
+        // 地區
         const locationElement = document.getElementById("location");
         if (locationElement) {
           locationElement.textContent =
@@ -1009,8 +997,6 @@
 
       document.getElementById("save-btn").onclick = async () => {
         const payload = {
-          height: document.getElementById("height-input").value,
-          weight: document.getElementById("weight-input").value,
           city: document.getElementById("city-input").value,
           area: document.getElementById("area-input").value,
           sport_preferences: {
@@ -1127,18 +1113,6 @@
                 .join("") +
               `</div>`;
 
-            // 身高/體重
-            document.getElementById(
-              "height"
-            ).outerHTML = `<input id="height-input" type="number" value="${
-              originalData.height || ""
-            }" class="edit-field" style="width:60px;">`;
-            document.getElementById(
-              "weight"
-            ).outerHTML = `<input id="weight-input" type="number" value="${
-              originalData.weight || ""
-            }" class="edit-field" style="width:60px;">`;
-
             // 地區
             const cityOptions = Object.keys(cityDistrictData)
               .map(
@@ -1190,7 +1164,7 @@
             document.getElementById(
               "match-age"
             ).outerHTML = `<div class="edit-checkbox-group" style="flex-wrap:wrap;gap:8px;">
-              ${["18-25", "26-35", "36-45", "46-55", "56up"]
+              ${["18-25", "26-35", "36-45", "46-55", "56up", "不限"]
                 .map(
                   (range) => `
                   <label>

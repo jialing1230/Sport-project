@@ -290,29 +290,6 @@
             </div>
           </div>
           <div class="form-row">
-            <label class="form-label">身高體重<span class="required-star">*</span></label>
-            <div style="display: flex; gap: 10px">
-              <input
-                type="number"
-                id="height"
-                class="form-input"
-                placeholder="身高 (cm)"
-                min="100"
-                max="250"
-                required
-              />
-              <input
-                type="number"
-                id="weight"
-                class="form-input"
-                placeholder="體重 (kg)"
-                min="30"
-                max="200"
-                required
-              />
-            </div>
-          </div>
-          <div class="form-row">
             <label class="form-label"
               >居住地區<span class="required-star">*</span></label
             >
@@ -833,8 +810,6 @@
           )?.value;
           const city = citySel.value;
           const area = distSel.value;
-          const height = document.getElementById("height").value;
-          const weight = document.getElementById("weight").value;
 
           if (
             !name ||
@@ -842,9 +817,7 @@
             !month ||
             !gender ||
             !city ||
-            !area ||
-            !height ||
-            !weight
+            !area 
           ) {
             alert("請將所有欄位填寫完整");
             return;
@@ -858,8 +831,6 @@
           formData.append("birthdate", birthdate);
           formData.append("city", city);
           formData.append("area", area);
-          formData.append("height", height);
-          formData.append("weight", weight);
           if (croppedBlob) {
             formData.append("avatar", croppedBlob, "avatar.png");
           }

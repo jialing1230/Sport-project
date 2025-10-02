@@ -41,6 +41,7 @@ def create_activity():
             age_range=payload.get("age_range", "不限"),
             venue_fee=payload.get("venue_fee"),
             registration_deadline=datetime.fromisoformat(payload["registration_deadline"]),
+            equipment_suggestions=payload.get("equipment_suggestions", []),
         )
         db.add(act)
         db.commit()

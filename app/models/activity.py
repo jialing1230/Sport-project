@@ -7,6 +7,7 @@ from sqlalchemy import (
     ForeignKey,
     Text,
     Boolean,
+    JSON,
 )
 from sqlalchemy.orm import relationship
 from app.database import Base
@@ -39,6 +40,7 @@ class Activity(Base):
     venue_fee = Column(DECIMAL(10, 2))  
     registration_deadline = Column(DateTime)
     is_discounted = Column(Boolean, default=False, nullable=False, comment="是否參與優惠活動")
+    equipment_suggestions = Column(JSON, nullable=True, comment="建議裝備")
     
 
 

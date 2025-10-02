@@ -41,6 +41,7 @@ def create_activity():
             age_range=payload.get("age_range", "不限"),
             venue_fee=payload.get("venue_fee"),
             registration_deadline=datetime.fromisoformat(payload["registration_deadline"]),
+            equipment_suggestions=payload.get("equipment_suggestions", []),
         )
         db.add(act)
         db.commit()
@@ -75,6 +76,7 @@ def create_class():
             venue_fee=payload.get("venue_fee"),
             registration_deadline=datetime.fromisoformat(payload["registration_deadline"]),
             is_discounted=payload.get("is_discounted", 0),
+            equipment_suggestions=payload.get("equipment_suggestions", []),
         )
         db.add(act)
         db.commit()
@@ -144,6 +146,7 @@ def create_multiclass():
                     venue_fee=payload.get("venue_fee"),
                     registration_deadline=registration_deadline,
                     is_discounted=payload.get("is_discounted", 0),
+                    equipment_suggestions=payload.get("equipment_suggestions", [])
                 )
                 db.add(act)
                 db.flush()  # 強制刷新，確保 activity_id 被生成並寫入資料庫
@@ -262,6 +265,9 @@ def list_activities():
                 "gender": a.gender,
                 "age_range": a.age_range,
                 "is_discounted": a.is_discounted,
+                "location_lat": a.location_lat,
+                "location_lng": a.location_lng,
+
             })
     return jsonify(result), 200
 
@@ -342,6 +348,7 @@ def get_activity_details():
             "venue_fee": float(activity.venue_fee) if activity.venue_fee else 0,
             "registration_deadline": activity.registration_deadline.isoformat() if activity.registration_deadline else None,
             "is_discounted": activity.is_discounted,
+            "equipment_suggestions": activity.equipment_suggestions if activity.equipment_suggestions else [],
         }
 
         # 如果 type 是 "muti_class"，額外查詢 course_schedul

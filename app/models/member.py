@@ -11,8 +11,6 @@ class Member(Base):
     name = Column(String(100))
     gender = Column(String(10))
     birthdate = Column(Date)
-    height = Column(Integer)
-    weight = Column(Integer)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
     city = Column(String(50), nullable=True, comment="縣市")

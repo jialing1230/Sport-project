@@ -558,10 +558,10 @@
 			</label>
 		  </div>
 		</div>
-<!-- ✅ 裝備建議 -->
-<div class="form-row" id="equipment-row" style="display:none;">
+<!-- ✅ 單堂課程裝備建議 -->
+<div class="form-row" id="equipment-row-single" style="display:none;">
   <label class="form-label">裝備建議</label>
-  <div id="equipment-options" class="radio-card-group" 
+  <div id="equipment-options-single" class="radio-card-group" 
        style="flex-wrap: wrap; justify-content:center; gap:10px;">
     <!-- JavaScript 會動態生成 -->
   </div>
@@ -751,10 +751,10 @@
 		</label>
 	  </div>
 	</div>
-<!-- ✅ 裝備建議 -->
-<div class="form-row" id="equipment-row" style="display:none;">
+<!-- ✅ 多堂課程裝備建議 -->
+<div class="form-row" id="equipment-row-multi" style="display:none;">
   <label class="form-label">裝備建議</label>
-  <div id="equipment-options" class="radio-card-group" 
+  <div id="equipment-options-multi" class="radio-card-group" 
        style="flex-wrap: wrap; justify-content:center; gap:10px;">
     <!-- JavaScript 會動態生成 -->
   </div>
@@ -862,6 +862,12 @@
                 singleSubmitBtn.style.display = "none";
                 multiSubmitBtn.style.display = "block";
             }
+        // 切換課程型態時，重繪裝備建議
+        const selectedSportRadio = document.querySelector('input[name="sport"]:checked');
+        if (selectedSportRadio) {
+          const event = new Event('change', { bubbles: true });
+          selectedSportRadio.dispatchEvent(event);
+        }
         }
 
            function togglePastTitles() {
@@ -914,6 +920,48 @@
                           document.getElementById("location-lng").value = lng;
                         }
 
+                        // 裝備建議選項自動更新（分流單堂/多堂）
+                        const selectedSportId = activity.sport_type_id;
+                        const singleForm = document.getElementById("single-course-form");
+                        const multiForm = document.getElementById("multi-course-form");
+                        const equipmentRowSingle = document.getElementById("equipment-row-single");
+                        const equipmentOptionsSingle = document.getElementById("equipment-options-single");
+                        const equipmentRowMulti = document.getElementById("equipment-row-multi");
+                        const equipmentOptionsMulti = document.getElementById("equipment-options-multi");
+                        equipmentOptionsSingle.innerHTML = "";
+                        equipmentOptionsMulti.innerHTML = "";
+                        equipmentRowSingle.style.display = "none";
+                        equipmentRowMulti.style.display = "none";
+                        if (singleForm && singleForm.style.display !== "none") {
+                          // 單堂課程
+                          if (equipmentMapping[selectedSportId]) {
+                            equipmentMapping[selectedSportId].forEach(item => {
+                              const label = document.createElement("label");
+                              label.className = "radio-card";
+                              label.innerHTML = `
+                                <input type="checkbox" name="equipment" value="${item}">
+                                <span>${item}</span>
+                              `;
+                              equipmentOptionsSingle.appendChild(label);
+                            });
+                            equipmentRowSingle.style.display = "block";
+                          }
+                        } else if (multiForm && multiForm.style.display !== "none") {
+                          // 多堂課程
+                          if (equipmentMapping[selectedSportId]) {
+                            equipmentMapping[selectedSportId].forEach(item => {
+                              const label = document.createElement("label");
+                              label.className = "radio-card";
+                              label.innerHTML = `
+                                <input type="checkbox" name="muti_equipment" value="${item}">
+                                <span>${item}</span>
+                              `;
+                              equipmentOptionsMulti.appendChild(label);
+                            });
+                            equipmentRowMulti.style.display = "block";
+                          }
+                        }
+
                         list.style.display = "none";
                       });
                       list.appendChild(li);
@@ -958,25 +1006,49 @@ const equipmentMapping = {
     document.getElementById("sport-options").addEventListener("change", (e) => {
       if (e.target && e.target.name === "sport") {
         const selectedSportId = parseInt(e.target.value);
-        const equipmentRow = document.getElementById("equipment-row");
-        const equipmentOptions = document.getElementById("equipment-options");
+        // 取得單堂/多堂裝備建議區塊
+        const equipmentRowSingle = document.getElementById("equipment-row-single");
+        const equipmentOptionsSingle = document.getElementById("equipment-options-single");
+        const equipmentRowMulti = document.getElementById("equipment-row-multi");
+        const equipmentOptionsMulti = document.getElementById("equipment-options-multi");
 
-        // 清空舊的選項
-        equipmentOptions.innerHTML = "";
+        // 先全部隱藏
+        equipmentRowSingle.style.display = "none";
+        equipmentRowMulti.style.display = "none";
+        equipmentOptionsSingle.innerHTML = "";
+        equipmentOptionsMulti.innerHTML = "";
 
-        if (equipmentMapping[selectedSportId]) {
-          equipmentMapping[selectedSportId].forEach(item => {
-            const label = document.createElement("label");
-            label.className = "radio-card";
-            label.innerHTML = `
-              <input type="checkbox" name="equipment" value="${item}">
-              <span>${item}</span>
-            `;
-            equipmentOptions.appendChild(label);
-          });
-          equipmentRow.style.display = "block";
-        } else {
-          equipmentRow.style.display = "none";
+        // 判斷目前顯示的是單堂還是多堂表單
+        const singleForm = document.getElementById("single-course-form");
+        const multiForm = document.getElementById("multi-course-form");
+        if (singleForm && singleForm.style.display !== "none") {
+          // 單堂課程
+          if (equipmentMapping[selectedSportId]) {
+            equipmentMapping[selectedSportId].forEach(item => {
+              const label = document.createElement("label");
+              label.className = "radio-card";
+              label.innerHTML = `
+                <input type="checkbox" name="equipment" value="${item}">
+                <span>${item}</span>
+              `;
+              equipmentOptionsSingle.appendChild(label);
+            });
+            equipmentRowSingle.style.display = "block";
+          }
+        } else if (multiForm && multiForm.style.display !== "none") {
+          // 多堂課程
+          if (equipmentMapping[selectedSportId]) {
+            equipmentMapping[selectedSportId].forEach(item => {
+              const label = document.createElement("label");
+              label.className = "radio-card";
+              label.innerHTML = `
+                <input type="checkbox" name="muti_equipment" value="${item}">
+                <span>${item}</span>
+              `;
+              equipmentOptionsMulti.appendChild(label);
+            });
+            equipmentRowMulti.style.display = "block";
+          }
         }
       }
     });
@@ -1038,6 +1110,8 @@ const equipmentMapping = {
             return;
           }
 
+          // 收集已勾選裝備
+          const equipmentSelected = Array.from(document.querySelectorAll('input[name="equipment"]:checked')).map(el => el.value);
           const data = {
             title: formData.get("title"),
             first_time: formData.get("firstTime"),
@@ -1062,6 +1136,7 @@ const equipmentMapping = {
             description: formData.get("description"),
             status: "open",
             is_discounted: parseInt(formData.get("allow_discount_single")) || 0,
+            equipment_suggestions: equipmentSelected, // 新增裝備建議
           };
 
           fetch("/api/activities/class", {
@@ -1131,6 +1206,8 @@ const equipmentMapping = {
             return;
           }
 
+          // 收集多堂課程勾選裝備
+          const mutiEquipmentSelected = Array.from(document.querySelectorAll('input[name="muti_equipment"]:checked')).map(el => el.value);
           const data = {
             title: formData.get("title"),
             sport_type_id: parseInt(formData.get("sport")),
@@ -1154,6 +1231,7 @@ const equipmentMapping = {
             status: "open",
             scheduleList: scheduleList, // 添加 scheduleList
             is_discounted: parseInt(formData.get("allow_discount_multi")) || 0,
+            equipment_suggestions: mutiEquipmentSelected, // 多堂課程裝備建議
           };
 
           fetch("/api/activities/multiclass", {

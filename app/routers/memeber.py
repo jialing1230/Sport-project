@@ -44,8 +44,6 @@ def create_member():
             name=payload.get("name"),
             gender=payload.get("gender"),
             birthdate=payload.get("birthdate"),
-            height=payload.get("height"),
-            weight=payload.get("weight"),
             created_at=datetime.utcnow(),
             updated_at=datetime.utcnow(),
         )
@@ -73,8 +71,6 @@ def list_members():
             "name": u.name,
             "gender": u.gender,
             "birthdate": u.birthdate.isoformat() if u.birthdate else None,
-            "height": u.height,
-            "weight": u.weight,
             "created_at": u.created_at.isoformat() if u.created_at else None,
             "updated_at": u.updated_at.isoformat() if u.updated_at else None,
         })
@@ -95,8 +91,6 @@ def get_member(member_id):
             "name": u.name,
             "gender": u.gender,
             "birthdate": u.birthdate.isoformat() if u.birthdate else None,
-            "height": u.height,
-            "weight": u.weight,
             "city": u.city,
             "area": u.area,
             "created_at": u.created_at.isoformat() if u.created_at else None,
@@ -172,7 +166,7 @@ def login_member():
 
 @member_bp.route("/<string:member_id>", methods=["PUT"])
 def update_member(member_id):
-    updatable = ("name", "gender", "birthdate", "city", "area", "height", "weight")
+    updatable = ("name", "gender", "birthdate", "city", "area")
 
     is_multipart = request.content_type and request.content_type.startswith("multipart/form-data")
     if is_multipart:
@@ -198,11 +192,6 @@ def update_member(member_id):
                     v = datetime.fromisoformat(v).date()
                 except ValueError:
                     return jsonify({"error": "birthdate 格式錯誤，請用 YYYY-MM-DD"}), 400
-            elif k in ("height", "weight"):
-                try:
-                    v = int(v)
-                except ValueError:
-                    return jsonify({"error": f"{k} 必須是整數"}), 400
             setattr(m, k, v)
 
         if file and allowed_file(file.filename):
@@ -267,8 +256,6 @@ def update_member_full(member_id):
     data = request.get_json()
     print("收到資料：", data)
     
-    height = data.get("height")
-    weight = data.get("weight")
     city = data.get("city")
     area = data.get("area")
     pref = data.get("sport_preferences", {})
@@ -284,8 +271,6 @@ def update_member_full(member_id):
         if not member:
             return jsonify({"error": "會員不存在"}), 404
 
-        member.height = height
-        member.weight = weight
         member.city = city
         member.area = area
         db.add(member)

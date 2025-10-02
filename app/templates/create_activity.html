@@ -572,7 +572,7 @@ const data = {
   target_identity: "不限",
   gender: formData.get("gender"),
   age_range: formData.get("ageRange"),
-  equipment: equipmentSelected,
+  equipment_suggestions: equipmentSelected,
 
 };
 
@@ -643,6 +643,25 @@ fetch("/api/activities", {
                   title: activity.location_name,
                 });
 
+                // 裝備建議選項自動更新
+                const selectedSportId = activity.sport_type_id;
+                const equipmentRow = document.getElementById("equipment-row");
+                const equipmentOptions = document.getElementById("equipment-options");
+                equipmentOptions.innerHTML = "";
+                if (equipmentMapping[selectedSportId]) {
+                  equipmentMapping[selectedSportId].forEach(item => {
+                    const label = document.createElement("label");
+                    label.className = "radio-card";
+                    label.innerHTML = `
+                      <input type="checkbox" name="equipment" value="${item}">
+                      <span>${item}</span>
+                    `;
+                    equipmentOptions.appendChild(label);
+                  });
+                  equipmentRow.style.display = "block";
+                } else {
+                  equipmentRow.style.display = "none";
+                }
                 list.style.display = "none";
               });
               list.appendChild(li);

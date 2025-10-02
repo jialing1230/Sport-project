@@ -76,6 +76,7 @@ def create_class():
             venue_fee=payload.get("venue_fee"),
             registration_deadline=datetime.fromisoformat(payload["registration_deadline"]),
             is_discounted=payload.get("is_discounted", 0),
+            equipment_suggestions=payload.get("equipment_suggestions", []),
         )
         db.add(act)
         db.commit()
@@ -145,6 +146,7 @@ def create_multiclass():
                     venue_fee=payload.get("venue_fee"),
                     registration_deadline=registration_deadline,
                     is_discounted=payload.get("is_discounted", 0),
+                    equipment_suggestions=payload.get("equipment_suggestions", [])
                 )
                 db.add(act)
                 db.flush()  # 強制刷新，確保 activity_id 被生成並寫入資料庫

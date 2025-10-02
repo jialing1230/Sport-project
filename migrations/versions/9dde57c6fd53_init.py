@@ -28,8 +28,6 @@ def upgrade() -> None:
     sa.Column('name', sa.String(length=100), nullable=True),
     sa.Column('gender', sa.String(length=10), nullable=True),
     sa.Column('birthdate', sa.Date(), nullable=True),
-    sa.Column('height', sa.Integer(), nullable=True),
-    sa.Column('weight', sa.Integer(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('city', sa.String(length=50), nullable=True, comment='縣市'),

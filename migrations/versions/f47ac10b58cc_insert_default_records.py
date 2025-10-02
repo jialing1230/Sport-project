@@ -67,8 +67,6 @@ def upgrade() -> None:
             name=f"User{i}",
             gender="男" if i % 2 == 0 else "女",
             birthdate=birthdate,
-            height=160 + i,
-            weight=50 + i * 2,
             created_at=now,
             updated_at=now,
             city=cities[i - 1],

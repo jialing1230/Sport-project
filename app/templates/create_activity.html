@@ -413,8 +413,16 @@
 			</label>
 		  </div>
 		</div>
+            <!-- ✅ 新增：裝備建議 -->
+        <div class="form-row" id="equipment-row" style="display:none;">
+          <label class="form-label">裝備建議</label>
+          <div id="equipment-options" class="radio-card-group" style="flex-wrap: wrap; justify-content:center; gap:10px;">
+            <!-- JavaScript 會動態塞裝備選項 -->
+          </div>
+        </div>
+
         <div class="form-row">
-          <label class="form-label">補充說明</label>
+          <label class="form-label">活動介紹及補充說明</label>
           <textarea
             name="description"
             placeholder="EX：地標描述、裝備建議、注意事項..."
@@ -454,8 +462,35 @@
             `;
             sportOptionsContainer.appendChild(label);
           });
-        })
-        .catch((error) => console.error("Error fetching sport types:", error));
+ // ✅ 這裡插入你的監聽程式碼
+    document.getElementById("sport-options").addEventListener("change", (e) => {
+      if (e.target && e.target.name === "sport") {
+        const selectedSportId = parseInt(e.target.value);
+        const equipmentRow = document.getElementById("equipment-row");
+        const equipmentOptions = document.getElementById("equipment-options");
+
+        // 清空舊的選項
+        equipmentOptions.innerHTML = "";
+
+        if (equipmentMapping[selectedSportId]) {
+          equipmentMapping[selectedSportId].forEach(item => {
+            const label = document.createElement("label");
+            label.className = "radio-card";
+            label.innerHTML = `
+              <input type="checkbox" name="equipment" value="${item}">
+              <span>${item}</span>
+            `;
+            equipmentOptions.appendChild(label);
+          });
+          equipmentRow.style.display = "block";
+        } else {
+          equipmentRow.style.display = "none";
+        }
+      }
+    });
+
+  })
+  .catch((error) => console.error("Error fetching sport types:", error));
 
       const urlParams = new URLSearchParams(window.location.search);
       const memberId = urlParams.get("member_id");
@@ -514,6 +549,9 @@ if (!locationLat || !locationLng) {
   alert("請選擇 Google 建議的地址選項，才能標記地圖與發起活動！");
   return;
 }
+// ✅ 收集裝備勾選
+const equipmentSelected = Array.from(document.querySelectorAll('input[name="equipment"]:checked'))
+                               .map(el => el.value);
 
 const data = {
   title: formData.get("title"),
@@ -534,6 +572,8 @@ const data = {
   target_identity: "不限",
   gender: formData.get("gender"),
   age_range: formData.get("ageRange"),
+  equipment: equipmentSelected,
+
 };
 
 fetch("/api/activities", {
@@ -556,22 +596,7 @@ fetch("/api/activities", {
 
 }); // 👈 最外層 addEventListener 的結尾
 
-      function sportNameToId(sport) {
-        const mapping = {
-          跑步: 1,
-          羽球: 2,
-          瑜珈: 3,
-          健身: 4,
-          騎單車: 5,
-          籃球: 6,
-          游泳: 7,
-          排球: 8,
-          網球: 9,
-          棒球: 10,
-          足球: 11,
-        };
-        return mapping[sport] || 0;
-      }
+
 	  function togglePastTitles() {
     const list = document.getElementById("pastTitles");
     list.style.display = list.style.display === "none" ? "block" : "none";
@@ -682,6 +707,22 @@ function handleLatLngChange(latLng) {
   setMarkerAndUpdateUI(latLng);
   reverseGeocodeAndFillInput(latLng);
 }
+const equipmentMapping = {
+  1: ["跑鞋", "毛巾", "水壺"],        // 跑步
+  2: ["羽球拍", "羽球鞋", "護腕"],      // 羽球
+  3: ["瑜珈墊", "毛巾", "水壺"],          // 瑜珈
+  4: ["護腰", "水壺", "運動毛巾"],        // 健身
+  5: ["安全帽", "手套", "護膝"],          // 騎腳踏車
+  6: ["籃球", "護腕", "運動鞋"],          // 籃球
+  7: ["泳衣", "泳鏡", "泳帽"],            // 游泳
+  8: ["排球", "護膝", "排球鞋"],          // 排球
+  9: ["網球拍", "網球鞋", "毛巾"],        // 網球
+  10: ["桌球拍", "桌球", "毛巾"],       // 桌球
+  11: ["拳擊手套", "護齒", "護腕"],       // 拳擊
+  12: ["足球", "護脛", "運動鞋"],         // 足球
+};
+
+
 
 // 新版 initAutocomplete
 function initAutocomplete() {

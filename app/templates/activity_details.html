@@ -556,6 +556,28 @@
       color: #fe8a90;
       font-size: 16px;
     }
+    .equipment-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 0;
+      margin: 0;
+      list-style: none; /* 移除原本的點點 */
+    }
+
+    .equipment-item {
+      background-color: #81d3e1;   /* 淺藍底 */
+      color: #fff;              /* 深藍字 */
+      padding: 6px 12px;
+      border-radius: 20px;         /* 圓角 pill 狀 */
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* 有點卡片感 */
+    }
 
     </style>
   </head>
@@ -628,6 +650,7 @@
           </div>
       </section>
       <section id="description" class="info-box" style="display: none;"></section>
+      <section id="equipment" class="info-box" style="display:none;"></section>
       <section id="participants" class="info-box"></section>
       <div style="height: 50px;"></div>
     </div>
@@ -959,6 +982,22 @@
           } else {
             descSection.style.display = "none";
           }
+          const equipSection = document.getElementById("equipment");
+          
+// 假資料（測試用）
+detail.equipment = ["羽球拍", "羽球鞋", "護腕"];
+          if (detail.equipment && detail.equipment.length > 0) {
+            equipSection.innerHTML = `
+              <h3>裝備建議</h3>
+              <ul class="equipment-list">
+                ${detail.equipment.map(item => `<li class="equipment-item">${item}</li>`).join("")}
+              </ul>
+            `;
+            equipSection.style.display = "block";
+          } else {
+            equipSection.style.display = "none";
+          }
+
           if (detail.course_schedules && detail.course_schedules.length > 0) {
             const scheduleSection = document.getElementById("course-schedule");
             scheduleSection.style.display = "block";

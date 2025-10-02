@@ -36,7 +36,7 @@
       }
 
       .info-box h3 {
-        margin-top: 10px;    /* 距離卡片頂部縮小 */
+        margin-top: 1px;    /* 距離卡片頂部縮小 */
         margin-bottom: 8px;  /* 與內容間距 */
         color: #81d3e1;
       }
@@ -528,6 +528,29 @@
         color: #fe8a90;
         font-size: 16px;
       }
+.equipment-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.equipment-item {
+  background-color: #81d3e1;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-top: 2px;
+}
 
 
   </style>
@@ -612,6 +635,7 @@
           </div>
     </section>
     <section id="description" class="info-box" style="display: none;"></section>
+    <section id="equipment" class="info-box" style="display:none;"></section>
     <section id="participants" class="info-box"></section>
     <div style="height: 40px;"></div>
   </div>
@@ -992,6 +1016,24 @@
           } else {
             descSection.style.display = "none";
           }
+          // 裝備建議（假資料）
+          const equipSection = document.getElementById("equipment");
+
+          // 假資料：測試用
+          detail.equipment = ["球鞋", "水壺", "毛巾"];
+
+          if (detail.equipment && detail.equipment.length > 0) {
+            equipSection.innerHTML = `
+              <h3>裝備建議</h3>
+              <ul class="equipment-list">
+                ${detail.equipment.map(item => `<li class="equipment-item">${item}</li>`).join("")}
+              </ul>
+            `;
+            equipSection.style.display = "block";
+          } else {
+            equipSection.style.display = "none";
+          }
+
           if (detail.course_schedules && detail.course_schedules.length > 0) {
             const scheduleSection = document.getElementById("course-schedule");
             scheduleSection.style.display = "block";

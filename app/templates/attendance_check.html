@@ -196,8 +196,9 @@
 
 <div class="summary">
   <div>
+    <span>總人數 <span id="totalCount">0</span> 人</span> |
     <span>準時 <span id="onTimeCount">0</span> 人</span> |
-    <span>遲到 <span id="lateCount">0</span> 人</span> |
+ 
     <span>缺席 <span id="absentCount">0</span> 人</span>
   </div>
 <div class="alert">未點名 <span id="notMarkedCount">1</span> 人</div>
@@ -269,25 +270,26 @@
     }
   }
 
-  function updateSummary() {
-    const onTimeCount = joinedParticipants.filter(p => p.is_checked_in).length;
-    const notMarkedCount = joinedParticipants.filter(p => !p.is_checked_in).length;
+function updateSummary() {
+  const totalCount = joinedParticipants.length;
+  const onTimeCount = joinedParticipants.filter(p => p.is_checked_in).length;
+  const notMarkedCount = joinedParticipants.filter(p => !p.is_checked_in).length;
 
-    document.getElementById('onTimeCount').textContent = onTimeCount;
-    document.getElementById('lateCount').textContent = 0;
-    document.getElementById('absentCount').textContent = 0;
-    document.getElementById('notMarkedCount').textContent = notMarkedCount;
+  document.getElementById('totalCount').textContent = totalCount;
+  document.getElementById('onTimeCount').textContent = onTimeCount;
+  document.getElementById('absentCount').textContent = 0;
+  document.getElementById('notMarkedCount').textContent = notMarkedCount;
 
-    // ✅ 這裡新增切換樣式的判斷
-    const notMarkedDiv = document.getElementById('notMarkedCount').parentNode;
-    if (notMarkedCount === 0) {
-      notMarkedDiv.classList.remove('alert');
-      notMarkedDiv.classList.add('normal');
-    } else {
-      notMarkedDiv.classList.remove('normal');
-      notMarkedDiv.classList.add('alert');
-    }
+  const notMarkedDiv = document.getElementById('notMarkedCount').parentNode;
+  if (notMarkedCount === 0) {
+    notMarkedDiv.classList.remove('alert');
+    notMarkedDiv.classList.add('normal');
+  } else {
+    notMarkedDiv.classList.remove('normal');
+    notMarkedDiv.classList.add('alert');
   }
+}
+
 
 
 

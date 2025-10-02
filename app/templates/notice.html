@@ -280,20 +280,23 @@
     item.style.cursor = "pointer";
 
     // ✅ 點擊事件
-    item.addEventListener("click", function () {
-      if (n.is_read === false) {
-        // 用 sendBeacon 確保跳轉前已讀 API 有送出
-        const url = `/api/members/notifications/${n.id}/read`;
-        const blob = new Blob([], { type: "application/json" }); 
-        navigator.sendBeacon(url, blob);
-        n.is_read = true;
-        renderNotifications(notifications); // 立即更新畫面紅點
-      }
+      item.addEventListener("click", async function () {
+        if (n.is_read === false) {
+          const url = `/api/members/notifications/${n.id}/read`;
+          try {
+            await fetch(url, { method: "PATCH" });
+            n.is_read = true;
+            renderNotifications(notifications); // 立即更新畫面紅點
+          } catch (e) {
+            // 可選：失敗時提示
+            alert("通知標記已讀失敗");
+          }
+        }
 
-      if (n.url) {
-        window.location.href = n.url; // 保留原本的跳轉
-      }
-    });
+        if (n.url) {
+          window.location.href = n.url; // 保留原本的跳轉
+        }
+      });
 
     list.appendChild(item);
   });

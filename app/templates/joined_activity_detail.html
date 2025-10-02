@@ -1016,17 +1016,15 @@
           } else {
             descSection.style.display = "none";
           }
-          // 裝備建議（假資料）
+          // 裝備建議
           const equipSection = document.getElementById("equipment");
-
-          // 假資料：測試用
-          detail.equipment = ["球鞋", "水壺", "毛巾"];
-
-          if (detail.equipment && detail.equipment.length > 0) {
+          // 直接使用 API 回傳的 equipment_suggestions
+          const equipmentList = detail.equipment_suggestions;
+          if (Array.isArray(equipmentList) && equipmentList.length > 0) {
             equipSection.innerHTML = `
               <h3>裝備建議</h3>
               <ul class="equipment-list">
-                ${detail.equipment.map(item => `<li class="equipment-item">${item}</li>`).join("")}
+                ${equipmentList.map(item => `<li class="equipment-item">${item}</li>`).join("")}
               </ul>
             `;
             equipSection.style.display = "block";

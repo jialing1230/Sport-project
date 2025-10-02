@@ -797,23 +797,21 @@
 		  } else {
 			descSection.style.display = "none";
 		  }
-      // 裝備建議（假資料）
+      // 裝備建議
       const equipSection = document.getElementById("equipment");
 
-      // 假資料（測試用）
-      detail.equipment = ["羽球拍", "羽球鞋", "護腕"];
-
-      if (detail.equipment && detail.equipment.length > 0) {
-        equipSection.innerHTML = `
-          <h3>裝備建議</h3>
-          <ul class="equipment-list">
-            ${detail.equipment.map(item => `<li class="equipment-item">${item}</li>`).join("")}
-          </ul>
-        `;
-        equipSection.style.display = "block";
-      } else {
-        equipSection.style.display = "none";
-      }
+        // 直接顯示 API 回傳的 equipment_suggestions
+        if (detail.equipment_suggestions && detail.equipment_suggestions.length > 0) {
+          equipSection.innerHTML = `
+            <h3>裝備建議</h3>
+            <ul class="equipment-list">
+              ${detail.equipment_suggestions.map(item => `<li class="equipment-item">${item}</li>`).join("")}
+            </ul>
+          `;
+          equipSection.style.display = "block";
+        } else {
+          equipSection.style.display = "none";
+        }
 
       // 參與人員（左：發起者｜中：分隔線｜右：參加者）
       let html = `<h3>參與人員</h3>`;

@@ -265,6 +265,9 @@ def list_activities():
                 "gender": a.gender,
                 "age_range": a.age_range,
                 "is_discounted": a.is_discounted,
+                "location_lat": a.location_lat,
+                "location_lng": a.location_lng,
+
             })
     return jsonify(result), 200
 
@@ -345,6 +348,7 @@ def get_activity_details():
             "venue_fee": float(activity.venue_fee) if activity.venue_fee else 0,
             "registration_deadline": activity.registration_deadline.isoformat() if activity.registration_deadline else None,
             "is_discounted": activity.is_discounted,
+            "equipment_suggestions": activity.equipment_suggestions if activity.equipment_suggestions else [],
         }
 
         # 如果 type 是 "muti_class"，額外查詢 course_schedul

@@ -558,10 +558,18 @@
 			</label>
 		  </div>
 		</div>
+<!-- ✅ 裝備建議 -->
+<div class="form-row" id="equipment-row" style="display:none;">
+  <label class="form-label">裝備建議</label>
+  <div id="equipment-options" class="radio-card-group" 
+       style="flex-wrap: wrap; justify-content:center; gap:10px;">
+    <!-- JavaScript 會動態生成 -->
+  </div>
+</div>
 
 
     <div class="form-row">
-      <label class="form-label">補充說明</label>
+      <label class="form-label">活動介紹及補充說明</label>
       <textarea name="description" placeholder="EX：地標描述、裝備建議、注意事項..."></textarea>
     </div>
     <input type="hidden" id="location-lat" name="location_lat">
@@ -743,15 +751,23 @@
 		</label>
 	  </div>
 	</div>
-
+<!-- ✅ 裝備建議 -->
+<div class="form-row" id="equipment-row" style="display:none;">
+  <label class="form-label">裝備建議</label>
+  <div id="equipment-options" class="radio-card-group" 
+       style="flex-wrap: wrap; justify-content:center; gap:10px;">
+    <!-- JavaScript 會動態生成 -->
+  </div>
+</div>
     <div class="form-row">
-      <label class="form-label">補充說明</label>
+      <label class="form-label">活動介紹及補充說明</label>
       <textarea name="multi_description" placeholder="EX：地標描述、裝備建議、注意事項..."></textarea>
     </div>
     <input type="hidden" id="location-lat" name="location_lat">
 <input type="hidden" id="location-lng" name="location_lng">
      <button type="submit" class="btn-primary" id="multi-submit-btn">發起多堂課程</button>
   </div>
+
 
   
 </form>
@@ -907,6 +923,21 @@
                 .catch((error) => console.error("Error fetching past classes:", error));
             }
           }
+// ✅ 運動類型與建議裝備對應表（跟活動一致）
+const equipmentMapping = {
+  1: ["跑鞋", "毛巾", "水壺"],        // 跑步
+  2: ["羽球拍", "羽球鞋", "護腕"],      // 羽球
+  3: ["瑜珈墊", "毛巾", "水壺"],        // 瑜珈
+  4: ["護腰", "水壺", "運動毛巾"],      // 健身
+  5: ["安全帽", "手套", "護膝"],        // 騎腳踏車
+  6: ["籃球", "護腕", "運動鞋"],        // 籃球
+  7: ["泳衣", "泳鏡", "泳帽"],          // 游泳
+  8: ["排球", "護膝", "排球鞋"],        // 排球
+  9: ["網球拍", "網球鞋", "毛巾"],      // 網球
+  10: ["桌球拍", "桌球", "毛巾"],       // 桌球
+  11: ["拳擊手套", "護齒", "護腕"],     // 拳擊
+  12: ["足球", "護脛", "運動鞋"],       // 足球
+};
 
 
       fetch("/api/preferences/options")
@@ -923,6 +954,33 @@
             `;
             sportOptionsContainer.appendChild(label);
           });
+              // ✅ 類型切換 → 裝備建議顯示
+    document.getElementById("sport-options").addEventListener("change", (e) => {
+      if (e.target && e.target.name === "sport") {
+        const selectedSportId = parseInt(e.target.value);
+        const equipmentRow = document.getElementById("equipment-row");
+        const equipmentOptions = document.getElementById("equipment-options");
+
+        // 清空舊的選項
+        equipmentOptions.innerHTML = "";
+
+        if (equipmentMapping[selectedSportId]) {
+          equipmentMapping[selectedSportId].forEach(item => {
+            const label = document.createElement("label");
+            label.className = "radio-card";
+            label.innerHTML = `
+              <input type="checkbox" name="equipment" value="${item}">
+              <span>${item}</span>
+            `;
+            equipmentOptions.appendChild(label);
+          });
+          equipmentRow.style.display = "block";
+        } else {
+          equipmentRow.style.display = "none";
+        }
+      }
+    });
+
         })
         .catch((error) => console.error("Error fetching sport types:", error));
 

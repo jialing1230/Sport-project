@@ -14,7 +14,7 @@
     </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>體育相關新聞</title>
+    <title>體育快訊</title>
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
@@ -28,10 +28,12 @@
         font-family: "Arial", sans-serif;
         background-color: #f5f5f5;
         color: #2c4975;
-        padding: 20px;
+        margin: 0;   /* 避免瀏覽器預設 margin */
+        padding-top: 90px;
       }
       .news-section {
         margin-top: 30px;
+        padding: 0 16px;
       }
       .news-card {
         background: white;
@@ -47,62 +49,177 @@
       .news-card p {
         color: #555;
       }
-      .back-button {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 8px;
-      }
-      .back-button svg:hover {
-        transform: scale(1.1);
-      }
+
       /* ✅ Carousel 圖片樣式調整，避免失真 */
-      .carousel-item img {
-        max-height: 300px;  /* 限制高度 */
-        width: auto;        /* 不硬撐滿寬 */
-        margin: 0 auto;     /* 水平置中 */
-        object-fit: contain; /* 保持比例 */
+      .carousel-item {
+        height: 240px;   /* ✅ 固定輪播區塊高度，可依需求調整 */
       }
+
+/* 手機 & 平板 (小於 992px) → 顯示完整圖片，避免裁切 */
+.carousel-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;   /* ✅ 圖片完整顯示，可能留白 */
+  background: #fff;      /* ✅ 留白區塊用黑色填滿，避免難看 */
+  display: block;
+  margin: 0 auto;
+}
+
+/* 桌機版 (寬度 >= 992px) → 塞滿容器 */
+@media (min-width: 992px) {
+  .carousel-item img {
+    object-fit: cover;   /* ✅ 塞滿區塊，維持比例，會裁切 */
+  }
+}
+
+/* 手機 & 平板 (小於 992px) → 高度維持 240px */
+
+/* 桌機版 (寬度 >= 992px) → 圖片更大 */
+@media (min-width: 992px) {
+  .carousel-item {
+    height: 400px;   /* ✅ 桌機版圖片區塊高度 */
+  }
+}
+
+      /* 上方列 */
+      .top-bar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: fixed;          /* ✅ 固定 */
+        top: 0;                   /* 貼齊最上方 */
+        left: 0;
+        right: 0;
+        height: 70px;             /* ✅ 加高 */
+        background: #fff;
+        border-bottom: 1px solid #ddd;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1); /* ✅ 陰影 */
+        z-index: 1000;            /* 確保在最上層 */
+      }
+
+
+.top-bar .back-btn {
+  position: absolute;
+  left: 20px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #2c4975;   /* ✅ 預設深藍 */
+  cursor: pointer;
+  transition: color 0.3s ease;  /* ✅ 加上漸變 */
+}
+
+.top-bar .back-btn:hover {
+  color: #64bcd0;   /* ✅ hover 淺藍 */
+}
+
+.top-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #2c4975;
+  margin: 0;
+}
+#news-carousel {
+  max-width: 800px;   /* ✅ 自訂寬度（例如 800px，可以依需求調整） */
+  margin: 0 auto;     /* ✅ 自動置中 */
+}
+.carousel-caption {
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 98%;           /* ✅ 限制文字區域寬度，不會頂到邊 */
+  white-space: normal;      /* ✅ 允許換行 */
+  word-wrap: break-word;    /* ✅ 長字會自動換行 */
+  text-align: center;       /* ✅ 置中文字 */
+  bottom: -12px;             /* 與下方距離 */
+}
+
+.carousel-caption h5 {
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 1.4;
+}
+.carousel-control-prev,
+.carousel-control-next {
+  width: 8%;                /* ✅ 範圍縮小，避免佔滿邊界 */
+}
+
+.carousel-control-prev {
+  left: 20px;               /* ✅ 往內縮 */
+}
+
+.carousel-control-next {
+  right: 20px;              /* ✅ 往內縮 */
+}
+
+
+.carousel-control-prev,
+.carousel-control-next {
+  top: 50%;
+  transform: translateY(-50%);
+}
+.custom-arrow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  background: #a4a4a4;   /* 深藍底 */
+  border-radius: 50%;
+  color: #fff;           /* 白色箭頭 */
+  font-size: 18px;       /* 箭頭大小 */
+}
+.carousel-indicators {
+  bottom: -20px;       /* ✅ 和圖片距離 */
+}
+
+.carousel-indicators [data-bs-target] {
+  background-color: #fff; /* 預設深藍色 */
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin: 0 5px;
+}
+
+.carousel-indicators .active {
+  background-color: #2c4975; /* ✅ 當前圖片顏色 (粉紅色) */
+}
+
     </style>
   </head>
   <body>
-    <button onclick="goToHome()" class="back-button">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="32"
-        height="32"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="#1B3A6E"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <polyline points="15 18 9 12 15 6"></polyline>
-      </svg>
-    </button>
+        <!-- ✅ 上方列 -->
+    <div class="top-bar">
+      <button onclick="goToHome()" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <h2 class="top-title">運動快訊</h2>
+    </div>
+
 
     <!-- ✅ 上方滾動式圖片 -->
     <div id="news-carousel" class="carousel slide mb-4" data-bs-ride="carousel">
+      <div class="carousel-indicators" id="carousel-indicators">
+        <!-- 點點會用 JS 動態生成 -->
+      </div>
       <div class="carousel-inner" id="carousel-inner">
         <div class="carousel-item active">
           <img src="https://via.placeholder.com/300x200?text=載入中..." class="d-block w-100" alt="loading">
         </div>
       </div>
       <button class="carousel-control-prev" type="button" data-bs-target="#news-carousel" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon"></span>
+        <span class="custom-arrow">
+          <i class="fas fa-chevron-left"></i>
+        </span>
       </button>
+
       <button class="carousel-control-next" type="button" data-bs-target="#news-carousel" data-bs-slide="next">
-        <span class="carousel-control-next-icon"></span>
+        <span class="custom-arrow">
+          <i class="fas fa-chevron-right"></i>
+        </span>
       </button>
+
     </div>
     
-    <section class="news-section">
-      <h3><i class="fas fa-newspaper"></i> 體育相關新聞</h3>
-    </section>
 
     <section class="news-section">
       <div id="news-container">
@@ -126,32 +243,44 @@
 
           const carouselInner = document.getElementById("carousel-inner");
           carouselInner.innerHTML = ""; // 清空預設
+    const indicators = document.getElementById("carousel-indicators");
+    indicators.innerHTML = ""; // 清空舊的點點
 
-          data.forEach((article, index) => {
-            // 下方新聞卡片
-            const card = document.createElement("div");
-            card.className = "news-card";
-            card.innerHTML = `
-              <h5><a href="${article.url}" target="_blank">${article.title}</a></h5>
-              <p>${article.summary}</p>
-            `;
-            container.appendChild(card);
+data.forEach((article, index) => {
+  // === 1. 生成 indicators 點點 ===
+  const button = document.createElement("button");
+  button.type = "button";
+  button.setAttribute("data-bs-target", "#news-carousel");
+  button.setAttribute("data-bs-slide-to", index);
+  button.setAttribute("aria-label", `Slide ${index + 1}`);
+  if (index === 0) button.classList.add("active"); // 第一個點亮
+  indicators.appendChild(button);
 
-            // 上方 Carousel 圖片
-            if (article.image) {
-              const item = document.createElement("div");
-              item.className = "carousel-item" + (index === 0 ? " active" : "");
-              item.innerHTML = `
-                <a href="${article.url}" target="_blank">
-                  <img src="${article.image}" class="d-block" alt="${article.title}" loading="lazy">
-                  <div class="carousel-caption d-none d-md-block">
-                    <h5>${article.title}</h5>
-                  </div>
-                </a>
-              `;
-              carouselInner.appendChild(item);
-            }
-          });
+  // === 2. 下方新聞卡片 ===
+  const card = document.createElement("div");
+  card.className = "news-card";
+  card.innerHTML = `
+    <h5><a href="${article.url}" target="_blank">${article.title}</a></h5>
+    <p>${article.summary}</p>
+  `;
+  container.appendChild(card);
+
+  // === 3. 上方 Carousel 圖片 ===
+  if (article.image) {
+    const item = document.createElement("div");
+    item.className = "carousel-item" + (index === 0 ? " active" : "");
+    item.innerHTML = `
+      <a href="${article.url}" target="_blank">
+        <img src="${article.image}" class="d-block" alt="${article.title}" loading="lazy">
+        <div class="carousel-caption d-none d-md-block">
+          <h5>${article.title}</h5>
+        </div>
+      </a>
+    `;
+    carouselInner.appendChild(item);
+  }
+});
+
         })
         .catch((err) => {
           console.warn("載入動態新聞失敗：", err);
@@ -160,5 +289,7 @@
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
   </body>
 </html>

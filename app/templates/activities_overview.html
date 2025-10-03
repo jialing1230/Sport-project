@@ -982,6 +982,31 @@ document.getElementById("backBtn").onclick = () => {
         });
       }
 
+      const countyBounds = {
+        "台北市":   { latMin: 25.00, latMax: 25.20, lngMin: 121.45, lngMax: 121.65 },
+        "基隆市":   { latMin: 25.10, latMax: 25.20, lngMin: 121.65, lngMax: 121.85 },
+        "新北市":   { latMin: 24.85, latMax: 25.30, lngMin: 121.30, lngMax: 121.90 },
+        "桃園市":   { latMin: 24.80, latMax: 25.05, lngMin: 121.00, lngMax: 121.45 },
+        "新竹縣":   { latMin: 24.50, latMax: 24.95, lngMin: 120.80, lngMax: 121.20 },
+        "新竹市":   { latMin: 24.60, latMax: 24.90, lngMin: 120.90, lngMax: 121.10 },
+        "苗栗縣":   { latMin: 24.30, latMax: 24.90, lngMin: 120.70, lngMax: 121.15 },
+        "台中市":   { latMin: 24.00, latMax: 24.35, lngMin: 120.50, lngMax: 121.20 },
+        "彰化縣":   { latMin: 23.85, latMax: 24.30, lngMin: 120.33, lngMax: 120.80 },
+        "南投縣":   { latMin: 23.50, latMax: 24.20, lngMin: 120.60, lngMax: 121.10 },
+        "雲林縣":   { latMin: 23.50, latMax: 24.25, lngMin: 120.10, lngMax: 120.70 },
+        "嘉義縣":   { latMin: 23.25, latMax: 23.70, lngMin: 120.20, lngMax: 120.70 },
+        "嘉義市":   { latMin: 23.40, latMax: 23.55, lngMin: 120.30, lngMax: 120.50 },
+        "台南市":   { latMin: 22.80, latMax: 23.40, lngMin: 120.10, lngMax: 120.65 },
+        "高雄市":   { latMin: 22.50, latMax: 23.05, lngMin: 120.10, lngMax: 120.70 },
+        "屏東縣":   { latMin: 22.00, latMax: 22.80, lngMin: 120.40, lngMax: 120.90 },
+        "宜蘭縣":   { latMin: 24.40, latMax: 25.40, lngMin: 121.40, lngMax: 122.10 },
+        "花蓮縣":   { latMin: 23.50, latMax: 24.80, lngMin: 121.30, lngMax: 122.10 },
+        "台東縣":   { latMin: 22.50, latMax: 24.50, lngMin: 120.80, lngMax: 122.75 },
+        "澎湖縣":   { latMin: 23.20, latMax: 23.70, lngMin: 119.40, lngMax: 119.90 },
+        "金門縣":   { latMin: 24.40, latMax: 24.60, lngMin: 118.10, lngMax: 118.50 },
+        "連江縣":   { latMin: 26.00, latMax: 26.40, lngMin: 119.90, lngMax: 120.80 },
+      };
+
       function filterActivities() {
         const city = document.getElementById("searchCity").value;
         const activityType = document.getElementById("searchActivityType").value;
@@ -993,7 +1018,14 @@ document.getElementById("backBtn").onclick = () => {
 
         const filtered = filteredActivities.filter(
           (act) =>
-            (city === "" || (act.location_name && act.location_name.toLowerCase().includes(city.toLowerCase()))) &&
+            (city === "" || (
+              act.location_lat && act.location_lng &&
+              countyBounds[city] &&
+              act.location_lat >= countyBounds[city].latMin &&
+              act.location_lat <= countyBounds[city].latMax &&
+              act.location_lng >= countyBounds[city].lngMin &&
+              act.location_lng <= countyBounds[city].lngMax
+            )) &&
             (activityType === "" || (act.activity_type && act.activity_type === activityType)) &&
             (act.sport_type || "").toLowerCase().includes(type)
             && (function() {
@@ -1073,6 +1105,8 @@ document.getElementById("backBtn").onclick = () => {
                 start_time: a.start_time || a.time,
                 end_time: a.end_time || a.time,
                 location_name: a.location_name || a.location,
+                location_lat: a.location_lat,
+                location_lng: a.location_lng,
                 type: a.type,
                 course_schedules: a.course_schedules || [],
                 venue_fee: a.venue_fee || 0,

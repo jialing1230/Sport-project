@@ -385,6 +385,20 @@
                     alert("請輸入自我介紹內容！");
                     return;
                 }
+
+                   // ✅ 驗證 FB/IG 個人帳號格式
+                const fbRegex = /^(https?:\/\/)?(www\.)?facebook\.com\/(profile\.php\?id=\d+|[A-Za-z0-9._]{5,50})\/?$/i;
+                const igRegex = /^(https?:\/\/)?(www\.)?instagram\.com\/[A-Za-z0-9._]{1,30}\/?$/i;
+
+                if (fbLink && !fbRegex.test(fbLink)) {
+                    alert("請輸入正確的 Facebook 個人帳號連結");
+                    return;
+                }
+                if (igLink && !igRegex.test(igLink)) {
+                    alert("請輸入正確的 Instagram 個人帳號連結");
+                    return;
+                }
+
                 // 1. 送出自我介紹與社群連結
                 let introRes = await fetch(`/api/members/${member_id}/public-intro`, {
                     method: "POST",

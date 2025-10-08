@@ -5,6 +5,8 @@ from app.models.member import Member
 from app.models.activity import Activity
 from app.models.activity_join import ActivityJoin
 from app.models.notification import Notification
+from app.models.activity_favorite import ActivityFavorite
+from app.models.course_schedul import CourseSchedule
 import logging
 from gmail_eval import send_eval_mail
 
@@ -90,11 +92,15 @@ def update_activity_status():
                 if getattr(activity, "current_participants", 0) < getattr(activity, "min_participants", 0):
                     activity.status = "cancelled"
                     # 活動已取消且已結束，刪除所有相關紀錄
+                    db.query(ActivityFavorite).filter_by(activity_id=activity.activity_id).delete()
                     db.query(ActivityJoin).filter_by(activity_id=activity.activity_id).delete()
+                    db.query(CourseSchedule).filter_by(activity_id=activity.activity_id).delete()
                     db.query(Activity).filter_by(activity_id=activity.activity_id).delete()
                 elif activity.status == "cancelled":
                     # 活動已取消且已結束，刪除所有相關紀錄
+                    db.query(ActivityFavorite).filter_by(activity_id=activity.activity_id).delete()
                     db.query(ActivityJoin).filter_by(activity_id=activity.activity_id).delete()
+                    db.query(CourseSchedule).filter_by(activity_id=activity.activity_id).delete()
                     db.query(Activity).filter_by(activity_id=activity.activity_id).delete()
                 elif activity.status != "cancelled":
                     # 只在狀態從非 close → close 時才觸發

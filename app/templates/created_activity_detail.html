@@ -574,6 +574,40 @@
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   margin-top: 2px;
 }
+/* 🗨️ 留言區樣式 */
+#comments-section h3 {
+  margin-bottom: 12px;
+  color: #64bcd0;
+}
+
+.comment-item {
+  padding: 8px 4px;
+  border-bottom: 1px solid #dcdcdc; /* 中線分隔 */
+}
+
+.comment-item:last-child {
+  border-bottom: none;
+}
+
+.comment-item:hover {
+  background-color: transparent; /* 移除 hover 灰底 */
+}
+
+#comments-section {
+  margin-bottom: 80px; /* 留白，避免被底部導覽列蓋住 */
+  position: relative;
+  z-index: 1;
+}
+
+.comment-item p {
+  margin: 6px 0 4px;
+  line-height: 1.5;
+}
+
+.comment-item strong {
+  display: block;
+  margin-bottom: 2px;
+}
 
 
     </style>
@@ -625,6 +659,25 @@
       <section id="description" class="info-box" style="display: none;"></section>
       <section id="equipment" class="info-box" style="display:none;"></section>
       <section id="participants" class="info-box"></section>
+      <!-- 🗨️ 留言區 -->
+<section id="comments-section" class="info-box">
+  <h3>留言區</h3>
+
+  <!-- 留言列表 -->
+  <div id="comment-list"></div>
+
+  <!-- 輸入留言 -->
+  <div id="comment-input-area"
+       style="margin-top:16px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;">
+    <input type="text" id="comment-input" placeholder="輸入留言..."
+           style="flex:1;margin-right:8px;padding:9px 10px;border:1px solid #ccc;
+                  border-radius:6px;font-size:14px;max-width:310px;" />
+    <button id="comment-submit" class="btn"
+            style="width:76px;padding:7px 0;background-color:#81d3e1;
+                   font-size:14px;margin-top:0;">送出</button>
+  </div>
+</section>
+
       <div style="height: 40px;"></div>
     </div>
 
@@ -962,7 +1015,94 @@
 			  toggleArrow.style.transform = isHidden ? "rotate(180deg)" : "rotate(0deg)";
 			});
 		  }
+/* ===============================
+   🗨️ 留言區假資料與功能邏輯
+================================ */
+function formatTimeAgo(dateString) {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diff = Math.floor((now - date) / 1000);
 
+  if (diff < 60) return "剛剛";
+  if (diff < 3600) return `${Math.floor(diff / 60)} 分鐘前`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} 小時前`;
+  if (diff < 2592000) return `${Math.floor(diff / 86400)} 天前`;
+
+  return `${date.getMonth() + 1}/${date.getDate()} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+}
+
+const bannedWords = ["幹", "靠北", "白癡", "他媽的", "垃圾"];
+let comments = [
+  { id: 1, userId: 1, userName: "小白（發起人）", content: "大家可以準時一點集合喔！", time: "2025/10/28 14:00" },
+  { id: 2, userId: 2, userName: "小明", content: "請問活動會下雨取消嗎？", time: "2025/10/28 14:30" },
+  { id: 3, userId: 3, userName: "小美", content: "好期待這次活動～", time: "2025/10/28 15:00" }
+];
+
+// 從 URL 拿登入者資訊
+const currentUserId = parseInt(memberId);
+const organizerId = parseInt(participant.organizer.member_id);
+
+// 渲染留言
+function renderComments() {
+  const list = document.getElementById("comment-list");
+  if (!comments.length) {
+    list.innerHTML = `<p style="color:#999;">目前尚無留言</p>`;
+    return;
+  }
+  list.innerHTML = comments.map(c => `
+    <div class="comment-item" style="position: relative;">
+      <strong style="color:#2c4975;">${c.userName}</strong>
+      <p>${c.content}</p>
+      <small style="color:#999;">${formatTimeAgo(c.time)}</small>
+      ${
+        (c.userId === currentUserId || currentUserId === organizerId)
+          ? `<button class="delete-comment" data-id="${c.id}" 
+                     style="position:absolute; top:8px; right:8px; background:none; border:none; color:#fe8a90; cursor:pointer;">
+                刪除
+             </button>`
+          : ""
+      }
+    </div>
+  `).join("");
+
+  // 綁定刪除
+  document.querySelectorAll(".delete-comment").forEach(btn => {
+    btn.onclick = () => {
+      const id = parseInt(btn.dataset.id);
+      comments = comments.filter(c => c.id !== id);
+      renderComments();
+    };
+  });
+}
+
+// 初始載入留言
+renderComments();
+
+// 送出留言
+document.getElementById("comment-submit").addEventListener("click", () => {
+  const input = document.getElementById("comment-input");
+  const text = input.value.trim();
+  if (!text) {
+    alert("請輸入留言內容！");
+    return;
+  }
+  if (bannedWords.some(bw => text.includes(bw))) {
+    alert("留言中含有不雅詞，請重新輸入！");
+    return;
+  }
+
+  const newComment = {
+    id: comments.length + 1,
+    userId: currentUserId,
+    userName: `使用者${currentUserId}` + (currentUserId === organizerId ? "（發起人）" : ""),
+    content: text,
+    time: new Date().toISOString(),
+  };
+
+  comments.unshift(newComment);
+  input.value = "";
+  renderComments();
+});
 		  function formatDateRange(start, end) {
 			const startDate = new Date(start);
 			const endDate = new Date(end);
@@ -983,6 +1123,7 @@
 			}
 		  }
 		});
+
 
     </script>
   </body>

@@ -551,6 +551,96 @@
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   margin-top: 2px;
 }
+/* ✅ 費用明細區塊樣式 */
+.fee-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 15px;
+}
+
+.fee-table th,
+.fee-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+.fee-table th {
+  background-color: #81d3e1;
+  color: white;
+  font-weight: bold;
+}
+
+/* ✅ 總金額靠右且無多餘邊線 */
+.fee-summary {
+  text-align: right;
+  margin-top: 8px;
+  color: #2c4975;
+  border-top: none;
+  font-weight: 600;
+}
+/* ✅ 動畫通用設定（課程時間表 + 費用明細） */
+#schedule-content,
+#fee-content {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.4s ease, opacity 0.3s ease;
+}
+
+/* 展開時的狀態 */
+#schedule-content.open,
+#fee-content.open {
+  max-height: 500px;
+  opacity: 1;
+}
+/* === 留言區樣式 === */
+#comments-section h3 {
+  margin-bottom: 12px;
+  color: #64bcd0;
+}
+
+.comment-item {
+  padding: 8px 10px;
+  border-bottom: 1px solid #dcdcdc; /* ✅ 中線分隔 */
+}
+.comment-item:last-child {
+  border-bottom: none;
+}
+.comment-item:hover {
+  background-color: transparent; /* ✅ 無灰底 hover */
+}
+#comments-section {
+  margin-top: -40px;
+  margin-bottom: 80px;
+  position: relative;
+  z-index: 1;
+}
+.comment-item p {
+  margin: 6px 0 4px;
+  line-height: 1.5;
+}
+.comment-item strong {
+  display: inline-block;
+  margin-bottom: 2px;
+}
+.comment-item small {
+  color: #999;
+  font-size: 12px;
+  margin-left: 6px;
+}
+.delete-btn {
+  float: right;
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  font-size: 12px;
+}
+.delete-btn:hover {
+  color: #2c4975;
+}
 
 
   </style>
@@ -635,9 +725,55 @@
           </div>
     </section>
     <section id="description" class="info-box" style="display: none;"></section>
+    <!-- ✅ 費用明細區塊 -->
+<section id="fee-details" class="info-box" style="display: none;">
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <h3>費用明細</h3>
+    <button id="toggle-fee" 
+            style="font-size: 14px; background: none; border: none; color: #2c4975; cursor: pointer;">
+      <span id="toggle-fee-text">展開</span>
+      <span id="toggle-fee-arrow" style="display: inline-block; transition: transform 0.3s;">▾</span>
+    </button>
+  </div>
+
+  <div id="fee-content">
+    <table class="fee-table" style="width:100%; border-collapse:collapse; margin-top:10px;">
+      <thead>
+        <tr>
+          <th style="background-color:#81d3e1; color:white; font-weight:bold;">項目</th>
+          <th style="background-color:#81d3e1; color:white; font-weight:bold;">金額 (NTD)</th>
+        </tr>
+      </thead>
+      <tbody id="fee-tbody"></tbody>
+    </table>
+    <div class="fee-summary" style="text-align:right; margin-top:16px; color:#2c4975; margin-right: 5px;">
+      <p><strong>總金額：</strong><span id="fee-total"></span> 元</p>
+    </div>
+  </div>
+</section>
+
     <section id="equipment" class="info-box" style="display:none;"></section>
     <section id="participants" class="info-box"></section>
     <div style="height: 40px;"></div>
+    <!-- 🗨️ 留言區 -->
+<section id="comments-section" class="info-box">
+  <h3>留言區</h3>
+
+  <!-- 留言列表 -->
+  <div id="comment-list"></div>
+
+  <!-- 輸入留言 -->
+  <div id="comment-input-area"
+       style="margin-top:16px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;">
+    <input type="text" id="comment-input" placeholder="輸入留言..."
+           style="flex:1;margin-right:8px;padding:9px 10px;border:1px solid #ccc;
+                  border-radius:6px;font-size:14px;max-width:310px;" />
+    <button id="comment-submit" class="btn"
+            style="width:76px;padding:7px 0;background-color:#81d3e1;
+                   font-size:14px;margin-top:0;">送出</button>
+  </div>
+</section>
+
   </div>
   <div class="bottom-nav">
     <div class="bottom-center">
@@ -1016,6 +1152,66 @@
           } else {
             descSection.style.display = "none";
           }
+          // 🧾 顯示費用明細（假資料 or 後端提供）
+const feeSection = document.getElementById("fee-details");
+const feeTbody = document.getElementById("fee-tbody");
+const feeTotal = document.getElementById("fee-total");
+
+if (!detail.extra_fees || detail.extra_fees.length === 0) {
+  // 假資料（可移除）
+  detail.extra_fees = [
+    { name: "場地費", amount: 200 },
+    { name: "保險費", amount: 40 },
+    { name: "飲水費", amount: 30 }
+  ];
+}
+
+if (detail.extra_fees && detail.extra_fees.length > 0) {
+  feeSection.style.display = "block";
+
+  let total = 0;
+  feeTbody.innerHTML = detail.extra_fees.map(fee => {
+    total += fee.amount;
+    return `<tr><td style="text-align:center;">${fee.name}</td><td style="text-align:center;">${fee.amount} 元</td></tr>`;
+  }).join("");
+
+  feeTotal.textContent = total;
+} else {
+  feeSection.style.display = "none";
+}
+
+// 🔁 費用表收合/展開邏輯
+const feeBtn = document.getElementById("toggle-fee");
+const feeContent = document.getElementById("fee-content");
+const feeText = document.getElementById("toggle-fee-text");
+const feeArrow = document.getElementById("toggle-fee-arrow");
+
+feeText.textContent = "展開";
+feeArrow.style.transform = "rotate(0deg)";
+
+feeBtn.addEventListener("click", () => {
+  const isOpen = feeContent.classList.contains("open");
+  if (isOpen) {
+    const fullHeight = feeContent.scrollHeight;
+    feeContent.style.maxHeight = fullHeight + "px";
+    requestAnimationFrame(() => {
+      feeContent.style.maxHeight = "0";
+      feeContent.style.opacity = "0";
+    });
+    feeContent.classList.remove("open");
+    feeText.textContent = "展開";
+    feeArrow.style.transform = "rotate(0deg)";
+  } else {
+    feeContent.classList.add("open");
+    const fullHeight = feeContent.scrollHeight;
+    feeContent.style.maxHeight = fullHeight + "px";
+    feeContent.style.opacity = "1";
+    feeText.textContent = "收合";
+    feeArrow.style.transform = "rotate(180deg)";
+  }
+});
+
+
           // 裝備建議
           const equipSection = document.getElementById("equipment");
           // 直接使用 API 回傳的 equipment_suggestions
@@ -1098,16 +1294,115 @@
                 const toggleArrow = document.getElementById("toggle-arrow");
 
                 // ✅ 預設收合
-                scheduleContent.style.display = "none";
-                toggleText.textContent = "展開";
-                toggleArrow.style.transform = "rotate(0deg)";
+toggleText.textContent = "展開";
+toggleArrow.style.transform = "rotate(0deg)";
 
-                toggleBtn.addEventListener("click", () => {
-                  const isHidden = scheduleContent.style.display === "none";
-                  scheduleContent.style.display = isHidden ? "block" : "none";
-                  toggleText.textContent = isHidden ? "收合" : "展開";
-                  toggleArrow.style.transform = isHidden ? "rotate(180deg)" : "rotate(0deg)";
-                });
+toggleBtn.addEventListener("click", () => {
+  const isOpen = scheduleContent.classList.contains("open");
+  if (isOpen) {
+    // 收合動畫
+    const fullHeight = scheduleContent.scrollHeight;
+    scheduleContent.style.maxHeight = fullHeight + "px";
+    requestAnimationFrame(() => {
+      scheduleContent.style.maxHeight = "0";
+      scheduleContent.style.opacity = "0";
+    });
+    scheduleContent.classList.remove("open");
+    toggleText.textContent = "展開";
+    toggleArrow.style.transform = "rotate(0deg)";
+  } else {
+    // 展開動畫
+    scheduleContent.classList.add("open");
+    const fullHeight = scheduleContent.scrollHeight;
+    scheduleContent.style.maxHeight = fullHeight + "px";
+    scheduleContent.style.opacity = "1";
+    toggleText.textContent = "收合";
+    toggleArrow.style.transform = "rotate(180deg)";
+  }
+});
+
+/* ===============================
+   🗨️ 留言區假資料與功能邏輯
+================================ */
+const bannedWords = ["幹", "靠北", "白癡", "他媽的", "垃圾"];
+let comments = [
+  { id: 1, userId: participant.organizer.member_id, userName: participant.organizer.name + "（發起人）", content: "大家記得準時集合喔！", time: "2025-10-28T08:00:00" },
+  { id: 2, userId: 2, userName: "小美", content: "請問活動會下雨取消嗎？", time: "2025-10-28T08:30:00" },
+  { id: 3, userId: 3, userName: "小明", content: "好期待這次活動～", time: "2025-10-28T09:00:00" }
+];
+
+const currentUserId = parseInt(memberId);
+const organizerId = parseInt(participant.organizer.member_id);
+
+function formatTimeAgo(dateString) {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diff = Math.floor((now - date) / 1000);
+  if (diff < 60) return "剛剛";
+  if (diff < 3600) return `${Math.floor(diff / 60)} 分鐘前`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} 小時前`;
+  return `${date.getMonth() + 1}/${date.getDate()} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+}
+
+function renderComments() {
+  const list = document.getElementById("comment-list");
+  if (!comments.length) {
+    list.innerHTML = `<p style="color:#999;">目前尚無留言</p>`;
+    return;
+  }
+  list.innerHTML = comments.map(c => `
+    <div class="comment-item" style="position: relative;">
+      <strong style="color:#2c4975;">${c.userName}</strong>
+      <p>${c.content}</p>
+      <small style="color:#999;">${formatTimeAgo(c.time)}</small>
+      ${
+        (c.userId === currentUserId || currentUserId === organizerId)
+          ? `<button class="delete-comment" data-id="${c.id}" 
+                     style="position:absolute; top:8px; right:8px; background:none; border:none; color:#fe8a90; cursor:pointer;">
+                刪除
+             </button>`
+          : ""
+      }
+    </div>
+  `).join("");
+
+  // 綁定刪除事件
+  document.querySelectorAll(".delete-comment").forEach(btn => {
+    btn.onclick = () => {
+      const id = parseInt(btn.dataset.id);
+      comments = comments.filter(c => c.id !== id);
+      renderComments();
+    };
+  });
+}
+
+renderComments();
+
+// 送出留言
+document.getElementById("comment-submit").addEventListener("click", () => {
+  const input = document.getElementById("comment-input");
+  const text = input.value.trim();
+  if (!text) {
+    alert("請輸入留言內容！");
+    return;
+  }
+  if (bannedWords.some(bw => text.includes(bw))) {
+    alert("留言中含有不雅詞，請重新輸入！");
+    return;
+  }
+
+  const newComment = {
+    id: comments.length + 1,
+    userId: currentUserId,
+    userName: `使用者${currentUserId}` + (currentUserId === organizerId ? "（發起人）" : ""),
+    content: text,
+    time: new Date().toISOString(),
+  };
+
+  comments.unshift(newComment);
+  input.value = "";
+  renderComments();
+});
 
 
 

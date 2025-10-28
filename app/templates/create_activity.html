@@ -183,7 +183,19 @@
 		.text-button:hover {
 		  color: #81d3e1;
 		}
+	  .text-button1 {
+		  background: none;
+		  border: none;
+		  color: #81d3e1;
+		  font-size: 16px;
+		  cursor: pointer;
+		  font-weight: bold;
+      margin-left: -8PX;
+		}
 
+		.text-button1:hover {
+		  color: #81d3e1;
+		}
 		.dropdown-list {
 		  position: absolute;
 		  top: 100%;
@@ -219,6 +231,40 @@
 		  color: #2c4975;
 		  font-size: 16px;
 		}
+.fee-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+#extra-fee-container {
+  margin-bottom: 12px; /* ✅ 下方也留一點空間 */
+}
+
+.fee-row select,
+.fee-row input {
+  flex: 1;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.remove-fee {
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 18px;
+  cursor: pointer;
+}
+.remove-fee:hover { color: red; }
+
+/* 總金額靠右顯示 */
+#fee-summary {
+  margin-top: 14px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #2c4975;
+  text-align: right; /* ✅ 靠右對齊 */
+}
 
 
     </style>
@@ -339,6 +385,22 @@
             required
           />
         </div>
+        <!-- ✅ 新增費用區塊 -->
+<div class="form-row">
+  <label class="form-label">其他費用 (NTD)</label>
+
+  <div id="extra-fee-container"></div>
+
+  <div>
+    <button type="button" id="add-fee-btn" class="text-button1">＋ 新增費用</button>
+  </div>
+
+  <!-- 顯示加總結果 -->
+  <div id="fee-summary" >
+    總金額：<span id="total-fee">0</span> NTD　
+  </div>
+</div>
+
         <div class="form-row">
           <label class="form-label">報名截止日期</label>
           <input type="datetime-local" name="registration_deadline" required />
@@ -760,6 +822,76 @@ function initAutocomplete() {
   types: ["establishment", "geocode"], // ✅ 支援地標 + 地址
   componentRestrictions: { country: "tw" },
 });
+// === 可動態新增費用區塊（選「其他」會變成可輸入名稱）===
+const extraFeeContainer = document.getElementById("extra-fee-container");
+const addFeeBtn = document.getElementById("add-fee-btn");
+const totalFeeSpan = document.getElementById("total-fee");
+
+// 常用費用選項
+const commonFees = ["裝備費", "飲水費", "清潔費", "餐費", "其他"];
+let memberCount = 5;
+
+// 更新加總
+function updateFeeSummary() {
+  const venueFee = parseInt(document.querySelector('input[name="venue_fee"]').value) || 0;
+  const extraTotal = Array.from(document.querySelectorAll(".fee-amount"))
+    .reduce((sum, el) => sum + (parseInt(el.value) || 0), 0);
+  totalFeeSpan.textContent = (venueFee + extraTotal).toFixed(0);
+}
+
+// 新增一行：下拉（或自訂名稱）＋ 金額 + ✕
+addFeeBtn.addEventListener("click", () => {
+  const row = document.createElement("div");
+  row.classList.add("fee-row");
+  row.innerHTML = `
+    <select class="fee-type" required>
+      <option value="" disabled selected>選擇費用項目</option>
+      ${commonFees.map(f => `<option value="${f}">${f}</option>`).join("")}
+    </select>
+    <input type="number" class="fee-amount" placeholder="金額 (NTD)" min="1" step="1" required>
+    <button type="button" class="remove-fee">✕</button>
+  `;
+  extraFeeContainer.appendChild(row);
+
+  const feeType = row.querySelector(".fee-type");
+  const feeAmount = row.querySelector(".fee-amount");
+
+  // 當選到「其他」時，變成輸入框
+  feeType.addEventListener("change", () => {
+    if (feeType.value === "其他") {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "fee-type";
+      input.placeholder = "請輸入費用名稱";
+      input.style.flex = "1";
+      feeType.replaceWith(input);
+    }
+  });
+
+  // 限制金額為整數 ≥ 1
+  feeAmount.addEventListener("input", () => {
+    const val = parseInt(feeAmount.value);
+    if (val < 1 || isNaN(val)) {
+      feeAmount.value = "";
+    } else {
+      feeAmount.value = val;
+    }
+    updateFeeSummary();
+  });
+});
+
+// 刪除費用列
+extraFeeContainer.addEventListener("click", (e) => {
+  if (e.target.classList.contains("remove-fee")) {
+    e.target.parentElement.remove();
+    updateFeeSummary();
+  }
+});
+
+// 即時計算
+extraFeeContainer.addEventListener("input", updateFeeSummary);
+document.querySelector('input[name="venue_fee"]').addEventListener("input", updateFeeSummary);
+
 
   // 使用者選了建議地址
   autocomplete.addListener("place_changed", () => {

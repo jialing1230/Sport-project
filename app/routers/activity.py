@@ -40,6 +40,8 @@ def create_activity():
             gender=payload.get("gender", "不限"),
             age_range=payload.get("age_range", "不限"),
             venue_fee=payload.get("venue_fee"),
+            other_fees=payload.get("other_fees", []),
+            total_fee=payload.get("total_fee", 0),
             registration_deadline=datetime.fromisoformat(payload["registration_deadline"]),
             equipment_suggestions=payload.get("equipment_suggestions", []),
         )

@@ -78,6 +78,8 @@ def upgrade() -> None:
     sa.Column('registration_deadline', sa.DateTime(), nullable=True),
     sa.Column('min_participants', sa.Integer(), nullable=False, comment='活動人數下限'),
     sa.Column('equipment_suggestions', sa.JSON, nullable=True, comment="建議裝備"),
+    sa.Column('other_fees', sa.JSON, nullable=True, comment="其他費用清單，例如：[{type: '飲水費', amount: 50}]"),
+    sa.Column('total_fee', sa.DECIMAL(10, 2), nullable=True, comment="所有費用加總"),
     sa.ForeignKeyConstraint(['organizer_id'], ['members.member_id']),
     sa.ForeignKeyConstraint(['sport_type_id'], ['sport_types.sport_type_id']),
     sa.PrimaryKeyConstraint('activity_id')

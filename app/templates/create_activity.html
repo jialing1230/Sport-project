@@ -615,6 +615,23 @@ if (!locationLat || !locationLng) {
 const equipmentSelected = Array.from(document.querySelectorAll('input[name="equipment"]:checked'))
                                .map(el => el.value);
 
+// 收集「其他費用」欄位（每一列包含 name 與 amount）
+const otherFees = Array.from(document.querySelectorAll('#extra-fee-container .fee-row'))
+  .map(row => {
+    const typeEl = row.querySelector('.fee-type');
+    const amountEl = row.querySelector('.fee-amount');
+    if (!amountEl) return null;
+    const amount = parseFloat(amountEl.value) || 0;
+    if (amount <= 0) return null; // 忽略空或非正數
+    const name = typeEl ? (typeEl.value || typeEl.textContent || '').toString().trim() : '';
+    return { name: name, amount: amount };
+  })
+  .filter(Boolean);
+
+// 計算總費用（場地費 + 其他費用總和）
+const venueFee = parseFloat(formData.get("venue_fee")) || 0;
+const computedTotalFee = otherFees.reduce((s, f) => s + (f.amount || 0), venueFee);
+
 const data = {
   title: formData.get("title"),
   start_time: formData.get("startTime"),
@@ -624,7 +641,9 @@ const data = {
   location_lng: locationLng,
   max_participants: parseInt(formData.get("numPeople")),
   min_participants: parseInt(formData.get("minPeople")),
-  venue_fee: parseFloat(formData.get("venue_fee")),
+  venue_fee: venueFee,
+  other_fees: otherFees,
+  total_fee: computedTotalFee,
   registration_deadline: formData.get("registration_deadline"),
   organizer_id: memberId,
   level: formData.get("level"),
@@ -635,7 +654,6 @@ const data = {
   gender: formData.get("gender"),
   age_range: formData.get("ageRange"),
   equipment_suggestions: equipmentSelected,
-
 };
 
 fetch("/api/activities", {

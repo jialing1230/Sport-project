@@ -37,12 +37,13 @@ class Activity(Base):
     target_identity = Column(String(50))
     gender = Column(String(10))
     age_range = Column(String(20))
-    venue_fee = Column(DECIMAL(10, 2))  
+    venue_fee = Column(DECIMAL(10, 2), default=0, comment="場地費（固定單一金額）")
+    other_fees = Column(JSON, nullable=True, comment="其他費用清單，例如：[{type: '飲水費', amount: 50}]")
+    total_fee = Column(DECIMAL(10, 2), default=0, comment="所有費用加總")
+
     registration_deadline = Column(DateTime)
     is_discounted = Column(Boolean, default=False, nullable=False, comment="是否參與優惠活動")
     equipment_suggestions = Column(JSON, nullable=True, comment="建議裝備")
-    
-
 
     # 關聯
     organizer = relationship("Member", back_populates="activities")

@@ -854,14 +854,6 @@ html, body {
         fetch(`/api/activities/participants?activity_id=${activityId}`).then(res => res.json())
       ])
       .then(async ([detail, participant]) => {
-        // 🧩 測試費用明細假資料（後端尚未提供時使用）
-        if (!detail.extra_fees || detail.extra_fees.length === 0) {
-          detail.extra_fees = [
-            { name: "場地費", amount: 200 },
-            { name: "飲水費", amount: 30 },
-            { name: "保險費", amount: 40 }
-          ];
-        }
 
         // 檢查活動是否存在
         if (!detail || !detail.activity_id) {
@@ -1369,16 +1361,35 @@ const feeSection = document.getElementById("fee-details");
 const feeTbody = document.getElementById("fee-tbody");
 const feeTotal = document.getElementById("fee-total");
 
-if (detail.extra_fees && detail.extra_fees.length > 0) {
+// 從 detail 讀取場地費、其他費用陣列與總費用（有多重備援）
+const venueFeeVal = detail.venue_fee ? parseFloat(detail.venue_fee) || 0 : 0;
+const otherFees = Array.isArray(detail.other_fees) && detail.other_fees.length > 0
+  ? detail.other_fees
+  : (Array.isArray(detail.extra_fees) ? detail.extra_fees : []);
+
+// 優先使用後端提供的 total_fee；若無則自行計算（場地費 + 各 other fee）
+const totalFeeVal = (typeof detail.total_fee !== 'undefined' && detail.total_fee !== null)
+  ? (parseFloat(detail.total_fee) || 0)
+  : (venueFeeVal + otherFees.reduce((s, f) => s + (parseFloat(f.amount) || 0), 0));
+
+if (venueFeeVal > 0 || (otherFees && otherFees.length > 0) || totalFeeVal > 0) {
   feeSection.style.display = "block";
 
-  let total = 0;
-  feeTbody.innerHTML = detail.extra_fees.map(fee => {
-    total += fee.amount;
-    return `<tr><td>${fee.name}</td><td>${fee.amount} 元</td></tr>`;
-  }).join("");
+  const rows = [];
+  // 如果場地費存在且大於 0，就先顯示
+  if (venueFeeVal > 0) {
+    rows.push(`<tr><td>場地費</td><td>${venueFeeVal} 元</td></tr>`);
+  }
 
-  feeTotal.textContent = total;
+  // 顯示其他費用列（若名稱或金額缺則以空字串/0 顯示）
+  otherFees.forEach(fee => {
+    const name = fee && fee.name ? fee.name : '';
+    const amount = fee && (typeof fee.amount !== 'undefined') ? fee.amount : 0;
+    rows.push(`<tr><td>${name}</td><td>${amount} 元</td></tr>`);
+  });
+
+  feeTbody.innerHTML = rows.join("");
+  feeTotal.textContent = totalFeeVal;
 } else {
   feeSection.style.display = "none";
 }

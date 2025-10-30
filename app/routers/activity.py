@@ -348,6 +348,8 @@ def get_activity_details():
             "gender": activity.gender,
             "age_range": activity.age_range,
             "venue_fee": float(activity.venue_fee) if activity.venue_fee else 0,
+            "other_fees": activity.other_fees if activity.other_fees else [],
+            "total_fee": float(activity.total_fee) if activity.total_fee else 0,
             "registration_deadline": activity.registration_deadline.isoformat() if activity.registration_deadline else None,
             "is_discounted": activity.is_discounted,
             "equipment_suggestions": activity.equipment_suggestions if activity.equipment_suggestions else [],

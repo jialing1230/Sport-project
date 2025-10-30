@@ -1152,33 +1152,41 @@
           } else {
             descSection.style.display = "none";
           }
-          // 🧾 顯示費用明細（假資料 or 後端提供）
-const feeSection = document.getElementById("fee-details");
-const feeTbody = document.getElementById("fee-tbody");
-const feeTotal = document.getElementById("fee-total");
+          // 🧾 顯示費用明細（支援後端欄位：venue_fee, other_fees, total_fee；兼容舊的 extra_fees）
+          const feeSection = document.getElementById("fee-details");
+          const feeTbody = document.getElementById("fee-tbody");
+          const feeTotal = document.getElementById("fee-total");
 
-if (!detail.extra_fees || detail.extra_fees.length === 0) {
-  // 假資料（可移除）
-  detail.extra_fees = [
-    { name: "場地費", amount: 200 },
-    { name: "保險費", amount: 40 },
-    { name: "飲水費", amount: 30 }
-  ];
-}
+          // 從 detail 讀取場地費、其他費用陣列與總費用（有多重備援）
+          const venueFeeVal_joined = detail.venue_fee ? parseFloat(detail.venue_fee) || 0 : 0;
+          const otherFees_joined = Array.isArray(detail.other_fees) && detail.other_fees.length > 0
+            ? detail.other_fees
+            : (Array.isArray(detail.extra_fees) ? detail.extra_fees : []);
 
-if (detail.extra_fees && detail.extra_fees.length > 0) {
-  feeSection.style.display = "block";
+          // 優先使用後端提供的 total_fee；若無則自行計算（場地費 + 各 other fee）
+          const totalFeeVal_joined = (typeof detail.total_fee !== 'undefined' && detail.total_fee !== null)
+            ? (parseFloat(detail.total_fee) || 0)
+            : (venueFeeVal_joined + otherFees_joined.reduce((s, f) => s + (parseFloat(f.amount) || 0), 0));
 
-  let total = 0;
-  feeTbody.innerHTML = detail.extra_fees.map(fee => {
-    total += fee.amount;
-    return `<tr><td style="text-align:center;">${fee.name}</td><td style="text-align:center;">${fee.amount} 元</td></tr>`;
-  }).join("");
+          if (venueFeeVal_joined > 0 || (otherFees_joined && otherFees_joined.length > 0) || totalFeeVal_joined > 0) {
+            feeSection.style.display = "block";
 
-  feeTotal.textContent = total;
-} else {
-  feeSection.style.display = "none";
-}
+            const rows = [];
+            if (venueFeeVal_joined > 0) {
+              rows.push(`<tr><td style="text-align:center;">場地費</td><td style="text-align:center;">${venueFeeVal_joined} 元</td></tr>`);
+            }
+
+            otherFees_joined.forEach(fee => {
+              const name = fee && fee.name ? fee.name : '';
+              const amount = fee && (typeof fee.amount !== 'undefined') ? fee.amount : 0;
+              rows.push(`<tr><td style="text-align:center;">${name}</td><td style="text-align:center;">${amount} 元</td></tr>`);
+            });
+
+            feeTbody.innerHTML = rows.join("");
+            feeTotal.textContent = totalFeeVal_joined;
+          } else {
+            feeSection.style.display = "none";
+          }
 
 // 🔁 費用表收合/展開邏輯
 const feeBtn = document.getElementById("toggle-fee");

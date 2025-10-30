@@ -136,6 +136,7 @@ def upgrade() -> None:
             gender="不限",
             age_range="18-25",
             venue_fee=800.00,  
+            total_fee=800.00,
             registration_deadline=activity_start - timedelta(days=1), 
             min_participants=2,
         )
@@ -173,6 +174,7 @@ def upgrade() -> None:
             gender="不限",
             age_range="20-30",
             venue_fee=500.00,
+            total_fee=500.00,
             registration_deadline=activity_start - timedelta(days=2),
             min_participants=2,
         )

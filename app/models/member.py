@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date, DateTime, Boolean
+from sqlalchemy import Column, String, Date, DateTime, Boolean
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -37,6 +37,7 @@ class Member(Base):
     )
   
     activity_favorites = relationship("ActivityFavorite", back_populates="member")
+    comments = relationship("ActivityComment", back_populates="member", cascade="all, delete-orphan")
     blacklist_given = relationship("Blacklist", foreign_keys="Blacklist.member_id", back_populates="member")
     blacklist_received = relationship("Blacklist", foreign_keys="Blacklist.blocked_member_id", back_populates="blocked_member")
     photos = relationship("Photo", back_populates="member")

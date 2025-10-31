@@ -9,6 +9,7 @@ from .preference_sport import PreferenceSport
 from .time_option import TimeOption
 from .preference_time import PreferenceTime
 from .course_schedul import CourseSchedule
+from .activity_comment import ActivityComment
 from .review_template import ReviewTemplate
 from .activity_favorite import ActivityFavorite
 from .photo import Photo
@@ -28,6 +29,7 @@ __all__ = [
     "TimeOption",
     "PreferenceTime",
     "CourseSchedule",
+    "ActivityComment",
     "ReviewTemplate",
     "ActivityFavorite",
     "Blacklist",

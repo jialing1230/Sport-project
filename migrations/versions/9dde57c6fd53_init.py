@@ -138,6 +138,24 @@ def upgrade() -> None:
  
     op.create_index(op.f('ix_activity_reviews_review_id'), 'activity_reviews', ['review_id'], unique=False)
 
+    op.create_table(
+        'activity_comments',
+        sa.Column('comment_id', sa.Integer(), nullable=False),
+        sa.Column('activity_id', sa.Integer(), nullable=False),
+        sa.Column('member_id', sa.String(length=36), nullable=False),
+        sa.Column('parent_id', sa.Integer(), nullable=True),
+        sa.Column('content', sa.Text(), nullable=False),
+        sa.Column('created_at', sa.DateTime(), nullable=True),
+        sa.Column('updated_at', sa.DateTime(), nullable=True),
+        sa.Column('is_deleted', sa.Boolean(), nullable=True, server_default=sa.sql.expression.false()),
+        sa.Column('is_pinned', sa.Boolean(), nullable=True, server_default=sa.sql.expression.false()),
+        sa.ForeignKeyConstraint(['activity_id'], ['activities.activity_id']),
+        sa.ForeignKeyConstraint(['member_id'], ['members.member_id']),
+        sa.ForeignKeyConstraint(['parent_id'], ['activity_comments.comment_id']),
+        sa.PrimaryKeyConstraint('comment_id')
+    )
+    op.create_index(op.f('ix_activity_comments_comment_id'), 'activity_comments', ['comment_id'], unique=False)
+
     op.create_table('preference_sport',
         sa.Column('preference_id', sa.Integer(), nullable=False),
         sa.Column('sport_type_id', sa.Integer(), nullable=False),
@@ -288,4 +306,6 @@ def downgrade() -> None:
     op.drop_table('notifications')
     op.drop_index('ix_photo_id', table_name='photo')
     op.drop_table('photo')
+    op.drop_index(op.f('ix_activity_comments_comment_id'), table_name='activity_comments')
+    op.drop_table('activity_comments')
     # ### end Alembic commands ###

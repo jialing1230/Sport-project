@@ -581,7 +581,7 @@
 }
 
 .comment-item {
-  padding: 8px 4px;
+  padding: 8px 10px;
   border-bottom: 1px solid #dcdcdc; /* 中線分隔 */
 }
 
@@ -1065,11 +1065,16 @@ function renderComments() {
     // 回覆按鈕（登入者可見）
     const replyBtnHtml = currentUserId ? `<button class="reply-btn" data-id="${c.comment_id}" style="position:absolute; top:8px; right:56px; background:none; border:none; color:#2c4975; cursor:pointer;">回覆</button>` : "";
 
+    // 顯示回覆按鈕（若有回覆則顯示，任何使用者可見）
+    const repliesCount = Array.isArray(c.replies) ? c.replies.length : 0;
+    const showRepliesHtml = repliesCount > 0 ? `<button class="show-replies-btn" data-id="${c.comment_id}" style="background:none;border:none;color:#999;cursor:pointer;font-size:12px;margin-left:8px;">顯示回覆(${repliesCount})</button>` : "";
+
     let html = `
       <div class="comment-item" style="position: relative;">
         <strong style="color:#2c4975;">${author}</strong>
         <p>${content}</p>
         <small style="color:#999;">${time}</small>
+        ${showRepliesHtml}
         ${replyBtnHtml}
         ${canDelete ? `<button class="delete-comment" data-id="${c.comment_id}" style="position:absolute; top:8px; right:8px; background:none; border:none; color:#fe8a90; cursor:pointer;">刪除</button>` : ""}
         <div class="reply-box" id="reply-box-${c.comment_id}" style="display:none; margin-top:8px; gap:8px; align-items:center;">
@@ -1081,7 +1086,7 @@ function renderComments() {
     `;
 
     if (Array.isArray(c.replies) && c.replies.length) {
-      html += `<div style="margin-left:16px;">${c.replies.map(r => renderItem(r)).join("")}</div>`;
+      html += `<div id="replies-${c.comment_id}" data-count="${repliesCount}" style="display:none; margin-left:16px;">${c.replies.map(r => renderItem(r)).join("")}</div>`;
     }
     return html;
   }
@@ -1116,6 +1121,23 @@ function renderComments() {
       const box = document.getElementById(`reply-box-${id}`);
       if (!box) return;
       box.style.display = box.style.display === 'none' ? 'flex' : 'none';
+    };
+  });
+
+  // bind show/hide replies toggle (any user can click)
+  document.querySelectorAll('.show-replies-btn').forEach(btn => {
+    btn.onclick = (e) => {
+      const id = btn.dataset.id;
+      const container = document.getElementById(`replies-${id}`);
+      if (!container) return;
+      const count = container.dataset.count || '';
+      if (container.style.display === 'none' || container.style.display === '') {
+        container.style.display = 'block';
+        btn.textContent = '隱藏回覆';
+      } else {
+        container.style.display = 'none';
+        btn.textContent = `顯示回覆(${count})`;
+      }
     };
   });
 

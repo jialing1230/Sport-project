@@ -14,6 +14,7 @@ def serialize_comment(comment):
         "activity_id": comment.activity_id,
         "member_id": comment.member_id,
         "parent_id": comment.parent_id,
+        "member_name": getattr(comment, '_member_name', None),
         "content": comment.content,
         "created_at": comment.created_at.isoformat() if comment.created_at else None,
         "updated_at": comment.updated_at.isoformat() if comment.updated_at else None,
@@ -75,7 +76,24 @@ def create_comment():
 @activity_comment_bp.route("/activity/<int:activity_id>", methods=["GET"])
 def list_comments(activity_id):
     with get_db() as db:
-        comments = db.query(ActivityComment).filter(ActivityComment.activity_id == activity_id).order_by(ActivityComment.created_at.asc()).all()
+        # only include comments that are not soft-deleted
+        comments = (
+            db.query(ActivityComment)
+            .filter(ActivityComment.activity_id == activity_id, ActivityComment.is_deleted.is_(False))
+            .order_by(ActivityComment.created_at.asc())
+            .all()
+        )
+
+        # fetch member names for all involved member_ids to avoid N+1 queries
+        member_ids = {c.member_id for c in comments if c.member_id is not None}
+        member_map = {}
+        if member_ids:
+            members = db.query(Member).filter(Member.member_id.in_(member_ids)).all()
+            member_map = {m.member_id: m.name for m in members}
+
+        # attach member_name onto comment objects for serializer
+        for c in comments:
+            setattr(c, '_member_name', member_map.get(c.member_id))
 
         # build tree
         by_id = {c.comment_id: c for c in comments}

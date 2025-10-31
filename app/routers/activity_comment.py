@@ -76,6 +76,23 @@ def create_comment():
         except Exception:
             # 不應阻斷主要流程
             db.rollback()
+        # 若為回覆，通知被回覆的人（但不要通知自己）
+        try:
+            if parent_id:
+                parent = db.query(ActivityComment).filter(ActivityComment.comment_id == parent_id).first()
+                if parent and getattr(parent, 'member_id', None) and str(parent.member_id) != str(member_id):
+                    note2 = Notification(
+                        member_id=parent.member_id,
+                        title="留言回覆通知",
+                        content=f"{member.name if member else '有人'} 回覆了你的留言：{content[:50]}",
+                        url=f"/api/activities/details_page?id={activity_id}&member_id={parent.member_id}#comment-{comment_id}",
+                    )
+                    db.add(note2)
+                    db.commit()
+        except Exception:
+            # 回覆通知失敗也不應阻斷主要流程
+            db.rollback()
+        
 
     return jsonify({"comment_id": comment_id}), 201
 

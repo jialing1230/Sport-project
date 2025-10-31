@@ -34,6 +34,7 @@ def create_comment():
     if not activity_id or not member_id or not content:
         return jsonify({"error": "缺少必要欄位 (activity_id/member_id/content)"}), 400
 
+    comment_id = None
     with get_db() as db:
         activity = db.query(Activity).filter(Activity.activity_id == activity_id).first()
         if not activity:
@@ -53,7 +54,13 @@ def create_comment():
         )
         db.add(comment)
         db.commit()
-        db.refresh(comment)
+        # 確保 PK 已被後端填好，先抓出 id 再離開 session
+        try:
+            db.refresh(comment)
+        except Exception:
+            # refresh 不是必要的，只要能取得 PK 即可
+            pass
+        comment_id = getattr(comment, 'comment_id', None)
 
         # 可選：通知主辦人（如果留言者不是主辦人）
         try:
@@ -70,7 +77,7 @@ def create_comment():
             # 不應阻斷主要流程
             db.rollback()
 
-    return jsonify({"comment_id": comment.comment_id}), 201
+    return jsonify({"comment_id": comment_id}), 201
 
 
 @activity_comment_bp.route("/activity/<int:activity_id>", methods=["GET"])

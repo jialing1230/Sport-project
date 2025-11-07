@@ -628,7 +628,7 @@
 }
 
 .comment-item {
-  padding: 8px 2px;
+  padding: 8px 10px;
   border-bottom: 1px solid #dcdcdc; /* ✅ 中線分隔 */
 }
 
@@ -876,99 +876,249 @@ html, body {
           } catch (e) {
             // ignore blacklist error
           }
-          // 🕒 格式化留言時間：顯示「幾分鐘前 / 幾小時前 / 幾天前」
+          /* ===============================
+   🗨️ 留言區：從後端讀取並 POST 留言
+   - 使用 GET /api/activity_comments/activity/<id> 取得留言（巢狀 replies）
+   - 使用 POST /api/activity_comments/ 建立留言
+================================ */
+
 function formatTimeAgo(dateString) {
   const date = new Date(dateString);
   const now = new Date();
-  const diff = Math.floor((now - date) / 1000); // 秒差
+  const diff = Math.floor((now - date) / 1000);
 
   if (diff < 60) return "剛剛";
   if (diff < 3600) return `${Math.floor(diff / 60)} 分鐘前`;
   if (diff < 86400) return `${Math.floor(diff / 3600)} 小時前`;
   if (diff < 2592000) return `${Math.floor(diff / 86400)} 天前`;
 
-  // 超過一個月就顯示日期
   return `${date.getMonth() + 1}/${date.getDate()} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 }
 
-                /* ===============================
-   🗨️ 留言區假資料與功能邏輯
-================================ */
-const organizerId = participant.organizer.member_id; // 從 API 取得發起人 ID
-const currentUserId = parseInt(memberId);
-const bannedWords = ["幹", "靠北", "白癡", "他媽的", "垃圾"]; // 不雅詞清單
+const bannedWords = ["幹", "靠北", "白癡", "他媽的", "垃圾"];
+let comments = [];
 
-// 假資料留言
-let comments = [
-  { id: 1, userId: 1, userName: "小白 （發起人）", content: "大家可以準時一點集合喔！", time: "2025/10/28 14:00" },
-  { id: 2, userId: 2, userName: "小明", content: "請問活動會下雨取消嗎？", time: "2025/10/28 14:30" },
-  { id: 3, userId: 3, userName: "小美", content: "好期待這次活動～", time: "2025/10/28 15:00" }
-];
+const currentUserId = memberId ? String(memberId) : null;
+const organizerId = participant && participant.organizer ? String(participant.organizer.member_id) : null;
 
-// 渲染留言
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 function renderComments() {
   const list = document.getElementById("comment-list");
-  if (!comments.length) {
+  if (!comments || comments.length === 0) {
     list.innerHTML = `<p style="color:#999;">目前尚無留言</p>`;
     return;
   }
-  list.innerHTML = comments.map(c => `
+
+    function renderItem(c) {
+    let author;
+    if (String(c.member_id) === currentUserId) {
+      author = "你";
+    } else if (String(c.member_id) === String(organizerId)) {
+      // 若留言者為發起人，顯示名稱並標註 (發起人)
+      author = `${escapeHtml(c.member_name)}(發起人)`;
+    } else {
+      author = `${escapeHtml(c.member_name)}`;
+    }
+    const time = c.created_at ? formatTimeAgo(c.created_at) : "未知時間";
+    const content = c.is_deleted ? "[已刪除]" : escapeHtml(c.content || "");
+    const canDelete = currentUserId && (String(c.member_id) === currentUserId || String(currentUserId) === String(organizerId));
+
+    // 回覆按鈕（登入者可見）
+    const replyBtnHtml = currentUserId ? `<button class="reply-btn" data-id="${c.comment_id}" style="position:absolute; top:8px; right:56px; background:none; border:none; color:#2c4975; cursor:pointer;">回覆</button>` : "";
+
+    // 顯示回覆按鈕（若有回覆則顯示，任何使用者都可見）
+    const repliesCount = Array.isArray(c.replies) ? c.replies.length : 0;
+    const showRepliesHtml = repliesCount > 0 ? `<button class="show-replies-btn" data-id="${c.comment_id}" style="background:none;border:none;color:#999;cursor:pointer;font-size:12px;margin-left:8px;">顯示回覆(${repliesCount})</button>` : "";
+
+    let html = `
       <div class="comment-item" style="position: relative;">
-      <strong style="color:#2c4975;">${c.userName}</strong>
-      <p style="margin:5px 0 0 0;">${c.content}</p>
-      <small style="color:#999;">${formatTimeAgo(c.time)}</small>
+        <strong style="color:#2c4975;">${author}</strong>
+        <p>${content}</p>
+        <small style="color:#999;">${time}</small>
+        ${showRepliesHtml}
+        ${replyBtnHtml}
+        ${canDelete ? `<button class="delete-comment" data-id="${c.comment_id}" style="position:absolute; top:8px; right:8px; background:none; border:none; color:#fe8a90; cursor:pointer;">刪除</button>` : ""}
+        <div class="reply-box" id="reply-box-${c.comment_id}" style="display:none; margin-top:8px; gap:8px; align-items:center;">
+          <input type="text" class="reply-input" data-parent="${c.comment_id}" placeholder="回覆 ${escapeHtml(c.member_name || '')}..." style="flex:1; margin-right:8px; padding:8px 10px; border:1px solid #ccc; border-radius:6px; font-size:13px;" />
+          <button class="reply-submit" data-parent="${c.comment_id}" style="padding:8px 14px; margin-left:6px; background-color:#81d3e1; color:#fff; border:none; border-radius:6px; min-width:72px;">送出</button>
+          <button class="reply-cancel" data-parent="${c.comment_id}" style="padding:8px 12px; margin-left:6px; background:none; border:1px solid #e0e0e0; border-radius:6px;">取消</button>
+        </div>
+      </div>
+    `;
 
-      ${ (c.userId === currentUserId || currentUserId === organizerId)
-        ? `<button class="delete-comment" data-id="${c.id}" style="position:absolute; top:8px; right:8px; background:none; border:none; color:#fe8a90; cursor:pointer;">刪除</button>`
-        : ""
-      }
-    </div>
-  `).join("");
+    if (Array.isArray(c.replies) && c.replies.length) {
+      html += `<div id="replies-${c.comment_id}" data-count="${repliesCount}" style="display:none; margin-left:16px;">${c.replies.map(r => renderItem(r)).join("")}</div>`;
+    }
+    return html;
+  }
 
-  // 綁定刪除按鈕
+  list.innerHTML = comments.map(c => renderItem(c)).join("");
+
+  // bind delete
   document.querySelectorAll(".delete-comment").forEach(btn => {
-    btn.onclick = () => {
-      const id = parseInt(btn.dataset.id);
-      comments = comments.filter(c => c.id !== id);
-      renderComments();
+    btn.onclick = async () => {
+      const id = btn.dataset.id;
+      if (!confirm("確定要刪除留言？")) return;
+      try {
+        // 將目前檢視者 member_id 帶給後端，方便後端做權限驗證或紀錄
+        const deleteUrl = `/api/activity_comments/${id}` + (memberId ? `?viewer_id=${memberId}` : ``);
+        const res = await fetch(deleteUrl, { method: 'DELETE' });
+        if (res.ok) {
+          await loadComments();
+        } else {
+          const j = await res.json().catch(()=>({}));
+          alert(j.error || '刪除失敗');
+        }
+      } catch (e) {
+        alert('刪除失敗');
+      }
+    };
+  });
+
+  // bind reply toggle
+  document.querySelectorAll('.reply-btn').forEach(btn => {
+    btn.onclick = (e) => {
+      const id = btn.dataset.id;
+      const box = document.getElementById(`reply-box-${id}`);
+      if (!box) return;
+      box.style.display = box.style.display === 'none' ? 'flex' : 'none';
+    };
+  });
+
+  // bind show/hide replies toggle (any user can click)
+  document.querySelectorAll('.show-replies-btn').forEach(btn => {
+    btn.onclick = (e) => {
+      const id = btn.dataset.id;
+      const container = document.getElementById(`replies-${id}`);
+      if (!container) return;
+      const count = container.dataset.count || '';
+      if (container.style.display === 'none' || container.style.display === '') {
+        container.style.display = 'block';
+        btn.textContent = '隱藏回覆';
+      } else {
+        container.style.display = 'none';
+        btn.textContent = `顯示回覆(${count})`;
+      }
+    };
+  });
+
+  // bind reply cancel
+  document.querySelectorAll('.reply-cancel').forEach(btn => {
+    btn.onclick = (e) => {
+      const parent = btn.dataset.parent;
+      const box = document.getElementById(`reply-box-${parent}`);
+      if (!box) return;
+      const input = box.querySelector('.reply-input');
+      if (input) input.value = '';
+      box.style.display = 'none';
+    };
+  });
+
+  // bind reply submit
+  document.querySelectorAll('.reply-submit').forEach(btn => {
+    btn.onclick = async () => {
+      const parent = btn.dataset.parent;
+      const box = document.getElementById(`reply-box-${parent}`);
+      if (!box) return;
+      const input = box.querySelector('.reply-input');
+      const text = input ? input.value.trim() : '';
+      if (!text) {
+        alert('請輸入回覆內容！');
+        return;
+      }
+      if (bannedWords.some(bw => text.includes(bw))) {
+        alert('回覆中含有不雅詞，請重新輸入！');
+        return;
+      }
+      if (!memberId) {
+        alert('未登入，無法回覆');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/activity_comments/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ activity_id: activityId, member_id: memberId, parent_id: parent, content: text })
+        });
+        if (res.status === 201) {
+          if (input) input.value = '';
+          // 隱藏 box
+          if (box) box.style.display = 'none';
+          await loadComments();
+        } else {
+          const j = await res.json().catch(()=>({}));
+          alert(j.error || '回覆失敗');
+        }
+      } catch (e) {
+        alert('回覆失敗');
+      }
     };
   });
 }
 
-// 初次載入留言
-renderComments();
+async function loadComments() {
+  try {
+    const commentsUrl = `/api/activity_comments/activity/${activityId}` + (memberId ? `?viewer_id=${memberId}` : ``);
+    const res = await fetch(commentsUrl);
+    if (!res.ok) {
+      comments = [];
+    } else {
+      comments = await res.json();
+    }
+    renderComments();
+  } catch (e) {
+    comments = [];
+    renderComments();
+  }
+}
 
-// 送出留言按鈕
-document.getElementById("comment-submit").addEventListener("click", () => {
+// 初始載入留言
+loadComments();
+
+// 送出留言 -> 呼叫後端 POST
+document.getElementById("comment-submit").addEventListener("click", async () => {
   const input = document.getElementById("comment-input");
   const text = input.value.trim();
-
   if (!text) {
     alert("請輸入留言內容！");
     return;
   }
-
-  // 檢查不雅詞
   if (bannedWords.some(bw => text.includes(bw))) {
     alert("留言中含有不雅詞，請重新輸入！");
     return;
   }
+  if (!memberId) {
+    alert('未登入，無法留言');
+    return;
+  }
 
-const newComment = {
-  id: comments.length + 1,
-  userId: currentUserId,
-  userName: `使用者${currentUserId}` + (currentUserId === organizerId ? "（發起人）" : ""),
-  content: text,
-  time: new Date().toISOString(),
-};
-
-
-  comments.unshift(newComment);
-  input.value = "";
-  renderComments();
+  try {
+    const res = await fetch('/api/activity_comments/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ activity_id: activityId, member_id: memberId, content: text })
+    });
+    if (res.status === 201) {
+      input.value = '';
+      await loadComments();
+    } else {
+      const j = await res.json().catch(()=>({}));
+      alert(j.error || '送出失敗');
+    }
+  } catch (e) {
+    alert('送出失敗');
+  }
 });
-
-        }
+}
       console.log("🧪 活動類型 =", detail.activity_type, "｜type =", detail.type);
       console.log("🧪 課表長度 =", detail.course_schedules?.length);
       console.log("🧪 課表內容 =", detail.course_schedules);

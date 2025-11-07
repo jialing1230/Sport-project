@@ -53,3 +53,4 @@ class Activity(Base):
     course_schedules = relationship("CourseSchedule", back_populates="activity")
     user_reviews = relationship("UserReview", back_populates="activity")
     favorites = relationship("ActivityFavorite", back_populates="activity")
+    comments = relationship("ActivityComment", back_populates="activity", cascade="all, delete-orphan")

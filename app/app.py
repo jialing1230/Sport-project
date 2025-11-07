@@ -7,6 +7,7 @@ from app.routers.preference import preference_bp
 from app.routers.yahoo_news import yahoo_news_bp
 from app.routers.review import review_bp
 from app.routers.photo import photo_bp
+from app.routers.activity_comment import activity_comment_bp
 from app.services.scheduler import start_scheduler
 
 
@@ -26,6 +27,7 @@ def create_app():
     app.register_blueprint(yahoo_news_bp)
     app.register_blueprint(review_bp)
     app.register_blueprint(photo_bp)
+    app.register_blueprint(activity_comment_bp)
     
 
 
